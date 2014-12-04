@@ -1,0 +1,593 @@
+﻿28TOTAAL4						Exploitatieresultaat (ex.batencorrectie)
+
+	28BATENTEX							Baten
+
+			28BATEN1G						Baten eerste geldstroom
+
+					28BATEN-C					Baten eerste geldstroom (Toekenning CvB)
+
+						80000			80899
+						80100			Toewijzing CvB 1e-geldstroom, personele
+						80120			Toewijzing CvB 1e-geldstroom, overige la
+						80130			Toewijzing CvB 1e geldstroom VUSAM
+						80135			Toewijzing CvB 1e GS aanp 2014 VUSAM
+						80140			Toewijzing CvB 1e-geldstroom, lump sum
+						80160			Toewijzing CvB 1e-geldstroom, interne do
+						80190			1e GS bijdrage Projecten voor derden
+						80191			Inverdienresultaat
+						80200			Toewijzing CvB 2e-geldstroom
+						80900			80999
+						80990			Corr. toewijzing CvB periode sluiting
+
+					28BATEN-1O					Baten eerste geldstroom (overig)
+
+						81000			81199
+									>>> Interval leeg
+						81200			81299
+						81200			Overige 1e geldstroom bijdragen van het
+						81500			81599
+						81500			Collegegeld
+						81501			Bovenwettelijk Collegegelden N-EER
+						81530			Contractonderwijs
+						81590			Overig college- en examengelden
+
+			28BATEN-DE						Baten van derden
+
+					28BATEN-2G					Baten van derden (2e Geldstroom)
+
+						82000			82008
+						82000			Bijdragen van NWO
+						82010			82508
+						82010			Bijdragen KNAW
+						82019			Corr KNAW baten
+						82500			nvt
+						82510			82998
+									>>> Interval leeg
+
+					28BATEN-3G					Baten van derden (3e geldstroom)
+
+						83010			83018
+						83010			Opbrengst overheid en semi-overheid
+						83020			83028
+									>>> Interval leeg
+						83030			83038
+						83030			nvt
+						83040			83048
+						83040			Opbrengst ondernemingen
+						83050			83058
+						83050			Opbrengst overig
+						83060			83098
+									>>> Interval leeg
+						83100			83508
+									>>> Interval leeg
+						83510			83558
+						83550			Opbrengst cursusgelden PAO
+						83560			83608
+									>>> Interval leeg
+						83610			83998
+									>>> Interval leeg
+
+					28BATEN-4G					Baten van derden (4e Geldstroom)
+
+						83000			83008
+						83000			Opbrengst EU
+
+					28MUTOHW					Mutatie Onderhanden Werk
+
+						61000			61001
+									>>> Interval leeg
+
+					28BATENDOV					Baten van derden (overig)
+
+						86000			86099
+									>>> Interval leeg
+						86100			86999
+									>>> Interval leeg
+						87000			87099
+						87000			Doorb kosten bovennormatief ruimtegebrui
+						87010			Bijdrage wegens onderh terr/gebouwen eig
+						87020			Opbrengst verhuur onroerend goed
+						87060			Telefoon & porti
+						87097			OHW96 directe opbr ivm neutrale codes va
+						87099			Opbrengst voorgaande jaren
+						87100			87189
+						87100			Opbrengst diverse goederen en diensten
+						87101			Opbrengst magazijnverkopen
+						87104			Verkoop glaswerk
+						87110			Subsidies Universiteitsbestuur
+						87124			Auteursr/octrooien/patenten uit onderzoe
+						87191			87199
+						87193			BTW teruggave
+						87195			WBSO subsidie
+						87200			87999
+						87200			Detacheringen
+						87205			Overige personele opbrengsten
+						87300			Opbrengst spec rest dienst
+						87900			Kostprijs Verkopen
+						89000			89889
+									>>> Interval leeg
+
+			28BATEN-IN						Baten (interne middelen)
+
+					28BATENGEM					Bijdrages aan gemeenschapp.voorzieningen
+
+						57000			57999
+						57000			Bijdrage FEW/Bestuur OL
+						57001			Bijdrage FEW/Bureau  OL
+						57002			Bijdrage FEW/FGI     OL
+						57003			Bijdrage FEW/ELE     OL
+						57004			Bijdrage FEW/IT      OL
+						57010			Bijdrage FEW/Bestuur PL
+						57011			Bijdrage FEW/Bureau  PL
+						57012			Bijdrage FEW/FGI     PL
+						57013			Bijdrage FEW/ELE     PL
+						57014			Bijdrage FEW/IT      PL
+
+					28BATENMID					Baten FEW (intern)
+
+						58000			58999
+						58010			<BLOK> Facultaire middelen toekenning
+						58011			Facutlaire Middelen Toekenning
+						58012			Facultaire onderlinge bijdragen
+						58015			Overboeking reserve saldo
+						58016			Winst/verlies projecten 2/3/4 GS
+						58020			Middelen facultaire begroting
+
+	28BATEN-CR							Baten van derden (te factureren/vooruit)
+
+			28BATEN-2C						Correctie Baten van derden (2e GS)
+
+				82009				Corr NWO baten
+				82509				>>> Geen geldig stamrecord
+				82999				Correctie opbrengst 2e GS algemeen
+
+			28BATEN-3C						Correctie Baten van derden (3e GS)
+
+				83019				Corr semi-overheid
+				83029				>>> Geen geldig stamrecord
+				83039				>>> Geen geldig stamrecord
+				83049				Corr ondernemingen
+				83059				Corr ov opbrengst
+				83099				>>> Geen geldig stamrecord
+				83509				>>> Geen geldig stamrecord
+				83559				>>> Geen geldig stamrecord
+				83609				>>> Geen geldig stamrecord
+				83999				Correctie opbrengst 3de GS algemeen
+
+			28BATEN-4C						Correctie Baten van derden (4e GS)
+
+				83009				Corr rek EU
+
+	28LASTEN-T							Personele en overige personele lasten
+
+			28PERSLAST						Personele Lasten
+
+				59011				Budgetpool salarislasten
+
+					28ARBEIDLN					Beloning voor arbeid
+
+						40000			40139
+						40000			Doorbelaste bruto salarissen - 1e GS
+						40003			Doorbelaste bruto salarissen - 3e GS
+						40005			Doorbelaste vaste looncomponenten 1e GS
+						40008			Doorbelaste vaste looncomponenten 3e GS
+						40010			Doorbel uitbetaling niet-opgen vakantie
+						40015			Doorbelaste inkoop verlofdagen (keuze ar
+						40016			Doorbelaste verkoop verlofdagen (keuze a
+						40030			Doorbelaste overige beloningen voor arbe
+						40033			Doorbelaste overige beloningen voor arbe
+						40090			Gereserveerd voor ov doorbelastingen BvA
+						40099			Salarislasten voorgaande jaren
+						40100			Bruto salarissen
+						40120			Uitbetaling niet opgenomen vakantiedagen
+						40140			40149
+									>>> Interval leeg
+						40150			40249
+						40150			Overhevelingstoeslag
+						40200			Vakantietoelagen
+						40780			Stagiaires
+
+					28SOCIALEL					Sociale Lasten
+
+						40300			40399
+						40300			Doorbelaste sociale lasten
+						40301			Dotatie voorziening Eigen Risico WAO/WIA
+						40303			Doorbel sociale lasten (incl pens-premie
+						40400			40599
+						40440			Werkgeversdeel ABP
+						40500			Indirekte personele lasten (opslagen 3e
+						40590			Overige sociale wetten en regelingen
+
+					28DOORB-PL					Doorbelaste personeelskosten
+
+						40600			40699
+						40600			Doorbel vergoeding onregelmatige dienste
+						40605			Doorbel vergoeding overwerk - 1e GS
+						40610			Doorbel gratificaties - 1e GS
+						40620			Doorbel tegemoetk reis- en verpl kst per
+						40623			Doorbel tegemoetk reis- en verpl kst per
+						40625			Doorbel reiskosten woon-/standplaats - 1
+						40628			Doorbel reiskosten woon-/standplaats - 3
+						40635			Doorbel onbelaste gratif en vergoeding -
+						40638			Doorbel onbelaste gratif en vergoeding -
+						40640			Doorbelaste BWOO uitkering 1e GS
+						40690			Doorbel overige personele lasten - 1e GS
+						40693			Doorbel overige personele lasten - 3e GS
+						55501			Doorb overige personele lasten
+
+					28OMSLAGPL					FEW omslagen personeel
+
+						55000			55005
+						55000			Doorb personele lasten (omslag)
+						55001			Opslag uitkeringslasten
+						55002			Opslag ziekterisico
+						55003			Opslag 2e GS
+						55004			Opslag 3e GS
+						55500			Doorb indirecte personele lasten
+						55600			Opslag ziekterisico
+						55700			Opslag wachtgeld
+
+			28DOT-PERS						Dotaties voorzieningen personeel
+
+				40700				40709
+				40700				Dotaties voorzieningen uitkeringen na on
+
+			28OVPERS						Overige Personele Lasten
+
+				59010				Budgetpool personeelslasten
+
+					28INHUUR					Ingehuurde arbeid
+
+						40750			40779
+						40750			Uitzendkrachten
+						40760			Surveillanten
+						40770			Detacheringen
+						40795			40799
+						40795			Overige ingehuurde arbeid
+						40796			Corr ingehuurde arbeid (beheer m FALW)
+						40790			Bemetel-leerlingen
+
+					28OVPERS-D					Personeelslasten (overig)
+
+						40710			40749
+						40710			Dotaties sabbatical
+						40720			Dotaties overige voorzieningen pers/reor
+						40800			41999
+						41001			Vermindering afdracht loonbelasting
+						41030			Gratificaties
+						41070			Uitkering ouderschapsverlof
+						41080			Uitkering VU-seniorenbeleid (VUSOP)
+						41110			Vacatiegelden en reiskosten leden raden/
+						41120			Tegemoetkoming reis-/verplaatsingskosten
+						41130			Tegemoetkoming reiskosten woon-/standpla
+						41131			Kosten kinderopvang
+						41145			Kinderopvang dagopvang
+						41146			Kinderopvang  bnso
+						41160			Vergoeding studiekosten
+						41164			DCL Studie-/opleidingskosten
+						41170			Personeelsadvertenties en overige wervin
+						41180			Sollicitatiekosten
+						41190			Geneeskundige keuringen
+						41200			Ontslagkosten
+						41201			Ontslaglasten koopsommen
+						41210			Dienstkleding
+						41220			Overllijdensadvertenties
+						41230			Onbelaste gratificaties en vergoedingen
+						41260			Kosten resterende verlofdagen
+						41270			Kosten loopbaanbegeleiding
+						41410			Incidentele ontslaglasten
+						41500			Diverse personele lasten
+						41501			Opleidingskosten
+						41514			DCL Overige personele lasten
+						41520			Pers gebonden budget Post docs
+						41550			WKR verstrekte apparatuur
+						41554			WKR representatie ed
+						41599			Ov personele lasten voorgaande jaren
+
+					28PERSVERG					Personele vergoedingen
+
+						87190			Uitkeringen UWV USZO
+
+	28LASTENOL							Overige lasten bedrijfsvoering
+
+			28LAST-AFS						Afschrijvingen
+
+				42500				42549
+								>>> Interval leeg
+				42600				42699
+								>>> Interval leeg
+				43010				43049
+								>>> Interval leeg
+				43110				43149
+				43110				Calc afschr kstn computerapparatuur > kf
+				43120				Aanvulling BE afschr ksten comp app > kf
+				43130				Calc afschrijvingskosten comp app < kf 2
+				43210				43249
+				43210				Calc afschr kosten comp progr > kE 25
+				43230				Cal afschr kosten computerprogrammatuur
+				43310				43349
+				43310				Calc afschr kosten Audio-visuele app > k
+				43320				Aanvulling BE afschr kosten A-V app > kf
+				43410				43449
+				43410				Calc afschr kosten Meet-/Regel app
+				43420				Aanv BE afschr kosten M/R app > kf 25
+				43430				Calc afschr kosten Meet-/Regel app < kf
+				43510				43549
+				43510				Calc afschr kosten medische apparatuur >
+				43610				43649
+				43610				Calc afschr kosten overige O&O apparatuu
+				43710				43749
+				43710				nvt
+				43720				nvt
+
+			28INKOVER1						Inkomstenoverdrachten (CDV-gevoelig)
+
+				48300				48599
+				48300				Subsidies & bijdragen aan onderwijsinsti
+				48400				Subsidies en bijdragen OZ-scholen/OZ-ins
+				48500				Subsidies sub-contractanten
+				48851				48889
+								>>> Interval leeg
+
+			28INKOVER2						Inkomensoverdrachten
+
+				48000				48299
+				48000				Rijksbijdrage Acad Ziekenhuis Vrije Univ
+				48600				48850
+				48600				Overige subsidies en bijdragen
+				48700				Beurzen aan studenten
+				48750				Bursalen-promovendi
+				48800				Promotiekosten vergoedingen
+				48801				Vergoeding proefschriften
+				48850				Ov bijdragen, toelagen, giften en subs s
+
+			28OVERIGEL						Overige lasten
+
+				59000				Budgetpool exploitatie
+
+					28HUISV					Huisvestingskosten
+
+						42000			42099
+						42050			Doorber kosten ruimte HIRO
+						42100			42499
+						42200			nvt
+						42210			Overig klein technisch/mechanisch mater
+						42220			nvt
+						42290			nvt
+						42300			nvt
+						42340			nvt
+						42400			nvt
+						42550			42559
+									>>> Interval leeg
+						42900			42999
+						42900			nvt
+						42940			Verbruiksmaterialen
+						42990			Overige huisvestingslasten
+						42991			Klein technisch onderhoud
+
+					28INVAPP					Kosten Inventaris en apparatuur
+
+						59001			Budgetpool kapitaal
+						43000			43009
+						43000			Calc rentekosten gebouw-instrumentarium
+						43050			43109
+									>>> Interval leeg
+						43150			43209
+						43150			Computerapparatuur > kf 1,5
+						43151			Computerapparatuur < kf 25
+						43152			Computerapparatuur < 750 E
+						43160			Huur, onderhoud en overige kosten comp a
+						43250			43309
+						43250			Computerprogrammatuur > kf 1,5
+						43260			Overige kosten computerprogrammatuur
+						56715			56716
+						56715			Doorb comp apparatuur > 750
+						56716			Doorb huur, onderh, ov kstn comp app
+						43350			43409
+						43350			Audiovisuele apparatuur > kf 1,5
+						43360			Huur, onderhoud en overige kosten A-V ap
+						43450			43509
+						43450			Meet- en regelapparatuur > kf 1,5
+						43460			Overige kosten meet- en regelapparatuur
+						43550			43609
+						43550			Overige aanschafkosten medische apparatu
+						43600			Calc rentekosten overige O&O apparatuur
+						43650			43709
+						43650			O&O apparatuur > kf 1,5
+						43651			O&O apparatuur < kE 25
+						43654			DCL Aansch overige O&O apparatuur
+						43660			Huur, onderhoud en overige kosten ov O&O
+						56510			Doorbelasting kapitaalgoederen
+						43750			43999
+						43750			Overige bedrijfsmiddelen > kf 1,5
+						43751			Ongebruikt
+						43754			DCL Aansch overige bedrijfsmiddelen
+						43760			Meubilaire > kf 1,5
+						43761			Meubilair < kf 1,5
+						43798			Kapitaalsuitgaven voorgaande jaren
+						43799			Onderh en kleine inventaris voorg jaren
+
+					28BUREAUK					Bureaukosten
+
+						44000			44199
+						44000			Kantoorartikelen
+						44001			Administratieve hulpmiddelen excl comput
+						44030			Drukwerk en reproduktiewerk
+						44031			Audiovisueel hulpmateriaal
+						44033			Overdrukken artikelen
+						44034			DCL Drukwerk
+						44040			Auteursrechten/reprorechten
+						44050			Fotokopieerkosten
+						44060			Foto- en reproductiekosten
+						44070			Porti- en verzendkosten
+						44090			Telecommunicatiekosten
+						44094			DCL Kosten Telecommunicatie
+						44100			Representatiekosten
+						44104			DCL Representatiekosten
+						44105			Vergaderkosten
+						44110			Overige bureaukosten
+						44115			Catering
+						44120			Voorlichting en PR
+						44129			Kantoorkosten voorg jaren
+						56700			Doorb kantoorartikelen / toners
+						56750			56760
+						56750			Doorb fotokopieerkosten
+						56760			Doorb foto- en reproductiekosten
+						56799			Doorb overige IT kosten
+
+					28REISVERB					Reis- en verblijfkosten
+
+						44200			44299
+						44200			Reis-, verblijf en congreskosten binnenl
+						44201			Congreskosten BNL
+						44204			DCL Reis- en verblijfkosten
+						44208			NS reiskosten Business Card
+						44220			Reis-, verblijf en congreskosten buitenl
+						44224			DCL Reis- en verblijfkosten BTL
+						44240			Overige reis-, verblijf en congreskosten
+						44249			Reis en verblijfkosten voorgaande jaren
+
+					28OV-OENO					Overige kosten O&O
+
+						44300			44399
+						44300			Uitbesteed laboratoriumwerk
+						44310			Chemicalien
+						44311			Radioactieve materialen
+						44320			Gassen (incl cylinderhuur)
+						44321			huur cylinders
+						44322			Helium vloeibaar
+						44323			Stikstof vloeibaar
+						44330			Glas
+						44340			Electronische en electrotechnische mater
+						44350			Overige kosten laboratorium
+						44351			Overige laboratoriummaterialen
+						44352			Labapparatuur
+						44353			Gereedschappen
+						44354			Mech onderdelen
+						44355			Overige laboratoriumkosten
+						44359			Laboratoriumkosten voorg jaren
+						56610			56611
+						56610			ECOS doorbelasting materiaal
+						56611			ECOS doorbelasting uren
+						56620			56621
+						56620			Glasinstr materiaal
+						56621			Glasinstr uren
+						56630			56631
+						56630			Instrumentm. materiaal scheikunde
+						44400			44999
+						44400			Uitbesteed werk O&O
+						44410			Gastdocenten/lezingen
+						44420			Proefpersonen
+						44430			Proefdieren
+						44450			Overige specifieke kosten Onderwijs & On
+						44500			Spec NUFFIC kostensoorten
+						45000			45599
+						45000			Adviezen en beoordeling van Onderwijs &
+						45010			Accountantscontrole
+						45020			Juridische en fiscale adviezen
+						45030			Adviezen inzake personeel & organisatie
+						45050			Overige kosten van beoordelingen en advi
+						45100			Uitbesteed automatiseringswerk
+						45110			Rekentijd
+						45120			Netwerkverbindingen
+						45130			Doorbelaste UC-IT kosten
+						45150			Overige kosten van automatisering
+						45200			Boeken
+						45202			Tijdschriften
+						45204			DCL Vakliteratuur ed
+						45250			Overige collectievorming
+						45310			Voorraadafboekingen wegens manco bederf
+						45311			Kosten/Opbrengsten uit herwaardering voo
+						45320			Gerealiseerde prijsverschillen wegens VV
+						45400			Vrachtkosten
+						45410			Bankkosten
+						45420			Kasverschillen
+						45430			Koersverschillen vreemde valuta
+						45435			Betalingskortingen crediteuren
+						45440			Incassokosten
+						45450			Dotatie voorziening dubieuze debiteuren
+						45460			Verzekeringen
+						45490			Dotaties voorz voor ondersteuning van st
+						45505			Dotatie verwacht verlies onderhanden wer
+						45510			Doorberekende bijdrage in universitaire
+						45520			Overige algemene kosten
+						45521			Contributies en lidmaatschappen
+						45529			Overige exploitatiekosten voorgaande jar
+						45544			DCL Overige algemene kosten
+						45550			BTW kosten voorgaande jaren
+						45590			Overige algemene kosten
+						45599			Overhead voorg jaren
+						46000			46599
+									>>> Interval leeg
+						56520			Doorb overhead
+						56020			56022
+						56020			Doorb HIRO (omslag)
+						56021			Doorb overhead (omslag)
+						56022			Doorb CDV
+						56300			Overhead test RB
+						56500			Doorb HIRO
+
+	28FIN-BL							Financiele baten en lasten
+
+		88000					88999
+		88000					Rentebaten langlopende leningen u/g
+		88100					Rentebaten kortlopende vorderingen kredi
+		88400					Overige rentebaten externe financiering
+		88600					Rentebaten Rekening-courant intern VU
+		88796					OHW96 renteopbrengsten van voor 1997
+		47000					47909
+		47150					Rente kortlopende schulden kredietinstel
+		47600					Rentelasten rekening-courant intern VU
+		47900					Koersverliezen effecten
+
+	28BUITENG							Buitengewone baten en lasten
+
+		89900					89999
+		89900					Bijzondere baten
+		49900					49999
+		49900					Bijzondere lasten
+
+	28RES-AFR							Resultaat na afsluiting
+
+		69000					69999
+		69200					Gerealiseerd resultaat onvoltooide activ
+		69300					Gerealiseerd resultaat voltooide activit
+		90000					97999
+							>>> Interval leeg
+		99000					99999
+							>>> Interval leeg
+
+	28RES-ORD							Resultaat afsluiting naar andere order
+
+		50000					51099
+		50000					Afger beloning voor arbeid
+		50020					Afger sociale lasten
+		50040					Afger overige personele lasten
+		50100					Afger huur
+		50120					Afger wettelijke lasten
+		51000					Van ov orders afger personele lasten
+		51100					Van ov orders afger overige lasten
+		52000					Afger proj opbrengsten NWO
+		52010					52299
+		52010					Afger proj opbrengsten KNAW
+		52096					Afger 2GS opbrengsten < 97
+		53000					54010
+		53000					Afger proj opbrengsten EU
+		53010					Afger proj opbrengsten (semi)overheden
+		53020					Afger proj opbrengsten charit instell
+		53030					Afger proj opbrengsten ov non-profit
+		53040					Afger proj opbrengsten ondernemingen
+		53050					Afger proj opbrengsten overige
+		53060					Afger proj opbrengsten SGF
+		53096					Afger proj opbrengsten < 97
+		53500					Afger cursusgelden PDO's
+		53550					Afger cursusgelden PAO's
+		53600					Afger opbrengsten overig onderw/training
+		54000					Afgerekende toewijzing C.v.B.
+		54010					Afgerekende intrafacultaire toewijzing
+		54050					54099
+		54050					Afgerekende overige opbrengsten
+		54060					Afgerekende rentebaten
+		54070					Afgerekende buitengewone baten
+		54080					Afgerekende financiering uit reserves
+		54090					Afgerekende directe resultaten < 97

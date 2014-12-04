@@ -1,0 +1,26 @@
+$def with (name, descr, groups, regels, startOpen, werkelijkT, obligoT, depth)
+<div class="panel-group panel-depth$depth" id="accordion-$name">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-$name" href="#collapse-$name">$descr<span class="badge pull-right">Kosten: &euro;$werkelijkT</span><span class="badge pull-right">Obligo: &euro;$obligoT</span></a>
+            </h4>
+        </div>
+
+        $if startOpen:
+            <div id="collapse-$name" class="panel-collapse collapse in">
+        $else:
+            <div id="collapse-$name" class="panel-collapse collapse">
+
+        <div class="panel-body">
+        $for group in groups:
+            $:group
+
+        $for regel in regels:
+            $:regel
+        </div>
+
+        </div>
+    </div>
+</div>
+

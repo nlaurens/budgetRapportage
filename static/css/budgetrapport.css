@@ -1,0 +1,45 @@
+  /* Blue background color scale
+    #428bca
+    #5496cf
+    #67a2d4
+    #7aadd9 - 1
+    #8db9df
+    #a0c5e4 - 2
+    #b3d0e9
+    #c6dcef - 3
+    #d9e7f4
+    #ecf3f9
+    #ffffff
+
+  */
+.badge {
+  color: #222;
+  background-color: #eee;
+  font-weight: normal;
+}
+.panel-depth1 .panel-body {
+  border: 5px solid #7aadd9;
+}
+.panel-depth1 > .panel-default > .panel-heading {
+  background-color: #7aadd9;
+}
+
+.panel-depth2 .panel-body {
+  border: 3px solid #a0c5e4;
+}
+.panel-depth2 > .panel-default > .panel-heading {
+  background-color: #a0c5e4;
+}
+
+.panel-depth3 .panel-body {
+  border: 1px solid #c6dcef;
+}
+.panel-depth3 > .panel-default > .panel-heading {
+  background-color: #c6dcef;
+}
+
+.panel-default > .panel-heading .badge {
+  color: #333;
+  background-color: #eee;
+}
+

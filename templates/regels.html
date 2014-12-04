@@ -1,0 +1,43 @@
+$def with(name, kostenSoort, kostenSoortName, geboektT, obligosT, regels)
+<div class="accordion" id="accordion-$name-$kostenSoort">
+    <div class="accordion-group">
+        <div class="accordion-heading">
+            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-$name-$kostenSoort" href="#collapse-$name-$kostenSoort">
+                $kostenSoortName<span class="badge pull-right">Kosten: &euro;$geboektT</span><span class="badge pull-right">Obligo: &euro;$obligosT</span>
+            </a>
+
+        </div>
+        <div id="collapse-$name-$kostenSoort" class="accordion-body collapse">
+        <div class="accordion-inner">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Doc#</th>
+                    <th>Personeels#</th>
+                    <th>Date</th>
+                    <th>Omschrijving</th>
+                    <th>Bedrag</th>
+                    <th>#Items</th>
+                    <th>Geboekt/Obligo</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                $for regel in regels:
+                    <tr>
+                        <td>$regel.documentnummer</td>
+                        <td>$regel.personeelsnummer</td>
+                        <td>$regel.jaar - $regel.periode</td>
+                        <td>$regel.omschrijving</td>
+                        <td>&euro;$regel.kosten</td>
+                        <td>$regel.hoeveelheid</td>
+                        <td>$regel.tiepe</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+</div>          
+

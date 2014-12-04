@@ -1,0 +1,77 @@
+$def with (order, grootboek, sapDatum, tree, totaal)
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Budget overview</title>
+    <link rel="stylesheet" href="../static/css/bootstrap.css">
+    <link rel="stylesheet" href="../static/css/budgetrapport.css">
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="../static/js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../static/js/bootstrap.min.js"></script>
+
+    <style>
+      @import url(http://fonts.googleapis.com/css?family=Bree+Serif);
+      body, h1, h2, h3, h4, h5, h6{
+      font-family: 'Bree Serif', serif;
+      }
+
+    </style>
+  </head>
+  
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-6">
+          <h1>
+            <a href="../">
+                Budget overview
+            </a>
+          </h1>
+        </div>
+        <div class="col-xs-6 text-right">
+          <h1>$order</h1>
+          <h1><small>Last SAP export: $sapDatum</small></h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-5">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4>Summary</h4>
+            </div>
+            <div class="panel-body">
+              <p>
+                  $if totaal > 0:
+                    Nog te besteden: $totaal<br>
+                  $else:
+                    Tekort: $totaal<br>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-5 col-xs-offset-2 text-right">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4>Settings</h4>
+            </div>
+            <div class="panel-body">
+              <p>
+                View: $grootboek<br>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    $for a in tree:
+        $:a
+
+    </div>
+</body>
+</html>
+
