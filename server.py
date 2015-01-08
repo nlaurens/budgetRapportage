@@ -12,6 +12,7 @@
 import web
 import model
 import GrootBoek
+from config import config
 
 
 class Index:
@@ -23,7 +24,6 @@ class Index:
         return render.index()
 
 
-
 class Overview:
     def __init__(self):
         pass
@@ -32,6 +32,13 @@ class Overview:
     def GET(userHash):
         if userHash == '':
             return web.notfound("Sorry the page you were looking for was not found.")
+
+        budgets = model.get_budgets(userHash, config["salt"])
+        if not budgets:
+            return web.notfound("Sorry the page you were looking for was not found.")
+
+        if budgets[0] == "*":
+            budgets = model.get_orders()
 
         maxdepth = 1
         grootboek = 'data/kostensoortgroep/28totaal4.txt'
@@ -46,7 +53,7 @@ class Overview:
             headersgrootboek[child.name] = child.descr
 
         orders = []
-        for order in model.get_orders():
+        for order in budgets:
             line = {}
             root = GrootBoek.load(order, grootboek)
             line['order'] = order
@@ -84,7 +91,7 @@ class View:
 ### Url mappings
 urls = (
     '/', 'Index',
-    '/overview/(\d+)', 'Overview',
+    '/overview/(.+)', 'Overview',
     '/view/(\d+)', 'View',
 )
 
