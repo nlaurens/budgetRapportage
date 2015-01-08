@@ -21,7 +21,7 @@ class Index:
     @staticmethod
     def GET():
         maxdepth = 1
-        grootboek = '28totaal4.txt'
+        grootboek = 'data/kostensoortgroep/28totaal4.txt'
         sapdatum = '25-5-2014'
         reserves = model.get_reserves()
 
@@ -56,7 +56,7 @@ class View:
     def GET(order):
         order = int(order)
         maxdepth = 4
-        grootboek = '28totaal4.txt'
+        grootboek = 'data/kostensoortgroep/28totaal4.txt'
         sapdatum = '25-5-2014'
         root = GrootBoek.load(order, grootboek)
 
