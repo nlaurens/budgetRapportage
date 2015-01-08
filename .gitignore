@@ -1,5 +1,5 @@
 # Data
-data/reserves*.txt
+data/reserves/*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

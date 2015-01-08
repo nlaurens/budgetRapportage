@@ -13,7 +13,7 @@ db = web.database(dbn='mysql', db='niels')
 
 def get_reserves():
     reserves = {}
-    with open('reserves.txt') as f:
+    with open('data/reserves/2014.txt') as f:
         for line in f.readlines():
             line = line.strip()
             if not line == '':
