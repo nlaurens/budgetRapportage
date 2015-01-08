@@ -33,6 +33,18 @@ def load_auth_list():
     return authorisation
 
 
+# Prints all the users and their hash so that
+# you can access the correct pages using the hashes.
+def gen_auth_list(salt):
+    authorisations = load_auth_list()
+    for user, orders in authorisations.iteritems():
+        userHash = hashlib.sha224(user+salt).hexdigest()
+        print user + ' - ' + userHash
+        print 'has access to:'
+        print orders
+        print ''
+
+
 # returns the list of all reserves
 def get_reserves():
     reserves = {}
