@@ -12,6 +12,7 @@ TODO
     een lijst van KostenSoorten geven die in 1 MYSQL query gaat
     NU doe ik 10 voor dezelfde order, dat zou ook bij elkaar moeten kunnen.
     omdat we nu uitgaan van grootboek ipv ordernummers..
+
 """
 import web
 import model
