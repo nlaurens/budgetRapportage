@@ -1,4 +1,4 @@
-$def with (headers, headersgrootboek, orders, sapDatum, grootboek)
+$def with (headers, headersgrootboek, orders, sapDatum, grootboek, userHash)
 
 
 <!doctype html>
@@ -75,7 +75,7 @@ $def with (headers, headersgrootboek, orders, sapDatum, grootboek)
 
                 $for order in orders:
                     <tr>
-                        <td><a href="view/$order['order']">$order['order']</a></td>
+                        <td><a href="/view/$userHash/$order['order']">$order['order']</a></td>
                         <td>$order['reserve']</td>
                         <td>$order['ruimte']</td>
                         $for name in headersgrootboek.iterkeys():
