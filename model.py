@@ -1,5 +1,6 @@
 import web
-
+import hashlib
+from config import config
 
 # TODO PROCESS THE DB REGELS TO DICTIONARY OR SOMETHING
 # SO WHEN THE MAIN SCRIPT GETS SOMETHING IT IS NOT
@@ -8,12 +9,48 @@ import web
 # TODO put all boekingsregels in 1 dictionary per kostensoort
 # zodat we een lisjtje kunnen maken per kostensoort ipv obligo/geboekt.
 
-db = web.database(dbn='mysql', db='niels')
+#db = web.database(dbn='mysql', db='niels')
+db = web.database(dbn='mysql', db=config["mysql"]["db"])
+
+def get_budgets(verifyHash, salt):
+    authorisation = load_auth_list()
+    for user, orders in authorisation.iteritems():
+        userHash = hashlib.sha224(user+salt).hexdigest()
+        if userHash == verifyHash:
+            return orders
+
+    return []
 
 
+def load_auth_list():
+    authorisation = {}
+
+    with open('data/authorisation/authorisations.txt') as f:
+        for line in f.readlines():
+            line = line.strip()
+            if not line == '':
+                authline = line.split()
+                authorisation[authline[0]] = authline[1:]
+
+    return authorisation
+
+
+# Prints all the users and their hash so that
+# you can access the correct pages using the hashes.
+def gen_auth_list(salt):
+    authorisations = load_auth_list()
+    for user, orders in authorisations.iteritems():
+        userHash = hashlib.sha224(user+salt).hexdigest()
+        print user + ' - ' + userHash
+        print 'has access to:'
+        print orders
+        print ''
+
+
+# returns the list of all reserves
 def get_reserves():
     reserves = {}
-    with open('reserves.txt') as f:
+    with open('data/reserves/2014.txt') as f:
         for line in f.readlines():
             line = line.strip()
             if not line == '':

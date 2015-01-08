@@ -1,17 +1,23 @@
-# TODO
-# grootboek haalt alle kostensoorten die in de grootboek zitten
-# op uit de mysql DB. Een hoop kostensoorten zullen niet bestaan
-# for elke order.
-# -> Filter alle orders uit de grootboekrekening die niet in de
-# DB voorkomen van die order.
+""""
+TODO
+ - maxdepth uit de GET_Vars halen en linkje in settings maken voor:
+   alles uitklappen, alles inklappen.
 
-# 2. model.getObligo / .geGeboekt ipv 1 kostenSoort
-#    een lijst van KostenSoorten geven die in 1 MYSQL query gaat
-#    NU doe ik 10 voor dezelfde order, dat zou ook bij elkaar moeten kunnen.
-#    omdat we nu uitgaan van grootboek ipv ordernummers..
+ - Summary uitwerken: reserve, totalen aten, totalen kosten.
+
+ - Wildcards voor ordernummer range in authorisatie lijst inbouwen
+   (bv 2868*). Refactor de userHash gedeelte in server.py naar functie.
+
+ - model.getObligo / .geGeboekt ipv 1 kostenSoort
+    een lijst van KostenSoorten geven die in 1 MYSQL query gaat
+    NU doe ik 10 voor dezelfde order, dat zou ook bij elkaar moeten kunnen.
+    omdat we nu uitgaan van grootboek ipv ordernummers..
+
+"""
 import web
 import model
 import GrootBoek
+from config import config
 
 
 class Index:
@@ -20,8 +26,27 @@ class Index:
 
     @staticmethod
     def GET():
+        return render.index()
+
+
+class Overview:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def GET(userHash):
+        if userHash == '':
+            return web.notfound("Sorry the page you were looking for was not found.")
+
+        budgets = model.get_budgets(userHash, config["salt"])
+        if not budgets:
+            return web.notfound("Sorry the page you were looking for was not found.")
+
+        if budgets[0] == "*":
+            budgets = model.get_orders()
+
         maxdepth = 1
-        grootboek = '28totaal4.txt'
+        grootboek = 'data/kostensoortgroep/28totaal4.txt'
         sapdatum = '25-5-2014'
         reserves = model.get_reserves()
 
@@ -33,7 +58,7 @@ class Index:
             headersgrootboek[child.name] = child.descr
 
         orders = []
-        for order in model.get_orders():
+        for order in budgets:
             line = {}
             root = GrootBoek.load(order, grootboek)
             line['order'] = order
@@ -45,7 +70,7 @@ class Index:
 
             orders.append(line)
 
-        return render.index(headers, headersgrootboek, orders, sapdatum, grootboek)
+        return render.overview(headers, headersgrootboek, orders, sapdatum, grootboek, userHash)
 
 
 class View:
@@ -53,10 +78,21 @@ class View:
         pass
 
     @staticmethod
-    def GET(order):
+    def GET(userHash, order):
+
+        if userHash == '':
+            return web.notfound("Sorry the page you were looking for was not found.")
+
+        budgets = model.get_budgets(userHash, config["salt"])
+        if not budgets:
+            return web.notfound("Sorry the page you were looking for was not found.")
+
+        if budgets[0] != "*" and order not in budgets:
+            return web.notfound("Sorry the page you were looking for was not found.")
+
         order = int(order)
-        maxdepth = 4
-        grootboek = '28totaal4.txt'
+        maxdepth = 0
+        grootboek = 'data/kostensoortgroep/28totaal4.txt'
         sapdatum = '25-5-2014'
         root = GrootBoek.load(order, grootboek)
 
@@ -71,7 +107,8 @@ class View:
 ### Url mappings
 urls = (
     '/', 'Index',
-    '/view/(\d+)', 'View',
+    '/overview/(.+)', 'Overview',
+    '/view/(.+)/(\d+)', 'View',
 )
 
 ### Templates
