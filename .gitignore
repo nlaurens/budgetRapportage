@@ -1,5 +1,6 @@
 #  test scripts
 test.py
+config.py
 
 # Data
 data/*
