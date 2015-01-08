@@ -1,101 +1,12 @@
-$def with (headers, headersgrootboek, orders, sapDatum, grootboek)
-
+$def with ()
 
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <title>Budget </title>
-    <link rel="stylesheet" href="../static/css/bootstrap.css">
-    <link rel="stylesheet" href="../static/css/budgetrapport.css">
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="../static/js/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="../static/js/bootstrap.min.js"></script>
-
-    <style>/#
-      @import url(http://fonts.googleapis.com/css?family=Bree+Serif);
-      body, h1, h2, h3, h4, h5, h6{
-      font-family: 'Bree Serif', serif;
-      }
-
-    </style>
   </head>
   
   <body>
-    <div class="container">
-      <div class="row">
-        <div class="col-xs-6">
-          <h1>
-            <a href="../">
-                Budget overview
-            </a>
-          </h1>
-        </div>
-        <div class="col-xs-6 text-right">
-          <h1>All Orders</h1>
-          <h1><small>Last SAP export: $sapDatum</small></h1>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-xs-5">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h4>Summary</h4>
-            </div>
-            <div class="panel-body">
-                
-            </div>
-          </div>
-        </div>
-        <div class="col-xs-5 col-xs-offset-2 text-right">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h4>Settings</h4>
-            </div>
-            <div class="panel-body">
-              <p>
-                View: $grootboek
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-            <table class="table">
-                <thead>
-                <tr>
-                    $for header in headers:
-                        <th>$header</th>
-                    $for header in headersgrootboek.iterkeys():
-                        <th>$headersgrootboek[header]</th>
-                </tr>
-                </thead>
-                <tbody>
-
-                $for order in orders:
-                    <tr>
-                        <td><a href="view/$order['order']">$order['order']</a></td>
-                        <td>$order['reserve']</td>
-                        <td>$order['ruimte']</td>
-                        $for name in headersgrootboek.iterkeys():
-                            $if name in order:
-                                <td>$order[name]</td>
-                            $else:
-                                <td>0</td>
-                    </tr>
-
-                </tbody>
-            </table>
-
-        <ul>
-                <li>
-                </li>
-        </ul>
-
-
-    </div>
-</body>
+      Page not found.
+  </body>
 </html>
-
 

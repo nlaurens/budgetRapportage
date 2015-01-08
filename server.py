@@ -20,6 +20,19 @@ class Index:
 
     @staticmethod
     def GET():
+        return render.index()
+
+
+
+class Overview:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def GET(userHash):
+        if userHash == '':
+            return web.notfound("Sorry the page you were looking for was not found.")
+
         maxdepth = 1
         grootboek = 'data/kostensoortgroep/28totaal4.txt'
         sapdatum = '25-5-2014'
@@ -45,7 +58,7 @@ class Index:
 
             orders.append(line)
 
-        return render.index(headers, headersgrootboek, orders, sapdatum, grootboek)
+        return render.overview(headers, headersgrootboek, orders, sapdatum, grootboek)
 
 
 class View:
@@ -71,6 +84,7 @@ class View:
 ### Url mappings
 urls = (
     '/', 'Index',
+    '/overview/(\d+)', 'Overview',
     '/view/(\d+)', 'View',
 )
 
