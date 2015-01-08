@@ -73,7 +73,18 @@ class View:
         pass
 
     @staticmethod
-    def GET(order):
+    def GET(userHash, order):
+
+        if userHash == '':
+            return web.notfound("Sorry the page you were looking for was not found.")
+
+        budgets = model.get_budgets(userHash, config["salt"])
+        if not budgets:
+            return web.notfound("Sorry the page you were looking for was not found.")
+
+        if budgets[0] != "*" and order not in budgets:
+            return web.notfound("Sorry the page you were looking for was not found.")
+
         order = int(order)
         maxdepth = 4
         grootboek = 'data/kostensoortgroep/28totaal4.txt'
@@ -92,7 +103,7 @@ class View:
 urls = (
     '/', 'Index',
     '/overview/(.+)', 'Overview',
-    '/view/(\d+)', 'View',
+    '/view/(.+)/(\d+)', 'View',
 )
 
 ### Templates
