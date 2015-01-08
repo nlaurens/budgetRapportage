@@ -1,14 +1,18 @@
-# TODO
-# grootboek haalt alle kostensoorten die in de grootboek zitten
-# op uit de mysql DB. Een hoop kostensoorten zullen niet bestaan
-# for elke order.
-# -> Filter alle orders uit de grootboekrekening die niet in de
-# DB voorkomen van die order.
+""""
+TODO
+ - maxdepth uit de GET_Vars halen en linkje in settings maken voor:
+   alles uitklappen, alles inklappen.
 
-# 2. model.getObligo / .geGeboekt ipv 1 kostenSoort
-#    een lijst van KostenSoorten geven die in 1 MYSQL query gaat
-#    NU doe ik 10 voor dezelfde order, dat zou ook bij elkaar moeten kunnen.
-#    omdat we nu uitgaan van grootboek ipv ordernummers..
+ - Summary uitwerken: reserve, totalen aten, totalen kosten.
+
+ - Wildcards voor ordernummer range in authorisatie lijst inbouwen
+   (bv 2868*). Refactor de userHash gedeelte in server.py naar functie.
+
+ - model.getObligo / .geGeboekt ipv 1 kostenSoort
+    een lijst van KostenSoorten geven die in 1 MYSQL query gaat
+    NU doe ik 10 voor dezelfde order, dat zou ook bij elkaar moeten kunnen.
+    omdat we nu uitgaan van grootboek ipv ordernummers..
+"""
 import web
 import model
 import GrootBoek
@@ -65,7 +69,7 @@ class Overview:
 
             orders.append(line)
 
-        return render.overview(headers, headersgrootboek, orders, sapdatum, grootboek)
+        return render.overview(headers, headersgrootboek, orders, sapdatum, grootboek, userHash)
 
 
 class View:
@@ -86,7 +90,7 @@ class View:
             return web.notfound("Sorry the page you were looking for was not found.")
 
         order = int(order)
-        maxdepth = 4
+        maxdepth = 0
         grootboek = 'data/kostensoortgroep/28totaal4.txt'
         sapdatum = '25-5-2014'
         root = GrootBoek.load(order, grootboek)
