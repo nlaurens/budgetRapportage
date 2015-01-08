@@ -1,5 +1,5 @@
 import web
-
+import hashlib
 
 # TODO PROCESS THE DB REGELS TO DICTIONARY OR SOMETHING
 # SO WHEN THE MAIN SCRIPT GETS SOMETHING IT IS NOT
@@ -10,7 +10,30 @@ import web
 
 db = web.database(dbn='mysql', db='niels')
 
+def get_budgets(verifyHash, salt):
+    authorisation = load_auth_list()
+    for user, orders in authorisation.iteritems():
+        userHash = hashlib.sha224(user+salt).hexdigest()
+        if userHash == verifyHash:
+            return orders
 
+    return []
+
+
+def load_auth_list():
+    authorisation = {}
+
+    with open('data/authorisation/authorisations.txt') as f:
+        for line in f.readlines():
+            line = line.strip()
+            if not line == '':
+                authline = line.split()
+                authorisation[authline[0]] = authline[1:]
+
+    return authorisation
+
+
+# returns the list of all reserves
 def get_reserves():
     reserves = {}
     with open('data/reserves/2014.txt') as f:
