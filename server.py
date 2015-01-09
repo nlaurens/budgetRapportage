@@ -13,7 +13,7 @@ TODO
     NU doe ik 10 voor dezelfde order, dat zou ook bij elkaar moeten kunnen.
     omdat we nu uitgaan van grootboek ipv ordernummers..
 
-- add format for amounts in all lines (euro sign)
+- align all money formats right
 
 """
 import web
