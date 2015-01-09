@@ -1,4 +1,4 @@
-def moneyfmt(value, places=2, curr='', sep=',', dp='.',
+def moneyfmt(value, places=0, curr='', sep=',', dp='',
              pos='', neg='-', trailneg=''):
     from decimal import *
     """

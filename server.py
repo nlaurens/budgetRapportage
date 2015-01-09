@@ -13,7 +13,8 @@ TODO
     NU doe ik 10 voor dezelfde order, dat zou ook bij elkaar moeten kunnen.
     omdat we nu uitgaan van grootboek ipv ordernummers..
 
-- align all money formats right
+- Show negative bestedingsruimte in red and bold.
+
 
 """
 import web
@@ -73,7 +74,7 @@ class Overview:
                 line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree)
 
             for child in root.children:
-                line[child.name] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
+                line[child.name] = moneyfmt((-1*(child.totaalGeboektTree + child.totaalObligosTree)))
 
             line['reserve'] = moneyfmt(line['reserve'])
             line['ruimte'] = moneyfmt(line['ruimte'])
