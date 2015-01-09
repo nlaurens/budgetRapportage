@@ -1,5 +1,6 @@
-def moneyfmt(value, places=2, curr='&euro;', sep='.', dp=',',
+def moneyfmt(value, places=2, curr='', sep=',', dp='.',
              pos='', neg='-', trailneg=''):
+    from decimal import *
     """
     Convert Decimal to a money formatted string.
 

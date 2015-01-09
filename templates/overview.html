@@ -76,13 +76,13 @@ $def with (headers, headersgrootboek, orders, sapDatum, grootboek, userHash)
                 $for order in orders:
                     <tr>
                         <td><a href="/view/$userHash/$order['order']">$order['order']</a></td>
-                        <td>$order['reserve']</td>
-                        <td>$order['ruimte']</td>
+                        <td>&euro;$order['reserve']</td>
+                        <td>&euro;$order['ruimte']</td>
                         $for name in headersgrootboek.iterkeys():
                             $if name in order:
-                                <td>$order[name]</td>
+                                <td>&euro;$order[name]</td>
                             $else:
-                                <td>0</td>
+                                <td>&euro;0.00</td>
                     </tr>
 
                 </tbody>

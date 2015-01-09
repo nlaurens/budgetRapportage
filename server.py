@@ -21,6 +21,7 @@ import model
 import GrootBoek
 from config import config
 from functions import moneyfmt
+from decimal import *
 
 
 class Index:
@@ -65,7 +66,7 @@ class Overview:
             line = {}
             root = GrootBoek.load(order, grootboek)
             line['order'] = order
-            line['reserve'] = int(reserves[str(order)])
+            line['reserve'] = Decimal(reserves[str(order)])
             if line['reserve'] < 0:
                 line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + line['reserve']
             else:
@@ -74,6 +75,8 @@ class Overview:
             for child in root.children:
                 line[child.name] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
 
+            line['reserve'] = moneyfmt(line['reserve'])
+            line['ruimte'] = moneyfmt(line['ruimte'])
             orders.append(line)
 
         return render.overview(headers, headersgrootboek, orders, sapdatum, grootboek, userHash)
@@ -115,11 +118,16 @@ class View:
                 totaal['lasten'] += (-1*(child.totaalGeboektTree + child.totaalObligosTree))
 
         totaal['order'] = order
-        totaal['reserve'] = int(reserves[str(order)])
+        totaal['reserve'] = Decimal(reserves[str(order)])
         if totaal['reserve'] < 0:
             totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['reserve']
         else:
             totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree)
+
+        totaal['reserve'] = moneyfmt(totaal['reserve'])
+        totaal['ruimte'] = moneyfmt(totaal['ruimte'])
+        totaal['baten'] = moneyfmt(totaal['baten'])
+        totaal['lasten'] = moneyfmt(totaal['lasten'])
         return render.view(grootboek, sapdatum, htmlgrootboek, totaal)
 
 
