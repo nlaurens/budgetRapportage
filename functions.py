@@ -1,6 +1,7 @@
 def moneyfmt(value, places=0, curr='', sep=',', dp='',
              pos='', neg='-', trailneg=''):
     from decimal import *
+    value = Decimal(value)
     """
     Convert Decimal to a money formatted string.
 

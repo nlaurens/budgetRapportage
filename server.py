@@ -101,7 +101,7 @@ class View:
             return web.notfound("Sorry the page you were looking for was not found.")
 
         order = int(order)
-        maxdepth = 0
+        maxdepth = 5
         grootboek = 'data/kostensoortgroep/28totaal4.txt'
         sapdatum = '25-5-2014'
         root = GrootBoek.load(order, grootboek)

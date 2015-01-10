@@ -58,6 +58,7 @@ class GrootBoek():
             return self.parent.lower_level_parent(level)
 
     def html_tree(self, render, maxdepth, depth):
+        from functions import moneyfmt
         depth += 1
 
         groups = []
@@ -67,7 +68,11 @@ class GrootBoek():
         regelshtml = []
 
         for kostenSoort, regels in self.regels.iteritems():
-            regelshtml.append(render.regels(self.name, kostenSoort, self.kostenSoorten[kostenSoort], self.totaalGeboektNode[kostenSoort], self.totaalObligosNode[kostenSoort], regels))
+            totaalGeboekt = moneyfmt(self.totaalGeboektNode[kostenSoort])
+            totaalObligos = moneyfmt(self.totaalObligosNode[kostenSoort])
+            for regel in regels:
+                regel.kosten = moneyfmt(regel.kosten, places=2, dp='.')
+            regelshtml.append(render.regels(self.name, kostenSoort, self.kostenSoorten[kostenSoort], totaalGeboekt, totaalObligos, regels))
 
         if depth <= maxdepth:
             unfolded = True
@@ -75,7 +80,10 @@ class GrootBoek():
             unfolded = False
 
         #render
-        html = render.grootboekgroep(self.name, self.descr, groups, regelshtml, unfolded, self.totaalGeboektTree, self.totaalObligosTree, depth)
+
+        totaalGeboekt = moneyfmt(self.totaalGeboektTree)
+        totaalObligos = moneyfmt(self.totaalObligosTree)
+        html = render.grootboekgroep(self.name, self.descr, groups, regelshtml, unfolded, totaalGeboekt, totaalObligos, depth)
 
         return html
 
