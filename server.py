@@ -1,9 +1,5 @@
 """"
 TODO
- - maxdepth uit de GET_Vars halen en linkje in settings maken voor:
-   alles uitklappen, alles inklappen.
-
- - Summary uitwerken: reserve, totalen aten, totalen kosten.
 
  - Wildcards voor ordernummer range in authorisatie lijst inbouwen
    (bv 2868*). Refactor de userHash gedeelte in server.py naar functie.
@@ -13,11 +9,19 @@ TODO
     NU doe ik 10 voor dezelfde order, dat zou ook bij elkaar moeten kunnen.
     omdat we nu uitgaan van grootboek ipv ordernummers..
 
+- Show negative bestedingsruimte in red and bold.
+
+- Summary voor 2e/3e gs geen besteding laten zien maar verhaal
+  waarom dat niet kan bij dit soort projecten.
+
+
 """
 import web
 import model
 import GrootBoek
 from config import config
+from functions import moneyfmt
+from decimal import *
 
 
 class Index:
@@ -62,15 +66,29 @@ class Overview:
             line = {}
             root = GrootBoek.load(order, grootboek)
             line['order'] = order
-            line['reserve'] = reserves[str(order)]
-            line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree)
+            line['reserve'] = Decimal(reserves[str(order)])
+            if line['reserve'] < 0:
+                line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + line['reserve']
+            else:
+                line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree)
 
             for child in root.children:
-                line[child.name] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
+                line[child.name] = moneyfmt((-1*(child.totaalGeboektTree + child.totaalObligosTree)))
 
+            line['reserve'] = moneyfmt(line['reserve'])
+            line['ruimte'] = moneyfmt(line['ruimte'])
             orders.append(line)
 
         return render.overview(headers, headersgrootboek, orders, sapdatum, grootboek, userHash)
+
+class Test:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def GET():
+        print maxdepth
+        return
 
 
 class View:
@@ -91,17 +109,38 @@ class View:
             return web.notfound("Sorry the page you were looking for was not found.")
 
         order = int(order)
-        maxdepth = 0
+        try:
+            maxdepth = int(web.input()['maxdepth'])
+        except:
+            maxdepth = 0
         grootboek = 'data/kostensoortgroep/28totaal4.txt'
         sapdatum = '25-5-2014'
         root = GrootBoek.load(order, grootboek)
-
+        reserves = model.get_reserves()
+        totaal = {}
         htmlgrootboek = []
+
         for child in root.children:
             htmlgrootboek.append(child.html_tree(render, maxdepth, 0))
+            if child.name == '28BATENTEX':
+                totaal['baten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
+            elif child.name == '28LASTEN-T':
+                totaal['lasten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
+            elif child.name == '28LASTENOL':
+                totaal['lasten'] += (-1*(child.totaalGeboektTree + child.totaalObligosTree))
 
-        totaal = -1*(root.totaalGeboektTree + root.totaalObligosTree)
-        return render.view(order, grootboek, sapdatum, htmlgrootboek, totaal)
+        totaal['order'] = order
+        totaal['reserve'] = Decimal(reserves[str(order)])
+        if totaal['reserve'] < 0:
+            totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['reserve']
+        else:
+            totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree)
+
+        totaal['reserve'] = moneyfmt(totaal['reserve'])
+        totaal['ruimte'] = moneyfmt(totaal['ruimte'])
+        totaal['baten'] = moneyfmt(totaal['baten'])
+        totaal['lasten'] = moneyfmt(totaal['lasten'])
+        return render.view(grootboek, sapdatum, htmlgrootboek, totaal)
 
 
 ### Url mappings
@@ -109,6 +148,7 @@ urls = (
     '/', 'Index',
     '/overview/(.+)', 'Overview',
     '/view/(.+)/(\d+)', 'View',
+    '/test/', 'Test',
 )
 
 ### Templates

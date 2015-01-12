@@ -1,4 +1,4 @@
-$def with (order, grootboek, sapDatum, tree, totaal)
+$def with (grootboek, sapDatum, tree, order)
 
 <!doctype html>
 <html lang="en">
@@ -33,8 +33,7 @@ $def with (order, grootboek, sapDatum, tree, totaal)
           </h1>
         </div>
         <div class="col-xs-6 text-right">
-          <h1>$order</h1>
-          <h1><small>Last SAP export: $sapDatum</small></h1>
+          <h1>$order['order']</h1>
         </div>
       </div>
       <div class="row">
@@ -45,10 +44,13 @@ $def with (order, grootboek, sapDatum, tree, totaal)
             </div>
             <div class="panel-body">
               <p>
-                  $if totaal > 0:
-                    Nog te besteden: $totaal<br>
+                  Stand op 1 Jan: &euro;$order['reserve']<br>
+                  Totale baten: &euro;$order['baten']<br>
+                  Totale Lasten: &euro;$order['lasten']<br>
+                  $if order['ruimte'] > 0:
+                    Nog te besteden: &euro;$order['ruimte']<br>
                   $else:
-                    Tekort: $totaal<br>
+                    Tekort: &euro;$order['ruimte']<br>
               </p>
             </div>
           </div>
@@ -60,7 +62,11 @@ $def with (order, grootboek, sapDatum, tree, totaal)
             </div>
             <div class="panel-body">
               <p>
+                Last SAP export: $sapDatum<br>
                 View: $grootboek<br>
+                <a href="?maxdepth=3">Open all tabs</a><br>
+                <a href="?maxdepth=10">Open all tabs & items</a><br>
+                <a href="?maxdepth=0">Close all</a>
               </p>
             </div>
           </div>

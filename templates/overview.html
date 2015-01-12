@@ -35,7 +35,6 @@ $def with (headers, headersgrootboek, orders, sapDatum, grootboek, userHash)
         </div>
         <div class="col-xs-6 text-right">
           <h1>All Orders</h1>
-          <h1><small>Last SAP export: $sapDatum</small></h1>
         </div>
       </div>
       <div class="row">
@@ -56,6 +55,7 @@ $def with (headers, headersgrootboek, orders, sapDatum, grootboek, userHash)
             </div>
             <div class="panel-body">
               <p>
+                Last SAP export: $sapDatum<br>
                 View: $grootboek
               </p>
             </div>
@@ -76,24 +76,17 @@ $def with (headers, headersgrootboek, orders, sapDatum, grootboek, userHash)
                 $for order in orders:
                     <tr>
                         <td><a href="/view/$userHash/$order['order']">$order['order']</a></td>
-                        <td>$order['reserve']</td>
-                        <td>$order['ruimte']</td>
+                        <td class="price-label">&euro;$order['reserve']</td>
+                        <td class="price-label">&euro;$order['ruimte']</td>
                         $for name in headersgrootboek.iterkeys():
                             $if name in order:
-                                <td>$order[name]</td>
+                                <td class="price-label">&euro;$order[name]</td>
                             $else:
-                                <td>0</td>
+                                <td class="price-label">&euro;0</td>
                     </tr>
 
                 </tbody>
             </table>
-
-        <ul>
-                <li>
-                </li>
-        </ul>
-
-
     </div>
 </body>
 </html>
