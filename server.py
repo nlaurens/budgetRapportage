@@ -1,7 +1,5 @@
 """"
 TODO
- - maxdepth uit de GET_Vars halen en linkje in settings maken voor:
-   alles uitklappen, alles inklappen.
 
  - Wildcards voor ordernummer range in authorisatie lijst inbouwen
    (bv 2868*). Refactor de userHash gedeelte in server.py naar functie.
