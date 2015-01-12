@@ -1,41 +1,66 @@
 # Maybe one day for wbs: http://jsfiddle.net/jhfrench/GpdgF/
 # SAP rapportage
 
+Export SAP
+----------
 * Inloggin in SAP
 * Verslaggroep: Z444
     * Periode van: 1
     * Periode tot: 16
     * "Meervoudige selectie" knop bij "Of waarde(n)" 
-        * Importeren uit tekstbestand (groene knop onderaan)
-        * Selecteer OL-lijst.txt uit directory tool
-        * Accepteren
+        1.
+            * Importeren uit tekstbestand (groene knop onderaan)
+            * Selecteer OL-lijst.txt uit directory tool
+            * Accepteren
+        2. 
+            * Range: 2860000 - 2869999
     * Kostensoortgroep: 28TOTAAl4
     * Uitvoeren
 
-* Selecteer werkelijke posten van "**** Totaal" veld onderin.
+* Selecteer posten van "**** Totaal" veld onderin (obligo en werkelijke posten).
 
-* Layout wijzigen
+* Layout wijzigen (CTRL+F8)
     * Toevoegen:
-        * Waarde/TrVal
-        * Periode
         * Boekjaar
-    * Verwijderen
-        * Waarde/CO-valuta
+        * Periode
+    * Vink Aggregatie uitzetten (als ze aanstaan) bij:
+        * Waarde/CO-valuat uitzetten
+        * Hoeveelheid totaal
     * Overnemen
 
-* Exporeteren naar Excel
+* Exporeteren naar Excel (CTR+SHIFT+F7)
     * Uit alle beschik. formaten select
         * Microsoft Excel (2007-xlsx)
-    * Akkoord.
+    * Akkoord (might take a while)
     * Naam file: 'input.xlsx'
 
-Andere optie voor tab-sep input:
-* Lokaal bestand
-    * Spreadsheet
-    * Naam: "input.SAP'
+* Andere optie voor tab-sep input:
+    * Lokaal bestand
+        * Spreadsheet
+        * Naam: "input.SAP'
 
-* Open bestand in notepad++
-    * Copy naar new bestand
-    * Remove 1st 3 rows and empty 5th row.
-    * Save as input.csv
+    * Open bestand in notepad++
+        * Copy naar new bestand
+        * Remove 1st 3 rows and empty 5th row.
+        * Save as input.csv
     
+
+Import rapportage in MySQL
+--------------------------
+
+* Open the excel sheet
+    * Save as 'CSV' file
+
+* Open PHP my admin interface
+* Browse naar de juiste DB (linker tab)
+* Importeren
+    * Selecter bestand
+    * Vervang comma gescheiden door een puntcomma (';')
+    * Vink aan: 'De eerste regel van het bestand bevat kolomnamen (..)'
+    * Start*
+
+* Hernoem tables naar:
+    * geboekt
+    * obligo
+    
+
