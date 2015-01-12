@@ -34,7 +34,6 @@ $def with (grootboek, sapDatum, tree, order)
         </div>
         <div class="col-xs-6 text-right">
           <h1>$order['order']</h1>
-          <h1><small>Last SAP export: $sapDatum</small></h1>
         </div>
       </div>
       <div class="row">
@@ -63,7 +62,11 @@ $def with (grootboek, sapDatum, tree, order)
             </div>
             <div class="panel-body">
               <p>
+                Last SAP export: $sapDatum<br>
                 View: $grootboek<br>
+                <a href="?maxdepth=3">Open all tabs</a><br>
+                <a href="?maxdepth=10">Open all tabs & items</a><br>
+                <a href="?maxdepth=0">Close all</a>
               </p>
             </div>
           </div>
