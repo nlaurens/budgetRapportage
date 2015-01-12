@@ -83,6 +83,15 @@ class Overview:
 
         return render.overview(headers, headersgrootboek, orders, sapdatum, grootboek, userHash)
 
+class Test:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def GET():
+        print maxdepth
+        return
+
 
 class View:
     def __init__(self):
@@ -102,7 +111,10 @@ class View:
             return web.notfound("Sorry the page you were looking for was not found.")
 
         order = int(order)
-        maxdepth = 5
+        try:
+            maxdepth = int(web.input()['maxdepth'])
+        except:
+            maxdepth = 0
         grootboek = 'data/kostensoortgroep/28totaal4.txt'
         sapdatum = '25-5-2014'
         root = GrootBoek.load(order, grootboek)
@@ -138,6 +150,7 @@ urls = (
     '/', 'Index',
     '/overview/(.+)', 'Overview',
     '/view/(.+)/(\d+)', 'View',
+    '/test/', 'Test',
 )
 
 ### Templates

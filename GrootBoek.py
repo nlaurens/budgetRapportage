@@ -67,12 +67,17 @@ class GrootBoek():
 
         regelshtml = []
 
+        if depth < maxdepth:
+            unfolded = True
+        else:
+            unfolded = False
+
         for kostenSoort, regels in self.regels.iteritems():
             totaalGeboekt = moneyfmt(self.totaalGeboektNode[kostenSoort])
             totaalObligos = moneyfmt(self.totaalObligosNode[kostenSoort])
             for regel in regels:
                 regel.kosten = moneyfmt(regel.kosten, places=2, dp='.')
-            regelshtml.append(render.regels(self.name, kostenSoort, self.kostenSoorten[kostenSoort], totaalGeboekt, totaalObligos, regels))
+            regelshtml.append(render.regels(self.name, kostenSoort, self.kostenSoorten[kostenSoort], totaalGeboekt, totaalObligos, regels, unfolded))
 
         if depth <= maxdepth:
             unfolded = True

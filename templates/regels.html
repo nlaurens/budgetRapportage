@@ -1,4 +1,4 @@
-$def with(name, kostenSoort, kostenSoortName, geboektT, obligosT, regels)
+$def with(name, kostenSoort, kostenSoortName, geboektT, obligosT, regels, startOpen)
 <div class="accordion" id="accordion-$name-$kostenSoort">
     <div class="accordion-group">
         <div class="accordion-heading">
@@ -7,7 +7,11 @@ $def with(name, kostenSoort, kostenSoortName, geboektT, obligosT, regels)
             </a>
 
         </div>
-        <div id="collapse-$name-$kostenSoort" class="accordion-body collapse">
+        $if startOpen:
+            <div id="collapse-$name-$kostenSoort" class="accordion-body collapse in">
+        $else:
+            <div id="collapse-$name-$kostenSoort" class="accordion-body collapse">
+
         <div class="accordion-inner">
             <table class="table">
                 <thead>
