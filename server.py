@@ -66,7 +66,11 @@ class Overview:
             line = {}
             root = GrootBoek.load(order, grootboek)
             line['order'] = order
-            line['reserve'] = Decimal(reserves[str(order)])
+            try:
+                line['reserve'] = Decimal(reserves[str(order)])
+            except:
+                line['reserve'] = Decimal(0)
+
             if line['reserve'] < 0:
                 line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + line['reserve']
             else:
@@ -130,7 +134,12 @@ class View:
                 totaal['lasten'] += (-1*(child.totaalGeboektTree + child.totaalObligosTree))
 
         totaal['order'] = order
-        totaal['reserve'] = Decimal(reserves[str(order)])
+
+        try:
+            totaal['reserve'] = Decimal(reserves[str(order)])
+        except:
+            totaal['reserve'] = Decimal(0)
+
         if totaal['reserve'] < 0:
             totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['reserve']
         else:
