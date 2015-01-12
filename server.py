@@ -85,15 +85,6 @@ class Overview:
 
         return render.overview(headers, headersgrootboek, orders, sapdatum, grootboek, userHash)
 
-class Test:
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def GET():
-        print maxdepth
-        return
-
 
 class View:
     def __init__(self):

@@ -2,14 +2,6 @@ import web
 import hashlib
 from config import config
 
-# TODO PROCESS THE DB REGELS TO DICTIONARY OR SOMETHING
-# SO WHEN THE MAIN SCRIPT GETS SOMETHING IT IS NOT
-# DPENDING ON THE NAMES OF THE COLOMNS etc.
-
-# TODO put all boekingsregels in 1 dictionary per kostensoort
-# zodat we een lisjtje kunnen maken per kostensoort ipv obligo/geboekt.
-
-#db = web.database(dbn='mysql', db='niels')
 db = web.database(dbn='mysql', db=config["mysql"]["db"])
 
 def get_budgets(verifyHash, salt):

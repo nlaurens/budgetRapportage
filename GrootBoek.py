@@ -1,5 +1,3 @@
-# TODO rename all fucntions that work on a tree with tree_...
-# allf unctions that work on just the node node_..
 import model
 
 
@@ -84,8 +82,6 @@ class GrootBoek():
         else:
             unfolded = False
 
-        #render
-
         totaalGeboekt = moneyfmt(self.totaalGeboektTree)
         totaalObligos = moneyfmt(self.totaalObligosTree)
         html = render.grootboekgroep(self.name, self.descr, groups, regelshtml, unfolded, totaalGeboekt, totaalObligos, depth)
@@ -139,12 +135,14 @@ class GrootBoek():
             child.load_regels_recursive(order, geboektks, obligoks)
 
         ks = set(self.kostenSoorten.keys())
+        # TODO OPTIMIZE HERE TO NO FOR LOOP.
         for kostenSoort in (obligoks & ks):
             if kostenSoort in self.regels:
                 self.regels[kostenSoort].extend(model.get_obligos(order, kostenSoort))
             else:
                 self.regels[kostenSoort] = model.get_obligos(order, kostenSoort)
 
+        # TODO OPTIMIZE HERE TO NO FOR LOOP.
         for kostenSoort in (geboektks & ks):
             if kostenSoort in self.regels:
                 self.regels[kostenSoort].extend(model.get_geboekt(order, kostenSoort))
