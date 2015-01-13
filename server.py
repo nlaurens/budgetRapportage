@@ -4,16 +4,10 @@ TODO
  - Wildcards voor ordernummer range in authorisatie lijst inbouwen
    (bv 2868*). Refactor de userHash gedeelte in server.py naar functie.
 
- - model.getObligo / .geGeboekt ipv 1 kostenSoort
-    een lijst van KostenSoorten geven die in 1 MYSQL query gaat
-    NU doe ik 10 voor dezelfde order, dat zou ook bij elkaar moeten kunnen.
-    omdat we nu uitgaan van grootboek ipv ordernummers..
-
 - Show negative bestedingsruimte in red and bold.
 
 - Summary voor 2e/3e gs geen besteding laten zien maar verhaal
   waarom dat niet kan bij dit soort projecten.
-
 
 """
 import web
@@ -115,16 +109,10 @@ class View:
         totaal = {}
         htmlgrootboek = []
 
-        for child in root.children:
-            htmlgrootboek.append(child.html_tree(render, maxdepth, 0))
-            if child.name == '28BATENTEX':
-                totaal['baten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
-            elif child.name == '28LASTEN-T':
-                totaal['lasten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
-            elif child.name == '28LASTENOL':
-                totaal['lasten'] += (-1*(child.totaalGeboektTree + child.totaalObligosTree))
-
         totaal['order'] = order
+        totaal['baten'] = 0
+        totaal['lasten'] = 0
+        totaal['ruimte'] = 0
 
         try:
             totaal['reserve'] = Decimal(reserves[str(order)])
@@ -135,6 +123,15 @@ class View:
             totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['reserve']
         else:
             totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree)
+
+        for child in root.children:
+            htmlgrootboek.append(child.html_tree(render, maxdepth, 0))
+            if child.name == '28BATENTEX':
+                totaal['baten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
+            elif child.name == '28LASTEN-T':
+                totaal['lasten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
+            elif child.name == '28LASTENOL':
+                totaal['lasten'] += (-1*(child.totaalGeboektTree + child.totaalObligosTree))
 
         totaal['reserve'] = moneyfmt(totaal['reserve'])
         totaal['ruimte'] = moneyfmt(totaal['ruimte'])

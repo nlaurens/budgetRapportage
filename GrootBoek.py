@@ -130,24 +130,18 @@ class GrootBoek():
         else:
             return ''
 
-    def load_regels_recursive(self, order, geboektks, obligoks):
+    def assign_regels_recursive(self, regelsGeboekt, regelsObligos):
         for child in self.children:
-            child.load_regels_recursive(order, geboektks, obligoks)
+            child.assign_regels_recursive(regelsGeboekt, regelsObligos)
 
-        ks = set(self.kostenSoorten.keys())
-        # TODO OPTIMIZE HERE TO NO FOR LOOP.
-        for kostenSoort in (obligoks & ks):
-            if kostenSoort in self.regels:
-                self.regels[kostenSoort].extend(model.get_obligos(order, kostenSoort))
-            else:
-                self.regels[kostenSoort] = model.get_obligos(order, kostenSoort)
+        ksGeboekt = set(self.kostenSoorten.keys()) & set(regelsGeboekt.keys())
+        ksObligos = set(self.kostenSoorten.keys()) & set(regelsObligos.keys())
 
-        # TODO OPTIMIZE HERE TO NO FOR LOOP.
-        for kostenSoort in (geboektks & ks):
-            if kostenSoort in self.regels:
-                self.regels[kostenSoort].extend(model.get_geboekt(order, kostenSoort))
-            else:
-                self.regels[kostenSoort] = model.get_geboekt(order, kostenSoort)
+        regelsGeboektFiltered = { your_key: regelsGeboekt[your_key] for your_key in ksGeboekt}
+        regelsObligosFiltered = { your_key: regelsObligos[your_key] for your_key in ksObligos}
+
+        self.regels = regelsGeboektFiltered
+
 
     def set_totals(self):
         geboekttotaal, obligostotaal = self.__totaal()
@@ -241,9 +235,12 @@ def load_sap_export(path):
 
 def load(order, grootboek):
     root = load_sap_export(grootboek)
-    geboektks, obligoks = model.get_kosten_soorten(order)
-    root.load_regels_recursive(order, set(geboektks), set(obligoks))
 
+    ksGeboekt, ksObligos = model.get_kosten_soorten(order)
+    regelsGeboekt = model.get_geboekt(order, ksGeboekt)
+    regelsObligos = model.get_obligos(order, ksObligos)
+
+    root.assign_regels_recursive(regelsGeboekt, regelsObligos)
     root.clean_empty_nodes()
     root.set_totals()
 
