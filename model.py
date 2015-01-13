@@ -73,16 +73,18 @@ def get_orders():
 # Returns a list of boekingsRegel from the obligo table
 
 
-def get_obligos(order=0, kostensoort=0):
+# TODO OPTIMIZE TO 1 SQL FOR MULTIPLE KOSTENSOORTEn
+# USER WHERE kostensoort IN ('25115', '125125')
+def get_obligos(order=0, kostensoorten=[]):
     sqlwhere = ''
     if order > 0:
         sqlwhere = '`Order`=$order'
 
-    if kostensoort > 0:
+    if not kostensoort:
         if sqlwhere == '':
-            sqlwhere = '`Kostensoort`=$kostensoort'
+            sqlwhere = '`Kostensoort` IN ' + ','.join(list(kostensoorten))
         else:
-            sqlwhere += ' AND `Kostensoort`=$kostensoort'
+            sqlwhere += 'AND `Kostensoort` IN ' + ','.join(list(kostensoorten))
 
     try:
         obligodb = db.select('obligo', where=sqlwhere, vars=locals())
@@ -115,6 +117,7 @@ def obligo_db_2_regels(obligodb):
 
 
 # Returns a list of boekingsRegel from the geboekt table
+# TODO OPTIMIZE TO MULTIPLE KOSTENSOORTEN
 def get_geboekt(order=0, kostensoort=0):
 
     sqlwhere = ''

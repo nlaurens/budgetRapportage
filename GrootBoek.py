@@ -135,12 +135,17 @@ class GrootBoek():
             child.load_regels_recursive(order, geboektks, obligoks)
 
         ks = set(self.kostenSoorten.keys())
-        # TODO OPTIMIZE HERE TO NO FOR LOOP.
-        for kostenSoort in (obligoks & ks):
-            if kostenSoort in self.regels:
-                self.regels[kostenSoort].extend(model.get_obligos(order, kostenSoort))
-            else:
-                self.regels[kostenSoort] = model.get_obligos(order, kostenSoort)
+        kostenSoort = list(obligoks & ks):
+
+        # haal eerst de lijst op van de model
+
+# pas daarna in de regels stoppen.
+
+# DIT GAAT NOG NIET GOED OMDAT KOSTENSOORT NU EEN LIST IS EN GEEN STR MEER....
+        if kostenSoort in self.regels:
+            self.regels[kostenSoort].extend(model.get_obligos(order, kostenSoort))
+        else:
+            self.regels[kostenSoort] = model.get_obligos(order, kostenSoort)
 
         # TODO OPTIMIZE HERE TO NO FOR LOOP.
         for kostenSoort in (geboektks & ks):
