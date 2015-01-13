@@ -71,20 +71,16 @@ def get_orders():
     return orders
 
 # Returns a list of boekingsRegel from the obligo table
-
-
-# TODO OPTIMIZE TO 1 SQL FOR MULTIPLE KOSTENSOORTEn
-# USER WHERE kostensoort IN ('25115', '125125')
 def get_obligos(order=0, kostensoorten=[]):
-    sqlwhere = ''
+    sqlwhere = '1'
     if order > 0:
         sqlwhere = '`Order`=$order'
 
-    if not kostensoort:
-        if sqlwhere == '':
-            sqlwhere = '`Kostensoort` IN ' + ','.join(list(kostensoorten))
+    if kostensoorten:
+        if sqlwhere == '1':
+            sqlwhere = '`Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
         else:
-            sqlwhere += 'AND `Kostensoort` IN ' + ','.join(list(kostensoorten))
+            sqlwhere += ' AND `Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
 
     try:
         obligodb = db.select('obligo', where=sqlwhere, vars=locals())
@@ -94,10 +90,12 @@ def get_obligos(order=0, kostensoorten=[]):
     return obligo_db_2_regels(obligodb)
 
 
+# Returns a dict containing a list of regels at key kostensoort
+# ie. obligos['kostensoort'] = [ <regel>, <regel>, .. ]
 def obligo_db_2_regels(obligodb):
     from BoekingsRegel import BoekingsRegel
 
-    obligos = []
+    obligos = {}
     for regeldb in obligodb:
         regel = BoekingsRegel()
         regel.order = regeldb['Order']
@@ -111,27 +109,26 @@ def obligo_db_2_regels(obligodb):
         regel.periode = regeldb['Periode']
         regel.omschrijving = regeldb['Omschrijving']
         regel.tiepe = 'Obligo'
-        obligos.append(regel)
+        if regel.kostensoort in obligos:
+            obligos[regel.kostensoort].append(regel)
+        else:
+            obligos[regel.kostensoort] = [regel]
 
     return obligos
 
 
 # Returns a list of boekingsRegel from the geboekt table
-# TODO OPTIMIZE TO MULTIPLE KOSTENSOORTEN
-def get_geboekt(order=0, kostensoort=0):
+def get_geboekt(order=0, kostensoorten=[]):
 
-    sqlwhere = ''
+    sqlwhere = '1'
     if order > 0:
-        if sqlwhere == '':
-            sqlwhere = '`Order`=$order'
-        else:
-            sqlwhere += ' AND `Order`=$order'
+        sqlwhere = '`Order`=$order'
 
-    if kostensoort > 0:
+    if kostensoorten:
         if sqlwhere == '':
-            sqlwhere = '`Kostensoort`=$kostensoort'
+            sqlwhere = '`Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
         else:
-            sqlwhere += ' AND `Kostensoort`=$kostensoort'
+            sqlwhere += ' AND `Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
 
     try:
         geboektdb = db.select('geboekt', where=sqlwhere, vars=locals())
@@ -141,10 +138,12 @@ def get_geboekt(order=0, kostensoort=0):
     return geboekt_db_2_regel(geboektdb)
 
 
+# Returns a dictionary that contains a list of regels per key kostensoort
+# ie. geboekt['kostensoort'] = [regels]
 def geboekt_db_2_regel(geboektdb):
     from BoekingsRegel import BoekingsRegel
 
-    geboekt = []
+    geboekt = {}
     for regelDB in geboektdb:
         regel = BoekingsRegel()
         regel.order = regelDB['Order']
@@ -158,7 +157,10 @@ def geboekt_db_2_regel(geboektdb):
         regel.periode = regelDB['Periode']
         regel.omschrijving = regelDB['Omschrijving']
         regel.tiepe = 'Geboekt'
-        geboekt.append(regel)
+        if regel.kostensoort in geboekt:
+            geboekt[regel.kostensoort].append(regel)
+        else:
+            geboekt[regel.kostensoort] = [regel]
 
     return geboekt
 
