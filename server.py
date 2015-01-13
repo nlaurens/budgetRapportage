@@ -42,7 +42,7 @@ class Overview:
 
         maxdepth = 1
         grootboek = 'data/kostensoortgroep/28totaal4.txt'
-        sapdatum = '25-5-2014'
+        sapdatum = config['lastSAPexport']
         reserves = model.get_reserves()
 
         headers = ['Order', 'Stand op 1 jan', 'Bestedingsruimte']
@@ -100,7 +100,7 @@ class View:
         except:
             maxdepth = 0
         grootboek = 'data/kostensoortgroep/28totaal4.txt'
-        sapdatum = '25-5-2014'
+        sapdatum = config['lastSAPexport']
         root = GrootBoek.load(order, grootboek)
         reserves = model.get_reserves()
         totaal = {}
