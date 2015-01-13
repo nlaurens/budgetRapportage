@@ -1,0 +1,79 @@
+$def with (grootboek, sapDatum, tree, order)
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Budget details</title>
+    <link rel="stylesheet" href="../../static/css/bootstrap.css">
+    <link rel="stylesheet" href="../../static/css/budgetrapport.css">
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="../../static/js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/js/bootstrap.min.js"></script>
+
+    <style>
+      @import url(http://fonts.googleapis.com/css?family=Bree+Serif);
+      body, h1, h2, h3, h4, h5, h6{
+      font-family: 'Bree Serif', serif;
+      }
+
+    </style>
+  </head>
+  
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-6">
+          <h1>
+            <a href="../">
+                Project Details
+            </a>
+          </h1>
+        </div>
+        <div class="col-xs-6 text-right">
+          <h1>$order['order']</h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-5">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4>Summary</h4>
+            </div>
+            <div class="panel-body">
+              <p>
+              <font size="5" color="red">Warning</font>
+                  This is a project and therefore this view does NOT represent the amount that still can be spend. Please contact project control if you want to know the amount that can still be spend. Use this overview only to inspect which items are booked to this project.<BR>
+                  Totale Lasten: &euro;$order['lasten']<br>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-5 col-xs-offset-2 text-right">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4>Settings</h4>
+            </div>
+            <div class="panel-body">
+              <p>
+                Last SAP export: $sapDatum<br>
+                View: $grootboek<br>
+                <a href="?maxdepth=3">Open all tabs</a><br>
+                <a href="?maxdepth=10">Open all tabs & items</a><br>
+                <a href="?maxdepth=0">Close all</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    $for a in tree:
+        $:a
+
+    </div>
+</body>
+</html>
+

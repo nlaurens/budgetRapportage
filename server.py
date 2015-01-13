@@ -6,9 +6,6 @@ TODO
 
 - Show negative bestedingsruimte in red and bold.
 
-- Summary voor 2e/3e gs geen besteding laten zien maar verhaal
-  waarom dat niet kan bij dit soort projecten.
-
 """
 import web
 import model
@@ -137,7 +134,12 @@ class View:
         totaal['ruimte'] = moneyfmt(totaal['ruimte'])
         totaal['baten'] = moneyfmt(totaal['baten'])
         totaal['lasten'] = moneyfmt(totaal['lasten'])
-        return render.view(grootboek, sapdatum, htmlgrootboek, totaal)
+
+        print str(order)[4]
+        if str(order)[4] != '0' and str(order)[4] != '1':
+            return render.viewproject(grootboek, sapdatum, htmlgrootboek, totaal)
+
+        return render.vieworder(grootboek, sapdatum, htmlgrootboek, totaal)
 
 
 ### Url mappings
