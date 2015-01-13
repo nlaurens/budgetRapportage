@@ -4,16 +4,10 @@ TODO
  - Wildcards voor ordernummer range in authorisatie lijst inbouwen
    (bv 2868*). Refactor de userHash gedeelte in server.py naar functie.
 
- - model.getObligo / .geGeboekt ipv 1 kostenSoort
-    een lijst van KostenSoorten geven die in 1 MYSQL query gaat
-    NU doe ik 10 voor dezelfde order, dat zou ook bij elkaar moeten kunnen.
-    omdat we nu uitgaan van grootboek ipv ordernummers..
-
 - Show negative bestedingsruimte in red and bold.
 
 - Summary voor 2e/3e gs geen besteding laten zien maar verhaal
   waarom dat niet kan bij dit soort projecten.
-
 
 """
 import web
