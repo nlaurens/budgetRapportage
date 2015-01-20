@@ -11,7 +11,7 @@ import web
 import model
 import GrootBoek
 from config import config
-from functions import moneyfmt
+from functions import moneyfmt, IPblock
 from decimal import *
 
 
@@ -30,7 +30,7 @@ class Overview:
 
     @staticmethod
     def GET(userHash):
-        if userHash == '':
+        if userHash == '' or not IPblock(web.ctx['ip'], config['IpStart'], config['IpStop']):
             return web.notfound("Sorry the page you were looking for was not found.")
 
         budgets = model.get_budgets(userHash, config["salt"])
@@ -84,7 +84,7 @@ class View:
     @staticmethod
     def GET(userHash, order):
 
-        if userHash == '':
+        if userHash == '' or not IPblock(web.ctx['ip'], config['IpStart'], config['IpStop']):
             return web.notfound("Sorry the page you were looking for was not found.")
 
         budgets = model.get_budgets(userHash, config["salt"])

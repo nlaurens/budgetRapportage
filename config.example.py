@@ -1,4 +1,6 @@
 config = {
+    "IpStart": '127.0.0.1',
+    "IpStop": '127.255.255.255',
     "lastSAPexport": '<last date of the SAP export>',
     "salt": '<random string>',
     "mysql": {
