@@ -1,6 +1,5 @@
 config = {
-    "IpStart": '127.0.0.1',
-    "IpStop": '127.255.255.255',
+    "IpRanges": '127.0.0.1 127.255.255.255 10.0.0.1 10.255.255.255'
     "globalPW": '<global password string'>,
     "lastSAPexport": '<last date of the SAP export>',
     "salt": '<random string>',

@@ -54,11 +54,15 @@ def moneyfmt(value, places=0, curr='', sep=',', dp='',
 # Checks if incoming IP is in
 # allowed config range: True
 # if not: False
-def IPblock(ip, rangeStart, rangeStop):
+def IpBlock(ip, ipRanges):
     from iptools import IpRangeList
-    ipRange = IpRangeList( (rangeStart, rangeStop) )
-    if ip in ipRange:
-        return True
+    ipRanges = ipRanges.split()
+    start = ipRanges[0:][::2]
+    stop = ipRanges[1:][::2]
 
+    for start,stop in zip(start,stop):
+        ipRange = IpRangeList( (start,stop) )
+        if ip in ipRange:
+            return True
     return False
 

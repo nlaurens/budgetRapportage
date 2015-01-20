@@ -11,7 +11,7 @@ import web
 import model
 import GrootBoek
 from config import config
-from functions import moneyfmt, IPblock
+from functions import moneyfmt, IpBlock
 from decimal import *
 
 
@@ -28,7 +28,7 @@ class Overview:
         pass
 
     def GET(self, userHash):
-        if userHash == '' or not IPblock(web.ctx['ip'], config['IpStart'], config['IpStop']):
+        if userHash == '' or not IpBlock(web.ctx['ip'], config['IpRanges']):
             return web.notfound("Sorry the page you were looking for was not found.")
 
         if not session.get('logged_in', False):
@@ -81,7 +81,7 @@ class View:
 
     def GET(self, userHash, order):
 
-        if userHash == '' or not IPblock(web.ctx['ip'], config['IpStart'], config['IpStop']):
+        if userHash == '' or not IpBlock(web.ctx['ip'], config['IpRanges']):
             return web.notfound("Sorry the page you were looking for was not found.")
 
         if not session.get('logged_in', False):
