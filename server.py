@@ -38,9 +38,6 @@ class Overview:
         if not budgets:
             return web.notfound("Sorry the page you were looking for was not found.")
 
-        if budgets[0] == "*":
-            budgets = model.get_orders()
-
         maxdepth = 1
         grootboek = 'data/kostensoortgroep/28totaal4.txt'
         sapdatum = config['lastSAPexport']
@@ -92,9 +89,6 @@ class View:
 
         budgets = model.get_budgets(userHash, config["salt"])
         if not budgets:
-            return web.notfound("Sorry the page you were looking for was not found.")
-
-        if budgets[0] != "*" and order not in budgets:
             return web.notfound("Sorry the page you were looking for was not found.")
 
         order = int(order)

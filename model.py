@@ -9,7 +9,21 @@ def get_budgets(verifyHash, salt):
     for user, orders in authorisation.iteritems():
         userHash = hashlib.sha224(user+salt).hexdigest()
         if userHash == verifyHash:
-            return orders
+            ordersList = []
+            for order in orders:
+                if order[0] == '!':
+                    order = order[1:]
+                    if '%'in order:
+                        for remove in get_orders(sqlLike=order):
+                            ordersList.remove(long(remove))
+                    else:
+                        ordersList.remove(long(order))
+                else:
+                    if '%'in order:
+                        ordersList.extend(get_orders(sqlLike=order))
+                    else:
+                        ordersList.append(order)
+            return ordersList
 
     return []
 
@@ -54,9 +68,10 @@ def get_reserves():
 
 # Returns a sorted list of all orders
 # in both geboekt and obligo
-def get_orders():
-    geboekt = db.query("SELECT DISTINCT(`Order`) FROM `geboekt`")
-    obligo = db.query("SELECT DISTINCT(`Order`) FROM `obligo`")
+def get_orders(sqlLike='%'):
+
+    geboekt = db.query("SELECT DISTINCT(`Order`) FROM `geboekt` WHERE `Order` LIKE '"+sqlLike+"'")
+    obligo = db.query("SELECT DISTINCT(`Order`) FROM `obligo` WHERE `Order` LIKE '"+sqlLike+"'")
 
     orders = set()
     for regel in geboekt:
