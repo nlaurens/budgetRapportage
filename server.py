@@ -19,8 +19,7 @@ class Index:
     def __init__(self):
         pass
 
-    @staticmethod
-    def GET():
+    def GET(self):
         return render.index()
 
 
@@ -28,17 +27,16 @@ class Overview:
     def __init__(self):
         pass
 
-    @staticmethod
-    def GET(userHash):
+    def GET(self, userHash):
         if userHash == '' or not IPblock(web.ctx['ip'], config['IpStart'], config['IpStop']):
             return web.notfound("Sorry the page you were looking for was not found.")
+
+        if not session.get('logged_in', False):
+            raise web.seeother('/login/' + userHash)
 
         budgets = model.get_budgets(userHash, config["salt"])
         if not budgets:
             return web.notfound("Sorry the page you were looking for was not found.")
-
-        if budgets[0] == "*":
-            budgets = model.get_orders()
 
         maxdepth = 1
         grootboek = 'data/kostensoortgroep/28totaal4.txt'
@@ -81,17 +79,16 @@ class View:
     def __init__(self):
         pass
 
-    @staticmethod
-    def GET(userHash, order):
+    def GET(self, userHash, order):
 
         if userHash == '' or not IPblock(web.ctx['ip'], config['IpStart'], config['IpStop']):
             return web.notfound("Sorry the page you were looking for was not found.")
 
+        if not session.get('logged_in', False):
+            raise web.seeother('/login/' + userHash)
+
         budgets = model.get_budgets(userHash, config["salt"])
         if not budgets:
-            return web.notfound("Sorry the page you were looking for was not found.")
-
-        if budgets[0] != "*" and order not in budgets:
             return web.notfound("Sorry the page you were looking for was not found.")
 
         order = int(order)
@@ -141,13 +138,43 @@ class View:
 
         return render.vieworder(grootboek, sapdatum, htmlgrootboek, totaal)
 
+class Login:
+    login_form = web.form.Form(
+        web.form.Password('password', web.form.notnull),
+        web.form.Button('Login'),
+        )
+
+    def GET(self, userHash):
+        form = self.login_form()
+        return render.login(form)
+
+    def POST(self, userHash):
+        form = self.login_form()
+        if not form.validates():
+            return render.login(form)
+
+        if form['password'].value == config["globalPW"]:
+            session.logged_in = True
+            raise web.seeother('/overview'+userHash)
+
+        return render.login(self.login_form)
+
+class Logout:
+    def __init__(self):
+        pass
+
+    def GET(self):
+        session.logged_in = False
+        return render.logout()
+
 
 ### Url mappings
 urls = (
     '/', 'Index',
     '/overview/(.+)', 'Overview',
     '/view/(.+)/(\d+)', 'View',
-    '/test/', 'Test',
+    '/login(.+)', 'Login',
+    '/logout', 'Logout',
 )
 
 ### Templates
@@ -155,8 +182,12 @@ t_globals = {
     'datestr': web.datestr
 }
 render = web.template.render('templates/')
-
 app = web.application(urls, globals())
+if web.config.get('_session') is None:
+    session = web.session.Session(app, web.session.DiskStore('sessions'), {'count': 0})
+    web.config._session = session
+else:
+    session = web.config._session
 
 if __name__ == "__main__":
     app.run()
