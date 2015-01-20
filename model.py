@@ -2,7 +2,7 @@ import web
 import hashlib
 from config import config
 
-db = web.database(dbn='mysql', db=config["mysql"]["db"])
+db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"], host=config["mysql"]["host"])
 
 def get_budgets(verifyHash, salt):
     authorisation = load_auth_list()

@@ -7,5 +7,6 @@ config = {
         "user": "<user name>",
         "pass": "<pw>",
         "db": "<name of the db>"
+        "host": "<addres of the mysql host>"
     }
 }
