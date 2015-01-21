@@ -3,7 +3,7 @@ $def with(name, kostenSoort, kostenSoortName, geboektT, obligosT, regels, startO
     <div class="accordion-group">
         <div class="accordion-heading">
             <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-$name-$kostenSoort" href="#collapse-$name-$kostenSoort">
-                $kostenSoortName<span class="badge pull-right">Kosten: &euro;$geboektT</span><span class="badge pull-right">Obligo: &euro;$obligosT</span>
+                $kostenSoortName<span class="badge pull-right">Kosten: &euro;$geboektT</span><span class="badge pull-right">Gereserveerd: &euro;$obligosT</span>
             </a>
 
         </div>
@@ -22,7 +22,7 @@ $def with(name, kostenSoort, kostenSoortName, geboektT, obligosT, regels, startO
                     <th>Omschrijving</th>
                     <th>Bedrag</th>
                     <th>#Items</th>
-                    <th>Geboekt/Obligo</th>
+                    <th>Geboekt/Gereserveerd</th>
                 </tr>
                 </thead>
                 <tbody>

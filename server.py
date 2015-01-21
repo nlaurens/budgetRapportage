@@ -51,7 +51,7 @@ class Overview:
             return web.notfound("Sorry the page you were looking for was not found.")
 
         maxdepth = 1
-        grootboek = 'data/kostensoortgroep/28totaal4.txt'
+        grootboek = 'data/kostensoortgroep/28totaal4-ns.txt'
         sapdatum = config['lastSAPexport']
         reserves = model.get_reserves()
 
@@ -108,7 +108,7 @@ class View:
             maxdepth = int(web.input()['maxdepth'])
         except:
             maxdepth = 0
-        grootboek = 'data/kostensoortgroep/28totaal4.txt'
+        grootboek = 'data/kostensoortgroep/28totaal4-ns.txt'
         sapdatum = config['lastSAPexport']
         root = GrootBoek.load(order, grootboek)
         reserves = model.get_reserves()

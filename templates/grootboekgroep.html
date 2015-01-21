@@ -3,7 +3,11 @@ $def with (name, descr, groups, regels, startOpen, werkelijkT, obligoT, depth)
     <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion-$name" href="#collapse-$name">$descr<span class="badge pull-right">Kosten: &euro;$werkelijkT</span><span class="badge pull-right">Obligo: &euro;$obligoT</span></a>
+                <a data-toggle="collapse" data-parent="#accordion-$name" href="#collapse-$name">
+                    $descr
+                    <span class="badge pull-right">Kosten: &euro;$werkelijkT</span>
+                    <span class="badge pull-right">Gereserveerd: &euro;$obligoT</span>
+                </a>
             </h4>
         </div>
 

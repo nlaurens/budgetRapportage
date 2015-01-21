@@ -27,9 +27,7 @@ $def with (grootboek, sapDatum, tree, order)
       <div class="row">
         <div class="col-xs-6">
           <h1>
-            <a href="../">
-                Budget Details
-            </a>
+            Budget Details
           </h1>
         </div>
         <div class="col-xs-6 text-right">
@@ -64,10 +62,28 @@ $def with (grootboek, sapDatum, tree, order)
               <p>
                 Last SAP export: $sapDatum<br>
                 View: $grootboek<br>
-                <a href="?maxdepth=3">Open all tabs</a><br>
-                <a href="?maxdepth=10">Open all tabs & items</a><br>
-                <a href="?maxdepth=0">Close all</a><br>
-                <a href="/logout">logout</a>                
+                <a href="?maxdepth=3">
+                    <button type="button" class="btn btn-default btn-sm">
+                        Unfold tabs
+                    </button>
+                </a>  - 
+                <a href="?maxdepth=10">
+                    <button type="button" class="btn btn-default btn-sm">
+                     Unfold all
+                    </button>
+                </a> - 
+                <a href="?maxdepth=0">
+                    <button type="button" class="btn btn-default btn-sm">
+                    Fold all
+                    </button>
+                </a>
+                <p>
+                <a href="/logout">
+                    <button type="button" class="btn btn-default btn-sm">
+                    Logout
+                    </button>
+                </a>                
+                </p>
               </p>
             </div>
           </div>

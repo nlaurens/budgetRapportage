@@ -28,11 +28,10 @@ $def with (headers, headersgrootboek, orders, sapDatum, grootboek, userHash)
       <div class="row">
         <div class="col-xs-6">
           <h1>
-                Your budgets
           </h1>
         </div>
         <div class="col-xs-6 text-right">
-          <h1>All Orders</h1>
+          <h1></h1>
         </div>
       </div>
       <div class="row">
@@ -53,8 +52,12 @@ $def with (headers, headersgrootboek, orders, sapDatum, grootboek, userHash)
             <div class="panel-body">
               <p>
                 Last SAP export: $sapDatum<br>
-                View: $grootboek
-                <a href="/logout">logout</a>                
+                View: $grootboek<br>
+                <a href="/logout">
+                    <button type="button" class="btn">
+                        Logout
+                    </button>
+                </a>
               </p>
             </div>
           </div>
