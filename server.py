@@ -190,4 +190,5 @@ else:
     session = web.config._session
 
 if __name__ == "__main__":
+    model.gen_auth_list(config['salt'])
     app.run()
