@@ -6,6 +6,18 @@ TODO
 
 - Show negative bestedingsruimte in red and bold.
 
+- Bestedingsruimte met een + ipv - (leesbaar voor niet financiele mensen)
+
+- Merge overview en view class (lots of double code)
+
+- Add fold/unfold icon to tabs (unclear you can click them)
+
+- all options (foldu/unfold/logout) buttons instead of links
+
+- Add a disclaimer at the bottom about not directly conected to sap etc.
+
+
+
 """
 import web
 import model
