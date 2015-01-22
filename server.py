@@ -160,7 +160,7 @@ class Login:
 
     def GET(self, userHash):
         form = self.login_form()
-        return render.login(form)
+        return render.login(form, msg='')
 
     def POST(self, userHash):
         form = self.login_form()
@@ -171,7 +171,7 @@ class Login:
             session.logged_in = True
             raise web.seeother('/overview'+userHash)
 
-        return render.login(self.login_form)
+        return render.login(form, 'Wrong Password')
 
 class Logout:
     def __init__(self):
