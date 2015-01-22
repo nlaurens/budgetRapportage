@@ -19,6 +19,9 @@ TODO
  - ik bedacht me later dat het misschien een goed idee is om boven alle tabbladen de boodschap te zetten in boldface:
 Notice that these records show only transactions up to (datum van laatste update)
 
+- Rewrite templates to be more modular with css and header parts:
+    http://webpy.org/cookbook/layout_template
+
 
 """
 import web
