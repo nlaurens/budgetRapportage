@@ -21,7 +21,7 @@ Export SAP
 
 * Layout wijzigen (CTRL+F8)
     * Toevoegen:
-        * Boekjaar
+        * Boekjaar (staat er voor werkelijke kosten al tussen!)
         * Periode
     * Vink Aggregatie uitzetten (als ze aanstaan) bij:
         * Waarde/CO-valuat uitzetten
@@ -47,6 +47,7 @@ Export SAP
 
 Import rapportage in MySQL
 --------------------------
+https://phpmyadmin.vu.nl/
 
 * Open the excel sheet
     * Save as 'CSV' file
@@ -63,4 +64,4 @@ Import rapportage in MySQL
     * geboekt
     * obligo
     
-
+* Verander type's in de DB!
