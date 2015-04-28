@@ -4,9 +4,15 @@
 Export SAP
 ----------
 * Inloggin in SAP
+
+* Onderstaande 2x herhalen: 
+  1. Voor kostenplaatsen
+  2. Voor ordernummers
+
 * Verslaggroep: Z444
     * Periode van: 1
     * Periode tot: 16
+    * Planversie: 1
     * "Meervoudige selectie" knop bij "Of waarde(n)" 
         1.
             * Importeren uit tekstbestand (groene knop onderaan)
@@ -14,7 +20,7 @@ Export SAP
             * Accepteren
         2. 
             * Range: 2860000 - 2869999
-    * Kostensoortgroep: 28TOTAAl4
+    * Kostensoortgroep: 29FALW2
     * Uitvoeren
 
 * Selecteer posten van "**** Totaal" veld onderin (obligo en werkelijke posten).
@@ -65,3 +71,15 @@ https://phpmyadmin.vu.nl/
     * obligo
     
 * Verander type's in de DB!
+
+
+kostensoortgroep exporeteren/importeren
+---------------------------------------
+
+# Vanuit Sap exporteren:
+    * Controlling -> Kostensoortgroep -> Weergeven
+    * Kostensoortgroep opgeven (b.v. 29FALW2)
+      -> Uitvoeren
+    * Met de hand alles uitklappen (tip: begin onderaan)
+    * Opslaan als bestand (SHFT+F8)
+      - kies RAW
