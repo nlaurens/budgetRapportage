@@ -1,6 +1,10 @@
 """"
 TODO
 
+ - kpl support toevoegen
+
+ - inlezen bestedingsruimte uit apart bestand (netzoals reserve).
+
  - Wildcards voor ordernummer range in authorisatie lijst inbouwen
    (bv 2868*). Refactor de userHash gedeelte in server.py naar functie.
 
@@ -9,10 +13,6 @@ TODO
 - Bestedingsruimte met een + ipv - (leesbaar voor niet financiele mensen)
 
 - Merge overview en view class (lots of double code)
-
-- Add fold/unfold icon to tabs (unclear you can click them)
-
-- all options (foldu/unfold/logout) buttons instead of links
 
 - Add a disclaimer at the bottom about not directly conected to sap etc.
 
@@ -112,7 +112,7 @@ class View:
         try:
             maxdepth = int(web.input()['maxdepth'])
         except:
-            maxdepth = 0
+            maxdepth = 1
         grootboek = 'data/kostensoortgroep/29falw2-RAW'
         sapdatum = config['lastSAPexport']
         root = GrootBoek.load(order, grootboek)
