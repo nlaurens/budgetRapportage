@@ -83,3 +83,7 @@ kostensoortgroep exporeteren/importeren
     * Met de hand alles uitklappen (tip: begin onderaan)
     * Opslaan als bestand (SHFT+F8)
       - kies RAW
+
+# Verwerken voor python:
+    * Open bestand in editor (notepad++)
+    * Encoding -> Convert to UTF8

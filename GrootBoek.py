@@ -75,6 +75,7 @@ class GrootBoek():
             totaalObligos = moneyfmt(self.totaalObligosNode[kostenSoort])
             for regel in regels:
                 regel.kosten = moneyfmt(regel.kosten, places=2, dp='.')
+
             regelshtml.append(render.regels(self.name, kostenSoort, self.kostenSoorten[kostenSoort], totaalGeboekt, totaalObligos, regels, unfolded))
 
         if depth <= maxdepth:
@@ -246,8 +247,6 @@ def last_item_in_list(lst):
     return len(lst), lst[-1]
 
 def load_raw_sap_export(path):
-    debug = False
-    if debug: print 'running raw import'
     f = open(path, 'r')
     group = ''
     for line in f:
@@ -260,52 +259,20 @@ def load_raw_sap_export(path):
 
         if item!='':
             if item.isdigit():
-                #if debug: print level*' '+ 'kostensoort' + str(item)
                 group.add_kostensoort(int(item), descr)
             elif item != '>>> Interval leeg':
                 if group == '':
                     group = GrootBoek(item, descr, level, '')
                     root = group
-                    if debug: print 'set root'+ str(item) + ' depth ' + str(level)
                 else:
                     parent = group.lower_level_parent(level)
                     group = GrootBoek(item, descr, level, parent)
                     parent.add_child(group)
-                    if debug: print level*' ' + 'group' + str(item) + ' depth ' + str(level) + ' parent '+ str(parent.name)
 
     return root
-
-
-def load_sap_export(path):
-    debug = False
-    f = open(path, 'r')
-    group = ''
-    for line in f:
-        split = line.split("\t")
-        if len(split) > 1:
-            i, item = first_item_in_list(split)
-            j, descr = last_item_in_list(split)
-
-            item = item.rstrip()
-            descr = descr.rstrip()
-            if item.isdigit():
-                group.add_kostensoort(int(item), descr)
-            elif item != '>>> Interval leeg':
-                if group == '':
-                    group = GrootBoek(item, descr, i, '')
-                    root = group
-                    if debug: print 'set root'+ str(item) + ' depth ' + str(i)
-                else:
-                    parent = group.lower_level_parent(i)
-                    group = GrootBoek(item, descr, i, parent)
-                    parent.add_child(group)
-                    if debug: print i*' ' + 'group' + str(item) + ' depth ' + str(i) + ' parent '+ str(parent.name)
-
-    return root
-
 
 def load(order, grootboek):
-    root = load_sap_export(grootboek)
+    root = load_raw_sap_export(grootboek)
 
     ksGeboekt, ksObligos = model.get_kosten_soorten(order)
     regelsGeboekt = model.get_geboekt(order, ksGeboekt)
