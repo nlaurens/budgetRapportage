@@ -78,6 +78,7 @@ $def with (headers, headersgrootboek, orders, sapDatum, grootboek, userHash)
                     <tr>
                         <td><a href="/view/$userHash/$order['order']" target="_blank">$order['order']</a></td>
                         <td class="price-label">&euro;$order['reserve']</td>
+                        <td class="price-label">&euro;$order['begroting']</td>
                         <td class="price-label">&euro;$order['ruimte']</td>
                         $for name in headersgrootboek.iterkeys():
                             $if name in order:

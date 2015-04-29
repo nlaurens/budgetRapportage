@@ -1,9 +1,9 @@
 """"
 TODO
 
- - kpl support toevoegen
+ - 'AFREKORD' grootboek weer toevoegen alleen als hij ook bestaat voor die orders.
 
- - inlezen bestedingsruimte uit apart bestand (netzoals reserve).
+ - kpl support toevoegen
 
  - Wildcards voor ordernummer range in authorisatie lijst inbouwen
    (bv 2868*). Refactor de userHash gedeelte in server.py naar functie.
@@ -58,34 +58,44 @@ class Overview:
         grootboek = 'data/kostensoortgroep/29falw2-RAW'
         sapdatum = config['lastSAPexport']
         reserves = model.get_reserves()
+        begroting = model.get_begroting()
 
-        headers = ['Order', 'Stand op 1 jan', 'Bestedingsruimte']
+        headers = ['Order', 'Reserve op 1 jan', 'Begroting',  'Bestedingsruimte']
 
         headersgrootboek = {}
         root = GrootBoek.load(0, grootboek)
         for child in root.children:
-            headersgrootboek[child.name] = child.descr
+            if child.name != 'AFREKORD':
+                headersgrootboek[child.name] = child.descr
 
         orders = []
         for order in budgets:
             line = {}
             root = GrootBoek.load(order, grootboek)
+
             line['order'] = order
+
             try:
                 line['reserve'] = float(reserves[str(order)])
             except:
-                line['reserve'] = float(0)
+                line['reserve'] = 0
+
+            try:
+                line['begroting'] = float(begroting[str(order)])
+            except:
+                line['begroting'] = 0
 
             if line['reserve'] < 0:
-                line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + line['reserve']
+                line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + line['begroting'] + line['reserve']
             else:
-                line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree)
+                line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + line['begroting']
 
             for child in root.children:
                 line[child.name] = moneyfmt((-1*(child.totaalGeboektTree + child.totaalObligosTree)))
 
             line['reserve'] = moneyfmt(line['reserve'])
             line['ruimte'] = moneyfmt(line['ruimte'])
+            line['begroting'] = moneyfmt(line['begroting'])
             orders.append(line)
 
         return render.overview(headers, headersgrootboek, orders, sapdatum, grootboek, userHash)

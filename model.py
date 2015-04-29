@@ -52,11 +52,22 @@ def gen_auth_list(salt):
         print orders
         print ''
 
+# returns the list of all begrote orders
+def get_begroting():
+    begroting = {}
+    with open('data/begroting/2015.txt') as f:
+        for line in f.readlines():
+            line = line.strip()
+            if not line == '':
+                order, bedrag = line.split()
+                begroting[order] = bedrag
+
+    return begroting
 
 # returns the list of all reserves
 def get_reserves():
     reserves = {}
-    with open('data/reserves/2014.txt') as f:
+    with open('data/reserves/2015.txt') as f:
         for line in f.readlines():
             line = line.strip()
             if not line == '':
