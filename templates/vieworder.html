@@ -42,11 +42,12 @@ $def with (grootboek, sapDatum, tree, order)
             </div>
             <div class="panel-body">
               <p>
-                  Stand op 1 Jan: &euro;$order['reserve']<br>
+                  Reserve op 1 Jan: &euro;$order['reserve']<br>
+                  Begroting: &euro;$order['begroting']<br>
                   Totale baten: &euro;$order['baten']<br>
                   Totale Lasten: &euro;$order['lasten']<br>
                   $if order['ruimte'] > 0:
-                    Nog te besteden: &euro;$order['ruimte'] - TODO<br>
+                    Nog te besteden: &euro;$order['ruimte']<br>
                   $else:
                     Tekort: &euro;$order['ruimte']<br>
               </p>

@@ -55,7 +55,7 @@ class Overview:
             return web.notfound("Sorry the page you were looking for was not found.")
 
         maxdepth = 1
-        grootboek = 'data/kostensoortgroep/29falw2-RAW'
+        grootboek = 'data/kostensoortgroep/29falw2'
         sapdatum = config['lastSAPexport']
         reserves = model.get_reserves()
         begroting = model.get_begroting()
@@ -122,10 +122,11 @@ class View:
             maxdepth = int(web.input()['maxdepth'])
         except:
             maxdepth = 1
-        grootboek = 'data/kostensoortgroep/29falw2-RAW'
+        grootboek = 'data/kostensoortgroep/29falw2'
         sapdatum = config['lastSAPexport']
         root = GrootBoek.load(order, grootboek)
         reserves = model.get_reserves()
+        begroting = model.get_begroting()
         totaal = {}
         htmlgrootboek = []
 
@@ -137,12 +138,17 @@ class View:
         try:
             totaal['reserve'] = float(reserves[str(order)])
         except:
-            totaal['reserve'] = float(0)
+            totaal['reserve'] = 0
+
+        try:
+            totaal['begroting'] = float(begroting[str(order)])
+        except:
+            totaal['begroting'] = 0
 
         if totaal['reserve'] < 0:
-            totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['reserve']
+            totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['begroting'] + totaal['reserve']
         else:
-            totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree)
+            totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['begroting']
 
         for child in root.children:
             htmlgrootboek.append(child.html_tree(render, maxdepth, 0))
@@ -155,6 +161,7 @@ class View:
         totaal['ruimte'] = moneyfmt(totaal['ruimte'])
         totaal['baten'] = moneyfmt(totaal['baten'])
         totaal['lasten'] = moneyfmt(totaal['lasten'])
+        totaal['begroting'] = moneyfmt(totaal['begroting'])
 
         if str(order)[4] != '0' and str(order)[4] != '1':
             return render.viewproject(grootboek, sapdatum, htmlgrootboek, totaal)
