@@ -176,6 +176,44 @@ class GrootBoek():
 
         return sum(geboekt.itervalues()), sum(obligos.itervalues())
 
+
+    # Creates a list of all levels in the tree
+    # for example: [1, 5, 12, 40]
+    def list_levels(self, levels):
+        for child in self.children:
+            levels = child.list_levels(levels)
+
+        if self.level not in levels:
+            levels.append(self.level)
+
+        return levels
+
+    # runs through the tree and adjusts levels
+    # using the translate dictionary
+    def correct_levels(self, translate):
+        for child in self.children:
+            child.correct_levels(translate)
+
+        self.level = translate[self.level]
+
+        return
+
+
+    # normalizes the depth of levels to 1,2,3,..
+    def normalize_levels(self):
+        levels = sorted(self.list_levels([]))
+
+        i = 0
+        translate_table = {}
+        for level in levels:
+            translate_table[level] = i
+            i += 1
+
+        self.correct_levels(translate_table)
+
+        return
+
+
     def clean_empty_nodes(self):
 
         allchildrenempty = True
@@ -207,8 +245,39 @@ def first_item_in_list(lst):
 def last_item_in_list(lst):
     return len(lst), lst[-1]
 
+def load_raw_sap_export(path):
+    debug = False
+    if debug: print 'running raw import'
+    f = open(path, 'r')
+    group = ''
+    for line in f:
+        line = line.replace('|', ' ')
+        line = line.replace('--', '')
+        line = line.split(' ')
+        level, item = first_item_in_list(line)
+        item = item.strip()
+        descr = ' '.join(line[level+1:]).strip()
+
+        if item!='':
+            if item.isdigit():
+                #if debug: print level*' '+ 'kostensoort' + str(item)
+                group.add_kostensoort(int(item), descr)
+            elif item != '>>> Interval leeg':
+                if group == '':
+                    group = GrootBoek(item, descr, level, '')
+                    root = group
+                    if debug: print 'set root'+ str(item) + ' depth ' + str(level)
+                else:
+                    parent = group.lower_level_parent(level)
+                    group = GrootBoek(item, descr, level, parent)
+                    parent.add_child(group)
+                    if debug: print level*' ' + 'group' + str(item) + ' depth ' + str(level) + ' parent '+ str(parent.name)
+
+    return root
+
 
 def load_sap_export(path):
+    debug = False
     f = open(path, 'r')
     group = ''
     for line in f:
@@ -225,10 +294,12 @@ def load_sap_export(path):
                 if group == '':
                     group = GrootBoek(item, descr, i, '')
                     root = group
+                    if debug: print 'set root'+ str(item) + ' depth ' + str(i)
                 else:
                     parent = group.lower_level_parent(i)
                     group = GrootBoek(item, descr, i, parent)
                     parent.add_child(group)
+                    if debug: print i*' ' + 'group' + str(item) + ' depth ' + str(i) + ' parent '+ str(parent.name)
 
     return root
 
@@ -242,6 +313,7 @@ def load(order, grootboek):
 
     root.assign_regels_recursive(regelsGeboekt, regelsObligos)
     root.clean_empty_nodes()
+    root.normalize_levels()
     root.set_totals()
 
     return root
