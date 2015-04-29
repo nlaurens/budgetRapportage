@@ -164,10 +164,10 @@ def geboekt_db_2_regel(geboektdb):
         regel.order = regelDB['Order']
         regel.kostensoort = regelDB['Kostensoort']
         regel.naamkostensoort = regelDB['Naam v. kostensoort']
-        regel.kosten = regelDB['Waarde/CO-valuta']
+        regel.kosten = float(regelDB['Waarde/CO-valuta'].replace(',', '.'))
         regel.documentnummer = regelDB['Documentnummer']
         regel.personeelsnummer = regelDB['Personeelsnummer']
-        regel.hoeveelheid = regelDB['Hoeveelheid totaal']
+        regel.hoeveelheid ='nvt'# int(regelDB['Totl. ingev. hoevh.'])
         regel.jaar = regelDB['Boekjaar']
         regel.periode = regelDB['Periode']
         regel.omschrijving = regelDB['Omschrijving']

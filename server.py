@@ -29,7 +29,6 @@ import model
 import GrootBoek
 from config import config
 from functions import moneyfmt, IpBlock
-from decimal import *
 
 
 class Index:
@@ -73,9 +72,9 @@ class Overview:
             root = GrootBoek.load(order, grootboek)
             line['order'] = order
             try:
-                line['reserve'] = Decimal(reserves[str(order)])
+                line['reserve'] = float(reserves[str(order)])
             except:
-                line['reserve'] = Decimal(0)
+                line['reserve'] = float(0)
 
             if line['reserve'] < 0:
                 line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + line['reserve']
@@ -126,9 +125,9 @@ class View:
         totaal['ruimte'] = 0
 
         try:
-            totaal['reserve'] = Decimal(reserves[str(order)])
+            totaal['reserve'] = float(reserves[str(order)])
         except:
-            totaal['reserve'] = Decimal(0)
+            totaal['reserve'] = float(0)
 
         if totaal['reserve'] < 0:
             totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['reserve']

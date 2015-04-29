@@ -70,8 +70,6 @@ https://phpmyadmin.vu.nl/
     * geboekt
     * obligo
     
-* Verander type's in de DB!
-
 
 kostensoortgroep exporeteren/importeren
 ---------------------------------------
