@@ -9,8 +9,6 @@ TODO
 
 - Merge overview en view class (lots of double code)
 
-- Add a disclaimer at the bottom about not directly conected to sap etc.
-
  - ik bedacht me later dat het misschien een goed idee is om boven alle tabbladen de boodschap te zetten in boldface:
 Notice that these records show only transactions up to (datum van laatste update)
 

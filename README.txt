@@ -69,6 +69,8 @@ https://phpmyadmin.vu.nl/
 * Hernoem tables naar:
     * geboekt
     * obligo
+
+* Verander sap export datum in config.py
     
 
 kostensoortgroep exporeteren/importeren
