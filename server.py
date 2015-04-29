@@ -5,12 +5,7 @@ TODO
 
  - kpl support toevoegen
 
- - Wildcards voor ordernummer range in authorisatie lijst inbouwen
-   (bv 2868*). Refactor de userHash gedeelte in server.py naar functie.
-
 - Show negative bestedingsruimte in red and bold.
-
-- Bestedingsruimte met een + ipv - (leesbaar voor niet financiele mensen)
 
 - Merge overview en view class (lots of double code)
 
