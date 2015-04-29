@@ -137,19 +137,16 @@ class View:
 
         for child in root.children:
             htmlgrootboek.append(child.html_tree(render, maxdepth, 0))
-            if child.name == '28BATENTEX':
+            if child.name == 'BATEN-2900':
                 totaal['baten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
-            elif child.name == '28LASTEN-T':
+            elif child.name == 'LASTEN2900':
                 totaal['lasten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
-            elif child.name == '28LASTENOL':
-                totaal['lasten'] += (-1*(child.totaalGeboektTree + child.totaalObligosTree))
 
         totaal['reserve'] = moneyfmt(totaal['reserve'])
         totaal['ruimte'] = moneyfmt(totaal['ruimte'])
         totaal['baten'] = moneyfmt(totaal['baten'])
         totaal['lasten'] = moneyfmt(totaal['lasten'])
 
-        print str(order)[4]
         if str(order)[4] != '0' and str(order)[4] != '1':
             return render.viewproject(grootboek, sapdatum, htmlgrootboek, totaal)
 
