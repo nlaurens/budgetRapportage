@@ -5,6 +5,8 @@ TODO
 
  - kpl support toevoegen
 
+ - WBS support toevoegen (betekend lijst maken met welk wbs bij welke groep hoort..)
+
 - Show negative bestedingsruimte in red and bold.
 
 - Merge overview en view class (lots of double code)

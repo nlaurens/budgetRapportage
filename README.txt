@@ -87,3 +87,15 @@ kostensoortgroep exporeteren/importeren
 # Verwerken voor python:
     * Open bestand in editor (notepad++)
     * Encoding -> Convert to UTF8
+
+Draaien van de server
+--------------------
+
+Als tmux sessie al draait:
+* Enter tmux attach
+* Stop the server (ctrl + c)
+* Rotate log
+  -> copy server.log -> server.log.x
+  -> remove server.log
+* Restart server:
+  -> $ python server.py 8081 > server.log
