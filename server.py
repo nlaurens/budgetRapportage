@@ -52,7 +52,6 @@ class Overview:
         if not authenticated(userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
 
-
         budgets = model.get_budgets(userHash, config["salt"])
         maxdepth = 1
 
@@ -160,6 +159,7 @@ class View:
 
         for child in root.children:
             htmlgrootboek.append(child.html_tree(render, maxdepth, 0))
+# TODO: DIT IS SPECIFIEK VOOR 29FALW2
             if child.name == 'BATEN-2900':
                 totaal['baten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
             elif child.name == 'LASTEN2900':
@@ -171,6 +171,7 @@ class View:
         totaal['lasten'] = moneyfmt(totaal['lasten'])
         totaal['begroting'] = moneyfmt(totaal['begroting'])
 
+# TODO: INFO ERGENS ANDERS VANDAAN HALEN VOOR UL
         if str(order)[4] != '0' and str(order)[4] != '1':
             return render.viewproject(grootboek, sapdatum, htmlgrootboek, totaal)
 
