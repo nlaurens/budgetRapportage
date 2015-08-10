@@ -26,6 +26,16 @@ from config import config
 from functions import moneyfmt, IpBlock
 
 
+def authenticated(userHash):
+    if not session.get('logged_in', False):
+        raise web.seeother('/login/' + userHash)
+
+    IPAllowed= IpBlock(web.ctx['ip'], config['IpRanges']) 
+    if userHash == '' or not IPAllowed:
+        return False
+    return True
+
+
 class Index:
     def __init__(self):
         pass
@@ -39,16 +49,11 @@ class Overview:
         pass
 
     def GET(self, userHash):
-        if userHash == '' or not IpBlock(web.ctx['ip'], config['IpRanges']):
+        if not authenticated(userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
 
-        if not session.get('logged_in', False):
-            raise web.seeother('/login/' + userHash)
 
         budgets = model.get_budgets(userHash, config["salt"])
-        if not budgets:
-            return web.notfound("Sorry the page you were looking for was not found.")
-
         maxdepth = 1
 
         try:
@@ -109,16 +114,10 @@ class View:
 
     def GET(self, userHash, order):
 
-        if userHash == '' or not IpBlock(web.ctx['ip'], config['IpRanges']):
+        if not authenticated(userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
-
-        if not session.get('logged_in', False):
-            raise web.seeother('/login/' + userHash)
 
         budgets = model.get_budgets(userHash, config["salt"])
-        if not budgets:
-            return web.notfound("Sorry the page you were looking for was not found.")
-
         order = int(order)
         try:
             maxdepth = int(web.input()['maxdepth'])
