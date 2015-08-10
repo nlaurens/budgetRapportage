@@ -1,4 +1,8 @@
-#  test scripts
+# VIM tmp files
+*.*~
+
+
+# test and config scripts
 test.py
 config.py
 
