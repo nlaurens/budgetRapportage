@@ -1,3 +1,9 @@
+Installation
+------------
+
+Requires web.py, mysqldb, iptools
+
+
 # Maybe one day for wbs: http://jsfiddle.net/jhfrench/GpdgF/
 # SAP rapportage
 
