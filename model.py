@@ -1,6 +1,7 @@
 import web
 import hashlib
 from config import config
+import glob
 
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"], host=config["mysql"]["host"])
 
@@ -209,3 +210,10 @@ def get_kosten_soorten(order=0):
         obligoks[regel['Kostensoort']] = regel['Naam v. kostensoort']
 
     return geboektks, obligoks
+
+
+# Returns a list of kostensoort groepen available
+def loadKSgroepen():
+    KSgroepen = glob.glob("data/kostensoortgroep/*")
+
+    return KSgroepen

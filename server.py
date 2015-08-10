@@ -50,7 +50,14 @@ class Overview:
             return web.notfound("Sorry the page you were looking for was not found.")
 
         maxdepth = 1
-        grootboek = 'data/kostensoortgroep/29falw2'
+
+        try:
+            KSgroep = int(web.input()['KSgroep'])
+        except:
+            KSgroep = 0
+        KSgroepen = model.loadKSgroepen()
+        grootboek = KSgroepen[KSgroep]
+
         sapdatum = config['lastSAPexport']
         reserves = model.get_reserves()
         begroting = model.get_begroting()
@@ -117,7 +124,14 @@ class View:
             maxdepth = int(web.input()['maxdepth'])
         except:
             maxdepth = 1
-        grootboek = 'data/kostensoortgroep/29falw2'
+
+        try:
+            KSgroep = int(web.input()['KSgroep'])
+        except:
+            KSgroep = 0
+        KSgroepen = model.loadKSgroepen()
+        grootboek = KSgroepen[KSgroep]
+
         sapdatum = config['lastSAPexport']
         root = GrootBoek.load(order, grootboek)
         reserves = model.get_reserves()
