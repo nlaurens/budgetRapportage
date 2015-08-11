@@ -3,82 +3,84 @@ Installation
 
 Requires web.py, mysqldb, iptools
 
+Todo/Bugs
+---------
+* Maybe one day for wbs: http://jsfiddle.net/jhfrench/GpdgF/
 
-# Maybe one day for wbs: http://jsfiddle.net/jhfrench/GpdgF/
-# SAP rapportage
+Export SAP posten
+-----------------
 
-Export SAP
-----------
-* Inloggin in SAP
+* Inloggen SAP
 
-* Onderstaande 2x herhalen: 
-  1. Voor kostenplaatsen
-  2. Voor ordernummers
-
-* Verslaggroep: Z444
-    * Periode van: 1
-    * Periode tot: 16
-    * Planversie: 1
-    * "Meervoudige selectie" knop bij "Of waarde(n)" 
-        1.
-            * Importeren uit tekstbestand (groene knop onderaan)
-            * Selecteer OL-lijst.txt uit directory tool
-            * Accepteren
-        2. 
-            * Range: 2860000 - 2869999
-    * Kostensoortgroep: 29FALW2
+* KOBP - Afzonderlijke Planposten 
+    * Order-range of -groep selecteren
+    * Periode en Boekjaar invullen
+    * Overige Layout instellingen - max.aantal treffers > 1M
     * Uitvoeren
+    * Geen Aggergatie in layout en minimaal de volgende velden (CTRL+F8)
+        * Order
+        * Kostensoort
+        * Naam v. kostensoort
+        * Totaalwrd./vslg.val.
+        * Boekjaar
+        * (Tip sla layout op als template)
+    * Exporteer naar Excel XXL-indeling (CTRL+SHFT+F7)
+    * In Excel: Sla op als CSV file
 
-* Selecteer posten van "**** Totaal" veld onderin (obligo en werkelijke posten).
-
-* Layout wijzigen (CTRL+F8)
-    * Toevoegen:
-        * Boekjaar (staat er voor werkelijke kosten al tussen!)
+* KOB2 - Afzonderlijke obligo
+    * Order-range of -groep selecteren
+    * Periode invullen
+    * 'Alleen open posten' aanvinken
+    * Overige Layout instellingen - max.aantal treffers > 1M
+    * Uitvoeren
+    * Geen Aggergatie in layout en minimaal de volgende velden (CTRL+F8)
+        * Order
+        * Kostensoort
+        * Naam v. kostensoort
+        * Waarde/CO-valuta
+        * Boekjaar
         * Periode
-    * Vink Aggregatie uitzetten (als ze aanstaan) bij:
-        * Waarde/CO-valuat uitzetten
-        * Hoeveelheid totaal
-    * Overnemen
+        * Omschrijving
+        * (Tip sla layout op als template)
+    * Exporteer naar Excel XXL-indeling (CTRL+SHFT+F7)
+    * In Excel: Sla op als CSV file
 
-* Exporeteren naar Excel (CTR+SHIFT+F7)
-    * Uit alle beschik. formaten select
-        * Microsoft Excel (2007-xlsx)
-    * Akkoord (might take a while)
-    * Naam file: 'input.xlsx'
+* KOB1 - Afzonderlijke posten
+    * Order-range of -groep selecteren
+    * Periode invullen
+    * Overige Layout instellingen - max.aantal treffers > 1M
+    * Uitvoeren
+    * Geen Aggergatie in layout en minimaal de volgende velden (CTRL+F8)
+        * Order
+        * Kostensoort
+        * Naam v. kostensoort
+        * Waarde/CO-valuta
+        * Boekjaar
+        * Periode
+        * Omschrijving
+        * (Tip sla layout op als template)
+    * Exporteer naar Excel XXL-indeling (CTRL+SHFT+F7)
+    * In Excel: Sla op als CSV file
 
-* Andere optie voor tab-sep input:
-    * Lokaal bestand
-        * Spreadsheet
-        * Naam: "input.SAP'
 
-    * Open bestand in notepad++
-        * Copy naar new bestand
-        * Remove 1st 3 rows and empty 5th row.
-        * Save as input.csv
-    
-
-Import rapportage in MySQL
+Import SAP posten in MySQL
 --------------------------
 https://phpmyadmin.vu.nl/
-
-* Open the excel sheet
-    * Save as 'CSV' file
 
 * Open PHP my admin interface
 * Browse naar de juiste DB (linker tab)
 * Importeren
-    * Selecter bestand
-    * Vervang comma gescheiden door een puntcomma (';')
+    * Selecter CSV bestand
     * Vink aan: 'De eerste regel van het bestand bevat kolomnamen (..)'
-    * Start*
+    * Start
 
 * Hernoem tables naar:
+    * plan
     * geboekt
     * obligo
 
 * Verander sap export datum in config.py
     
-
 kostensoortgroep exporeteren/importeren
 ---------------------------------------
 
