@@ -47,8 +47,8 @@ class GrootBoekGroep():
     def walk_tree(self, maxdepth):
         if self.level <= maxdepth:
             # Use drukAf() or regel voor debugging.
-            #self.druk_af()
-            self.regel()
+            self.druk_af()
+            #self.regel()
             for child in self.children:
                 child.walk_tree(maxdepth)
 
@@ -161,5 +161,6 @@ def load_raw_sap_export(path):
 def load(grootboekgroepfile):
     root = load_raw_sap_export(grootboekgroepfile)
     root.normalize_levels()
+    root.walk_tree(999) # debugging
 
     return root
