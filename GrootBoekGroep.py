@@ -19,9 +19,7 @@ class GrootBoekGroep():
         self.children.append(child)
 
     def regel(self):
-        #if (totals[0]+ totals[1]) != 0:
-            #return '*' * self.level + ' ' + self.name + ' (' + self.descr + ') ' + str(self.totaalGeboektTree) + ' - ' + str(self.totaalObligosTree)
-        return 'DEPRC. todo'
+        print '*' * self.level + ' ' + self.name + ' (' + self.descr + ')'
 
     def druk_af(self):
         print 'grootboek ' + self.name + ' (level '+str(self.level)+') - ' + self.descr
@@ -48,8 +46,9 @@ class GrootBoekGroep():
 
     def walk_tree(self, maxdepth):
         if self.level <= maxdepth:
-            # Use drukAf() voor debugging.
-            self.druk_af()
+            # Use drukAf() or regel voor debugging.
+            #self.druk_af()
+            self.regel()
             for child in self.children:
                 child.walk_tree(maxdepth)
 
@@ -161,5 +160,6 @@ def load_raw_sap_export(path):
 
 def load(grootboekgroepfile):
     root = load_raw_sap_export(grootboekgroepfile)
+    root.normalize_levels()
 
     return root
