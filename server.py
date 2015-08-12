@@ -1,6 +1,8 @@
 """"
 TODO
 
+- Importeer functie maken die vraagt om welke kolom wat bevat (namen zijn strings die iedereen apart instelt in SAP....)
+
  - 'AFREKORD' grootboek weer toevoegen alleen als hij ook bestaat voor die orders.
 
  - kpl support toevoegen

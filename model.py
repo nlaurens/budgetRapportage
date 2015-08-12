@@ -3,6 +3,8 @@ import hashlib
 from config import config
 import glob
 
+#TODO vervang alle SQL query door de config params ipv de hardcoded kolom namen.
+
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"], host=config["mysql"]["host"])
 
 def get_budgets(verifyHash, salt):
@@ -123,19 +125,19 @@ def obligo_db_2_regels(obligodb):
     from BoekingsRegel import BoekingsRegel
 
     obligos = {}
-    for regeldb in obligodb:
+    for regelDB in obligodb:
         regel = BoekingsRegel()
-        regel.order = regeldb['Order']
-        regel.kostensoort = regeldb['Kostensoort']
-        regel.naamkostensoort = regeldb['Naam v. kostensoort']
-        regel.kosten = regeldb['Waarde/CO-valuta']
-        regel.documentnummer = 5#regelDB['Nr. referentiedoc.']
-        regel.personeelsnummer = 'nvt'#regelDB['Personeelsnummer']
-        regel.hoeveelheid = 'nvt'#regelDB['Hoeveelheid totaal']
-        regel.jaar = regeldb['Boekjaar']
-        regel.periode = regeldb['Periode']
-        regel.omschrijving = regeldb['Omschrijving']
+
         regel.tiepe = 'Obligo'
+        regel.order = regelDB[config["SAPkeys"]["obligo"]["order"]]
+        regel.kostensoort = regelDB[config["SAPkeys"]["obligo"]["ks"]]
+        regel.naamkostensoort = regelDB[config["SAPkeys"]["obligo"]["ks-naam"]]
+        regel.kosten = float(regelDB[config["SAPkeys"]["obligo"]["kosten"]].replace(',',''))
+        regel.jaar = regelDB[config["SAPkeys"]["obligo"]["jaar"]]
+        regel.periode = regelDB[config["SAPkeys"]["obligo"]["periode"]]
+        regel.omschrijving = regelDB[config["SAPkeys"]["obligo"]["descr"]]
+        regel.documentnummer = regelDB[config["SAPkeys"]["obligo"]["doc.nr."]]
+
         if regel.kostensoort in obligos:
             obligos[regel.kostensoort].append(regel)
         else:
@@ -173,16 +175,14 @@ def geboekt_db_2_regel(geboektdb):
     geboekt = {}
     for regelDB in geboektdb:
         regel = BoekingsRegel()
-        regel.order = regelDB['Order']
-        regel.kostensoort = regelDB['Kostensoort']
-        regel.naamkostensoort = regelDB['Naam v. kostensoort']
-        regel.kosten = float(regelDB['Waarde/CO-valuta'].replace(',', '.'))
-        regel.documentnummer = regelDB['Documentnummer']
-        regel.personeelsnummer = regelDB['Personeelsnummer']
-        regel.hoeveelheid ='nvt'# int(regelDB['Totl. ingev. hoevh.'])
-        regel.jaar = regelDB['Boekjaar']
-        regel.periode = regelDB['Periode']
-        regel.omschrijving = regelDB['Omschrijving']
+        regel.order = regelDB[config["SAPkeys"]["geboekt"]["order"]]
+        regel.kostensoort = regelDB[config["SAPkeys"]["geboekt"]["ks"]]
+        regel.naamkostensoort = regelDB[config["SAPkeys"]["geboekt"]["ks-naam"]]
+        regel.kosten = float(regelDB[config["SAPkeys"]["geboekt"]["kosten"]].replace(',',''))
+        regel.jaar = regelDB[config["SAPkeys"]["geboekt"]["jaar"]]
+        regel.periode = regelDB[config["SAPkeys"]["geboekt"]["periode"]]
+        regel.omschrijving = regelDB[config["SAPkeys"]["geboekt"]["descr"]]
+        regel.documentnummer = regelDB[config["SAPkeys"]["geboekt"]["doc.nr."]]
         regel.tiepe = 'Geboekt'
         if regel.kostensoort in geboekt:
             geboekt[regel.kostensoort].append(regel)
