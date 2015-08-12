@@ -24,6 +24,7 @@ Export SAP posten
         * Totaalwrd./vslg.val.
         * Boekjaar
         * (Tip sla layout op als template)
+    * Alle kolommen uitrekken totdat gehele header zichtbaar is
     * Exporteer naar Excel XXL-indeling (CTRL+SHFT+F7)
     * In Excel: Sla op als CSV file
 
@@ -42,6 +43,7 @@ Export SAP posten
         * Periode
         * Omschrijving
         * (Tip sla layout op als template)
+    * Alle kolommen uitrekken totdat gehele header zichtbaar is
     * Exporteer naar Excel XXL-indeling (CTRL+SHFT+F7)
     * In Excel: Sla op als CSV file
 
@@ -59,6 +61,7 @@ Export SAP posten
         * Periode
         * Omschrijving
         * (Tip sla layout op als template)
+    * Alle kolommen uitrekken totdat gehele header zichtbaar is
     * Exporteer naar Excel XXL-indeling (CTRL+SHFT+F7)
     * In Excel: Sla op als CSV file
 
