@@ -1,4 +1,4 @@
-$def with (grootboek, sapDatum, tree, order)
+$def with (form, grootboek, sapDatum, tree, order)
 
 <!doctype html>
 <html lang="en">
@@ -85,6 +85,11 @@ $def with (grootboek, sapDatum, tree, order)
                     Logout
                     </button>
                 </a>                
+                </p>
+                <p>
+                <form name="main" method="post">
+                    $:form.render()
+                </form>
                 </p>
               </p>
             </div>

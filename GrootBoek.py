@@ -271,6 +271,14 @@ def load_raw_sap_export(path):
 
     return root
 
+def load_empty(grootboek):
+    root = load_raw_sap_export(grootboek)
+
+    ksGeboekt, ksObligos = model.get_kosten_soorten(0)
+    root.normalize_levels()
+
+    return root
+
 def load(order, grootboek, jaar, periode):
     root = load_raw_sap_export(grootboek)
 
