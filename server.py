@@ -235,6 +235,7 @@ class View:
         for i, path in enumerate(KSgroepen):
             dropdownlist.append( (i, os.path.split(path)[-1] ))
         form.ksgroep.args = dropdownlist
+        form.ksgroep.value = 1
 
 
     def GET(self, userHash, order):
@@ -246,6 +247,7 @@ class View:
         self.fill_dropdowns(form, KSgroepen)
 
         order = int(order)
+        #TODO STOP IN 1 variable en sleep die door fill_dropdowns voor default vales
         maxdepth, KSgroep, jaar, periode = self.get_post_params(form)
 
         grootboek = KSgroepen[KSgroep]
