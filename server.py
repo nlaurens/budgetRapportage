@@ -126,14 +126,25 @@ class View:
             maxdepth = 1
 
         try:
-            KSgroep = int(web.input()['KSgroep'])
+            KSgroep = int(web.input()['ksgroep'])
         except:
             KSgroep = 0
+
+        try:
+            jaar = int(web.input()['jaar'])
+        except:
+            jaar = 2015
+
+        try:
+            periode = int(web.input()['periode'])
+        except:
+            periode = ''
+
         KSgroepen = model.loadKSgroepen()
         grootboek = KSgroepen[KSgroep]
 
         sapdatum = config['lastSAPexport']
-        root = GrootBoek.load(order, grootboek)
+        root = GrootBoek.load(order, grootboek, jaar, periode)
         reserves = model.get_reserves()
         begroting = model.get_begroting()
         totaal = {}

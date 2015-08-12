@@ -271,11 +271,11 @@ def load_raw_sap_export(path):
 
     return root
 
-def load(order, grootboek):
+def load(order, grootboek, jaar, periode):
     root = load_raw_sap_export(grootboek)
 
     ksGeboekt, ksObligos = model.get_kosten_soorten(order)
-    regelsGeboekt = model.get_geboekt(order, ksGeboekt)
+    regelsGeboekt = model.get_geboekt(jaar, periode, order, ksGeboekt)
     regelsObligos = model.get_obligos(order, ksObligos)
 
     root.assign_regels_recursive(regelsGeboekt, regelsObligos)

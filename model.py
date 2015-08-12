@@ -147,9 +147,8 @@ def obligo_db_2_regels(obligodb):
 
 
 # Returns a list of boekingsRegel from the geboekt table
-def get_geboekt(order=0, kostensoorten=[]):
+def get_geboekt(jaar, periode='', order=0, kostensoorten=[]):
 
-    sqlwhere = '1'
     if order > 0:
         sqlwhere = '`Order`=$order'
 
@@ -159,6 +158,13 @@ def get_geboekt(order=0, kostensoorten=[]):
         else:
             sqlwhere += ' AND `Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
 
+    sqlwhere += ' AND `Jaar` = $jaar'
+    if periode != '':
+        sqlwhere += ' AND `` = $periode'
+
+    print '--------'
+    print sqlwhere
+    print '--------'
     try:
         geboektdb = db.select('geboekt', where=sqlwhere, vars=locals())
     except IndexError:
