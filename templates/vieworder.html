@@ -61,36 +61,15 @@ $def with (form, grootboek, sapDatum, tree, order)
             </div>
             <div class="panel-body">
               <p>
-                This is not a live view of all bookings<br>
+                <form name="main" method="post">
+                    $:form.render()
+                </form>
                 Last update was on: $sapDatum<br>
-                View: $grootboek<br>
-                <a href="?maxdepth=3">
-                    <button type="button" class="btn btn-default btn-sm">
-                        Show catagories
-                    </button>
-                </a>  - 
-                <a href="?maxdepth=10">
-                    <button type="button" class="btn btn-default btn-sm">
-                     Show all
-                    </button>
-                </a> - 
-                <a href="?maxdepth=0">
-                    <button type="button" class="btn btn-default btn-sm">
-                    Fold all
-                    </button>
-                </a>
-                <p>
                 <a href="/logout">
                     <button type="button" class="btn btn-default btn-sm">
                     Logout
                     </button>
                 </a>                
-                </p>
-                <p>
-                <form name="main" method="post">
-                    $:form.render()
-                </form>
-                </p>
               </p>
             </div>
           </div>

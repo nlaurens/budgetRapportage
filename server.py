@@ -19,7 +19,6 @@ Notice that these records show only transactions up to (datum van laatste update
 - Rewrite templates to be more modular with css and header parts:
     http://webpy.org/cookbook/layout_template
 
-
 """
 import web
 import model
@@ -127,9 +126,8 @@ class Overview:
 
 class View:
     settings_form = web.form.Form(
-        web.form.Dropdown('jaar', [('2015', '2015'), ('2014', '2014'), ('2013', '2013'), ('2012', '2012')]),
-        web.form.Dropdown('maxdepth', [('0','1. Totals'), ('3','2. Subtotals'), ('10', '3. Details')]),
-        #web.form.Dropdown('ksgroep', [('0', '0'), ('1', '1'), ('2', '2')]),
+        web.form.Dropdown('jaar', [(2015, '2015'), (2014, '2014'), (2013, '2013'), (2012, '2012')]),
+        web.form.Dropdown('maxdepth', [(0,'1. Totals'), (3,'2. Subtotals'), (10, '3. Details')]),
         web.form.Dropdown('ksgroep', []),
         web.form.Dropdown('periode', [('', 'all')]),
         web.form.Button('Update', 'update'),
@@ -167,24 +165,24 @@ class View:
             except:
                 periode = ''
 
-        return maxdepth, KSgroep, jaar, periode
+        return {"maxdepth":maxdepth, "KSgroep":KSgroep, "jaar":jaar, "periode":periode}
 
     def POST(self, userHash, order):
         if not authenticated(userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
 
-        form = self.settings_form()
-        form.ksgroep.args = [('0', '0'), ('1', '1'), ('2', '2')]
 
+        form = self.settings_form()
         KSgroepen = model.loadKSgroepen()
-        self.fill_dropdowns(form, KSgroepen)
+        settings = self.get_post_params(form)
+        self.fill_dropdowns(form, settings, KSgroepen)
+
 
         order = int(order)
-        maxdepth, KSgroep, jaar, periode = self.get_post_params(form)
-        grootboek = KSgroepen[KSgroep]
+        grootboek = KSgroepen[settings["KSgroep"]]
         sapdatum = config['lastSAPexport']
 
-        root = GrootBoek.load(order, grootboek, jaar, periode)
+        root = GrootBoek.load(order, grootboek, settings["jaar"], settings["periode"])
         reserves = model.get_reserves()
         begroting = model.get_begroting()
         totaal = {}
@@ -211,7 +209,7 @@ class View:
             totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['begroting']
 
         for child in root.children:
-            htmlgrootboek.append(child.html_tree(render, maxdepth, 0))
+            htmlgrootboek.append(child.html_tree(render, settings["maxdepth"], 0))
 # TODO: DIT IS SPECIFIEK VOOR 29FALW2
             if child.name == 'BATEN-2900':
                 totaal['baten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
@@ -230,12 +228,16 @@ class View:
 
         return render.vieworder(form, grootboek, sapdatum, htmlgrootboek, totaal)
 
-    def fill_dropdowns(self, form, KSgroepen):
+    def fill_dropdowns(self, form, settings, KSgroepen):
         dropdownlist = []
         for i, path in enumerate(KSgroepen):
             dropdownlist.append( (i, os.path.split(path)[-1] ))
         form.ksgroep.args = dropdownlist
-        form.ksgroep.value = 1
+
+        form.ksgroep.value = settings["KSgroep"]
+        form.jaar.value = settings["jaar"]
+        form.maxdepth.value = settings["maxdepth"]
+        form.periode.value = settings["periode"]
 
 
     def GET(self, userHash, order):
@@ -244,16 +246,15 @@ class View:
 
         form = self.settings_form()
         KSgroepen = model.loadKSgroepen()
-        self.fill_dropdowns(form, KSgroepen)
+        settings = self.get_post_params(form)
+        self.fill_dropdowns(form, settings, KSgroepen)
+
 
         order = int(order)
-        #TODO STOP IN 1 variable en sleep die door fill_dropdowns voor default vales
-        maxdepth, KSgroep, jaar, periode = self.get_post_params(form)
-
-        grootboek = KSgroepen[KSgroep]
+        grootboek = KSgroepen[settings["KSgroep"]]
         sapdatum = config['lastSAPexport']
 
-        root = GrootBoek.load(order, grootboek, jaar, periode)
+        root = GrootBoek.load(order, grootboek, settings["jaar"], settings["periode"])
         reserves = model.get_reserves()
         begroting = model.get_begroting()
         totaal = {}
@@ -280,7 +281,7 @@ class View:
             totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['begroting']
 
         for child in root.children:
-            htmlgrootboek.append(child.html_tree(render, maxdepth, 0))
+            htmlgrootboek.append(child.html_tree(render, settings["maxdepth"], 0))
 # TODO: DIT IS SPECIFIEK VOOR 29FALW2
             if child.name == 'BATEN-2900':
                 totaal['baten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
