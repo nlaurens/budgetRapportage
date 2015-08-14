@@ -118,6 +118,29 @@ def get_obligos(order=0, kostensoorten=[]):
 
     return obligo_db_2_regels(obligodb)
 
+# Returns a dict containing a list of regels at key kostensoort
+# ie. obligos['kostensoort'] = [ <regel>, <regel>, .. ]
+def plan_db_2_regels(db):
+    from BoekingsRegel import BoekingsRegel
+
+    plans = {}
+    for regelDB in db:
+        regel = BoekingsRegel()
+
+        regel.tiepe = 'Plan'
+        regel.order = regelDB[config["SAPkeys"]["plan"]["order"]]
+        regel.kostensoort = regelDB[config["SAPkeys"]["plan"]["ks"]]
+        regel.naamkostensoort = regelDB[config["SAPkeys"]["plan"]["ks-naam"]]
+        regel.kosten = float(regelDB[config["SAPkeys"]["plan"]["kosten"]].replace(',',''))
+        regel.jaar = regelDB[config["SAPkeys"]["plan"]["jaar"]]
+        regel.documentnummer = regelDB[config["SAPkeys"]["plan"]["doc.nr."]]
+
+        if regel.kostensoort in plans:
+            plans[regel.kostensoort].append(regel)
+        else:
+            plans[regel.kostensoort] = [regel]
+
+    return plans
 
 # Returns a dict containing a list of regels at key kostensoort
 # ie. obligos['kostensoort'] = [ <regel>, <regel>, .. ]
@@ -145,6 +168,27 @@ def obligo_db_2_regels(obligodb):
 
     return obligos
 
+# Returns a list of planregels from the geboekt table
+def get_plan(jaar, order=0, kostensoorten=[]):
+
+    if order > 0:
+        sqlwhere = '`Order`=$order'
+
+    if kostensoorten:
+        if sqlwhere == '':
+            sqlwhere = '`Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+        else:
+            sqlwhere += ' AND `Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+
+    sqlwhere += ' AND `Boekjaar` = $jaar'
+
+    try:
+        plandb = db.select('plan', where=sqlwhere, vars=locals())
+    except IndexError:
+        return None
+
+    return plan_db_2_regels(plandb)
+
 
 # Returns a list of boekingsRegel from the geboekt table
 def get_geboekt(jaar, periode='', order=0, kostensoorten=[]):
@@ -162,9 +206,6 @@ def get_geboekt(jaar, periode='', order=0, kostensoorten=[]):
     if periode != '':
         sqlwhere += ' AND `` = $periode'
 
-    print '--------'
-    print sqlwhere
-    print '--------'
     try:
         geboektdb = db.select('geboekt', where=sqlwhere, vars=locals())
     except IndexError:
@@ -203,9 +244,11 @@ def get_kosten_soorten(order=0):
     if order == 0:
         geboektdb = db.query("SELECT DISTINCT(`Kostensoort`), `Naam v. kostensoort` FROM `geboekt`")
         obligodb = db.query("SELECT DISTINCT(`Kostensoort`), `Naam v. kostensoort` FROM `obligo`")
+        plandb = db.query("SELECT DISTINCT(`Kostensoort`), `Naam v. kostensoort` FROM `plan`")
     else:
         geboektdb = db.query("SELECT DISTINCT(`Kostensoort`), `Naam v. kostensoort` FROM `geboekt` WHERE `order`=" + str(order))
         obligodb = db.query("SELECT DISTINCT(`Kostensoort`), `Naam v. kostensoort` FROM `obligo` WHERE `order`=" + str(order))
+        plandb = db.query("SELECT DISTINCT(`Kostensoort`), `Naam v. kostensoort` FROM `plan` WHERE `order`=" + str(order))
 
     geboektks = {}
     for regel in geboektdb:
@@ -215,7 +258,11 @@ def get_kosten_soorten(order=0):
     for regel in obligodb:
         obligoks[regel['Kostensoort']] = regel['Naam v. kostensoort']
 
-    return geboektks, obligoks
+    planks = {}
+    for regel in plandb:
+        planks[regel['Kostensoort']] = regel['Naam v. kostensoort']
+
+    return geboektks, obligoks, planks
 
 
 # Returns a list of kostensoort groepen available

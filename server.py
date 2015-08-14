@@ -1,6 +1,8 @@
 """"
 TODO
 
+- Het kan zijn dat er begroting is op een KS die niet geboekt is. Dan komt hij NIET in het overzicht. FIXEN!
+
 - Importeer functie maken die vraagt om welke kolom wat bevat (namen zijn strings die iedereen apart instelt in SAP....)
 
  - 'AFREKORD' grootboek weer toevoegen alleen als hij ook bestaat voor die orders.
@@ -151,7 +153,7 @@ class View:
             try:
                 KSgroep = int(web.input()['ksgroep'])
             except:
-                KSgroep = 0
+                KSgroep = 2
 
         jaar = form['jaar'].value
         if jaar is None:
@@ -168,23 +170,18 @@ class View:
                 periode = ''
 
         clean = web.input().has_key('clean')
-        if clean is False:
-            try:
-                clean = int(web.input()['clean'])
-            except:
-                clean = ''
-
 
         return {"maxdepth":maxdepth, "KSgroep":KSgroep, "jaar":jaar, "periode":periode, "clean":clean}
 
-    def POST(self, userHash, order):
+    def view(self, userHash, order, parent):
         if not authenticated(userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
-
 
         form = self.settings_form()
         KSgroepen = model.loadKSgroepen()
         settings = self.get_post_params(form)
+        if parent == 'GET':
+            settings["clean"] = True
         self.fill_dropdowns(form, settings, KSgroepen)
 
         order = int(order)
@@ -205,10 +202,8 @@ class View:
         totaal['lasten'] = 0
         totaal['ruimte'] = 0
 
-        try:
-            totaal['reserve'] = reserves[str(order)]
-        except:
-            totaal['reserve'] = 0
+        reserves = model.get_reserves()
+        totaal['reserve'] = reserves[str(order)]
 
         try:
             totaal['begroting'] = float(begroting[str(order)])
@@ -241,6 +236,12 @@ class View:
 
         return render.vieworder(form, grootboek, sapdatum, htmlgrootboek, totaal)
 
+    def POST(self, userHash, order):
+        return self.view(userHash, order, 'POST')
+
+    def GET(self, userHash, order):
+        return self.view(userHash, order, 'GET')
+
     def fill_dropdowns(self, form, settings, KSgroepen):
         dropdownlist = []
         for i, path in enumerate(KSgroepen):
@@ -254,68 +255,6 @@ class View:
         form.clean.checked = settings["clean"]
 
 
-    def GET(self, userHash, order):
-        if not authenticated(userHash):
-            return web.notfound("Sorry the page you were looking for was not found.")
-
-        form = self.settings_form()
-        KSgroepen = model.loadKSgroepen()
-        settings = self.get_post_params(form)
-        settings["clean"] = True
-        settings["KSgroep"] = 2
-        settings["maxdepth"] = 3
-        self.fill_dropdowns(form, settings, KSgroepen)
-
-        order = int(order)
-        grootboek = KSgroepen[settings["KSgroep"]]
-        sapdatum = config['lastSAPexport']
-
-        root = GrootBoek.load(order, grootboek, settings["jaar"], settings["periode"])
-        root.clean_empty_nodes()
-        reserves = model.get_reserves()
-        begroting = model.get_begroting()
-        totaal = {}
-        htmlgrootboek = []
-
-        totaal['order'] = order
-        totaal['baten'] = 0
-        totaal['lasten'] = 0
-        totaal['ruimte'] = 0
-
-        try:
-            totaal['reserve'] = reserves[str(order)]
-        except:
-            totaal['reserve'] = 0
-
-        try:
-            totaal['begroting'] = float(begroting[str(order)])
-        except:
-            totaal['begroting'] = 0
-
-        if totaal['reserve'] < 0:
-            totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['begroting'] + totaal['reserve']
-        else:
-            totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['begroting']
-
-        for child in root.children:
-            htmlgrootboek.append(child.html_tree(render, settings["maxdepth"], 0))
-# TODO: DIT IS SPECIFIEK VOOR 29FALW2
-            if child.name == 'BATEN-2900':
-                totaal['baten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
-            elif child.name == 'LASTEN2900':
-                totaal['lasten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
-
-        totaal['reserve'] = moneyfmt(totaal['reserve'])
-        totaal['ruimte'] = moneyfmt(totaal['ruimte'])
-        totaal['baten'] = moneyfmt(totaal['baten'])
-        totaal['lasten'] = moneyfmt(totaal['lasten'])
-        totaal['begroting'] = moneyfmt(totaal['begroting'])
-
-# TODO: INFO ERGENS ANDERS VANDAAN HALEN VOOR UL
-        #if str(order)[4] != '0' and str(order)[4] != '1':
-            #return render.viewproject(grootboek, sapdatum, htmlgrootboek, totaal)
-
-        return render.vieworder(form, grootboek, sapdatum, htmlgrootboek, totaal)
 
 class Login:
     login_form = web.form.Form(

@@ -15,9 +15,11 @@ class GrootBoek():
 
         self.totaalGeboektNode = {}  # Dict: kostensoort:totaal van de node
         self.totaalObligosNode = {}
+        self.totaalPlanNode = {}
 
         self.totaalGeboektTree = 0
         self.totaalObligosTree = 0
+        self.totaalPlanTree = 0
 
     def add_kostensoort(self, kostensoort, descr):
         self.kostenSoorten[kostensoort] = descr
@@ -32,8 +34,8 @@ class GrootBoek():
 
     def druk_af(self):
         print 'grootboek ' + self.name + ' (level '+str(self.level)+') - ' + self.descr
-        print 'totaal node: ' + str(self.totaalGeboektNode) + ' | ' + str(self.totaalObligosNode)
-        print 'totaal tree: ' + str(self.totaalGeboektTree) + ' | ' + str(self.totaalObligosTree)
+        print 'totaal node: ' + str(self.totaalPlanNode) + str(self.totaalGeboektNode) + ' | ' + str(self.totaalObligosNode)
+        print 'totaal tree: ' + str(self.totaalPlanTree) + str(self.totaalGeboektTree) + ' | ' + str(self.totaalObligosTree)
 
         if self.parent != '':
             print 'belongs to parent: ' + self.parent.name
@@ -67,23 +69,26 @@ class GrootBoek():
 
         unfolded = False # Never show the details
         for kostenSoort, regels in self.regels.iteritems():
+            plan = 0
+            plan = moneyfmt(self.totaalPlanNode[kostenSoort])
             totaalGeboekt = moneyfmt(self.totaalGeboektNode[kostenSoort])
             totaalObligos = moneyfmt(self.totaalObligosNode[kostenSoort])
             for regel in regels:
                 regel.kosten = moneyfmt(regel.kosten, places=2, dp='.')
 
             KSname = self.kostenSoorten[kostenSoort]
-            KSname = KSname.decode('ascii', 'replace').encode('utf-8')
-            regelshtml.append(render.regels(self.name, kostenSoort, KSname, totaalGeboekt, totaalObligos, regels, unfolded))
+            KSname = str(kostenSoort) +' - ' + KSname.decode('ascii', 'replace').encode('utf-8')
+            regelshtml.append(render.regels(self.name, kostenSoort, KSname, totaalGeboekt, totaalObligos, plan, regels, unfolded))
 
         if depth <= maxdepth:
             unfolded = True
         else:
             unfolded = False
 
+        totaalPlan = moneyfmt(self.totaalPlanTree)
         totaalGeboekt = moneyfmt(self.totaalGeboektTree)
         totaalObligos = moneyfmt(self.totaalObligosTree)
-        html = render.grootboekgroep(self.name, self.descr, groups, regelshtml, unfolded, totaalGeboekt, totaalObligos, depth)
+        html = render.grootboekgroep(self.name, self.descr, groups, regelshtml, unfolded, totaalGeboekt, totaalObligos, totaalPlan, depth)
 
         return html
 
@@ -91,7 +96,7 @@ class GrootBoek():
         output = []
         if self.level <= maxdepth:
             # Use drukAf() voor debugging.
-            #self.drukAf()
+            self.drukAf()
             output.append(self.regel())
             for child in self.children:
                 output.extend(child.walk_tree(maxdepth))
@@ -129,42 +134,53 @@ class GrootBoek():
         else:
             return ''
 
-    def assign_regels_recursive(self, regelsGeboekt, regelsObligos):
+    def assign_regels_recursive(self, regelsGeboekt, regelsObligos, regelsPlan):
         for child in self.children:
-            child.assign_regels_recursive(regelsGeboekt, regelsObligos)
+            child.assign_regels_recursive(regelsGeboekt, regelsObligos, regelsPlan)
 
         ksGeboekt = set(self.kostenSoorten.keys()) & set(regelsGeboekt.keys())
         ksObligos = set(self.kostenSoorten.keys()) & set(regelsObligos.keys())
+        ksPlan = set(self.kostenSoorten.keys()) & set(regelsPlan.keys())
 
         regelsGeboektFiltered = { your_key: regelsGeboekt[your_key] for your_key in ksGeboekt}
         regelsObligosFiltered = { your_key: regelsObligos[your_key] for your_key in ksObligos}
+        regelsPlanFiltered = { your_key: regelsPlan[your_key] for your_key in ksPlan}
 
         self.regels = regelsGeboektFiltered
+        self.regels.update(regelsObligosFiltered)
+        self.regels.update(regelsPlanFiltered)
 
 
     def set_totals(self):
-        geboekttotaal, obligostotaal = self.__totaal()
+        geboekttotaal, obligostotaal, plantotaal = self.__totaal()
 
         for child in self.children:
-            geboekt, obligos = child.set_totals()
+            geboekt, obligos, plan = child.set_totals()
             geboekttotaal += geboekt
             obligostotaal += obligos
+            plantotaal += plan
 
         self.totaalGeboektTree = geboekttotaal
         self.totaalObligosTree = obligostotaal
+        self.totaalPlanTree = plantotaal
 
-        return geboekttotaal, obligostotaal
+        return geboekttotaal, obligostotaal, plantotaal
 
     def __totaal(self):
         geboekt = {}
         obligos = {}
+        plan = {}
         for kostenSoort, lijst in self.regels.iteritems():
             if not kostenSoort in obligos:
                 obligos[kostenSoort] = 0
             if not kostenSoort in geboekt:
                 geboekt[kostenSoort] = 0
+            if not kostenSoort in plan:
+                plan[kostenSoort] = 0
 
             for regel in lijst:
+                if regel.tiepe == 'Plan':
+                    plan[kostenSoort] = plan[kostenSoort] + regel.kosten
                 if regel.tiepe == 'Obligo':
                     obligos[kostenSoort] = obligos[kostenSoort] + regel.kosten
                 elif regel.tiepe == 'Geboekt':
@@ -172,8 +188,9 @@ class GrootBoek():
 
         self.totaalGeboektNode = geboekt
         self.totaalObligosNode = obligos
+        self.totaalPlanNode = plan
 
-        return sum(geboekt.itervalues()), sum(obligos.itervalues())
+        return sum(geboekt.itervalues()), sum(obligos.itervalues()), sum(plan.itervalues())
 
 
     # Creates a list of all levels in the tree
@@ -271,8 +288,6 @@ def load_raw_sap_export(path):
 
 def load_empty(grootboek):
     root = load_raw_sap_export(grootboek)
-
-    ksGeboekt, ksObligos = model.get_kosten_soorten(0)
     root.normalize_levels()
 
     return root
@@ -280,11 +295,12 @@ def load_empty(grootboek):
 def load(order, grootboek, jaar, periode):
     root = load_raw_sap_export(grootboek)
 
-    ksGeboekt, ksObligos = model.get_kosten_soorten(order)
+    ksGeboekt, ksObligos, ksPlan = model.get_kosten_soorten(order)
     regelsGeboekt = model.get_geboekt(jaar, periode, order, ksGeboekt)
     regelsObligos = model.get_obligos(order, ksObligos)
+    regelsPlan = model.get_plan(jaar, order, ksPlan)
 
-    root.assign_regels_recursive(regelsGeboekt, regelsObligos)
+    root.assign_regels_recursive(regelsGeboekt, regelsObligos, regelsPlan)
     root.normalize_levels()
     root.set_totals()
 
