@@ -90,7 +90,6 @@ class Overview:
 
         sapdatum = config['lastSAPexport']
         reserves = model.get_reserves()
-        begroting = model.get_begroting()
 
         headers = ['Order', 'Reserve op 1 jan', 'Begroting',  'Bestedingsruimte']
 
@@ -109,15 +108,8 @@ class Overview:
             except:
                 line['reserve'] = 0
 
-            try:
-                line['begroting'] = float(begroting[str(order)])
-            except:
-                line['begroting'] = 0
-
-            if line['reserve'] < 0:
-                line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + line['begroting'] + line['reserve']
-            else:
-                line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + line['begroting']
+            line['begroting'] = model.get_plan_totaal(2015,order)
+            line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) - line['begroting']
 
             for child in root.children:
                 line[child.name] = moneyfmt((-1*(child.totaalGeboektTree + child.totaalObligosTree)))
