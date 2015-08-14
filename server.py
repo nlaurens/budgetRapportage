@@ -180,7 +180,7 @@ class View:
             try:
                 KSgroep = int(web.input()['ksgroep'])
             except:
-                KSgroep = 2
+                KSgroep = 0
 
         jaar = form['jaar'].value
         if jaar is None:
@@ -260,6 +260,8 @@ class View:
         #if str(order)[4] != '0' and str(order)[4] != '1':
             #return render.viewproject(grootboek, sapdatum, htmlgrootboek, totaal)
 
+        #print '----------------'
+        #root.walk_tree(9999)
         return render.vieworder(form, grootboek, sapdatum, htmlgrootboek, totaal)
 
     def POST(self, userHash, order):

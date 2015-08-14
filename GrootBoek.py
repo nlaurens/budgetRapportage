@@ -44,6 +44,13 @@ class GrootBoek():
             print 'contains the following kostensoorten:'
             print self.kostenSoorten
 
+        if self.regels:
+            print 'contains the following regels:'
+            for ks, regels in self.regels.iteritems():
+                print ks
+                for regel in regels:
+                    print '   '+ regel.omschrijving + ' - ' + regel.kosten + ' - ' + regel.tiepe
+
         if self.children:
             print 'and has children:'
             for child in self.children:
@@ -96,12 +103,12 @@ class GrootBoek():
         output = []
         if self.level <= maxdepth:
             # Use drukAf() voor debugging.
-            self.drukAf()
-            output.append(self.regel())
+            self.druk_af()
+            #output.append(self.regel())
             for child in self.children:
-                output.extend(child.walk_tree(maxdepth))
+                child.walk_tree(maxdepth)
+                #output.extend(child.walk_tree(maxdepth))
 
-        return output
 
     def walk_levels(self):
         levels = {self.level}
@@ -147,8 +154,18 @@ class GrootBoek():
         regelsPlanFiltered = { your_key: regelsPlan[your_key] for your_key in ksPlan}
 
         self.regels = regelsGeboektFiltered
-        self.regels.update(regelsObligosFiltered)
-        self.regels.update(regelsPlanFiltered)
+        for kp, regels in regelsObligosFiltered.iteritems():
+            if kp in self.regels:
+                self.regels[kp].extend(regels)
+            else:
+                self.regels[kp] = regels
+
+        for kp, regels in regelsPlanFiltered.iteritems():
+            if kp in self.regels:
+                self.regels[kp].extend(regels)
+            else:
+                self.regels[kp] = regels
+
 
 
     def set_totals(self):
@@ -274,8 +291,11 @@ def load_raw_sap_export(path):
 
         if item!='':
             if item.isdigit():
-                group.add_kostensoort(int(item), descr)
-            elif item != '>>> Interval leeg':
+                if descr.isdigit():
+                    print 'TODO deze intervallen ook teovoegen??'
+                else:
+                    group.add_kostensoort(int(item), descr)
+            elif item != '>>>':
                 if group == '':
                     group = GrootBoek(item, descr, level, '')
                     root = group
