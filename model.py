@@ -234,5 +234,3 @@ def get_plan_totaal(jaar, order):
         plan += float(regelDB[config["SAPkeys"]["plan"]["kosten"]].replace(',',''))
 
     return -1*plan
-
-

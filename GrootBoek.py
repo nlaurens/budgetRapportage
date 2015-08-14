@@ -72,7 +72,9 @@ class GrootBoek():
             for regel in regels:
                 regel.kosten = moneyfmt(regel.kosten, places=2, dp='.')
 
-            regelshtml.append(render.regels(self.name, kostenSoort, self.kostenSoorten[kostenSoort], totaalGeboekt, totaalObligos, regels, unfolded))
+            KSname = self.kostenSoorten[kostenSoort]
+            KSname = KSname.decode('ascii', 'replace').encode('utf-8')
+            regelshtml.append(render.regels(self.name, kostenSoort, KSname, totaalGeboekt, totaalObligos, regels, unfolded))
 
         if depth <= maxdepth:
             unfolded = True
