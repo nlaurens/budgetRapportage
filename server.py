@@ -126,9 +126,11 @@ class Overview:
 
 class View:
     settings_form = web.form.Form(
+        #web.form.Checkbox("lovelycheckbox", description="lovelycheckbox", class_="standard", value="something.. Anything!"),
         web.form.Dropdown('jaar', [(2015, '2015'), (2014, '2014'), (2013, '2013'), (2012, '2012')]),
         web.form.Dropdown('maxdepth', [(0,'1. Totals'), (3,'2. Subtotals'), (10, '3. Details')]),
         web.form.Dropdown('ksgroep', []),
+        web.form.Checkbox('clean'),
         web.form.Dropdown('periode', [('', 'all')]),
         web.form.Button('Update', 'update'),
     )
@@ -165,7 +167,15 @@ class View:
             except:
                 periode = ''
 
-        return {"maxdepth":maxdepth, "KSgroep":KSgroep, "jaar":jaar, "periode":periode}
+        clean = web.input().has_key('clean')
+        if clean is False:
+            try:
+                clean = int(web.input()['clean'])
+            except:
+                clean = ''
+
+
+        return {"maxdepth":maxdepth, "KSgroep":KSgroep, "jaar":jaar, "periode":periode, "clean":clean}
 
     def POST(self, userHash, order):
         if not authenticated(userHash):
@@ -177,12 +187,14 @@ class View:
         settings = self.get_post_params(form)
         self.fill_dropdowns(form, settings, KSgroepen)
 
-
         order = int(order)
         grootboek = KSgroepen[settings["KSgroep"]]
         sapdatum = config['lastSAPexport']
 
         root = GrootBoek.load(order, grootboek, settings["jaar"], settings["periode"])
+        if settings["clean"]:
+            root.clean_empty_nodes()
+        
         reserves = model.get_reserves()
         begroting = model.get_begroting()
         totaal = {}
@@ -238,6 +250,7 @@ class View:
         form.jaar.value = settings["jaar"]
         form.maxdepth.value = settings["maxdepth"]
         form.periode.value = settings["periode"]
+        form.clean.checked = settings["clean"]
 
 
     def GET(self, userHash, order):
@@ -247,14 +260,15 @@ class View:
         form = self.settings_form()
         KSgroepen = model.loadKSgroepen()
         settings = self.get_post_params(form)
+        settings["clean"] = True
         self.fill_dropdowns(form, settings, KSgroepen)
-
 
         order = int(order)
         grootboek = KSgroepen[settings["KSgroep"]]
         sapdatum = config['lastSAPexport']
 
         root = GrootBoek.load(order, grootboek, settings["jaar"], settings["periode"])
+        root.clean_empty_nodes()
         reserves = model.get_reserves()
         begroting = model.get_begroting()
         totaal = {}

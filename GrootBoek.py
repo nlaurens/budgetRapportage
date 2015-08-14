@@ -287,7 +287,6 @@ def load(order, grootboek, jaar, periode):
     regelsObligos = model.get_obligos(order, ksObligos)
 
     root.assign_regels_recursive(regelsGeboekt, regelsObligos)
-    root.clean_empty_nodes()
     root.normalize_levels()
     root.set_totals()
 
