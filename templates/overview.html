@@ -1,4 +1,4 @@
-$def with (headers, headersgrootboek, orders, sapDatum, grootboek, userHash)
+$def with (headers, headersgrootboek, tables, sapDatum, grootboek, userHash)
 
 
 <!doctype html>
@@ -64,32 +64,57 @@ $def with (headers, headersgrootboek, orders, sapDatum, grootboek, userHash)
           </div>
         </div>
       </div>
-            <table class="table">
-                <thead>
-                <tr>
-                    $for header in headers:
-                        <th class="text-right">$header</th>
-                    $for header in headersgrootboek.iterkeys():
-                        <th>$headersgrootboek[header]</th>
-                </tr>
-                </thead>
-                <tbody>
-
-                $for order in orders:
+            $for lines in tables:
+                <table class="table">
+                    <thead>
                     <tr>
-                        <td class="text-right"><a href="/view/$userHash/$order['order']" target="_blank">$order['ordername']</a></td>
-                        <td class="price-label">&euro;$order['reserve']</td>
-                        <td class="price-label">&euro;$order['begroting']</td>
-                        <td class="price-label">&euro;$order['ruimte']</td>
-                        $for name in headersgrootboek.iterkeys():
-                            $if name in order:
-                                <td class="price-label">&euro;$order[name]</td>
-                            $else:
-                                <td class="price-label">&euro;0</td>
+                        $for header in headers:
+                            <th class="text-right">$header</th>
+                        $for header in headersgrootboek.iterkeys():
+                            <th>$headersgrootboek[header]</th>
                     </tr>
+                    </thead>
+                    <tbody>
 
-                </tbody>
-            </table>
+                    $for i,line in enumerate(lines):
+                        $if line['order']==0:
+                            <tr>
+                                <td class="text-right"><b>$line['ordername']</b></a></td>
+                                <td class="price-label">&euro;$line['reserve']</td>
+                                <td class="price-label">&euro;$line['begroting']</td>
+                                <td class="price-label">&euro;$line['ruimte']</td>
+                                $for name in headersgrootboek.iterkeys():
+                                    $if name in line:
+                                        <td class="price-label">&euro;$line[name]</td>
+                                    $else:
+                                        <td class="price-label">&euro;0</td>
+                            </tr>
+                            <tr>
+                                <td class="text-right"></td>
+                                <td class="price-label"></td>
+                                <td class="price-label"></td>
+                                <td class="price-label"></td>
+                                $for name in headersgrootboek.iterkeys():
+                                    $if name in line:
+                                        <td class="price-label"></td>
+                                    $else:
+                                        <td class="price-label"></td>
+                            </tr>
+                        $else:
+                            <tr>
+                                <td class="text-right"><a href="/view/$userHash/$line['order']" target="_blank">$line['ordername']</a></td>
+                                <td class="price-label">&euro;$line['reserve']</td>
+                                <td class="price-label">&euro;$line['begroting']</td>
+                                <td class="price-label">&euro;$line['ruimte']</td>
+                                $for name in headersgrootboek.iterkeys():
+                                    $if name in line:
+                                        <td class="price-label">&euro;$line[name]</td>
+                                    $else:
+                                        <td class="price-label">&euro;0</td>
+                            </tr>
+
+                    </tbody>
+                </table>
     </div>
 </body>
 </html>

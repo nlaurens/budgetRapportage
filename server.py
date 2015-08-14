@@ -80,28 +80,44 @@ class Overview:
         #intersect of allowed budgets and report group
         allowed = model.get_budgets(userHash, config["salt"])
         root = GrootBoekGroep.load(grootboekgroepfile)
-        reportorders = root.list_orders()
-        budgets = list(set(allowed) & set(reportorders.keys()))
 
+        # Get params
         KSgroep, jaar, periode = self.get_post_params()
         KSgroep = 1
         maxdepth = 1
 
         KSgroepen = model.loadKSgroepen()
         grootboek = KSgroepen[KSgroep]
-
         sapdatum = config['lastSAPexport']
         reserves = model.get_reserves()
 
-        headers = ['Order', 'Reserve op 1 jan', 'Begroting',  'Bestedingsruimte']
-
+        headers = ['Order', 'Reserve', 'Begroting',  'Bestedingsruimte']
         headersgrootboek = {}
-        root = GrootBoek.load_empty(grootboek)
-        for child in root.children:
+        emptyGB = GrootBoek.load_empty(grootboek)
+        for child in emptyGB.children:
             headersgrootboek[child.name] = child.descr
 
-        orders = []
-        for order in budgets:
+        tables = []
+        for child in root.children:
+            totals = {}
+            totals['reserve'] = 0
+            totals['ruimte'] = 0
+            totals['plan'] = 0
+            lines = []
+            lines, totals = self.create_table_lines(lines, totals, reserves, child, allowed, grootboek, jaar, periode)
+            tables.append(lines)
+
+        return render.overview(headers, headersgrootboek, tables, sapdatum, grootboek, userHash)
+
+    def create_table_lines(self, lines, totals, reserves, node, allowed, grootboek, jaar, periode):
+        for child in node.children:
+            lines, totals_child = self.create_table_lines(lines, totals, reserves, child, allowed, grootboek, jaar, periode)
+            totals['reserve'] += totals_child['reserve']
+            totals['ruimte'] += totals_child['ruimte']
+            totals['plan'] += totals_child['plan']
+            
+        budgets = list(set(allowed) & set(node.orders.keys()))
+        for i, order in enumerate(budgets):
             line = {}
             root = GrootBoek.load(order, grootboek, jaar, periode)
 
@@ -109,22 +125,33 @@ class Overview:
                 line['reserve'] = reserves[str(order)]
             except:
                 line['reserve'] = 0
+            totals['reserve'] += line['reserve']
+
 
             line['begroting'] = model.get_plan_totaal(2015,order)
+            totals['plan'] += line['begroting']
             line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) - line['begroting']
+            totals['ruimte'] += line['ruimte']
 
             for child in root.children:
                 line[child.name] = moneyfmt((-1*(child.totaalGeboektTree + child.totaalObligosTree)))
 
             line['order'] =order
-            line['ordername'] = reportorders[order] + ' (' + str(order) + ')'
+            line['ordername'] = node.orders[order] + ' (' + str(order) + ')'
             line['reserve'] = moneyfmt(line['reserve'])
             line['ruimte'] = moneyfmt(line['ruimte'])
             line['begroting'] = moneyfmt(line['begroting'])
-            orders.append(line)
+            lines.append(line)
 
-        return render.overview(headers, headersgrootboek, orders, sapdatum, grootboek, userHash)
+        totaal = {}
+        totaal['order'] = 0
+        totaal['ordername'] = "Totaal " + node.descr
+        totaal['reserve'] = moneyfmt(totals['reserve'])
+        totaal['ruimte'] = moneyfmt(totals['ruimte'])
+        totaal['begroting'] = moneyfmt(totals['plan'])
+        lines.append(totaal)
 
+        return lines, totals
 
 class View:
     settings_form = web.form.Form(
@@ -192,7 +219,6 @@ class View:
         if settings["clean"]:
             root.clean_empty_nodes()
         
-        reserves = model.get_reserves()
         begroting = model.get_begroting()
         totaal = {}
         htmlgrootboek = []
