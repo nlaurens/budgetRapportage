@@ -68,7 +68,7 @@ $def with (headers, headersgrootboek, orders, sapDatum, grootboek, userHash)
                 <thead>
                 <tr>
                     $for header in headers:
-                        <th>$header</th>
+                        <th class="text-right">$header</th>
                     $for header in headersgrootboek.iterkeys():
                         <th>$headersgrootboek[header]</th>
                 </tr>
@@ -77,7 +77,7 @@ $def with (headers, headersgrootboek, orders, sapDatum, grootboek, userHash)
 
                 $for order in orders:
                     <tr>
-                        <td><a href="/view/$userHash/$order['order']" target="_blank">$order['order']</a></td>
+                        <td class="text-right"><a href="/view/$userHash/$order['order']" target="_blank">$order['ordername']</a></td>
                         <td class="price-label">&euro;$order['reserve']</td>
                         <td class="price-label">&euro;$order['begroting']</td>
                         <td class="price-label">&euro;$order['ruimte']</td>

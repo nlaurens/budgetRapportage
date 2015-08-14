@@ -78,8 +78,8 @@ class Overview:
         #intersect of allowed budgets and report group
         allowed = model.get_budgets(userHash, config["salt"])
         root = GrootBoekGroep.load(grootboekgroepfile)
-        report = root.list_orders()
-        budgets = list(set(allowed) & set(report))
+        reportorders = root.list_orders()
+        budgets = list(set(allowed) & set(reportorders.keys()))
 
         KSgroep, jaar, periode = self.get_post_params()
         KSgroep = 1
@@ -114,7 +114,8 @@ class Overview:
             for child in root.children:
                 line[child.name] = moneyfmt((-1*(child.totaalGeboektTree + child.totaalObligosTree)))
 
-            line['order'] = order
+            line['order'] =order
+            line['ordername'] = reportorders[order] + ' (' + str(order) + ')'
             line['reserve'] = moneyfmt(line['reserve'])
             line['ruimte'] = moneyfmt(line['ruimte'])
             line['begroting'] = moneyfmt(line['begroting'])
