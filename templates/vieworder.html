@@ -31,7 +31,13 @@ $def with (form, grootboek, sapDatum, tree, order)
           </h1>
         </div>
         <div class="col-xs-6 text-right">
-          <h1>$order['order']</h1>
+          <h1>$order['order'] - 
+            <a href="/logout">
+                <button type="button" class="btn btn-default btn-sm">
+                Logout
+                </button>
+            </a>                
+          </h1>
         </div>
       </div>
       <div class="row">
@@ -43,13 +49,14 @@ $def with (form, grootboek, sapDatum, tree, order)
             <div class="panel-body">
               <p>
                   Reserve op 1 Jan: &euro;$order['reserve']<br>
-                  Begroting: &euro;$order['begroting']<br>
-                  Totale baten: &euro;$order['baten']<br>
-                  Totale Lasten: &euro;$order['lasten']<br>
+                  Begroting: &euro;TODO$order['begroting']<br>
+                  Totale baten: &euro;TODO$order['baten']<br>
+                  Totale Lasten: &euro;TODO$order['lasten']<br>
                   $if order['ruimte'] > 0:
-                    Nog te besteden: &euro;$order['ruimte']<br>
+                    Nog te besteden: &euro;TODO$order['ruimte']<br>
                   $else:
-                    Tekort: &euro;$order['ruimte']<br>
+                    Tekort: &euro;TODO$order['ruimte']<br>
+                  Last update was on: $sapDatum<br>
               </p>
             </div>
           </div>
@@ -60,17 +67,11 @@ $def with (form, grootboek, sapDatum, tree, order)
               <h4>Settings</h4>
             </div>
             <div class="panel-body">
-              <p>
-                <form name="main" method="post">
-                    $:form.render()
+                <form name="main" method="post" class=form-horizontal"">
+                    <div class="form-group">
+                        $:form.render()
+                    </div>
                 </form>
-                Last update was on: $sapDatum<br>
-                <a href="/logout">
-                    <button type="button" class="btn btn-default btn-sm">
-                    Logout
-                    </button>
-                </a>                
-              </p>
             </div>
           </div>
         </div>
