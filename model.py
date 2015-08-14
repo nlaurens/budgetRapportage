@@ -75,7 +75,7 @@ def get_reserves():
             line = line.strip()
             if not line == '':
                 order, reserve = line.split()
-                reserves[order] = reserve
+                reserves[order] = -1*float(reserve)
 
     return reserves
 

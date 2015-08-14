@@ -65,11 +65,7 @@ class GrootBoek():
 
         regelshtml = []
 
-        if depth < maxdepth:
-            unfolded = True
-        else:
-            unfolded = False
-
+        unfolded = False # Never show the details
         for kostenSoort, regels in self.regels.iteritems():
             totaalGeboekt = moneyfmt(self.totaalGeboektNode[kostenSoort])
             totaalObligos = moneyfmt(self.totaalObligosNode[kostenSoort])

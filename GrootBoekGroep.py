@@ -124,6 +124,28 @@ class GrootBoekGroep():
         return
 
 
+    #return all orders in groep and their descr
+#TODO FIX THIS
+    def list_orders_dict(self):
+        orders = {}
+        for child in self.children:
+            orders.update(child.list_orders_dict())
+        return self.orders
+
+
+    #return all orders in groep
+    def list_orders(self):
+        orders = []
+        for child in self.children:
+            orders.extend(child.list_orders())
+
+        for order,descr in self.orders.iteritems():
+            orders.append(order)
+        return orders
+
+
+
+
 
 def first_item_in_list(lst):
     i = next(i for i, j in enumerate(lst) if j)
@@ -161,6 +183,5 @@ def load_raw_sap_export(path):
 def load(grootboekgroepfile):
     root = load_raw_sap_export(grootboekgroepfile)
     root.normalize_levels()
-    root.walk_tree(999) # debugging
 
     return root

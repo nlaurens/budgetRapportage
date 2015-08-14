@@ -23,6 +23,7 @@ Notice that these records show only transactions up to (datum van laatste update
 import web
 import model
 import GrootBoek
+import GrootBoekGroep
 import os
 from config import config
 from functions import moneyfmt, IpBlock
@@ -69,11 +70,19 @@ class Overview:
         return KSgroep, jaar, periode
 
     def GET(self, userHash):
+        grootboekgroepfile = 'data/grootboekgroep/20081GS'
+
         if not authenticated(userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
 
-        budgets = model.get_budgets(userHash, config["salt"])
+        #intersect of allowed budgets and report group
+        allowed = model.get_budgets(userHash, config["salt"])
+        root = GrootBoekGroep.load(grootboekgroepfile)
+        report = root.list_orders()
+        budgets = list(set(allowed) & set(report))
+
         KSgroep, jaar, periode = self.get_post_params()
+        KSgroep = 1
         maxdepth = 1
 
         KSgroepen = model.loadKSgroepen()
@@ -88,18 +97,15 @@ class Overview:
         headersgrootboek = {}
         root = GrootBoek.load_empty(grootboek)
         for child in root.children:
-            if child.name != 'AFREKORD':
-                headersgrootboek[child.name] = child.descr
+            headersgrootboek[child.name] = child.descr
 
         orders = []
         for order in budgets:
             line = {}
             root = GrootBoek.load(order, grootboek, jaar, periode)
 
-            line['order'] = order
-
             try:
-                line['reserve'] = float(reserves[str(order)])
+                line['reserve'] = reserves[str(order)]
             except:
                 line['reserve'] = 0
 
@@ -116,6 +122,7 @@ class Overview:
             for child in root.children:
                 line[child.name] = moneyfmt((-1*(child.totaalGeboektTree + child.totaalObligosTree)))
 
+            line['order'] = order
             line['reserve'] = moneyfmt(line['reserve'])
             line['ruimte'] = moneyfmt(line['ruimte'])
             line['begroting'] = moneyfmt(line['begroting'])
@@ -128,7 +135,7 @@ class View:
     settings_form = web.form.Form(
         #web.form.Checkbox("lovelycheckbox", description="lovelycheckbox", class_="standard", value="something.. Anything!"),
         web.form.Dropdown('jaar', [(2015, '2015'), (2014, '2014'), (2013, '2013'), (2012, '2012')]),
-        web.form.Dropdown('maxdepth', [(0,'1. Totals'), (3,'2. Subtotals'), (10, '3. Details')]),
+        web.form.Dropdown('maxdepth', [(0,'1. Totals'), (1,'2. Subtotals'), (10, '3. Details')]),
         web.form.Dropdown('ksgroep', []),
         web.form.Checkbox('clean'),
         web.form.Dropdown('periode', [('', 'all')]),
@@ -206,7 +213,7 @@ class View:
         totaal['ruimte'] = 0
 
         try:
-            totaal['reserve'] = float(reserves[str(order)])
+            totaal['reserve'] = reserves[str(order)]
         except:
             totaal['reserve'] = 0
 
@@ -220,6 +227,7 @@ class View:
         else:
             totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['begroting']
 
+        print settings["maxdepth"]
         for child in root.children:
             htmlgrootboek.append(child.html_tree(render, settings["maxdepth"], 0))
 # TODO: DIT IS SPECIFIEK VOOR 29FALW2
@@ -235,8 +243,8 @@ class View:
         totaal['begroting'] = moneyfmt(totaal['begroting'])
 
 # TODO: INFO ERGENS ANDERS VANDAAN HALEN VOOR UL
-        if str(order)[4] != '0' and str(order)[4] != '1':
-            return render.viewproject(grootboek, sapdatum, htmlgrootboek, totaal)
+        #if str(order)[4] != '0' and str(order)[4] != '1':
+            #return render.viewproject(grootboek, sapdatum, htmlgrootboek, totaal)
 
         return render.vieworder(form, grootboek, sapdatum, htmlgrootboek, totaal)
 
@@ -261,6 +269,8 @@ class View:
         KSgroepen = model.loadKSgroepen()
         settings = self.get_post_params(form)
         settings["clean"] = True
+        settings["KSgroep"] = 2
+        settings["maxdepth"] = 3
         self.fill_dropdowns(form, settings, KSgroepen)
 
         order = int(order)
@@ -280,7 +290,7 @@ class View:
         totaal['ruimte'] = 0
 
         try:
-            totaal['reserve'] = float(reserves[str(order)])
+            totaal['reserve'] = reserves[str(order)]
         except:
             totaal['reserve'] = 0
 
@@ -309,8 +319,8 @@ class View:
         totaal['begroting'] = moneyfmt(totaal['begroting'])
 
 # TODO: INFO ERGENS ANDERS VANDAAN HALEN VOOR UL
-        if str(order)[4] != '0' and str(order)[4] != '1':
-            return render.viewproject(grootboek, sapdatum, htmlgrootboek, totaal)
+        #if str(order)[4] != '0' and str(order)[4] != '1':
+            #return render.viewproject(grootboek, sapdatum, htmlgrootboek, totaal)
 
         return render.vieworder(form, grootboek, sapdatum, htmlgrootboek, totaal)
 
