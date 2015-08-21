@@ -100,7 +100,7 @@ def get_orders(sqlLike='%'):
     return orders
 
 # Returns a list of boekingsRegel from the obligo table
-def get_obligos(jaar, periode='', order=0, kostensoorten=[]):
+def get_obligos(jaar, periodes=[], order=0, kostensoorten=[]):
     sqlwhere = '1'
     if order > 0:
         sqlwhere = '`Order`=$order'
@@ -116,8 +116,8 @@ def get_obligos(jaar, periode='', order=0, kostensoorten=[]):
     else:
         sqlwhere += ' AND `Boekjaar` = $jaar'
 
-    if periode != '':
-        sqlwhere += ' AND `Periode` = $periode'
+    if periodes:
+        sqlwhere += ' AND `Periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
 
     try:
         obligodb = db.select('obligo', where=sqlwhere, vars=locals())
@@ -199,7 +199,7 @@ def get_plan(jaar, order=0, kostensoorten=[]):
 
 
 # Returns a list of boekingsRegel from the geboekt table
-def get_geboekt(jaar, periode='', order=0, kostensoorten=[]):
+def get_geboekt(jaar, periodes=[], order=0, kostensoorten=[]):
 
     if order > 0:
         sqlwhere = '`Order`=$order'
@@ -211,8 +211,8 @@ def get_geboekt(jaar, periode='', order=0, kostensoorten=[]):
             sqlwhere += ' AND `Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
 
     sqlwhere += ' AND `Jaar` = $jaar'
-    if periode != '':
-        sqlwhere += ' AND `Periode` = $periode'
+    if periodes:
+        sqlwhere += ' AND `Periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
 
     try:
         geboektdb = db.select('geboekt', where=sqlwhere, vars=locals())

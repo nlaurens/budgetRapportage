@@ -65,7 +65,7 @@ class Overview:
             jaar = 2015
 
         try:
-            periode = int(web.input()['periode'])
+            periode = web.input()['periode']
         except:
             periode = ''
 
@@ -85,6 +85,7 @@ class Overview:
         KSgroep, jaar, periode = self.get_post_params()
         KSgroep = 1
         maxdepth = 1
+        periodes = map(int, periode.split(','))
 
         KSgroepen = model.loadKSgroepen()
         grootboek = KSgroepen[KSgroep]
@@ -104,14 +105,14 @@ class Overview:
             totals['ruimte'] = 0
             totals['plan'] = 0
             lines = []
-            lines, totals = self.create_table_lines(lines, totals, reserves, child, allowed, grootboek, jaar, periode)
+            lines, totals = self.create_table_lines(lines, totals, reserves, child, allowed, grootboek, jaar, periodes)
             tables.append(lines)
 
         return render.overview(headers, headersgrootboek, tables, sapdatum, grootboek, userHash)
 
-    def create_table_lines(self, lines, totals, reserves, node, allowed, grootboek, jaar, periode):
+    def create_table_lines(self, lines, totals, reserves, node, allowed, grootboek, jaar, periodes):
         for child in node.children:
-            lines, totals_child = self.create_table_lines(lines, totals, reserves, child, allowed, grootboek, jaar, periode)
+            lines, totals_child = self.create_table_lines(lines, totals, reserves, child, allowed, grootboek, jaar, periodes)
             totals['reserve'] += totals_child['reserve']
             totals['ruimte'] += totals_child['ruimte']
             totals['plan'] += totals_child['plan']
@@ -119,7 +120,7 @@ class Overview:
         budgets = list(set(allowed) & set(node.orders.keys()))
         for i, order in enumerate(budgets):
             line = {}
-            root = GrootBoek.load(order, grootboek, jaar, periode)
+            root = GrootBoek.load(order, grootboek, jaar, periodes)
 
             try:
                 line['reserve'] = reserves[str(order)]

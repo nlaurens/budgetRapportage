@@ -310,12 +310,12 @@ def load_empty(grootboek):
 
     return root
 
-def load(order, grootboek, jaar, periode):
+def load(order, grootboek, jaar, periodes):
     root = load_raw_sap_export(grootboek)
 
     ksGeboekt, ksObligos, ksPlan = model.get_kosten_soorten(order)
-    regelsGeboekt = model.get_geboekt(jaar, periode, order, ksGeboekt)
-    regelsObligos = model.get_obligos(jaar, periode, order, ksObligos)
+    regelsGeboekt = model.get_geboekt(jaar, periodes, order, ksGeboekt)
+    regelsObligos = model.get_obligos(jaar, periodes, order, ksObligos)
     regelsPlan = model.get_plan(jaar, order, ksPlan)
 
     root.assign_regels_recursive(regelsGeboekt, regelsObligos, regelsPlan)
