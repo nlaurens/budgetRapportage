@@ -291,9 +291,7 @@ def load_raw_sap_export(path):
 
         if item!='':
             if item.isdigit():
-                if descr.isdigit():
-                    print 'TODO deze intervallen ook teovoegen??'
-                else:
+                if not descr.isdigit():
                     group.add_kostensoort(int(item), descr)
             elif item != '>>>':
                 if group == '':
