@@ -315,7 +315,7 @@ def load(order, grootboek, jaar, periode):
 
     ksGeboekt, ksObligos, ksPlan = model.get_kosten_soorten(order)
     regelsGeboekt = model.get_geboekt(jaar, periode, order, ksGeboekt)
-    regelsObligos = model.get_obligos(order, ksObligos)
+    regelsObligos = model.get_obligos(jaar, periode, order, ksObligos)
     regelsPlan = model.get_plan(jaar, order, ksPlan)
 
     root.assign_regels_recursive(regelsGeboekt, regelsObligos, regelsPlan)

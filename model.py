@@ -100,7 +100,7 @@ def get_orders(sqlLike='%'):
     return orders
 
 # Returns a list of boekingsRegel from the obligo table
-def get_obligos(order=0, kostensoorten=[]):
+def get_obligos(jaar, periode='', order=0, kostensoorten=[]):
     sqlwhere = '1'
     if order > 0:
         sqlwhere = '`Order`=$order'
@@ -110,6 +110,14 @@ def get_obligos(order=0, kostensoorten=[]):
             sqlwhere = '`Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
         else:
             sqlwhere += ' AND `Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+
+    if sqlwhere == '1':
+        sqlwhere = ' AND `Boekjaar` = $jaar'
+    else:
+        sqlwhere += ' AND `Boekjaar` = $jaar'
+
+    if periode != '':
+        sqlwhere += ' AND `Periode` = $periode'
 
     try:
         obligodb = db.select('obligo', where=sqlwhere, vars=locals())
@@ -204,7 +212,7 @@ def get_geboekt(jaar, periode='', order=0, kostensoorten=[]):
 
     sqlwhere += ' AND `Jaar` = $jaar'
     if periode != '':
-        sqlwhere += ' AND `` = $periode'
+        sqlwhere += ' AND `Periode` = $periode'
 
     try:
         geboektdb = db.select('geboekt', where=sqlwhere, vars=locals())
