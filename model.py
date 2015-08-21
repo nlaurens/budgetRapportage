@@ -7,6 +7,7 @@ import glob
 
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"], host=config["mysql"]["host"])
 
+# Gives a list of allowed budgets for that user.
 def get_budgets(verifyHash, salt):
     authorisation = load_auth_list()
     for user, orders in authorisation.iteritems():
