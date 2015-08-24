@@ -315,7 +315,7 @@ if __name__ == "__main__":
     params['show_table'] = True
 
     orders = model.get_orders()
-    #orders = [2008101010]
+    orders = []
 
     for i, order in enumerate(orders):
 
