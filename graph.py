@@ -3,10 +3,8 @@ TODO
 
 # Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar
    kan zien.
-# TODO: periode 12,13,14,15 in 1x ophalen bij loaden
-# TODO alleen tot periode 'NU' binnen halen en plotten voor resultaat en staafjes
-# TODO: kleuren in realisatie & besteed_begroot grafiek splitsen in baten en lasten (kijk naar de som!)
-# TODO: Toevoegen totaaal begroot/besteed grafiek
+# Splitsen in 2 grootboekgroepen: baten (BFRE15EB) en lasten (BFRE15L). Dan is het echt clean.
+# Aparte kleurenschema baten/lasten gebruiken
 """
 import web
 web.config.debug = False #must be done before the rest.
@@ -154,6 +152,10 @@ class Graph:
 
     def baten_lasten_pie(self):
         lines = self.lines.copy()
+        # Convert to keur
+        for key, line in lines.iteritems():
+            lines[key] = np.array(lines[key])/1000
+
         # The slices will be ordered and plotted counter-clockwise.
         baten_labels = []
         baten_values = []
@@ -171,17 +173,29 @@ class Graph:
         plt.figure(figsize=(12,5))
         #baten
         plt.subplot(121)
+        pct= '%.f%%'
+        if not baten_labels:
+            baten_values = [ 1 ]
+            baten_labels = ['0k eur']
+            pct= ''
+
         colors = plt.cm.BuGn(np.linspace(0, 0.5, len(baten_labels)))
         plt.pie(baten_values, labels=baten_labels, colors=colors,
-                autopct='%.f%%', shadow=True, startangle=90)
+                autopct=pct, shadow=True, startangle=90)
         plt.axis('equal')
         plt.title('Baten')
 
         #lasten
         plt.subplot(122)
+        pct= '%.f%%'
+        if not lasten_labels:
+            lasten_values = [ 1 ]
+            lasten_labels = ['0k eur']
+            pct= ''
+
         colors = plt.cm.BuPu(np.linspace(0, 0.5, len(lasten_labels)))
         plt.pie(lasten_values, labels=lasten_labels, colors=colors,
-                autopct='%.f%%', shadow=True, startangle=90)
+                autopct=pct, shadow=True, startangle=90)
         plt.axis('equal')
         plt.title('Lasten')
 
@@ -286,17 +300,17 @@ class Graph:
                     for subchild in child.children:
                         totaal = ( ((subchild.totaalGeboektTree + subchild.totaalObligosTree)))
                         if periode == 1:
-                            begroot[subchild.name] =  subchild.totaalPlanTree
-                            lines[subchild.name] = [ totaal ]
+                            begroot[subchild.descr] =  subchild.totaalPlanTree
+                            lines[subchild.descr] = [ totaal ]
                         else:
-                           lines[subchild.name].append(totaal)
+                           lines[subchild.descr].append(totaal)
                 else:
                     totaal = ( ((child.totaalGeboektTree + child.totaalObligosTree)))
                     if periode == 1:
-                        begroot[child.name] = child.totaalPlanTree
-                        lines[child.name] = [ totaal ]
+                        begroot[child.descr] = child.totaalPlanTree
+                        lines[child.descr] = [ totaal ]
                     else:
-                        lines[child.name].append(totaal)
+                        lines[child.descr].append(totaal)
 
         #Remove lines that only have 0's (don't check the sum, could be +50, -50)
         remove = []
@@ -311,6 +325,12 @@ class Graph:
         self.lines = lines
         self.begroot = begroot
 
+        if not lines:
+            return False
+        return True
+
+
+
 if __name__ == "__main__":
     params = {}
     params['show_prognose'] = False
@@ -320,18 +340,18 @@ if __name__ == "__main__":
     params['show_table'] = True
 
     orders = model.get_orders()
-    #orders = [2008101011]
+    #orders = [2008105102]
 
     for i, order in enumerate(orders):
 
         print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (i+1)/len(orders)*100)
         graph = Graph()
-        graph.load(2015, order)
-        plt = graph.realisatie(params)
-        plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
+        if graph.load(2015, order):
+            plt = graph.realisatie(params)
+            plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
 
-        plt = graph.baten_lasten_pie()
-        plt.savefig('figs/'+str(order)+'-2.png', bbox_inches='tight')
+            plt = graph.baten_lasten_pie()
+            plt.savefig('figs/'+str(order)+'-2.png', bbox_inches='tight')
 
-        plt = graph.besteed_begroot()
-        plt.savefig('figs/'+str(order)+'-3.png', bbox_inches='tight')
+            plt = graph.besteed_begroot()
+            plt.savefig('figs/'+str(order)+'-3.png', bbox_inches='tight')
