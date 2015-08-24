@@ -248,7 +248,7 @@ class Graph:
 
         return plt
 
-    def load(self, order):
+    def load(self, jaar, order):
         # Get params
         subs = True
         KSgroep = 1
@@ -298,20 +298,19 @@ class Graph:
         self.begroot = -1*begroting
 
 if __name__ == "__main__":
-    web.config.debug = False
-    print '*******running main*********'
-    graph = Graph()
-    graph.old_load(2015, 2008101010)
-
-
     params = {}
     params['show_prognose'] = False
     params['show_cumsum'] = False
     params['show_details_flat'] = True
     params['show_details_stack'] = False
     params['show_table'] = True
-    plt = graph.realisatie(params)
-    plt.savefig('foo.png', bbox_inches='tight')
-    #orders = model.get_orders()
-    #for order in orders:
-        #graph = Graph('2015', str(order))
+
+    orders = model.get_orders()
+
+    for i, order in enumerate(orders):
+
+        print '%i (%i out of %i)' % (order, i, len(orders))
+        graph = Graph()
+        graph.load(2015, order)
+        plt = graph.realisatie(params)
+        plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
