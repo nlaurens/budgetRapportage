@@ -240,7 +240,7 @@ class Graph:
         return plt
 
     def load(self, order):
-        resultaat = np.array([500000,5000, 5000, 10000, 20000, 0, 0, 30000, 0, 0, 0,0])
+        resultaat = np.array([0,5000, 5000, 10000, 20000, 0, 0, 30000, 0, 0, 0,0])
         lines = {}
         lines['baten1'] = np.array([0,-2500, 0, 0, 0, 0, 0, 0, -10000, 0, 0,0])
         lines['baten2'] = np.array([0,-2500, 0, 0, 0, 0, 0, 0, -5000, 0, 0,0])
