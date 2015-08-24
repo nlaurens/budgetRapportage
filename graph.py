@@ -206,12 +206,14 @@ class Graph:
             besteed = np.absolute(np.sum(line))
             realisatie.append(besteed)
             res = np.absolute(self.begroot[key]/1000) - besteed
-            if res < 0 :
+
+            if res <= 0 :
                 color_res.append('pink')#pink
+                X_max = max(X_max, (besteed))
             else:
                 color_res.append('lightsage')
+                X_max = max(X_max, (res+besteed))
             residu.append(res)
-            X_max = max(X_max, (res+besteed))
 
         #Layout figure
         fig, ax = plt.subplots(figsize=(12, 9))
@@ -238,6 +240,7 @@ class Graph:
         i = 0
         for rect in residu_bars:
             width = int(rect.get_width())
+
             if color_res[i]=='lightsage':
                 xloc = 0.5*width + realisatie[i]
                 rankStr = '+'+str(width)
@@ -245,7 +248,9 @@ class Graph:
                 xloc = -0.4*width + realisatie[i]
                 rankStr = '-'+str(width)
 
+            xloc = min(xloc, X_max*1.01)
             yloc = rect.get_y()+rect.get_height()/2.0
+
             ax.text(xloc, yloc, rankStr,
                     verticalalignment='center', color='black', weight='bold')
             i +=1
@@ -315,7 +320,7 @@ if __name__ == "__main__":
     params['show_table'] = True
 
     orders = model.get_orders()
-    orders = []
+    #orders = [2008101011]
 
     for i, order in enumerate(orders):
 
