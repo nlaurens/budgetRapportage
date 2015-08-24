@@ -24,20 +24,20 @@ import pylab as pylab
 
 class Graph:
     def __init__(self):
-        self.resultaat = np.empty([0,0])
+        self.resultaat = None
         self.lines = {}
         self.begroot = {}
         pass
 
     def realisatie(self, params):
 #TODO use self.vars throughout the function
-        lines = self.lines
+        lines = self.lines.copy()
         resultaat = self.resultaat
 
         #Convert all to Keur:
         for key, line in lines.iteritems():
             lines[key] = np.array(lines[key])/1000
-        begroting = self.begroot/1000
+        begroting = np.cumsum(np.array(self.begroot['totaal']))/1000
         resultaat = np.array(resultaat)/1000
 
         #Fit
@@ -153,7 +153,7 @@ class Graph:
         return plt
 
     def baten_lasten_pie(self):
-        lines = self.lines
+        lines = self.lines.copy()
         # The slices will be ordered and plotted counter-clockwise.
         baten_labels = []
         baten_values = []
@@ -171,7 +171,7 @@ class Graph:
         plt.figure(figsize=(12,5))
         #baten
         plt.subplot(121)
-        colors = plt.cm.BuGn(np.linspace(0, 0.5, len(lasten_labels)))
+        colors = plt.cm.BuGn(np.linspace(0, 0.5, len(baten_labels)))
         plt.pie(baten_values, labels=baten_labels, colors=colors,
                 autopct='%.f%%', shadow=True, startangle=90)
         plt.axis('equal')
@@ -189,8 +189,12 @@ class Graph:
 
 
     def besteed_begroot(self):
-        lines = self.lines
+        lines = self.lines.copy()
         begroot = self.begroot
+
+        # Convert to keur
+        for key, line in lines.iteritems():
+            lines[key] = np.array(lines[key])/1000
 
         #data crunching
         names = list(lines.keys())
@@ -201,7 +205,7 @@ class Graph:
         for key, line in lines.iteritems():
             besteed = np.absolute(np.sum(line))
             realisatie.append(besteed)
-            res = np.absolute(begroot[key]/1000) - besteed
+            res = np.absolute(self.begroot[key]/1000) - besteed
             if res < 0 :
                 color_res.append('pink')#pink
             else:
@@ -258,15 +262,18 @@ class Graph:
         grootboek = [s for s in KSgroepen if "BFRE15E01" in s][0]
         sapdatum = config['lastSAPexport']
 
-        begroting = model.get_plan_totaal(jaar,order)
+        begroot = {}
         lines = {}
 
         resultaat = []
         for periode in range(1,13):
             if periode == 12:
                 periode == [12,13,14,15]
+# TODO optimaliseer dit. 1x de grootboek laden en dan per node de totalen per periode ophalen
+# ipv elke keer weer de mysql db raadplegen
             root = GrootBoek.load(order, grootboek, jaar, [periode])
             resultaat.append( (root.totaalGeboektTree + root.totaalObligosTree))
+            begroot['totaal'] = root.totaalPlanTree
 
 # TODO recursive function voor linen op de juist diepte
             for child in root.children:
@@ -274,12 +281,14 @@ class Graph:
                     for subchild in child.children:
                         totaal = ( ((subchild.totaalGeboektTree + subchild.totaalObligosTree)))
                         if periode == 1:
+                            begroot[subchild.name] =  subchild.totaalPlanTree
                             lines[subchild.name] = [ totaal ]
                         else:
                            lines[subchild.name].append(totaal)
                 else:
                     totaal = ( ((child.totaalGeboektTree + child.totaalObligosTree)))
                     if periode == 1:
+                        begroot[child.name] = child.totaalPlanTree
                         lines[child.name] = [ totaal ]
                     else:
                         lines[child.name].append(totaal)
@@ -295,7 +304,7 @@ class Graph:
 
         self.resultaat = resultaat
         self.lines = lines
-        self.begroot = -1*begroting
+        self.begroot = begroot
 
 if __name__ == "__main__":
     params = {}
@@ -306,11 +315,18 @@ if __name__ == "__main__":
     params['show_table'] = True
 
     orders = model.get_orders()
+    #orders = [2008101010]
 
     for i, order in enumerate(orders):
 
-        print '%i (%i out of %i)' % (order, i, len(orders))
+        print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (i+1)/len(orders)*100)
         graph = Graph()
         graph.load(2015, order)
         plt = graph.realisatie(params)
         plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
+
+        plt = graph.baten_lasten_pie()
+        plt.savefig('figs/'+str(order)+'-2.png', bbox_inches='tight')
+
+        plt = graph.besteed_begroot()
+        plt.savefig('figs/'+str(order)+'-3.png', bbox_inches='tight')
