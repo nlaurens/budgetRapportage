@@ -3,7 +3,10 @@ TODO
 
 # Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar
    kan zien.
-
+# TODO: periode 12,13,14,15 in 1x ophalen bij loaden
+# TODO alleen tot periode 'NU' binnen halen en plotten voor resultaat en staafjes
+# TODO: kleuren in realisatie & besteed_begroot grafiek splitsen in baten en lasten (kijk naar de som!)
+# TODO: Toevoegen totaaal begroot/besteed grafiek
 """
 import model
 import GrootBoek
