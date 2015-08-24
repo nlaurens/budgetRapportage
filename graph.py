@@ -165,10 +165,10 @@ class Graph:
             value = (np.sum(line))
             if value < 0:
                 baten_values.append(np.absolute(value))
-                baten_labels.append(key + '\n' + str(value) + 'k eur')
+                baten_labels.append(key + '\n' + str(int(value)) + 'k eur')
             else:
                 lasten_values.append(value)
-                lasten_labels.append(key + '\n' + str(value) + 'k eur')
+                lasten_labels.append(key + '\n' + str(int(value)) + 'k eur')
 
         plt.figure(figsize=(12,5))
         #baten
