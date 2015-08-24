@@ -8,6 +8,9 @@ TODO
 # TODO: kleuren in realisatie & besteed_begroot grafiek splitsen in baten en lasten (kijk naar de som!)
 # TODO: Toevoegen totaaal begroot/besteed grafiek
 """
+import web
+web.config.debug = False #must be done before the rest.
+
 import model
 import GrootBoek
 import GrootBoekGroep
@@ -34,11 +37,11 @@ class Graph:
         #Convert all to Keur:
         for key, line in lines.iteritems():
             lines[key] = np.array(lines[key])/1000
-        begroting = params['begroting']/1000
+        begroting = self.begroot/1000
         resultaat = np.array(resultaat)/1000
 
         #Fit
-        X = np.arange(1,15)
+        X = np.arange(1,13)
         resultaat = np.cumsum(resultaat)
         z = np.polyfit(X, resultaat, 1)
         p = np.poly1d(z)
@@ -46,18 +49,18 @@ class Graph:
         #Layout figure
         plt.figure(figsize=(12, 9))
 
-        ax = plt.subplot(111)  
-        ax.spines["top"].set_visible(False)  
+        ax = plt.subplot(111)
+        ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
-        ax.get_xaxis().tick_bottom()  
+        ax.get_xaxis().tick_bottom()
         plt.xticks(np.arange(0, 13, 1.0), fontsize=16)
-        plt.xlabel("Month", fontsize=18)  
+        plt.xlabel("Month", fontsize=18)
         plt.xlim(0.5, 12.51)
 
         ax.get_yaxis().tick_left()
-        plt.yticks(fontsize=14) 
-        plt.ylabel("K euro", fontsize=18)  
+        plt.yticks(fontsize=14)
+        plt.ylabel("K euro", fontsize=18)
 
         legend = {}
         legend['data'] = []
@@ -81,7 +84,7 @@ class Graph:
         if params['show_details_flat']:
             width= 1./(len(lines)+1)
             offset = (1-len(lines)*width)/2
-            i = 0 
+            i = 0
             for name, Y in lines.iteritems():
                 if params['show_cumsum']:
                     Y = np.cumsum(Y)
@@ -96,7 +99,7 @@ class Graph:
             y_offset_neg = 0
             y_offset_pos = 0
 
-            i = 0 
+            i = 0
             for name, Y in lines.iteritems():
                 if params['show_cumsum']:
                     Y = np.cumsum(Y)
@@ -105,20 +108,23 @@ class Graph:
                 p4 = plt.bar(X-offset, Y, width, bottom=y_offset, color=colors[i])
                 i += 1
                 legend['data'].append(p4[0])
-                legend['keys'].append(name)  
+                legend['keys'].append(name)
                 y_offset_neg += np.array(Y<0)*Y
                 y_offset_pos += np.array(Y>0)*Y
 
         if params['show_table']:
             cell_text = []
-            cell_text.append(resultaat)
+            text = []
+            for value in resultaat:
+                text.append('%i'%value)
+            cell_text.append(text)
             for key, line in lines.iteritems():
                 text = []
-                for x in line:
-                    if x == 0:
+                for value in line:
+                    if value == 0:
                         text.append('')
                     else:
-                        text.append('%i' % x)
+                        text.append('%i' % value)
 
                 cell_text.append(text)
 
@@ -140,7 +146,7 @@ class Graph:
                 plt.axvline(i+0.5, color='grey', ls=':')
             plt.axhline(0, color='black')
             plt.xticks([])
-            plt.xlabel("")  
+            plt.xlabel("")
 
         plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
 
@@ -161,7 +167,7 @@ class Graph:
             else:
                 lasten_values.append(value)
                 lasten_labels.append(key + '\n' + str(value) + 'k eur')
-            
+
         plt.figure(figsize=(12,5))
         #baten
         plt.subplot(121)
@@ -170,22 +176,22 @@ class Graph:
                 autopct='%.f%%', shadow=True, startangle=90)
         plt.axis('equal')
         plt.title('Baten')
-        
+
         #lasten
         plt.subplot(122)
         colors = plt.cm.BuPu(np.linspace(0, 0.5, len(lasten_labels)))
         plt.pie(lasten_values, labels=lasten_labels, colors=colors,
                 autopct='%.f%%', shadow=True, startangle=90)
-        plt.axis('equal')  
+        plt.axis('equal')
         plt.title('Lasten')
-        
+
         return plt
 
 
     def besteed_begroot(self):
         lines = self.lines
         begroot = self.begroot
-        
+
         #data crunching
         names = list(lines.keys())
         realisatie = []
@@ -206,22 +212,22 @@ class Graph:
         #Layout figure
         fig, ax = plt.subplots(figsize=(12, 9))
 
-        #ax = plt.subplot(111)  
-        ax.spines["top"].set_visible(False)  
+        #ax = plt.subplot(111)
+        ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
-        ax.get_xaxis().tick_bottom()  
+        ax.get_xaxis().tick_bottom()
         plt.xticks(fontsize=16)
-        plt.xlabel("K Euro", fontsize=18)  
+        plt.xlabel("K Euro", fontsize=18)
         plt.xlim(0, X_max*1.01)
-        
+
         ax.get_yaxis().tick_left()
-        
+
         #plot data
         pos = np.arange(len(lines))+0.5    # Center bars on the Y-axis ticks
         colors = plt.cm.BuPu(np.linspace(0, 0.5, len(lines)))
         realisatie_bars= plt.barh(pos, realisatie, align='center', height=0.5, color=colors)
-        residu_bars = plt.barh(pos, residu, left=realisatie, align='center', height=0.5, color=color_res)  
+        residu_bars = plt.barh(pos, residu, left=realisatie, align='center', height=0.5, color=color_res)
 
         #Labelling
         pylab.yticks(pos, names, fontsize=16)
@@ -235,80 +241,77 @@ class Graph:
                 xloc = -0.4*width + realisatie[i]
                 rankStr = '-'+str(width)
 
-            yloc = rect.get_y()+rect.get_height()/2.0 
-            ax.text(xloc, yloc, rankStr, 
+            yloc = rect.get_y()+rect.get_height()/2.0
+            ax.text(xloc, yloc, rankStr,
                     verticalalignment='center', color='black', weight='bold')
             i +=1
-            
+
         return plt
 
     def load(self, order):
-        resultaat = np.array([0,5000, 5000, 10000, 20000, 0, 0, 30000, 0, 0, 0,0])
-        lines = {}
-        lines['baten1'] = np.array([0,-2500, 0, 0, 0, 0, 0, 0, -10000, 0, 0,0])
-        lines['baten2'] = np.array([0,-2500, 0, 0, 0, 0, 0, 0, -5000, 0, 0,0])
-        lines['kosten1'] = np.array([0,3333, 0, 3333, 6666, 0, 0, 15000, 0, 0, 0, 0])
-        lines['kosten2'] = np.array([0,3333, 0, 3333, 6666, 0, 0, 15000, 0, 0, 0, 0])
-        lines['kosten3'] = np.array([0,3333, 5000, 3333, 6666, 0, 0, 15000, 0, 0, 0, 0])
-
-        begroot = {}
-        begroot['baten1'] = -10000
-        begroot['baten2'] = -10000
-        begroot['kosten1'] = 30000
-        begroot['kosten2'] = 50000
-        begroot['kosten3'] = 40000
-
-        self.resultaat = resultaat
-        self.lines = lines
-        self.begroot = begroot
-
-    def old_load(self, jaar, order):
-
         # Get params
         subs = True
         KSgroep = 1
         maxdepth = 1
 
         KSgroepen = model.loadKSgroepen()
-        grootboek = KSgroepen[KSgroep]
+        grootboek = [s for s in KSgroepen if "BFRE15E01" in s][0]
         sapdatum = config['lastSAPexport']
-        reserves = model.get_reserves()
 
-        begroting = model.get_plan_totaal(2015,order)
-        line = {}
+        begroting = model.get_plan_totaal(jaar,order)
+        lines = {}
 
-        X = range(1,15)
-        for periode in X:
+        resultaat = []
+        for periode in range(1,13):
+            if periode == 12:
+                periode == [12,13,14,15]
             root = GrootBoek.load(order, grootboek, jaar, [periode])
-            totaal = ( (-1*(root.totaalGeboektTree + root.totaalObligosTree)))
-            if periode == 1:
-                resultaat = [totaal]
-            else:
-                resultaat.append(totaal)
+            resultaat.append( (root.totaalGeboektTree + root.totaalObligosTree))
 
 # TODO recursive function voor linen op de juist diepte
             for child in root.children:
                 if subs:
                     for subchild in child.children:
-                        totaal = ( (-1*(subchild.totaalGeboektTree + subchild.totaalObligosTree)))
+                        totaal = ( ((subchild.totaalGeboektTree + subchild.totaalObligosTree)))
                         if periode == 1:
-                            line[subchild.name] = [ totaal ]
+                            lines[subchild.name] = [ totaal ]
                         else:
-                           line[subchild.name].append(totaal)
+                           lines[subchild.name].append(totaal)
                 else:
-                    totaal = ( (-1*(child.totaalGeboektTree + child.totaalObligosTree)))
+                    totaal = ( ((child.totaalGeboektTree + child.totaalObligosTree)))
                     if periode == 1:
-                        line[child.name] = [ totaal ]
+                        lines[child.name] = [ totaal ]
                     else:
-                        line[child.name].append(totaal)
+                        lines[child.name].append(totaal)
+
+        #Remove lines that only have 0's (don't check the sum, could be +50, -50)
+        remove = []
+        for key, line in lines.iteritems():
+            if all(v == 0 for v in line):
+                remove.append(key)
+
+        for key in remove:
+            del lines[key]
 
         self.resultaat = resultaat
-        self.lines = line
-        self.begroot = begroting
-
+        self.lines = lines
+        self.begroot = -1*begroting
 
 if __name__ == "__main__":
-    print 'running main'
+    web.config.debug = False
+    print '*******running main*********'
+    graph = Graph()
+    graph.old_load(2015, 2008101010)
+
+
+    params = {}
+    params['show_prognose'] = False
+    params['show_cumsum'] = False
+    params['show_details_flat'] = True
+    params['show_details_stack'] = False
+    params['show_table'] = True
+    plt = graph.realisatie(params)
+    plt.savefig('foo.png', bbox_inches='tight')
     #orders = model.get_orders()
     #for order in orders:
         #graph = Graph('2015', str(order))
