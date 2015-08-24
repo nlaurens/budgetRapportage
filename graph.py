@@ -33,12 +33,12 @@ class Graph:
 
         #Convert all to Keur:
         for key, line in lines.iteritems():
-            lines[key] = lines[key]/1000
+            lines[key] = np.array(lines[key])/1000
         begroting = params['begroting']/1000
-        resultaat = resultaat/1000
+        resultaat = np.array(resultaat)/1000
 
         #Fit
-        X = np.arange(1,13)
+        X = np.arange(1,15)
         resultaat = np.cumsum(resultaat)
         z = np.polyfit(X, resultaat, 1)
         p = np.poly1d(z)
@@ -265,7 +265,7 @@ class Graph:
     def old_load(self, jaar, order):
 
         # Get params
-        details = 1 # 0 = just result, 1 = depth 1, 2 = depth 2 etc.
+        subs = True
         KSgroep = 1
         maxdepth = 1
 
@@ -286,42 +286,25 @@ class Graph:
             else:
                 resultaat.append(totaal)
 
-            previous = 0
-            depth = 0
 # TODO recursive function voor linen op de juist diepte
-           # for child in root.children:
+            for child in root.children:
+                if subs:
+                    for subchild in child.children:
+                        totaal = ( (-1*(subchild.totaalGeboektTree + subchild.totaalObligosTree)))
+                        if periode == 1:
+                            line[subchild.name] = [ totaal ]
+                        else:
+                           line[subchild.name].append(totaal)
+                else:
+                    totaal = ( (-1*(child.totaalGeboektTree + child.totaalObligosTree)))
+                    if periode == 1:
+                        line[child.name] = [ totaal ]
+                    else:
+                        line[child.name].append(totaal)
 
-           #     if depth <
-           #     if subs:
-           #         for subchild in child.children:
-           #             totaal = ( (-1*(subchild.totaalGeboektTree + subchild.totaalObligosTree)))
-           #             if periode == 1:
-           #                 line[subchild.name] = [ totaal ]
-           #             else:
-           #                 line[subchild.name].append(totaal)
-           #     else:
-           #         totaal = ( (-1*(child.totaalGeboektTree + child.totaalObligosTree)))
-           #         if periode == 1:
-           #             line[child.name] = [ totaal ]
-           #         else:
-           #             line[child.name].append(totaal)
-
-        plt.figure()
-        if details > 0:
-            i = 0
-            p = {}
-            for name, Y in line.iteritems():
-                p[i] = plt.bar(X, np.cumsum(Y)/1000, 0.35, color=cm.jet(1.*i/len(line)))
-                i += 1
-
-        p1 = plt.plot(X, np.cumsum(resultaat)/1000, 'r-', lw=2)
-        p2 = plt.plot([0,12], [0,begroting/1000], 'k--', lw=2)
-
-        plt.ylabel('KEuro')
-        plt.xlabel('Periode 2015')
-        plt.title(str(order))
-        plt.legend( (p1[0], p2[0]), ('Resultaat', 'Begroting'))
-        plt.savefig('data/figs/'+ str(order) + '.png')
+        self.resultaat = resultaat
+        self.lines = line
+        self.begroot = begroting
 
 
 if __name__ == "__main__":
