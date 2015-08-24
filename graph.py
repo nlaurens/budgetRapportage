@@ -1,5 +1,6 @@
 """"
 TODO
+# Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
 
 # Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar
    kan zien.
