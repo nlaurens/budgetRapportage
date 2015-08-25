@@ -10,7 +10,7 @@ TODO
     realisatie kleur+lijntje opnemen in tabel (zoals die ind e legeda staat)    
     Add pijl voor periode 12 tussen begroot en realisatie en zet text +xx keur of -yy keur (annotate is je vriend)
 # fig2:
-    alleen puntjes van >15% plotten. De rest als 'overig' opnemen.
+    remove_pieces: check of er slechts 1 piece verwijdert wordt. Want dan kan je hem beter laten staan!
 # fig3: 
     y-labels kleurtje geven (want als niet begroot is, is ie sowieso rood..)
 
@@ -207,6 +207,26 @@ class Graph:
 
         return plt
 
+    #remove pieces < threshold of the total:
+    def remove_small_pieces(self, values, labels):
+        rest = 0
+        th = 0.15
+        totaal = np.sum(values)
+        tmpvalues = []
+        tmplabels = []
+        for i, value in enumerate(values):
+            if value/totaal < th:
+                rest += value
+            else:
+                tmpvalues.append(value)
+                tmplabels.append(labels[i])
+
+        if rest >0:
+            tmpvalues.append(rest)
+            tmplabels.append('Overig')
+
+        return tmpvalues, tmplabels
+
     def baten_lasten_pie(self):
         baten = self.baten.copy()
         lasten = self.lasten.copy()
@@ -226,6 +246,9 @@ class Graph:
             value = np.sum(line)
             lasten_values.append(value)
             lasten_labels.append(key + '\n' + str(int(value)) + 'k eur')
+
+        lasten_values, lasten_labels = self.remove_small_pieces(lasten_values, lasten_labels)
+        baten_values, baten_labels = self.remove_small_pieces(baten_values, baten_labels)
 
         plt.figure(figsize=(12,5))
         #baten
@@ -472,8 +495,8 @@ if __name__ == "__main__":
     params['show_details_stack'] = False
     params['show_table'] = True
 
-    orders = model.get_orders()
-    #orders = [2008105303]
+    #orders = model.get_orders()
+    orders = [2008108501] #2008108501
 
     for i, order in enumerate(orders):
         print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
