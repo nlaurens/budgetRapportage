@@ -3,6 +3,7 @@ TODO
 
 # Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
 
+# fig3: y-labels kleurtje geven (want als niet begroot is, is ie sowieso rood..)
 # Add pijl voor periode 12 tussen begroot en realisatie en zet text +xx keur of -yy keur (annotate is je vriend)
 # Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar
    kan zien.
@@ -46,15 +47,13 @@ class Graph:
 
     def realisatie(self, params):
 #TODO use self.vars throughout the function
-        lines = self.lines.copy()
+        baten = self.baten.copy()
+        lasten = self.lasten.copy()
+        #lines = self.lines.copy()
         resultaat = self.resultaat
         begroting = np.cumsum(self.begroot['totaal'])
-
-        #Fit
         X = np.arange(1,13)
         resultaat = np.cumsum(resultaat)
-        z = np.polyfit(X, resultaat, 1)
-        p = np.poly1d(z)
 
         #Layout figure
         plt.figure(figsize=(12, 9))
@@ -76,7 +75,9 @@ class Graph:
         legend['data'] = []
         legend['keys'] = []
 
-        colors = self.get_colors('lasten', len(lines))
+        colorslasten = self.get_colors('lasten', len(lasten))
+        colorsbaten = self.get_colors('baten', len(lasten))
+        colors = np.concatenate( (colorslasten,colorsbaten), axis=0)
 
         #Plot data
         p1 = plt.plot(X, resultaat, 'ro-', lw=2)
@@ -87,15 +88,27 @@ class Graph:
         legend['keys'].append("Begroting")
 
         if params['show_prognose']:
+            z = np.polyfit(X, resultaat, 1)
+            p = np.poly1d(z)
             p3 = plt.plot([0,12], p([0,12]))
             legend['data'].append(p3[0])
             legend['keys'].append("Prognose")
 
+#TODO lines -> baten/lasten
         if params['show_details_flat']:
-            width= 1./(len(lines)+1)
-            offset = (1-len(lines)*width)/2
+            totaalbars = len(baten)+len(lasten) 
+            width= 1./(totaalbars+1)
+            offset = (1-totaalbars*width)/2
             i = 0
-            for name, Y in lines.iteritems():
+            for name, Y in lasten.iteritems():
+                if params['show_cumsum']:
+                    Y = np.cumsum(Y)
+                p4 = plt.bar(X+width*i-0.5+offset, Y,  width, color=colors[i])
+                i += 1
+                legend['data'].append(p4[0])
+                legend['keys'].append(name)
+
+            for name, Y in baten.iteritems():
                 if params['show_cumsum']:
                     Y = np.cumsum(Y)
                 p4 = plt.bar(X+width*i-0.5+offset, Y,  width, color=colors[i])
@@ -108,9 +121,22 @@ class Graph:
             offset = (.36)/2
             y_offset_neg = 0
             y_offset_pos = 0
-
             i = 0
-            for name, Y in lines.iteritems():
+            for name, Y in lasten.iteritems():
+                if params['show_cumsum']:
+                    Y = np.cumsum(Y)
+        #TODO if line switches from sign the offset doesn't work.
+                y_offset = y_offset_neg*(np.array(Y<0)) + y_offset_pos*(np.array(Y>0))
+                p4 = plt.bar(X-offset, Y, width, bottom=y_offset, color=colors[i])
+                i += 1
+                legend['data'].append(p4[0])
+                legend['keys'].append(name)
+                y_offset_neg += np.array(Y<0)*Y
+                y_offset_pos += np.array(Y>0)*Y
+
+            y_offset_neg = 0
+            y_offset_pos = 0
+            for name, Y in baten.iteritems():
                 if params['show_cumsum']:
                     Y = np.cumsum(Y)
         #TODO if line switches from sign the offset doesn't work.
@@ -215,18 +241,37 @@ class Graph:
 
 
     def besteed_begroot(self):
-        lines = self.lines.copy()
+        baten = self.baten.copy()
+        lasten = self.lasten.copy()
+        #lines = self.lines.copy()
         begroot = self.begroot.copy()
 
-
         #data crunching
-        names = list(lines.keys())
+        names = []
+        if lasten:
+            names.extend(list(lasten.keys()))
+        if baten:
+            names.extend(list(baten.keys()))
         realisatie = []
         residu = []
         color_res = []
         X_max = 0
-        #Parse all lines
-        for key, line in lines.iteritems():
+        #Parse all lasten
+        for key, line in lasten.iteritems():
+            besteed = np.absolute(np.sum(line))
+            realisatie.append(besteed)
+            res = np.absolute(begroot[key]) - besteed
+
+            if res <= 0 :
+                color_res.append('pink')#pink
+                X_max = max(X_max, (besteed))
+            else:
+                color_res.append('lightsage')
+                X_max = max(X_max, (res+besteed))
+            residu.append(res)
+
+        #Parse all lasten
+        for key, line in baten.iteritems():
             besteed = np.absolute(np.sum(line))
             realisatie.append(besteed)
             res = np.absolute(begroot[key]) - besteed
@@ -243,7 +288,7 @@ class Graph:
         # Note the totaal key is something we added manually and
         # Does not exist in the lines.
         for key, value in begroot.iteritems():
-            if key not in lines and key != 'totaal':
+            if key not in baten and key not in lasten and key != 'totaal':
                 besteed = 0
                 realisatie.append(besteed)
                 res = np.absolute(begroot[key]) 
@@ -273,7 +318,9 @@ class Graph:
 
         #plot data
         pos = np.arange(len(realisatie))+0.5    # Center bars on the Y-axis ticks
-        colors = self.get_colors('lasten', len(lines))
+        colorslasten = self.get_colors('lasten', len(lasten))
+        colorsbaten = self.get_colors('baten', len(lasten))
+        colors = np.concatenate( (colorslasten,colorsbaten), axis=0)
 
         realisatie_bars= plt.barh(pos, realisatie, align='center', height=0.5, color=colors)
         residu_bars = plt.barh(pos, residu, left=realisatie, align='center', height=0.5, color=color_res)
@@ -410,7 +457,7 @@ if __name__ == "__main__":
     params['show_cumsum'] = False
     params['show_details_flat'] = True
     params['show_details_stack'] = False
-    params['show_table'] = True
+    params['show_table'] = False
 
     orders = model.get_orders()
     orders = [2008502040]
