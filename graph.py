@@ -36,10 +36,10 @@ class Graph:
 
     def get_colors(self, valueType, steps):
         if valueType=='lasten':
-            return plt.cm.BuPu(np.linspace(0.75, 0.25, steps))
+            return plt.cm.BuPu(np.linspace(0.75, 0.1, steps))
 
         if valueType=='baten':
-            return plt.cm.BuGn(np.linspace(0.75, 0.25, steps))
+            return plt.cm.BuGn(np.linspace(0.75, 0.1, steps))
 
         sys.exit('unknown color map ' + valueType + ' in Graph.get_colors()') 
 
@@ -74,7 +74,7 @@ class Graph:
         legend['keys'] = []
 
         colorslasten = self.get_colors('lasten', len(lasten))
-        colorsbaten = self.get_colors('baten', len(lasten))
+        colorsbaten = self.get_colors('baten', len(baten))
         colors = np.concatenate( (colorslasten,colorsbaten), axis=0)
 
         #Plot data
@@ -109,6 +109,7 @@ class Graph:
             for name, Y in baten.iteritems():
                 if params['show_cumsum']:
                     Y = np.cumsum(Y)
+
                 p4 = plt.bar(X+width*i-0.5+offset, Y,  width, color=colors[i])
                 i += 1
                 legend['data'].append(p4[0])
@@ -358,7 +359,7 @@ class Graph:
 # TODO recursive function voor linen op de juist diepte.
     def parse_node(self, root, subs, lines, begroot, periode):
         for child in root.children:
-            if subs:
+            if subs and child.children:
                 for subchild in child.children:
                     totaal = ( ((subchild.totaalGeboektTree + subchild.totaalObligosTree)))
                     if periode == 1:
@@ -449,14 +450,9 @@ class Graph:
         self.lasten = self.to_np_keuro(lasten)
         self.resultaat = np.array(resultaat)/1000
 
-        tmp = baten.copy()
-        tmp.update(lasten)
-        self.lines = tmp
-
-        if not tmp:
+        if not self.baten and not self.lasten:
             return False
         return True
-
 
 
 if __name__ == "__main__":
@@ -468,7 +464,7 @@ if __name__ == "__main__":
     params['show_table'] = True
 
     orders = model.get_orders()
-    orders = [2008502040]
+    #orders = [2008105303]
 
     for i, order in enumerate(orders):
         print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
@@ -476,9 +472,12 @@ if __name__ == "__main__":
         if graph.load(2015, order):
             plt = graph.realisatie(params)
             plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
+            plt.close()
 
             plt = graph.baten_lasten_pie()
             plt.savefig('figs/'+str(order)+'-2.png', bbox_inches='tight')
+            plt.close()
 
             plt = graph.besteed_begroot()
             plt.savefig('figs/'+str(order)+'-3.png', bbox_inches='tight')
+            plt.close()
