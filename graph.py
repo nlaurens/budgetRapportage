@@ -26,12 +26,13 @@ import sys
 
 class Graph:
     def __init__(self):
-        self.resultaat = None
+        self.resultaat = None #totaal resultaat for whole year
         self.lines = {}
-        self.baten = {}
-        self.lasten = {}
-        self.begroot = {}
+        self.baten = {} #key = ks, np array for each periode (12)
+        self.lasten = {} #key = ks, np array for each periode (12)
+        self.begroot = {} #key = ks, 1 value for whole year
         pass
+
 
     def get_colors(self, valueType, steps):
         if valueType=='lasten':
@@ -47,12 +48,7 @@ class Graph:
 #TODO use self.vars throughout the function
         lines = self.lines.copy()
         resultaat = self.resultaat
-
-        #Convert all to Keur:
-        for key, line in lines.iteritems():
-            lines[key] = np.array(lines[key])/1000
-        begroting = np.cumsum(np.array(self.begroot['totaal']))/1000
-        resultaat = np.array(resultaat)/1000
+        begroting = np.cumsum(self.begroot['totaal'])
 
         #Fit
         X = np.arange(1,13)
@@ -167,10 +163,10 @@ class Graph:
         return plt
 
     def baten_lasten_pie(self):
-        lines = self.lines.copy()
-        # Convert to keur
-        for key, line in lines.iteritems():
-            lines[key] = np.array(lines[key])/1000
+        baten = self.baten.copy()
+        lasten = self.lasten.copy()
+        #lines = self.lines.copy()
+
 
         # The slices will be ordered and plotted counter-clockwise.
         baten_labels = []
@@ -222,11 +218,6 @@ class Graph:
         lines = self.lines.copy()
         begroot = self.begroot.copy()
 
-        # Convert to keur
-        for key, line in lines.iteritems():
-            lines[key] = np.array(lines[key])/1000
-        for key, line in begroot.iteritems():
-            begroot[key] = np.array(begroot[key])/1000
 
         #data crunching
         names = list(lines.keys())
@@ -309,14 +300,14 @@ class Graph:
 
         return plt
 
-# TODO recursive function voor linen op de juist diepte
+# TODO recursive function voor linen op de juist diepte.
     def parse_node(self, root, subs, lines, begroot, periode):
         for child in root.children:
             if subs:
                 for subchild in child.children:
                     totaal = ( ((subchild.totaalGeboektTree + subchild.totaalObligosTree)))
                     if periode == 1:
-                        begroot[subchild.descr] =  subchild.totaalPlanTree
+                        begroot[subchild.descr] = subchild.totaalPlanTree
                         lines[subchild.descr] = [ totaal ]
                     else:
                         lines[subchild.descr].append(totaal)
@@ -329,6 +320,13 @@ class Graph:
                     lines[child.descr].append(totaal)
 
         return lines, begroot
+
+    def to_np_keuro(self, dictionary):
+        # Convert to a proper numpy array in keuro.
+        for key, line in dictionary.iteritems():
+            dictionary[key] = np.array(dictionary[key])/1000
+
+        return dictionary
 
     def load(self, jaar, order):
         # Get params
@@ -391,14 +389,14 @@ class Graph:
         for key in remove:
             del begroot[key]
 
-        self.baten = baten
-        self.lasten = lasten
-        self.resultaat = resultaat
+        self.begroot = self.to_np_keuro(begroot)
+        self.baten = self.to_np_keuro(baten)
+        self.lasten = self.to_np_keuro(lasten)
+        self.resultaat = np.array(resultaat)/1000
 
         tmp = baten.copy()
         tmp.update(lasten)
         self.lines = tmp
-        self.begroot = begroot
 
         if not tmp:
             return False
