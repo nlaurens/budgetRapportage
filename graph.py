@@ -28,6 +28,8 @@ class Graph:
     def __init__(self):
         self.resultaat = None
         self.lines = {}
+        self.baten = {}
+        self.lasten = {}
         self.begroot = {}
         pass
 
@@ -340,7 +342,8 @@ class Graph:
         sapdatum = config['lastSAPexport']
 
         begroot = {}
-        lines = {}
+        baten = {}
+        lasten = {}
 
         resultaat = []
         for periode in range(1,13):
@@ -358,33 +361,46 @@ class Graph:
             begroot['totaal'] = rootLasten.totaalPlanTree
             begroot['totaal'] += rootBaten.totaalPlanTree
 
-            lines, begroot = self.parse_node(rootBaten, subs, lines, begroot, periode)
-            lines, begroot = self.parse_node(rootLasten, subs, lines, begroot, periode)
-
+            baten, begroot = self.parse_node(rootBaten, subs, baten, begroot, periode)
+            lasten, begroot = self.parse_node(rootLasten, subs, lasten, begroot, periode)
 
         #Remove lines that only have 0's (don't check the sum, could be +50, -50)
 #TODO refactor this into a function (double code, and will be tripple code with baten/lasten split)
         remove = []
-        for key, line in lines.iteritems():
+        for key, line in baten.iteritems():
             if all(v == 0 for v in line):
                 remove.append(key)
 
         for key in remove:
-            del lines[key]
+            del baten[key]
+
+        remove = []
+        for key, line in lasten.iteritems():
+            if all(v == 0 for v in line):
+                remove.append(key)
+
+        for key in remove:
+            del lasten[key]
+
         # remove 0 lines that are not in lines (and also dont remove total)
         remove = []
         for key, value in begroot.iteritems():
-            if value == 0 and key not in lines and key!='totaal':
+            if value == 0 and key not in baten and key not in lasten and key!='totaal':
                 remove.append(key)
 
         for key in remove:
             del begroot[key]
 
+        self.baten = baten
+        self.lasten = lasten
         self.resultaat = resultaat
-        self.lines = lines
+
+        tmp = baten.copy()
+        tmp.update(lasten)
+        self.lines = tmp
         self.begroot = begroot
 
-        if not lines:
+        if not tmp:
             return False
         return True
 
