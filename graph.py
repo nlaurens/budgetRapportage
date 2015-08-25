@@ -1,14 +1,19 @@
 """"
 TODO
 
-# Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
+# Algemeen
+    Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
+    Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar kan zien
+    
 
-# fig3: y-labels kleurtje geven (want als niet begroot is, is ie sowieso rood..)
-# Add pijl voor periode 12 tussen begroot en realisatie en zet text +xx keur of -yy keur (annotate is je vriend)
-# Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar
-   kan zien.
-# Splitsen in 2 grootboekgroepen: baten (BFRE15EB) en lasten (BFRE15L). Dan is het echt clean.
-# Aparte kleurenschema baten/lasten gebruiken
+# fig1:
+    realisatie kleur+lijntje opnemen in tabel (zoals die ind e legeda staat)    
+    Add pijl voor periode 12 tussen begroot en realisatie en zet text +xx keur of -yy keur (annotate is je vriend)
+# fig2:
+    alleen puntjes van >15% plotten. De rest als 'overig' opnemen.
+# fig3: 
+    y-labels kleurtje geven (want als niet begroot is, is ie sowieso rood..)
+
 """
 import web
 web.config.debug = False #must be done before the rest.
@@ -103,8 +108,8 @@ class Graph:
                     Y = np.cumsum(Y)
                 p4 = plt.bar(X+width*i-0.5+offset, Y,  width, color=colors[i])
                 i += 1
-                legend['data'].append(p4[0])
-                legend['keys'].append(name)
+                #legend['data'].append(p4[0])
+                #legend['keys'].append(name)
 
             for name, Y in baten.iteritems():
                 if params['show_cumsum']:
@@ -112,8 +117,8 @@ class Graph:
 
                 p4 = plt.bar(X+width*i-0.5+offset, Y,  width, color=colors[i])
                 i += 1
-                legend['data'].append(p4[0])
-                legend['keys'].append(name)
+                #legend['data'].append(p4[0])
+                #legend['keys'].append(name)
 
         if params['show_details_stack']:
             width= .36
