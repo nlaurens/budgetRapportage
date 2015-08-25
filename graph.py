@@ -194,7 +194,11 @@ class Graph:
             plt.xticks([])
             plt.xlabel("")
 
-        plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
+        #place upper left or lower left (depending on resultaat + or -)
+        if resultaat[-1] <0:
+            plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=3)
+        else:
+            plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
 
         return plt
 
