@@ -3,6 +3,7 @@ TODO
 
 # Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
 
+# cum.resultaten in tabel andere kleur geven!
 # Add pijl voor periode 12 tussen begroot en realisatie en zet text +xx keur of -yy keur (annotate is je vriend)
 # Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar
    kan zien.
@@ -22,6 +23,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import pylab as pylab
+import sys
 
 class Graph:
     def __init__(self):
@@ -31,18 +33,14 @@ class Graph:
         pass
 
     def get_colors(self, valueType, steps):
-
-        #default
-        colors = plt.cm.BuPu(np.linspace(0.5, 0, steps))
-
         if valueType=='lasten':
-            colors = plt.cm.BuPu(np.linspace(0.5, 0, steps))
+            return plt.cm.BuPu(np.linspace(0.75, 0.25, steps))
 
         if valueType=='baten':
-            colors = plt.cm.BuGn(np.linspace(0.5, 0, steps))
+            return plt.cm.BuGn(np.linspace(0.75, 0.25, steps))
 
-        return colors
-        
+        sys.exit('unknown color map ' + valueType + ' in Graph.get_colors()') 
+
 
     def realisatie(self, params):
 #TODO use self.vars throughout the function
@@ -147,7 +145,7 @@ class Graph:
             rows = []
             rows.extend(["Cum. Resultaat"])
             rows.extend(lines.keys())
-            colors = np.insert(colors, 0, colors[0], 0) #Hack for making sure colors line stay the same
+            colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure colors line stay the same
             the_table = plt.table(cellText=cell_text,
                             rowLabels=rows,
                             rowColours=colors,
@@ -282,8 +280,9 @@ class Graph:
         ax.get_yaxis().tick_left()
 
         #plot data
-        pos = np.arange(len(lines))+0.5    # Center bars on the Y-axis ticks
+        pos = np.arange(len(realisatie))+0.5    # Center bars on the Y-axis ticks
         colors = self.get_colors('lasten', len(lines))
+
         realisatie_bars= plt.barh(pos, realisatie, align='center', height=0.5, color=colors)
         residu_bars = plt.barh(pos, residu, left=realisatie, align='center', height=0.5, color=color_res)
 
@@ -387,7 +386,7 @@ if __name__ == "__main__":
     params['show_table'] = True
 
     orders = model.get_orders()
-    #orders = [2008101010]
+    #orders = [2008107204]
 
     for i, order in enumerate(orders):
 
