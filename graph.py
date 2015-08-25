@@ -28,7 +28,6 @@ import sys
 class Graph:
     def __init__(self):
         self.resultaat = None #totaal resultaat for whole year
-        self.lines = {}
         self.baten = {} #key = ks, np array for each periode (12)
         self.lasten = {} #key = ks, np array for each periode (12)
         self.begroot = {} #key = ks, 1 value for whole year
@@ -49,7 +48,6 @@ class Graph:
 #TODO use self.vars throughout the function
         baten = self.baten.copy()
         lasten = self.lasten.copy()
-        #lines = self.lines.copy()
         resultaat = self.resultaat
         begroting = np.cumsum(self.begroot['totaal'])
         X = np.arange(1,13)
@@ -154,7 +152,17 @@ class Graph:
             for value in resultaat:
                 text.append('%i'%value)
             cell_text.append(text)
-            for key, line in lines.iteritems():
+            for key, line in lasten.iteritems():
+                text = []
+                for value in line:
+                    if value == 0:
+                        text.append('')
+                    else:
+                        text.append('%i' % value)
+
+                cell_text.append(text)
+
+            for key, line in baten.iteritems():
                 text = []
                 for value in line:
                     if value == 0:
@@ -167,7 +175,8 @@ class Graph:
             columns = (["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
             rows = []
             rows.extend(["Cum. Resultaat"])
-            rows.extend(lines.keys())
+            rows.extend(lasten.keys())
+            rows.extend(baten.keys())
             colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure colors line stay the same
             the_table = plt.table(cellText=cell_text,
                             rowLabels=rows,
@@ -243,7 +252,6 @@ class Graph:
     def besteed_begroot(self):
         baten = self.baten.copy()
         lasten = self.lasten.copy()
-        #lines = self.lines.copy()
         begroot = self.begroot.copy()
 
         #data crunching
@@ -457,7 +465,7 @@ if __name__ == "__main__":
     params['show_cumsum'] = False
     params['show_details_flat'] = True
     params['show_details_stack'] = False
-    params['show_table'] = False
+    params['show_table'] = True
 
     orders = model.get_orders()
     orders = [2008502040]
