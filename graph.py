@@ -165,22 +165,22 @@ class Graph:
     def baten_lasten_pie(self):
         baten = self.baten.copy()
         lasten = self.lasten.copy()
-        #lines = self.lines.copy()
-
 
         # The slices will be ordered and plotted counter-clockwise.
         baten_labels = []
         baten_values = []
         lasten_labels = []
         lasten_values = []
-        for key, line in lines.iteritems():
-            value = (np.sum(line))
-            if value < 0:
-                baten_values.append(np.absolute(value))
-                baten_labels.append(key + '\n' + str(int(value)) + 'k eur')
-            else:
-                lasten_values.append(value)
-                lasten_labels.append(key + '\n' + str(int(value)) + 'k eur')
+
+        for key, line in baten.iteritems():
+            value = np.sum(line)
+            baten_values.append(np.absolute(value))
+            baten_labels.append(key + '\n' + str(int(value)) + 'k eur')
+
+        for key, line in lasten.iteritems():
+            value = np.sum(line)
+            lasten_values.append(value)
+            lasten_labels.append(key + '\n' + str(int(value)) + 'k eur')
 
         plt.figure(figsize=(12,5))
         #baten
