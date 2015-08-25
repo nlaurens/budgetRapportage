@@ -1,7 +1,9 @@
 """"
 TODO
+
 # Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
 
+# Add pijl voor periode 12 tussen begroot en realisatie en zet text +xx keur of -yy keur (annotate is je vriend)
 # Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar
    kan zien.
 # Splitsen in 2 grootboekgroepen: baten (BFRE15EB) en lasten (BFRE15L). Dan is het echt clean.
@@ -27,6 +29,20 @@ class Graph:
         self.lines = {}
         self.begroot = {}
         pass
+
+    def get_colors(self, valueType, steps):
+
+        #default
+        colors = plt.cm.BuPu(np.linspace(0.5, 0, steps))
+
+        if valueType=='lasten':
+            colors = plt.cm.BuPu(np.linspace(0.5, 0, steps))
+
+        if valueType=='baten':
+            colors = plt.cm.BuGn(np.linspace(0.5, 0, steps))
+
+        return colors
+        
 
     def realisatie(self, params):
 #TODO use self.vars throughout the function
@@ -65,7 +81,7 @@ class Graph:
         legend['data'] = []
         legend['keys'] = []
 
-        colors = plt.cm.BuPu(np.linspace(0, 0.5, len(lines)))
+        colors = self.get_colors('lasten', len(lines))
 
         #Plot data
         p1 = plt.plot(X, resultaat, 'ro-', lw=2)
@@ -180,7 +196,7 @@ class Graph:
             baten_labels = ['0k eur']
             pct= ''
 
-        colors = plt.cm.BuGn(np.linspace(0, 0.5, len(baten_labels)))
+        colors = self.get_colors('baten', len(baten_labels))
         plt.pie(baten_values, labels=baten_labels, colors=colors,
                 autopct=pct, shadow=True, startangle=90)
         plt.axis('equal')
@@ -194,7 +210,7 @@ class Graph:
             lasten_labels = ['0k eur']
             pct= ''
 
-        colors = plt.cm.BuPu(np.linspace(0, 0.5, len(lasten_labels)))
+        colors = self.get_colors('lasten', len(lasten_labels))
         plt.pie(lasten_values, labels=lasten_labels, colors=colors,
                 autopct=pct, shadow=True, startangle=90)
         plt.axis('equal')
@@ -205,11 +221,13 @@ class Graph:
 
     def besteed_begroot(self):
         lines = self.lines.copy()
-        begroot = self.begroot
+        begroot = self.begroot.copy()
 
         # Convert to keur
         for key, line in lines.iteritems():
             lines[key] = np.array(lines[key])/1000
+        for key, line in begroot.iteritems():
+            begroot[key] = np.array(begroot[key])/1000
 
         #data crunching
         names = list(lines.keys())
@@ -217,10 +235,11 @@ class Graph:
         residu = []
         color_res = []
         X_max = 0
+        #Parse all lines
         for key, line in lines.iteritems():
             besteed = np.absolute(np.sum(line))
             realisatie.append(besteed)
-            res = np.absolute(self.begroot[key]/1000) - besteed
+            res = np.absolute(begroot[key]) - besteed
 
             if res <= 0 :
                 color_res.append('pink')#pink
@@ -230,6 +249,24 @@ class Graph:
                 X_max = max(X_max, (res+besteed))
             residu.append(res)
 
+        #Parse all begrotingen that have no cost (i.e. no lines)
+        # Note the totaal key is something we added manually and
+        # Does not exist in the lines.
+        for key, value in begroot.iteritems():
+            if key not in lines and key != 'totaal':
+                besteed = 0
+                realisatie.append(besteed)
+                res = np.absolute(begroot[key]) 
+
+                if res <= 0 :
+                    color_res.append('pink')#pink
+                    X_max = max(X_max, (besteed))
+                else:
+                    color_res.append('lightsage')
+                    X_max = max(X_max, (res+besteed))
+                residu.append(res)
+                names.append(key) #of gebruik insert(pos, key)
+        
         #Layout figure
         fig, ax = plt.subplots(figsize=(12, 9))
 
@@ -246,7 +283,7 @@ class Graph:
 
         #plot data
         pos = np.arange(len(lines))+0.5    # Center bars on the Y-axis ticks
-        colors = plt.cm.BuPu(np.linspace(0, 0.5, len(lines)))
+        colors = self.get_colors('lasten', len(lines))
         realisatie_bars= plt.barh(pos, realisatie, align='center', height=0.5, color=colors)
         residu_bars = plt.barh(pos, residu, left=realisatie, align='center', height=0.5, color=color_res)
 
@@ -314,6 +351,7 @@ class Graph:
                         lines[child.descr].append(totaal)
 
         #Remove lines that only have 0's (don't check the sum, could be +50, -50)
+#TODO refactor this into a function (double code, and will be tripple code with baten/lasten split)
         remove = []
         for key, line in lines.iteritems():
             if all(v == 0 for v in line):
@@ -321,6 +359,14 @@ class Graph:
 
         for key in remove:
             del lines[key]
+        # remove 0 lines that are not in lines (and also dont remove total)
+        remove = []
+        for key, value in begroot.iteritems():
+            if value == 0 and key not in lines and key!='totaal':
+                remove.append(key)
+
+        for key in remove:
+            del begroot[key]
 
         self.resultaat = resultaat
         self.lines = lines
@@ -341,7 +387,7 @@ if __name__ == "__main__":
     params['show_table'] = True
 
     orders = model.get_orders()
-    #orders = [2008105102]
+    #orders = [2008101010]
 
     for i, order in enumerate(orders):
 
