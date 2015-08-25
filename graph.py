@@ -390,7 +390,7 @@ if __name__ == "__main__":
 
     for i, order in enumerate(orders):
 
-        print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (i+1)/len(orders)*100)
+        print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
         graph = Graph()
         if graph.load(2015, order):
             plt = graph.realisatie(params)
