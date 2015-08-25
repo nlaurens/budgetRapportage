@@ -3,7 +3,6 @@ TODO
 
 # Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
 
-# cum.resultaten in tabel andere kleur geven!
 # Add pijl voor periode 12 tussen begroot en realisatie en zet text +xx keur of -yy keur (annotate is je vriend)
 # Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar
    kan zien.
@@ -308,6 +307,27 @@ class Graph:
 
         return plt
 
+# TODO recursive function voor linen op de juist diepte
+    def parse_node(self, root, subs, lines, begroot, periode):
+        for child in root.children:
+            if subs:
+                for subchild in child.children:
+                    totaal = ( ((subchild.totaalGeboektTree + subchild.totaalObligosTree)))
+                    if periode == 1:
+                        begroot[subchild.descr] =  subchild.totaalPlanTree
+                        lines[subchild.descr] = [ totaal ]
+                    else:
+                        lines[subchild.descr].append(totaal)
+            else:
+                totaal = ( ((child.totaalGeboektTree + child.totaalObligosTree)))
+                if periode == 1:
+                    begroot[child.descr] = child.totaalPlanTree
+                    lines[child.descr] = [ totaal ]
+                else:
+                    lines[child.descr].append(totaal)
+
+        return lines, begroot
+
     def load(self, jaar, order):
         # Get params
         subs = True
@@ -331,23 +351,8 @@ class Graph:
             resultaat.append( (root.totaalGeboektTree + root.totaalObligosTree))
             begroot['totaal'] = root.totaalPlanTree
 
-# TODO recursive function voor linen op de juist diepte
-            for child in root.children:
-                if subs:
-                    for subchild in child.children:
-                        totaal = ( ((subchild.totaalGeboektTree + subchild.totaalObligosTree)))
-                        if periode == 1:
-                            begroot[subchild.descr] =  subchild.totaalPlanTree
-                            lines[subchild.descr] = [ totaal ]
-                        else:
-                           lines[subchild.descr].append(totaal)
-                else:
-                    totaal = ( ((child.totaalGeboektTree + child.totaalObligosTree)))
-                    if periode == 1:
-                        begroot[child.descr] = child.totaalPlanTree
-                        lines[child.descr] = [ totaal ]
-                    else:
-                        lines[child.descr].append(totaal)
+            lines, begroot = self.parse_node(root, subs, lines, begroot, periode)
+
 
         #Remove lines that only have 0's (don't check the sum, could be +50, -50)
 #TODO refactor this into a function (double code, and will be tripple code with baten/lasten split)
@@ -386,10 +391,9 @@ if __name__ == "__main__":
     params['show_table'] = True
 
     orders = model.get_orders()
-    #orders = [2008107204]
+    orders = [2008502040]
 
     for i, order in enumerate(orders):
-
         print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
         graph = Graph()
         if graph.load(2015, order):
