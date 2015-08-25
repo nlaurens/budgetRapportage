@@ -335,7 +335,8 @@ class Graph:
         maxdepth = 1
 
         KSgroepen = model.loadKSgroepen()
-        grootboek = [s for s in KSgroepen if "BFRE15E01" in s][0]
+        grootboekBaten =  [s for s in KSgroepen if "BFRE15BT00" in s][0]
+        grootboekLasten = [s for s in KSgroepen if "BFRE15LT00" in s][0]
         sapdatum = config['lastSAPexport']
 
         begroot = {}
@@ -347,11 +348,18 @@ class Graph:
                 periode == [12,13,14,15]
 # TODO optimaliseer dit. 1x de grootboek laden en dan per node de totalen per periode ophalen
 # ipv elke keer weer de mysql db raadplegen
-            root = GrootBoek.load(order, grootboek, jaar, [periode])
-            resultaat.append( (root.totaalGeboektTree + root.totaalObligosTree))
-            begroot['totaal'] = root.totaalPlanTree
+            rootBaten = GrootBoek.load(order, grootboekBaten, jaar, [periode])
+            rootLasten = GrootBoek.load(order, grootboekLasten, jaar, [periode])
 
-            lines, begroot = self.parse_node(root, subs, lines, begroot, periode)
+            totaal = rootBaten.totaalGeboektTree + rootBaten.totaalObligosTree  
+            totaal += rootLasten.totaalGeboektTree + rootLasten.totaalObligosTree  
+            resultaat.append(totaal)
+
+            begroot['totaal'] = rootLasten.totaalPlanTree
+            begroot['totaal'] += rootBaten.totaalPlanTree
+
+            lines, begroot = self.parse_node(rootBaten, subs, lines, begroot, periode)
+            lines, begroot = self.parse_node(rootLasten, subs, lines, begroot, periode)
 
 
         #Remove lines that only have 0's (don't check the sum, could be +50, -50)
