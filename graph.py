@@ -1,4 +1,8 @@
 """"
+NOTES
+
+    only shows >500 euro in table
+
 TODO
 
 # Algemeen
@@ -51,6 +55,11 @@ class Graph:
 
         sys.exit('unknown color map ' + valueType + ' in Graph.get_colors()') 
 
+    def value_to_table_string(self, value):
+        if value == 0 or value < 0.5:
+            return ''
+        else:
+            return ('%.f' % value)
 
     def realisatie(self, params):
         baten = self.baten.copy()
@@ -157,25 +166,19 @@ class Graph:
             cell_text = []
             text = []
             for value in resultaat:
-                text.append('%i'%value)
+                text.append(self.value_to_table_string(value))
             cell_text.append(text)
             for key, line in lasten.iteritems():
                 text = []
                 for value in line:
-                    if value == 0:
-                        text.append('')
-                    else:
-                        text.append('%i' % value)
+                    text.append(self.value_to_table_string(value))
 
                 cell_text.append(text)
 
             for key, line in baten.iteritems():
                 text = []
                 for value in line:
-                    if value == 0:
-                        text.append('')
-                    else:
-                        text.append('%i' % value)
+                    text.append(self.value_to_table_string(value))
 
                 cell_text.append(text)
 
@@ -389,16 +392,13 @@ class Graph:
 
         return plt
 
-# TODO recursive function voor linen op de juist diepte.
     def parse_node(self, root, details, lines, begroot, periode):
-    
+
         pars = []
-        for child in root.children:
-            if details and child.children:
-                for subchild in child.children:
-                    pars.append(subchild)
-            else:
-                pars.append(child)
+        if details:
+            pars = root.get_end_children(pars)
+        else:
+            pars = root.children
 
         # parse each node
         for node in pars:
@@ -418,9 +418,8 @@ class Graph:
 
         return dictionary
 
-    def load_order(self, jaar, order):
+    def load_order(self, jaar, order, details=False):
         # Get params
-        details = True
         KSgroep = 1
         maxdepth = 1
 
@@ -454,7 +453,7 @@ class Graph:
 #TODO refactor this into a function (double code, and will be tripple code with baten/lasten split)
         remove = []
         for key, line in baten.iteritems():
-            if all(v == 0 for v in line):
+            if all(v < 500 for v in line):
                 remove.append(key)
 
         for key in remove:
@@ -462,11 +461,12 @@ class Graph:
 
         remove = []
         for key, line in lasten.iteritems():
-            if all(v == 0 for v in line):
+            if all(v < 500 for v in line):
                 remove.append(key)
 
         for key in remove:
             del lasten[key]
+
 
         # remove 0 lines that are not in lines (and also dont remove total)
         remove = []
@@ -495,13 +495,14 @@ if __name__ == "__main__":
     params['show_details_stack'] = False
     params['show_table'] = True
 
+    details = True
     orders = model.get_orders()
     orders = [2008108501] #2008108501
 
     for i, order in enumerate(orders):
         print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
         graph = Graph()
-        if graph.load_order(2015, order):
+        if graph.load_order(2015, order, details=details):
             plt = graph.realisatie(params)
             plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
             plt.close()

@@ -49,7 +49,7 @@ class GrootBoek():
             for ks, regels in self.regels.iteritems():
                 print ks
                 for regel in regels:
-                    print '   '+ regel.omschrijving + ' - ' + regel.kosten + ' - ' + regel.tiepe
+                    print '   '+ regel.omschrijving + ' - ' + str(regel.kosten) + ' - ' + regel.tiepe
 
         if self.children:
             print 'and has children:'
@@ -269,6 +269,15 @@ class GrootBoek():
             else:
                 return False
 
+    # Returns a list of all nodes that have no children (i.e. final nodes)
+    def get_end_children(self, children):
+        if self.children:
+            for child in self.children:
+                children.extend(child.get_end_children([]))
+        else:
+            return [self]
+
+        return children
 
 def first_item_in_list(lst):
     i = next(i for i, j in enumerate(lst) if j)
