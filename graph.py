@@ -9,6 +9,8 @@ TODO
 # fig1:
     realisatie kleur+lijntje opnemen in tabel (zoals die ind e legeda staat)    
     Add pijl voor periode 12 tussen begroot en realisatie en zet text +xx keur of -yy keur (annotate is je vriend)
+    realisatie lijn groen als het onder begroot is en rood als het overbegroot is
+    tabel toevoegen nog te besteden coloumn.
 # fig2:
     remove_pieces: check of er slechts 1 piece verwijdert wordt. Want dan kan je hem beter laten staan!
 # fig3: 
@@ -495,8 +497,8 @@ if __name__ == "__main__":
     params['show_details_stack'] = False
     params['show_table'] = True
 
-    #orders = model.get_orders()
-    orders = [2008108501] #2008108501
+    orders = model.get_orders()
+    #orders = [2008108501] #2008108501
 
     for i, order in enumerate(orders):
         print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
