@@ -4,6 +4,7 @@ TODO
 # Algemeen
     Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
     Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar kan zien
+    1x de grootboek laden en dan per node de totalen per periode ophalen ipv per periode grootboek laden (mysql stress)
     
 
 # fig1:
@@ -52,7 +53,6 @@ class Graph:
 
 
     def realisatie(self, params):
-#TODO use self.vars throughout the function
         baten = self.baten.copy()
         lasten = self.lasten.copy()
         resultaat = self.resultaat
@@ -99,7 +99,6 @@ class Graph:
             legend['data'].append(p3[0])
             legend['keys'].append("Prognose")
 
-#TODO lines -> baten/lasten
         if params['show_details_flat']:
             totaalbars = len(baten)+len(lasten) 
             width= 1./(totaalbars+1)
@@ -391,23 +390,24 @@ class Graph:
         return plt
 
 # TODO recursive function voor linen op de juist diepte.
-    def parse_node(self, root, subs, lines, begroot, periode):
+    def parse_node(self, root, details, lines, begroot, periode):
+    
+        pars = []
         for child in root.children:
-            if subs and child.children:
+            if details and child.children:
                 for subchild in child.children:
-                    totaal = ( ((subchild.totaalGeboektTree + subchild.totaalObligosTree)))
-                    if periode == 1:
-                        begroot[subchild.descr] = subchild.totaalPlanTree
-                        lines[subchild.descr] = [ totaal ]
-                    else:
-                        lines[subchild.descr].append(totaal)
+                    pars.append(subchild)
             else:
-                totaal = ( ((child.totaalGeboektTree + child.totaalObligosTree)))
-                if periode == 1:
-                    begroot[child.descr] = child.totaalPlanTree
-                    lines[child.descr] = [ totaal ]
-                else:
-                    lines[child.descr].append(totaal)
+                pars.append(child)
+
+        # parse each node
+        for node in pars:
+            totaal = ( ((node.totaalGeboektTree + node.totaalObligosTree)))
+            if periode == 1:
+                begroot[node.descr] = node.totaalPlanTree
+                lines[node.descr] = [ totaal ]
+            else:
+                lines[node.descr].append(totaal)
 
         return lines, begroot
 
@@ -418,9 +418,9 @@ class Graph:
 
         return dictionary
 
-    def load(self, jaar, order):
+    def load_order(self, jaar, order):
         # Get params
-        subs = True
+        details = True
         KSgroep = 1
         maxdepth = 1
 
@@ -437,8 +437,6 @@ class Graph:
         for periode in range(1,13):
             if periode == 12:
                 periode == [12,13,14,15]
-# TODO optimaliseer dit. 1x de grootboek laden en dan per node de totalen per periode ophalen
-# ipv elke keer weer de mysql db raadplegen
             rootBaten = GrootBoek.load(order, grootboekBaten, jaar, [periode])
             rootLasten = GrootBoek.load(order, grootboekLasten, jaar, [periode])
 
@@ -449,8 +447,8 @@ class Graph:
             begroot['totaal'] = rootLasten.totaalPlanTree
             begroot['totaal'] += rootBaten.totaalPlanTree
 
-            baten, begroot = self.parse_node(rootBaten, subs, baten, begroot, periode)
-            lasten, begroot = self.parse_node(rootLasten, subs, lasten, begroot, periode)
+            baten, begroot = self.parse_node(rootBaten, details, baten, begroot, periode)
+            lasten, begroot = self.parse_node(rootLasten, details, lasten, begroot, periode)
 
         #Remove lines that only have 0's (don't check the sum, could be +50, -50)
 #TODO refactor this into a function (double code, and will be tripple code with baten/lasten split)
@@ -498,12 +496,12 @@ if __name__ == "__main__":
     params['show_table'] = True
 
     orders = model.get_orders()
-    #orders = [2008108501] #2008108501
+    orders = [2008108501] #2008108501
 
     for i, order in enumerate(orders):
         print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
         graph = Graph()
-        if graph.load(2015, order):
+        if graph.load_order(2015, order):
             plt = graph.realisatie(params)
             plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
             plt.close()
