@@ -486,6 +486,22 @@ class Graph:
         return True
 
 
+def create_graphs(order, jaar, params):
+        graph = Graph()
+        if graph.load_order(jaar, order, params):
+            plt = graph.realisatie(params)
+            plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
+            plt.close()
+
+            plt = graph.baten_lasten_pie()
+            plt.savefig('figs/'+str(order)+'-2.png', bbox_inches='tight')
+            plt.close()
+
+            plt = graph.besteed_begroot()
+            plt.savefig('figs/'+str(order)+'-3.png', bbox_inches='tight')
+            plt.close()
+
+
 if __name__ == "__main__":
     params = {}
     params['show_prognose'] = False
@@ -495,29 +511,19 @@ if __name__ == "__main__":
     params['show_table'] = True
     params['detailed'] = True
 
+    found = False
     if len(sys.argv) <2:
         print 'error no arguments given'
         print 'use graph.py <order/group>'
         print '* for all orders'
+
     elif sys.argv[1] == '*':
+        found = True
         print 'creating graphs of all orders'
         orders = model.get_orders()
-
         for i, order in enumerate(orders):
             print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
-            graph = Graph()
-            if graph.load_order(2015, order, params):
-                plt = graph.realisatie(params)
-                plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
-                plt.close()
-
-                plt = graph.baten_lasten_pie()
-                plt.savefig('figs/'+str(order)+'-2.png', bbox_inches='tight')
-                plt.close()
-
-                plt = graph.besteed_begroot()
-                plt.savefig('figs/'+str(order)+'-3.png', bbox_inches='tight')
-                plt.close()
+            create_graphs(order, 2015, params)
     else:
         order = sys.argv[1]
         orders = model.get_orders()
@@ -528,28 +534,17 @@ if __name__ == "__main__":
         OGs = model.loadOrdergroepen()
 
         if orderint in orders:
+            found = True
             print 'creating graph of order ' + order
-            graph = Graph()
-            if graph.load_order(2015, order, params):
-                plt = graph.realisatie(params)
-                plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
-                plt.close()
-
-                plt = graph.baten_lasten_pie()
-                plt.savefig('figs/'+str(order)+'-2.png', bbox_inches='tight')
-                plt.close()
-
-                plt = graph.besteed_begroot()
-                plt.savefig('figs/'+str(order)+'-3.png', bbox_inches='tight')
-                plt.close()
-            print 'done'
+            create_graphs(order, 2015, params)
         else:
-            found = False
             for OG in OGs:
                 if order == os.path.split(OG)[1]:
                     found = True
-            if found:
-                print 'creating graph of group ' + order
-            else:
-                print 'unkown input ' + order
+                    print 'creating graph of group ' + order
+
+    if not found:
+        print 'ERROR Unkown input ' + order
+    else:
+        print 'great succes!'
 
