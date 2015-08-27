@@ -486,20 +486,37 @@ class Graph:
         return True
 
 
-def create_graphs(order, jaar, params):
-        graph = Graph()
-        if graph.load_order(jaar, order, params):
-            plt = graph.realisatie(params)
-            plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
-            plt.close()
+def create_graphs_order(order, jaar, params):
+    graph = Graph()
+    if graph.load_order(jaar, order, params):
+        plt = graph.realisatie(params)
+        plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
+        plt.close()
 
-            plt = graph.baten_lasten_pie()
-            plt.savefig('figs/'+str(order)+'-2.png', bbox_inches='tight')
-            plt.close()
+        plt = graph.baten_lasten_pie()
+        plt.savefig('figs/'+str(order)+'-2.png', bbox_inches='tight')
+        plt.close()
 
-            plt = graph.besteed_begroot()
-            plt.savefig('figs/'+str(order)+'-3.png', bbox_inches='tight')
-            plt.close()
+        plt = graph.besteed_begroot()
+        plt.savefig('figs/'+str(order)+'-3.png', bbox_inches='tight')
+        plt.close()
+
+def create_ordergroep_graphs(OG, jaar, params):
+    root = GrootBoekGroep.load(OG)
+    #for child in root.children:
+        #print child.name
+
+    #test loading of two orders
+    order = 2008000000
+    graph = Graph()
+    if graph.load_order(jaar, order, params):
+        plt = graph.realisatie(params)
+        plt.savefig('test.png', bbox_inches='tight')
+        plt.close()
+    if graph.load_order(jaar, order, params):
+        plt = graph.realisatie(params)
+        plt.savefig('test2.png', bbox_inches='tight')
+        plt.close()
 
 
 if __name__ == "__main__":
@@ -523,7 +540,7 @@ if __name__ == "__main__":
         orders = model.get_orders()
         for i, order in enumerate(orders):
             print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
-            create_graphs(order, 2015, params)
+            create_graphs_order(order, 2015, params)
     else:
         order = sys.argv[1]
         orders = model.get_orders()
@@ -536,12 +553,14 @@ if __name__ == "__main__":
         if orderint in orders:
             found = True
             print 'creating graph of order ' + order
-            create_graphs(order, 2015, params)
+            create_graphs_order(order, 2015, params)
         else:
             for OG in OGs:
                 if order == os.path.split(OG)[1]:
                     found = True
                     print 'creating graph of group ' + order
+                    create_ordergroep_graphs(OG, 2015, params)
+
 
     if not found:
         print 'ERROR Unkown input ' + order
