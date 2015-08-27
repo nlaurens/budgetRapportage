@@ -11,12 +11,12 @@ TODO
     1x de grootboek laden en dan per node de totalen per periode ophalen ipv per periode grootboek laden (mysql stress)
 
 # fig1:
-    realisatie kleur+lijntje opnemen in tabel (zoals die ind e legeda staat)    
+    realisatie kleur+lijntje opnemen in tabel (zoals die ind e legeda staat)
     Add pijl voor periode 12 tussen begroot en realisatie en zet text +xx keur of -yy keur (annotate is je vriend)
     realisatie lijn groen als het onder begroot is en rood als het overbegroot is
 # fig2:
     remove_pieces: check of er slechts 1 piece verwijdert wordt. Want dan kan je hem beter laten staan!
-# fig3: 
+# fig3:
     y-labels kleurtje geven (want als niet begroot is, is ie sowieso rood..)
 
 """
@@ -51,7 +51,7 @@ class Graph:
         if valueType=='baten':
             return plt.cm.BuGn(np.linspace(0.75, 0.1, steps))
 
-        sys.exit('unknown color map ' + valueType + ' in Graph.get_colors()') 
+        sys.exit('unknown color map ' + valueType + ' in Graph.get_colors()')
 
     def value_to_table_string(self, value):
         if value == 0 or value < 0.5:
@@ -107,7 +107,7 @@ class Graph:
             legend['keys'].append("Prognose")
 
         if params['show_details_flat']:
-            totaalbars = len(baten)+len(lasten) 
+            totaalbars = len(baten)+len(lasten)
             width= 1./(totaalbars+1)
             offset = (1-totaalbars*width)/2
             i = 0
@@ -334,7 +334,7 @@ class Graph:
             if key not in baten and key not in lasten and key != 'totaal':
                 besteed = 0
                 realisatie.append(besteed)
-                res = np.absolute(begroot[key]) 
+                res = np.absolute(begroot[key])
 
                 if res <= 0 :
                     color_res.append('pink')#pink
@@ -344,7 +344,7 @@ class Graph:
                     X_max = max(X_max, (res+besteed))
                 residu.append(res)
                 names.append(key) #of gebruik insert(pos, key)
-        
+
         #Layout figure
         fig, ax = plt.subplots(figsize=(12, 9))
 
@@ -437,8 +437,8 @@ class Graph:
             rootBaten = GrootBoek.load(order, grootboekBaten, jaar, [periode])
             rootLasten = GrootBoek.load(order, grootboekLasten, jaar, [periode])
 
-            totaal = rootBaten.totaalGeboektTree + rootBaten.totaalObligosTree  
-            totaal += rootLasten.totaalGeboektTree + rootLasten.totaalObligosTree  
+            totaal = rootBaten.totaalGeboektTree + rootBaten.totaalObligosTree
+            totaal += rootLasten.totaalGeboektTree + rootLasten.totaalObligosTree
             resultaat.append(totaal)
 
             begroot['totaal'] = rootLasten.totaalPlanTree
@@ -485,6 +485,27 @@ class Graph:
             return False
         return True
 
+    #Merges two graphs
+    def merge(self, graph):
+        self.resultaat += graph.resultaat
+
+        for key, value in graph.begroot.iteritems():
+            if key in self.begroot:
+                self.begroot[key] += value
+            else:
+                self.begroot[key] = value
+
+        for key, arr in graph.baten.iteritems():
+            if key in self.baten:
+                self.baten[key] = self.baten[key] + arr
+            else:
+                self.baten[key] = arr
+
+        for key, arr in graph.lasten.iteritems():
+            if key in self.lasten:
+                self.lasten[key] = self.lasten[key] + arr
+            else:
+                self.lasten[key] = arr
 
 def create_graphs_order(order, jaar, params):
     graph = Graph()
@@ -513,11 +534,18 @@ def create_ordergroep_graphs(OG, jaar, params):
         plt = graph.realisatie(params)
         plt.savefig('test.png', bbox_inches='tight')
         plt.close()
-    if graph.load_order(jaar, order, params):
-        plt = graph.realisatie(params)
+    graph2 = Graph()
+    if graph2.load_order(jaar, order, params):
+        pass
+        plt = graph2.realisatie(params)
         plt.savefig('test2.png', bbox_inches='tight')
         plt.close()
 
+    #Merge the two
+    graph.merge(graph2)
+    plt = graph.realisatie(params)
+    plt.savefig('test3.png', bbox_inches='tight')
+    plt.close()
 
 if __name__ == "__main__":
     params = {}
