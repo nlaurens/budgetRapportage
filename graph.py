@@ -9,13 +9,11 @@ TODO
     Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
     Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar kan zien
     1x de grootboek laden en dan per node de totalen per periode ophalen ipv per periode grootboek laden (mysql stress)
-    
 
 # fig1:
     realisatie kleur+lijntje opnemen in tabel (zoals die ind e legeda staat)    
     Add pijl voor periode 12 tussen begroot en realisatie en zet text +xx keur of -yy keur (annotate is je vriend)
     realisatie lijn groen als het onder begroot is en rood als het overbegroot is
-    tabel toevoegen nog te besteden coloumn.
 # fig2:
     remove_pieces: check of er slechts 1 piece verwijdert wordt. Want dan kan je hem beter laten staan!
 # fig3: 
@@ -184,7 +182,7 @@ class Graph:
 
             columns = (["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
             rows = []
-            rows.extend(["Cum. Resultaat"])
+            rows.extend(["Realisatie"])
             rows.extend(lasten.keys())
             rows.extend(baten.keys())
             colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure colors line stay the same
@@ -418,7 +416,7 @@ class Graph:
 
         return dictionary
 
-    def load_order(self, jaar, order, details=False):
+    def load_order(self, jaar, order, params):
         # Get params
         KSgroep = 1
         maxdepth = 1
@@ -446,6 +444,7 @@ class Graph:
             begroot['totaal'] = rootLasten.totaalPlanTree
             begroot['totaal'] += rootBaten.totaalPlanTree
 
+            details = params['detailed']
             baten, begroot = self.parse_node(rootBaten, details, baten, begroot, periode)
             lasten, begroot = self.parse_node(rootLasten, details, lasten, begroot, periode)
 
@@ -494,23 +493,63 @@ if __name__ == "__main__":
     params['show_details_flat'] = True
     params['show_details_stack'] = False
     params['show_table'] = True
+    params['detailed'] = True
 
-    details = True
-    orders = model.get_orders()
-    orders = [2008108501] #2008108501
+    if len(sys.argv) <2:
+        print 'error no arguments given'
+        print 'use graph.py <order/group>'
+        print '* for all orders'
+    elif sys.argv[1] == '*':
+        print 'creating graphs of all orders'
+        orders = model.get_orders()
 
-    for i, order in enumerate(orders):
-        print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
-        graph = Graph()
-        if graph.load_order(2015, order, details=details):
-            plt = graph.realisatie(params)
-            plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
-            plt.close()
+        for i, order in enumerate(orders):
+            print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
+            graph = Graph()
+            if graph.load_order(2015, order, params):
+                plt = graph.realisatie(params)
+                plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
+                plt.close()
 
-            plt = graph.baten_lasten_pie()
-            plt.savefig('figs/'+str(order)+'-2.png', bbox_inches='tight')
-            plt.close()
+                plt = graph.baten_lasten_pie()
+                plt.savefig('figs/'+str(order)+'-2.png', bbox_inches='tight')
+                plt.close()
 
-            plt = graph.besteed_begroot()
-            plt.savefig('figs/'+str(order)+'-3.png', bbox_inches='tight')
-            plt.close()
+                plt = graph.besteed_begroot()
+                plt.savefig('figs/'+str(order)+'-3.png', bbox_inches='tight')
+                plt.close()
+    else:
+        order = sys.argv[1]
+        orders = model.get_orders()
+        try:
+            orderint = int(order)
+        except ValueError:
+            orderint = 0
+        OGs = model.loadOrdergroepen()
+
+        if orderint in orders:
+            print 'creating graph of order ' + order
+            graph = Graph()
+            if graph.load_order(2015, order, params):
+                plt = graph.realisatie(params)
+                plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
+                plt.close()
+
+                plt = graph.baten_lasten_pie()
+                plt.savefig('figs/'+str(order)+'-2.png', bbox_inches='tight')
+                plt.close()
+
+                plt = graph.besteed_begroot()
+                plt.savefig('figs/'+str(order)+'-3.png', bbox_inches='tight')
+                plt.close()
+            print 'done'
+        else:
+            found = False
+            for OG in OGs:
+                if order == os.path.split(OG)[1]:
+                    found = True
+            if found:
+                print 'creating graph of group ' + order
+            else:
+                print 'unkown input ' + order
+

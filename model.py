@@ -273,6 +273,12 @@ def get_kosten_soorten(order=0):
 
     return geboektks, obligoks, planks
 
+# Returns a list of order available
+def loadOrdergroepen():
+    OG = glob.glob("data/grootboekgroep/*")
+
+    return OG
+
 
 # Returns a list of kostensoort groepen available
 def loadKSgroepen():
