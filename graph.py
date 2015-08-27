@@ -507,45 +507,40 @@ class Graph:
             else:
                 self.lasten[key] = arr
 
-def create_graphs_order(order, jaar, params):
-    graph = Graph()
-    if graph.load_order(jaar, order, params):
-        plt = graph.realisatie(params)
-        plt.savefig('figs/'+str(order)+'-1.png', bbox_inches='tight')
+    def save_figs(self, name, params):
+        path = params['figpath']
+        plt = self.realisatie(params)
+        plt.savefig(path+name+'-1.png', bbox_inches='tight')
         plt.close()
 
-        plt = graph.baten_lasten_pie()
-        plt.savefig('figs/'+str(order)+'-2.png', bbox_inches='tight')
+        plt = self.baten_lasten_pie()
+        plt.savefig(path+name+'-2.png', bbox_inches='tight')
         plt.close()
 
-        plt = graph.besteed_begroot()
-        plt.savefig('figs/'+str(order)+'-3.png', bbox_inches='tight')
+        plt = self.besteed_begroot()
+        plt.savefig(path+name+'-3.png', bbox_inches='tight')
         plt.close()
 
 def create_ordergroep_graphs(OG, jaar, params):
     root = GrootBoekGroep.load(OG)
-    #for child in root.children:
-        #print child.name
+    orders = root.list_orders().keys()
 
-    #test loading of two orders
-    order = 2008000000
+    orders = [2008101010, 2008000000]
+    order  =  orders.pop(0)
+
     graph = Graph()
-    if graph.load_order(jaar, order, params):
-        plt = graph.realisatie(params)
-        plt.savefig('test.png', bbox_inches='tight')
-        plt.close()
-    graph2 = Graph()
-    if graph2.load_order(jaar, order, params):
-        pass
-        plt = graph2.realisatie(params)
-        plt.savefig('test2.png', bbox_inches='tight')
-        plt.close()
-
-    #Merge the two
-    graph.merge(graph2)
+    graph.load_order(jaar, order, params)
     plt = graph.realisatie(params)
-    plt.savefig('test3.png', bbox_inches='tight')
-    plt.close()
+    graph.save_figs(str(order), params)
+
+    graph2 = Graph()
+    for order in orders:
+        print order
+        graph2.load_order(jaar, order, params)
+        graph2.save_figs(str(order), params)
+        graph.merge(graph2)
+
+    graph2.save_figs(str(order), params)
 
 if __name__ == "__main__":
     params = {}
@@ -555,6 +550,9 @@ if __name__ == "__main__":
     params['show_details_stack'] = False
     params['show_table'] = True
     params['detailed'] = True
+    params['figpath'] = 'figs/'
+    jaar = 2015
+
 
     found = False
     if len(sys.argv) <2:
@@ -566,9 +564,11 @@ if __name__ == "__main__":
         found = True
         print 'creating graphs of all orders'
         orders = model.get_orders()
+        graph = Graph()
         for i, order in enumerate(orders):
             print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
-            create_graphs_order(order, 2015, params)
+            graph.load_order(jaar, order, params)
+            graph.save_figs(str(order), params)
     else:
         order = sys.argv[1]
         orders = model.get_orders()
@@ -580,8 +580,10 @@ if __name__ == "__main__":
 
         if orderint in orders:
             found = True
+            graph = Graph()
             print 'creating graph of order ' + order
-            create_graphs_order(order, 2015, params)
+            graph.load_order(jaar, order, params)
+            graph.save_figs(str(order), params)
         else:
             for OG in OGs:
                 if order == os.path.split(OG)[1]:
