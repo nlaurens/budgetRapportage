@@ -402,7 +402,7 @@ class Graph:
         # parse each node
         for node in pars:
             totaal = ( ((node.totaalGeboektTree + node.totaalObligosTree)))
-            if periode == 1:
+            if periode == [0,1]:
                 begroot[node.descr] = node.totaalPlanTree
                 lines[node.descr] = [ totaal ]
             else:
@@ -432,11 +432,18 @@ class Graph:
         lasten = {}
 
         resultaat = []
+        rootBaten = GrootBoek.load(order, grootboekBaten, jaar, [])
+        rootLasten = GrootBoek.load(order, grootboekLasten, jaar, [])
         for periode in range(1,13):
-            if periode == 12:
-                periode == [12,13,14,15]
-            rootBaten = GrootBoek.load(order, grootboekBaten, jaar, [periode])
-            rootLasten = GrootBoek.load(order, grootboekLasten, jaar, [periode])
+            if periode == 1:
+                periode = [0,1]
+            elif periode == 12:
+                periode = [12,13,14,15]
+            else:
+                periode = [periode]
+
+            rootBaten.set_totals(periode=periode)
+            rootLasten.set_totals(periode)
 
             totaal = rootBaten.totaalGeboektTree + rootBaten.totaalObligosTree
             totaal += rootLasten.totaalGeboektTree + rootLasten.totaalObligosTree
@@ -536,7 +543,6 @@ def create_ordergroep_graphs(OG, jaar, params):
 
     graph2 = Graph()
     for order in orders:
-        print order
         graph2.load_order(jaar, order, params)
         graph2.save_figs(str(order), params)
         graph.merge(graph2)

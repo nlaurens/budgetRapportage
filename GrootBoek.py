@@ -172,7 +172,7 @@ class GrootBoek():
         geboekttotaal, obligostotaal, plantotaal = self.__totaal(periode)
 
         for child in self.children:
-            geboekt, obligos, plan = child.set_totals()
+            geboekt, obligos, plan = child.set_totals(periode=periode)
             geboekttotaal += geboekt
             obligostotaal += obligos
             plantotaal += plan
@@ -195,7 +195,6 @@ class GrootBoek():
             if not kostenSoort in plan:
                 plan[kostenSoort] = 0
 
-            print periode
             for regel in lijst:
                 if regel.periode in periode:
                     if regel.tiepe == 'Plan':
