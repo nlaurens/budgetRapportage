@@ -38,7 +38,7 @@ import sys
 class Graph:
     def __init__(self):
         self.title = ''
-        self.resultaat = None #totaal resultaat for whole year
+        self.resultaat = np.array([range(0,12)]) #totaal resultaat for whole year
         self.baten = {} #key = ks, np array for each periode (12)
         self.lasten = {} #key = ks, np array for each periode (12)
         self.begroot = {} #key = ks, 1 value for whole year
@@ -534,27 +534,21 @@ class Graph:
 def create_ordergroep_graphs(OG, jaar, params):
 #TODO ADD NAME OF ORDER TO PLOT TITLE
     root = GrootBoekGroep.load(OG)
-    orders = root.list_orders().keys()
+    orders = root.list_orders()
 
-    #orders = [2008101010, 2008000000]
-    order  =  orders.pop(0)
-
+    merged = Graph()
     graph = Graph()
-    graph.load_order(jaar, order, params)
-    plt = graph.realisatie(params)
-    graph.title = str(order)
-    graph.save_figs(str(order), params)
-
-    graph2 = Graph()
-    for i, order in enumerate(orders):
+    i = 0
+    for order, descr in orders.iteritems():
         print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
-        graph2.load_order(jaar, order, params)
-        graph2.title = str(order)
-        graph2.save_figs(str(order), params)
-        graph.merge(graph2)
+        graph.load_order(jaar, order, params)
+        graph.title = str(order) + ' - ' + descr
+        graph.save_figs(str(order), params)
+        merged.merge(graph)
+        i += 1
 
-    graph.title = str(OG)
-    graph.save_figs('merge', params)
+    merged.title = root.name + ' - ' + root.descr
+    merged.save_figs('merge', params)
 
 if __name__ == "__main__":
     params = {}

@@ -10,7 +10,7 @@ class GrootBoekGroep():
         self.level = level
         self.children = []
 
-        self.orders = {} #list that holds all orders 
+        self.orders = {} #list that holds all orders
 
     def add_order(self, order, descr):
         self.orders[order] = descr
@@ -123,7 +123,7 @@ class GrootBoekGroep():
 
         return
 
-    #return all orders in groep 
+    #return all orders in groep
     def list_orders(self):
         orders = self.orders
         for child in self.children:
@@ -131,7 +131,7 @@ class GrootBoekGroep():
 
         return orders
 
-    #return all orders in groep 
+    #return all orders in groep (same as above)
     def list_orders_recursive(self):
         orders = self.orders
         for child in self.children:
