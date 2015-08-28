@@ -8,8 +8,7 @@ TODO
 # Algemeen
     Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
     Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar kan zien
-    1x de grootboek laden en dan per node de totalen per periode ophalen ipv per periode grootboek laden (mysql stress)
-    -> schrijf functie get_totaal_periode(periode=[1,2,3] die door de boom heen loopt)
+    Toevoegen naam + ordernummer aan alle figuren
 
 # fig1:
     realisatie kleur+lijntje opnemen in tabel (zoals die ind e legeda staat)
@@ -38,6 +37,7 @@ import sys
 
 class Graph:
     def __init__(self):
+        self.title = ''
         self.resultaat = None #totaal resultaat for whole year
         self.baten = {} #key = ks, np array for each periode (12)
         self.lasten = {} #key = ks, np array for each periode (12)
@@ -70,6 +70,7 @@ class Graph:
 
         #Layout figure
         plt.figure(figsize=(12, 9))
+        plt.title(self.title, loc='right', fontsize=12)
 
         ax = plt.subplot(111)
         ax.spines["top"].set_visible(False)
@@ -91,7 +92,6 @@ class Graph:
         colorslasten = self.get_colors('lasten', len(lasten))
         colorsbaten = self.get_colors('baten', len(baten))
         colors = np.concatenate( (colorslasten,colorsbaten), axis=0)
-
         #Plot data
         p1 = plt.plot(X, resultaat, 'ro-', lw=2)
         p2 = plt.plot([0,12], [0,begroting], 'k--')
@@ -277,6 +277,7 @@ class Graph:
             pct= ''
 
         colors = self.get_colors('lasten', len(lasten_labels))
+        plt.title(self.title, loc='right', fontsize=12)
         plt.pie(lasten_values, labels=lasten_labels, colors=colors,
                 autopct=pct, shadow=True, startangle=90)
         plt.axis('equal')
@@ -348,6 +349,7 @@ class Graph:
 
         #Layout figure
         fig, ax = plt.subplots(figsize=(12, 9))
+        plt.title(self.title, loc='right', fontsize=12)
 
         #ax = plt.subplot(111)
         ax.spines["top"].set_visible(False)
@@ -530,24 +532,29 @@ class Graph:
         plt.close()
 
 def create_ordergroep_graphs(OG, jaar, params):
+#TODO ADD NAME OF ORDER TO PLOT TITLE
     root = GrootBoekGroep.load(OG)
     orders = root.list_orders().keys()
 
-    orders = [2008101010, 2008000000]
+    #orders = [2008101010, 2008000000]
     order  =  orders.pop(0)
 
     graph = Graph()
     graph.load_order(jaar, order, params)
     plt = graph.realisatie(params)
+    graph.title = str(order)
     graph.save_figs(str(order), params)
 
     graph2 = Graph()
-    for order in orders:
+    for i, order in enumerate(orders):
+        print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
         graph2.load_order(jaar, order, params)
+        graph2.title = str(order)
         graph2.save_figs(str(order), params)
         graph.merge(graph2)
 
-    graph2.save_figs(str(order), params)
+    graph.title = str(OG)
+    graph.save_figs('merge', params)
 
 if __name__ == "__main__":
     params = {}
@@ -575,6 +582,7 @@ if __name__ == "__main__":
         for i, order in enumerate(orders):
             print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
             graph.load_order(jaar, order, params)
+            graph.title = str(order)
             graph.save_figs(str(order), params)
     else:
         order = sys.argv[1]
@@ -590,6 +598,7 @@ if __name__ == "__main__":
             graph = Graph()
             print 'creating graph of order ' + order
             graph.load_order(jaar, order, params)
+            graph.title = str(order)
             graph.save_figs(str(order), params)
         else:
             for OG in OGs:
