@@ -9,6 +9,7 @@ TODO
     Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
     Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar kan zien
     1x de grootboek laden en dan per node de totalen per periode ophalen ipv per periode grootboek laden (mysql stress)
+    -> schrijf functie get_totaal_periode(periode=[1,2,3] die door de boom heen loopt)
 
 # fig1:
     realisatie kleur+lijntje opnemen in tabel (zoals die ind e legeda staat)

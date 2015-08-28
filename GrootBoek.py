@@ -168,8 +168,8 @@ class GrootBoek():
 
 
 
-    def set_totals(self):
-        geboekttotaal, obligostotaal, plantotaal = self.__totaal()
+    def set_totals(self, periode=range(0,16)):
+        geboekttotaal, obligostotaal, plantotaal = self.__totaal(periode)
 
         for child in self.children:
             geboekt, obligos, plan = child.set_totals()
@@ -183,7 +183,7 @@ class GrootBoek():
 
         return geboekttotaal, obligostotaal, plantotaal
 
-    def __totaal(self):
+    def __totaal(self, periode):
         geboekt = {}
         obligos = {}
         plan = {}
@@ -195,13 +195,15 @@ class GrootBoek():
             if not kostenSoort in plan:
                 plan[kostenSoort] = 0
 
+            print periode
             for regel in lijst:
-                if regel.tiepe == 'Plan':
-                    plan[kostenSoort] = plan[kostenSoort] + regel.kosten
-                if regel.tiepe == 'Obligo':
-                    obligos[kostenSoort] = obligos[kostenSoort] + regel.kosten
-                elif regel.tiepe == 'Geboekt':
-                    geboekt[kostenSoort] = geboekt[kostenSoort] + regel.kosten
+                if regel.periode in periode:
+                    if regel.tiepe == 'Plan':
+                        plan[kostenSoort] = plan[kostenSoort] + regel.kosten
+                    if regel.tiepe == 'Obligo':
+                        obligos[kostenSoort] = obligos[kostenSoort] + regel.kosten
+                    elif regel.tiepe == 'Geboekt':
+                        geboekt[kostenSoort] = geboekt[kostenSoort] + regel.kosten
 
         self.totaalGeboektNode = geboekt
         self.totaalObligosNode = obligos
