@@ -123,20 +123,11 @@ class GrootBoekGroep():
 
         return
 
-    #return all orders in groep
-    def list_orders(self):
-        orders = self.orders
-        for child in self.children:
-            orders.update(child.list_orders())
-
-        return orders
-
-    #return all orders in groep (same as above)
+    #return all orders in node and subnodes
     def list_orders_recursive(self):
         orders = self.orders
         for child in self.children:
-            orders.update(child.list_orders())
-
+            orders.update(child.list_orders_recursive())
         return orders
 
 def first_item_in_list(lst):

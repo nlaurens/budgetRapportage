@@ -394,7 +394,6 @@ class Graph:
         return plt
 
     def parse_node(self, root, details, lines, begroot, periode):
-
         pars = []
         if details:
             pars = root.get_end_children(pars)
@@ -531,16 +530,18 @@ class Graph:
         plt.savefig(path+name+'-3.png', bbox_inches='tight')
         plt.close()
 
-def create_ordergroep_graphs(OG, jaar, params):
-#TODO ADD NAME OF ORDER TO PLOT TITLE
-    root = GrootBoekGroep.load(OG)
-    orders = root.list_orders()
+def og_graphs(root, merged, i, total):
 
-    merged = Graph()
+    for child in root.children:
+        merged, i = og_graphs(child, merged, i, total)
+#TODO om een of andere reden bevat root.orders ineens ook de orders van de nodes eronder..
+
+
     graph = Graph()
-    i = 0
-    for order, descr in orders.iteritems():
-        print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
+    print root.descr
+    print root.orders
+    for order, descr in root.orders.iteritems():
+        print '%i (%i out of %i - %i perc.)' % (order, i+1, total, (float(i+1)/total)*100)
         graph.load_order(jaar, order, params)
         graph.title = str(order) + ' - ' + descr
         graph.save_figs(str(order), params)
@@ -548,7 +549,25 @@ def create_ordergroep_graphs(OG, jaar, params):
         i += 1
 
     merged.title = root.name + ' - ' + root.descr
-    merged.save_figs('merge', params)
+    merged.save_figs(root.name, params)
+
+    return merged, i
+
+def create_ordergroep_graphs(OG, jaar, params):
+    root = GrootBoekGroep.load(OG)
+
+    merged = Graph()
+    graph = Graph()
+    i = 0
+    total = len(root.list_orders_recursive())
+    for child in root.children:
+        merged, i = og_graphs(child, merged, i, total)
+        merged.title = child.name + ' - ' + child.descr
+        merged.save_figs(child.name, params)
+        merged.merge(graph)
+
+    merged.title = root.name + ' - ' + root.descr
+    merged.save_figs(root.name, params)
 
 if __name__ == "__main__":
     params = {}
@@ -601,9 +620,7 @@ if __name__ == "__main__":
                     print 'creating graph of group ' + order
                     create_ordergroep_graphs(OG, 2015, params)
 
-
     if not found:
         print 'ERROR Unkown input ' + order
     else:
         print 'great succes!'
-
