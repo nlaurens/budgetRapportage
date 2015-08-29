@@ -537,14 +537,17 @@ def og_graphs(root, merged, i, total):
         merged, i = og_graphs(child, merged, i, total)
 
     graph = Graph()
+    merged_node = Graph()
     for order, descr in root.orders.iteritems():
         print '%i (%i out of %i - %i perc.)' % (order, i+1, total, (float(i+1)/total)*100)
         graph.load_order(jaar, order, params)
         graph.title = str(order) + ' - ' + descr
         graph.save_figs(str(order), params)
-        merged.merge(graph)
+        merged_node.merge(graph)
         i += 1
 
+# LASTIG!
+    merged.merge(graph)
     merged.title = root.name + ' - ' + root.descr
     merged.save_figs(root.name, params)
 
