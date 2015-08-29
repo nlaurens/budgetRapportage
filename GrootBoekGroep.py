@@ -125,7 +125,7 @@ class GrootBoekGroep():
 
     #return all orders in node and subnodes
     def list_orders_recursive(self):
-        orders = self.orders
+        orders = self.orders.copy()
         for child in self.children:
             orders.update(child.list_orders_recursive())
         return orders

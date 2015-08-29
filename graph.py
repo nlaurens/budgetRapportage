@@ -438,6 +438,7 @@ class Graph:
         for periode in range(1,13):
             if periode == 1:
                 periode = [0,1]
+                begroot['totaal'] = 0
             elif periode == 12:
                 periode = [12,13,14,15]
             else:
@@ -450,7 +451,7 @@ class Graph:
             totaal += rootLasten.totaalGeboektTree + rootLasten.totaalObligosTree
             resultaat.append(totaal)
 
-            begroot['totaal'] = rootLasten.totaalPlanTree
+            begroot['totaal'] += rootLasten.totaalPlanTree
             begroot['totaal'] += rootBaten.totaalPlanTree
 
             details = params['detailed']
@@ -519,27 +520,23 @@ class Graph:
     def save_figs(self, name, params):
         path = params['figpath']
         plt = self.realisatie(params)
-        plt.savefig(path+name+'-1.png', bbox_inches='tight')
+        plt.savefig(path+'1-'+name+'.png', bbox_inches='tight')
         plt.close()
 
         plt = self.baten_lasten_pie()
-        plt.savefig(path+name+'-2.png', bbox_inches='tight')
+        plt.savefig(path+'2-'+name+'.png', bbox_inches='tight')
         plt.close()
 
         plt = self.besteed_begroot()
-        plt.savefig(path+name+'-3.png', bbox_inches='tight')
+        plt.savefig(path+'3-'+name+'.png', bbox_inches='tight')
         plt.close()
 
 def og_graphs(root, merged, i, total):
 
     for child in root.children:
         merged, i = og_graphs(child, merged, i, total)
-#TODO om een of andere reden bevat root.orders ineens ook de orders van de nodes eronder..
-
 
     graph = Graph()
-    print root.descr
-    print root.orders
     for order, descr in root.orders.iteritems():
         print '%i (%i out of %i - %i perc.)' % (order, i+1, total, (float(i+1)/total)*100)
         graph.load_order(jaar, order, params)
