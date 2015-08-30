@@ -531,22 +531,21 @@ class Graph:
         plt.savefig(path+'3-'+name+'.png', bbox_inches='tight')
         plt.close()
 
-def og_graphs(root, merged, i, total):
+def og_graphs(root, i, total):
 
+    merged = Graph()
     for child in root.children:
-        merged, i = og_graphs(child, merged, i, total)
+        merged, i = og_graphs(child, i, total)
 
     graph = Graph()
-    merged_node = Graph()
     for order, descr in root.orders.iteritems():
         print '%i (%i out of %i - %i perc.)' % (order, i+1, total, (float(i+1)/total)*100)
         graph.load_order(jaar, order, params)
         graph.title = str(order) + ' - ' + descr
         graph.save_figs(str(order), params)
-        merged_node.merge(graph)
+        merged.merge(graph)
         i += 1
 
-# LASTIG!
     merged.merge(graph)
     merged.title = root.name + ' - ' + root.descr
     merged.save_figs(root.name, params)
@@ -561,9 +560,7 @@ def create_ordergroep_graphs(OG, jaar, params):
     i = 0
     total = len(root.list_orders_recursive())
     for child in root.children:
-        merged, i = og_graphs(child, merged, i, total)
-        merged.title = child.name + ' - ' + child.descr
-        merged.save_figs(child.name, params)
+        graph, i = og_graphs(child, i, total)
         merged.merge(graph)
 
     merged.title = root.name + ' - ' + root.descr
