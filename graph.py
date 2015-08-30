@@ -5,6 +5,8 @@ NOTES
 
 TODO
 
+FIX 1e periode -> personele lasten veels te hoog!
+
 # Algemeen
     Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
     Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar kan zien
