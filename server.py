@@ -35,7 +35,7 @@ def authenticated(userHash):
     if not session.get('logged_in', False):
         raise web.seeother('/login/' + userHash)
 
-    IPAllowed= IpBlock(web.ctx['ip'], config['IpRanges']) 
+    IPAllowed= IpBlock(web.ctx['ip'], config['IpRanges'])
     if userHash == '' or not IPAllowed:
         return False
     return True
@@ -67,7 +67,7 @@ class Overview:
         try:
             periode = web.input()['periode']
         except:
-            periode = ''
+            periode = '0,1,2,3,4,5,6,7,8,9,10,11,12'
 
         return KSgroep, jaar, periode
 
@@ -116,7 +116,7 @@ class Overview:
             totals['reserve'] += totals_child['reserve']
             totals['ruimte'] += totals_child['ruimte']
             totals['plan'] += totals_child['plan']
-            
+
         budgets = list(set(allowed) & set(node.orders.keys()))
         for i, order in enumerate(budgets):
             line = {}
@@ -219,7 +219,7 @@ class View:
         root = GrootBoek.load(order, grootboek, settings["jaar"], settings["periode"])
         if settings["clean"]:
             root.clean_empty_nodes()
-        
+
         begroting = model.get_begroting()
         totaal = {}
         htmlgrootboek = []
