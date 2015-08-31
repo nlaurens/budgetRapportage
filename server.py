@@ -89,6 +89,8 @@ class Overview:
 
         KSgroepen = model.loadKSgroepen()
         grootboek = KSgroepen[KSgroep]
+#TODO STATIC HACK
+        grootboek =  [s for s in KSgroepen if "BFRE15E01" in s][0]
         sapdatum = config['lastSAPexport']
         reserves = model.get_reserves()
 
