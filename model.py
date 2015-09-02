@@ -171,7 +171,7 @@ def obligo_db_2_regels(obligodb):
         regel.documentnummer = regelDB[config["SAPkeys"]["obligo"]["doc.nr."]]
 
 #DIRTY HACK for UL.nl SAP inrichting (obligo personeel wordt elke maand aangepast maar altijd op periode 1 gezet)
-        if regel.kostensoort == 411101 and False:
+        if regel.kostensoort == 411101:
             digits = [int(s) for s in regel.omschrijving.split() if s.isdigit()]
             periodeleft = range(digits[-2],digits[-1]+1)
             bedrag = regel.kosten/len(periodeleft)

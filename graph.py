@@ -447,7 +447,7 @@ class Graph:
                 periode = [periode]
 
             rootBaten.set_totals(periode=periode)
-            rootLasten.set_totals(periode)
+            rootLasten.set_totals(periode=periode)
 
             totaal = rootBaten.totaalGeboektTree + rootBaten.totaalObligosTree
             totaal += rootLasten.totaalGeboektTree + rootLasten.totaalObligosTree
