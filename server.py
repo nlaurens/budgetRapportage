@@ -1,6 +1,8 @@
 """"
 TODO
 
+- verplaats alle decode/encode naar model (db_2_regel)
+
 - Het kan zijn dat er begroting is op een KS die niet geboekt is. Dan komt hij NIET in het overzicht. FIXEN!
 
 - Importeer functie maken die vraagt om welke kolom wat bevat (namen zijn strings die iedereen apart instelt in SAP....)
