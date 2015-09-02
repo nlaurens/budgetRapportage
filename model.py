@@ -153,7 +153,6 @@ def plan_db_2_regels(db):
 
 # Returns a dict containing a list of regels at key kostensoort
 # ie. obligos['kostensoort'] = [ <regel>, <regel>, .. ]
-# TODO HACK FOR UL:
 def obligo_db_2_regels(obligodb):
     from BoekingsRegel import BoekingsRegel
 
@@ -172,17 +171,26 @@ def obligo_db_2_regels(obligodb):
         regel.documentnummer = regelDB[config["SAPkeys"]["obligo"]["doc.nr."]]
 
 #DIRTY HACK for UL.nl SAP inrichting (obligo personeel wordt elke maand aangepast maar altijd op periode 1 gezet)
-        if regel.kostensoort == 411101:
-            print regel.kosten
-            print regel.omschrijving
-            str = regel.omschrijving
-            print [int(s) for s in str.split() if s.isdigit()]
-#TODO regels toevoegen voor het bedrag / verschil in maanden (en achteraan beginnen dus: 12 of 12, 11, etc.
-
-        if regel.kostensoort in obligos:
-            obligos[regel.kostensoort].append(regel)
+        if regel.kostensoort == 411101 and False:
+            digits = [int(s) for s in regel.omschrijving.split() if s.isdigit()]
+            periodeleft = range(digits[-2],digits[-1]+1)
+            bedrag = regel.kosten/len(periodeleft)
+            omschrijving = regel.omschrijving.decode('ascii', 'replace').encode('utf-8')
+            for periode in periodeleft:
+                regelNew = regel.copy()
+                regelNew.omschrijving = omschrijving + '-per. ' + str(periode)
+                regelNew.omschrijving
+                regelNew.periode = periode
+                regelNew.kosten = bedrag
+                if regelNew.kostensoort in obligos:
+                    obligos[regelNew.kostensoort].append(regelNew)
+                else:
+                    obligos[regelNew.kostensoort] = [regelNew]
         else:
-            obligos[regel.kostensoort] = [regel]
+            if regel.kostensoort in obligos:
+                obligos[regel.kostensoort].append(regel)
+            else:
+                obligos[regel.kostensoort] = [regel]
 
     return obligos
 
