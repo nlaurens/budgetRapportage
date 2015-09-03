@@ -5,10 +5,6 @@ NOTES
 
 TODO
 
-Fix merge gedeelte. Telt nog steeds een post bij op! Wat het precies is weet ik niet. 
-check alle muatble dingen
-
-
 # Algemeen
     Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
     Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar kan zien
@@ -43,7 +39,7 @@ import sys
 class Graph:
     def __init__(self):
         self.title = ''
-        self.resultaat = np.array([range(0,12)]) #totaal resultaat for whole year
+        self.resultaat = np.zeros(12) #totaal resultaat for whole year
         self.baten = {} #key = ks, np array for each periode (12)
         self.lasten = {} #key = ks, np array for each periode (12)
         self.begroot = {} #key = ks, 1 value for whole year
