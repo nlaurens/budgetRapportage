@@ -5,12 +5,15 @@ NOTES
 
 TODO
 
-FIX 1e periode -> personele lasten veels te hoog!
+Fix merge gedeelte. Telt nog steeds een post bij op! Wat het precies is weet ik niet. 
+check alle muatble dingen
+
 
 # Algemeen
     Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
     Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar kan zien
     Toevoegen naam + ordernummer aan alle figuren
+    Als ordergroep geen groepen eronder heeft gaat het mis. (dus b.v. 2008A3 zo uitdraaien)
 
 # fig1:
     realisatie kleur+lijntje opnemen in tabel (zoals die ind e legeda staat)
