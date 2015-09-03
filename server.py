@@ -150,7 +150,7 @@ class Overview:
 
         totaal = {}
         totaal['order'] = 0
-        totaal['ordername'] = "Totaal " + node.descr
+        totaal['ordername'] = "Totaal " + node.descr + ' (' +node.name+ ')'
         totaal['reserve'] = moneyfmt(totals['reserve'])
         totaal['ruimte'] = moneyfmt(totals['ruimte'])
         totaal['begroting'] = moneyfmt(totals['plan'])
