@@ -535,20 +535,29 @@ class Graph:
 def og_graphs(root, i, total):
 
     merged = Graph()
+    print 'new merge graph: '
+    print root.name + ' - ' + root.descr
+# Ook alle childs mergen!
     for child in root.children:
-        merged, i = og_graphs(child, i, total)
+        graph, i = og_graphs(child, i, total)
+        merged.merge(graph)
+        print 'came back in '
+        print root.name + ' - ' + root.descr
 
     graph = Graph()
     for order, descr in root.orders.iteritems():
         print '%i (%i out of %i - %i perc.)' % (order, i+1, total, (float(i+1)/total)*100)
         graph.load_order(jaar, order, params)
         graph.title = str(order) + ' - ' + descr
+        print 'save graph in loop'
         graph.save_figs(str(order), params)
         merged.merge(graph)
         i += 1
 
-    merged.merge(graph)
+
     merged.title = root.name + ' - ' + root.descr
+    print 'save graph'
+    print root.name + ' - ' + root.descr
     merged.save_figs(root.name, params)
 
     return merged, i
