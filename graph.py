@@ -1,14 +1,13 @@
 """"
 NOTES
 
-    only shows >500 euro in table
+    only shows >|500| euro in table
 
 TODO
 
 # Algemeen
     Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
     Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar kan zien
-    Toevoegen naam + ordernummer aan alle figuren
     Als ordergroep geen groepen eronder heeft gaat het mis. (dus b.v. 2008A3 zo uitdraaien)
 
 # fig1:
@@ -56,7 +55,7 @@ class Graph:
         sys.exit('unknown color map ' + valueType + ' in Graph.get_colors()')
 
     def value_to_table_string(self, value):
-        if value == 0 or value < 0.5:
+        if value == 0 or np.abs(value) < 0.5:
             return ''
         else:
             return ('%.f' % value)
@@ -535,29 +534,22 @@ class Graph:
 def og_graphs(root, i, total):
 
     merged = Graph()
-    print 'new merge graph: '
-    print root.name + ' - ' + root.descr
 # Ook alle childs mergen!
     for child in root.children:
         graph, i = og_graphs(child, i, total)
         merged.merge(graph)
-        print 'came back in '
-        print root.name + ' - ' + root.descr
 
     graph = Graph()
     for order, descr in root.orders.iteritems():
         print '%i (%i out of %i - %i perc.)' % (order, i+1, total, (float(i+1)/total)*100)
         graph.load_order(jaar, order, params)
         graph.title = str(order) + ' - ' + descr
-        print 'save graph in loop'
         graph.save_figs(str(order), params)
         merged.merge(graph)
         i += 1
 
 
     merged.title = root.name + ' - ' + root.descr
-    print 'save graph'
-    print root.name + ' - ' + root.descr
     merged.save_figs(root.name, params)
 
     return merged, i
