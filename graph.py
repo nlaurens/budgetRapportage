@@ -11,9 +11,7 @@ TODO
     Als ordergroep geen groepen eronder heeft gaat het mis. (dus b.v. 2008A3 zo uitdraaien)
 
 # fig1:
-    realisatie kleur+lijntje opnemen in tabel (zoals die ind e legeda staat)
-    Add pijl voor periode 12 tussen begroot en realisatie en zet text +xx keur of -yy keur (annotate is je vriend)
-    realisatie lijn groen als het onder begroot is en rood als het overbegroot is
+
 # fig2:
     remove_pieces: check of er slechts 1 piece verwijdert wordt. Want dan kan je hem beter laten staan!
 # fig3:
