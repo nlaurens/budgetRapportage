@@ -34,6 +34,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import pylab as pylab
 import sys
+from matplotlib.patches import Rectangle
 
 class Graph:
     def __init__(self):
@@ -89,16 +90,28 @@ class Graph:
         legend['data'] = []
         legend['keys'] = []
 
+        #legend['data'].append(0)
+        #legend['keys'].append("Realisatie")
+
         colorslasten = self.get_colors('lasten', len(lasten))
         colorsbaten = self.get_colors('baten', len(baten))
         colors = np.concatenate( (colorslasten,colorsbaten), axis=0)
+
         #Plot data
         p1 = plt.plot(X, resultaat, 'ro-', lw=2)
         p2 = plt.plot([0,12], [0,begroting], 'k--')
         legend['data'].append(p1[0])
-        legend['keys'].append("Realisatie")
+        legend['keys'].append("Realisatie (" +self.value_to_table_string(resultaat[-1])  + "k)")
         legend['data'].append(p2[0])
-        legend['keys'].append("Begroting")
+        legend['keys'].append("Begroting (" +self.value_to_table_string(begroting[0])  + "k)")
+        legend['data'].append(Rectangle( (0,0),0,0, alpha=0.0))
+        overschot = begroting[0] - resultaat[-1]
+        if overschot>0:
+            legend['keys'].append("Te besteden (" + self.value_to_table_string(overschot) + "k)")
+        else:
+            legend['keys'].append("Overbesteed: (" + self.value_to_table_string(overschot) + "k)")
+
+        print begroting[0] - resultaat[-1]
 
         if params['show_prognose']:
             z = np.polyfit(X, resultaat, 1)
@@ -204,9 +217,10 @@ class Graph:
 
         #place upper left or lower left (depending on resultaat + or -)
         if resultaat[-1] <0:
-            plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=3)
+            leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=3)
         else:
-            plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
+            leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
+        leg.get_frame().set_linewidth(0.0)
 
         return plt
 
@@ -459,7 +473,6 @@ class Graph:
             lasten, begroot = self.parse_node(rootLasten, details, lasten, begroot, periode)
 
         #Remove lines that only have 0's (don't check the sum, could be +50, -50)
-#TODO refactor this into a function (double code, and will be tripple code with baten/lasten split)
         remove = []
         for key, line in baten.iteritems():
             if all(v < 500 for v in line):
