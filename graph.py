@@ -109,8 +109,6 @@ class Graph:
         else:
             legend['keys'].append("Overbesteed: (" + self.value_to_table_string(overschot) + "k)")
 
-        print begroting[0] - resultaat[-1]
-
         if params['show_prognose']:
             z = np.polyfit(X, resultaat, 1)
             p = np.poly1d(z)
