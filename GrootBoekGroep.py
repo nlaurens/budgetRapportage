@@ -85,8 +85,6 @@ class GrootBoekGroep():
             return ''
 
 
-
-
     # Creates a list of all levels in the tree
     # for example: [1, 5, 12, 40]
     def list_levels(self, levels):
@@ -129,6 +127,22 @@ class GrootBoekGroep():
         for child in self.children:
             orders.update(child.list_orders_recursive())
         return orders
+
+    def save_as_txt(self, file):
+        lvl = self.level + 1
+        sp = (lvl-1)*'    '
+        head = lvl*'#'
+
+        file.write(sp + head + self.name + ' ' + self.descr + '\n')
+        if self.orders:
+            for order, descr in self.orders.iteritems():
+                file.write(sp + ' ' + str(order) + ' ' + descr+ '\n')
+
+        file.write('\n')
+
+        for child in self.children:
+            child.save_as_txt(file)
+
 
 def first_item_in_list(lst):
     i = next(i for i, j in enumerate(lst) if j)
