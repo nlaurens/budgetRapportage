@@ -74,7 +74,7 @@ class Overview:
         return KSgroep, jaar, periode
 
     def GET(self, userHash):
-        grootboekgroepfile = 'data/grootboekgroep/20081GS'
+        grootboekgroepfile = 'data/grootboekgroep/LION'
 
         if not authenticated(userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
@@ -104,19 +104,19 @@ class Overview:
 
         tables = []
         for child in root.children:
-            totals = {}
-            totals['reserve'] = 0
-            totals['ruimte'] = 0
-            totals['plan'] = 0
             lines = []
-            lines, totals = self.create_table_lines(lines, totals, reserves, child, allowed, grootboek, jaar, periodes)
+            lines, totals = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes)
             tables.append(lines)
 
         return render.overview(headers, headersgrootboek, tables, sapdatum, grootboek, userHash)
 
-    def create_table_lines(self, lines, totals, reserves, node, allowed, grootboek, jaar, periodes):
+    def create_table_lines(self, lines, reserves, node, allowed, grootboek, jaar, periodes):
+        totals = {}
+        totals['reserve'] = 0
+        totals['ruimte'] = 0
+        totals['plan'] = 0
         for child in node.children:
-            lines, totals_child = self.create_table_lines(lines, totals, reserves, child, allowed, grootboek, jaar, periodes)
+            lines, totals_child = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes)
             totals['reserve'] += totals_child['reserve']
             totals['ruimte'] += totals_child['ruimte']
             totals['plan'] += totals_child['plan']
