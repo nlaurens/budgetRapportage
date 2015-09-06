@@ -88,6 +88,7 @@ class Overview:
         KSgroep = 1
         maxdepth = 1
         periodes = map(int, periode.split(','))
+        groep = 'BATEN'
 
         KSgroepen = model.loadKSgroepen()
         grootboek = KSgroepen[KSgroep]
@@ -108,7 +109,7 @@ class Overview:
             lines, totals = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes)
             tables.append(lines)
 
-        return render.overview(headers, headersgrootboek, tables, sapdatum, grootboek, userHash)
+        return render.overview(headers, headersgrootboek, tables, sapdatum, grootboek, userHash, root.name)
 
     def create_table_lines(self, lines, reserves, node, allowed, grootboek, jaar, periodes):
         totals = {}
