@@ -177,8 +177,39 @@ def load_raw_sap_export(path):
 
     return root
 
+def load_txt(path):
+    f = open(path, 'r')
+    group = ''
+    for line in f:
+        line = line.strip()
+        if line != '':
+            if line[0] == '#':
+                lvl = 0
+                while line[lvl] == '#':
+                    lvl += 1
+
+                lvl = lvl -1
+                sp = line.index(' ')
+                name = line[lvl+1:sp]
+                descr = line[sp+1:]
+                if group == '':
+                    group = GrootBoekGroep(name, descr, lvl, '')
+                    root = group
+                else:
+                    parent = group.lower_level_parent(lvl)
+                    group = GrootBoekGroep(name, descr, lvl, parent)
+                    parent.add_child(group)
+            else:
+                sp = line.index(' ')
+                order = line[:sp]
+                descr = line[sp+1:]
+                group.add_order(int(order), descr)
+
+    return root
+
 def load(grootboekgroepfile):
-    root = load_raw_sap_export(grootboekgroepfile)
-    root.normalize_levels()
+    #root = load_raw_sap_export(grootboekgroepfile)
+    root = load_txt(grootboekgroepfile)
+    #root.normalize_levels()
 
     return root
