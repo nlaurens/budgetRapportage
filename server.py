@@ -139,21 +139,21 @@ class Overview:
             totals['ruimte'] += line['ruimte']
 
             for child in root.children:
-                line[child.name] = moneyfmt((-1*(child.totaalGeboektTree + child.totaalObligosTree)))
+                line[child.name] = moneyfmt((-1*(child.totaalGeboektTree + child.totaalObligosTree)), keur=True)
 
             line['order'] =order
             line['ordername'] = node.orders[order] + ' (' + str(order) + ')'
-            line['reserve'] = moneyfmt(line['reserve'])
-            line['ruimte'] = moneyfmt(line['ruimte'])
-            line['begroting'] = moneyfmt(line['begroting'])
+            line['reserve'] = moneyfmt(line['reserve'], keur=True)
+            line['ruimte'] = moneyfmt(line['ruimte'], keur=True)
+            line['begroting'] = moneyfmt(line['begroting'], keur=True)
             lines.append(line)
 
         totaal = {}
         totaal['order'] = 0
         totaal['ordername'] = "Totaal " + node.descr + ' (' +node.name+ ')'
-        totaal['reserve'] = moneyfmt(totals['reserve'])
-        totaal['ruimte'] = moneyfmt(totals['ruimte'])
-        totaal['begroting'] = moneyfmt(totals['plan'])
+        totaal['reserve'] = moneyfmt(totals['reserve'], keur=True)
+        totaal['ruimte'] = moneyfmt(totals['ruimte'], keur=True)
+        totaal['begroting'] = moneyfmt(totals['plan'], keur=True)
         lines.append(totaal)
 
         return lines, totals

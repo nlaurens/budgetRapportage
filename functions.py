@@ -1,5 +1,5 @@
 def moneyfmt(value, places=0, curr='', sep=',', dp='',
-             pos='', neg='-', trailneg=''):
+             pos='', neg='-', trailneg='', keur=False):
     from decimal import *
     value = Decimal(value)
     """
@@ -27,6 +27,8 @@ def moneyfmt(value, places=0, curr='', sep=',', dp='',
     '<0.02>'
 
     """
+    if keur:
+        value = value / 1000
     q = Decimal(10) ** -places      # 2 places --> '0.01'
     sign, digits, exp = value.quantize(q).as_tuple()
     result = []
