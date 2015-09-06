@@ -84,7 +84,7 @@ $def with (headers, headersgrootboek, tables, sapDatum, grootboek, userHash, gro
                     $for i,line in enumerate(lines):
                         $if line['order']==0:
                             <tr>
-                                <td class="text-right"><b>$line['ordername']</b></a></td>
+                                <td class="text-right"><a href='?groep=$line['groep']'><b>$line['ordername']</b></a></td>
                                 <td class="price-label">k&euro;$line['reserve']</td>
                                 <td class="price-label">k&euro;$line['begroting']</td>
                                 <td class="price-label">k&euro;$line['ruimte']</td>

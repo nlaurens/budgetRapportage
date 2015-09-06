@@ -71,7 +71,12 @@ class Overview:
         except:
             periode = '0,1,2,3,4,5,6,7,8,9,10,11,12'
 
-        return KSgroep, jaar, periode
+        try:
+            groep = web.input()['groep']
+        except:
+            groep = 'TOTAAL'
+
+        return KSgroep, jaar, periode, groep
 
     def GET(self, userHash):
         grootboekgroepfile = 'data/grootboekgroep/LION'
@@ -84,11 +89,11 @@ class Overview:
         root = GrootBoekGroep.load(grootboekgroepfile)
 
         # Get params
-        KSgroep, jaar, periode = self.get_post_params()
+        KSgroep, jaar, periode, groep = self.get_post_params()
         KSgroep = 1
         maxdepth = 1
         periodes = map(int, periode.split(','))
-        groep = 'BATEN'
+        root = root.find(groep)
 
         KSgroepen = model.loadKSgroepen()
         grootboek = KSgroepen[KSgroep]
@@ -104,6 +109,9 @@ class Overview:
             headersgrootboek[child.name] = child.descr
 
         tables = []
+        lines = []
+        lines, totals = self.create_table_lines(lines, reserves, root, allowed, grootboek, jaar, periodes)
+        tables.append(lines)
         for child in root.children:
             lines = []
             lines, totals = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes)
@@ -151,6 +159,7 @@ class Overview:
 
         totaal = {}
         totaal['order'] = 0
+        totaal['groep'] = node.name
         totaal['ordername'] = "Totaal " + node.descr + ' (' +node.name+ ')'
         totaal['reserve'] = moneyfmt(totals['reserve'], keur=True)
         totaal['ruimte'] = moneyfmt(totals['ruimte'], keur=True)
