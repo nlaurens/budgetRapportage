@@ -110,25 +110,30 @@ class Overview:
 
         tables = []
         lines = []
-        lines, totals = self.create_table_lines(lines, reserves, root, allowed, grootboek, jaar, periodes)
+        lines, totals = self.create_table_lines(lines, reserves, root, allowed, grootboek, jaar, periodes, headersgrootboek)
         tables.append(lines)
         for child in root.children:
             lines = []
-            lines, totals = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes)
+            lines, totals = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes, headersgrootboek)
             tables.append(lines)
 
         return render.overview(headers, headersgrootboek, tables, sapdatum, grootboek, userHash, root.name)
 
-    def create_table_lines(self, lines, reserves, node, allowed, grootboek, jaar, periodes):
+    def create_table_lines(self, lines, reserves, node, allowed, grootboek, jaar, periodes, headersgrootboek):
         totals = {}
         totals['reserve'] = 0
         totals['ruimte'] = 0
         totals['plan'] = 0
+        for post in headersgrootboek:
+            totals[post] = 0
+
         for child in node.children:
-            lines, totals_child = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes)
+            lines, totals_child = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes, headersgrootboek)
             totals['reserve'] += totals_child['reserve']
             totals['ruimte'] += totals_child['ruimte']
             totals['plan'] += totals_child['plan']
+            for post in headersgrootboek:
+                totals[post] += totals_child[post]
 
         budgets = list(set(allowed) & set(node.orders.keys()))
         for i, order in enumerate(budgets):
@@ -148,7 +153,10 @@ class Overview:
             totals['ruimte'] += line['ruimte']
 
             for child in root.children:
-                line[child.name] = moneyfmt((-1*(child.totaalGeboektTree + child.totaalObligosTree)), keur=True)
+                value = -1*(child.totaalGeboektTree + child.totaalObligosTree)
+                totals[child.name] += value
+                line[child.name] = moneyfmt(value, keur=True)
+
 
             line['order'] =order
             line['ordername'] = node.orders[order] + ' (' + str(order) + ')'
@@ -164,6 +172,8 @@ class Overview:
         totaal['reserve'] = moneyfmt(totals['reserve'], keur=True)
         totaal['ruimte'] = moneyfmt(totals['ruimte'], keur=True)
         totaal['begroting'] = moneyfmt(totals['plan'], keur=True)
+        for post in headersgrootboek:
+            totaal[post] = moneyfmt(totals[post], keur=True)
         lines.append(totaal)
 
         return lines, totals
