@@ -173,9 +173,16 @@ class Graph:
         if params['show_table']:
             cell_text = []
             text = []
+            #Realisatie, begroting en R-B:
             for value in resultaat:
                 text.append(self.value_to_table_string(value))
             cell_text.append(text)
+            text = []
+            for i, value in enumerate(resultaat):
+                overschot = (begroting[0]/12)*float(i+1) - value
+                text.append(self.value_to_table_string(overschot))
+            #cell_text.append(text)
+
             for key, line in lasten.iteritems():
                 text = []
                 for value in line:
@@ -192,10 +199,12 @@ class Graph:
 
             columns = (["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
             rows = []
-            rows.extend(["Realisatie"])
+            #rows.extend(["Realisatie"])
+            rows.extend(["Te besteden"])
             rows.extend(lasten.keys())
             rows.extend(baten.keys())
-            colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure colors line stay the same
+            colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure colors te besteden
+            #colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure color realisatie
             the_table = plt.table(cellText=cell_text,
                             rowLabels=rows,
                             rowColours=colors,
