@@ -25,6 +25,7 @@ Notice that these records show only transactions up to (datum van laatste update
 
 """
 import web
+web.config.debug = False #must be done before the rest.
 import model
 import GrootBoek
 import GrootBoekGroep
@@ -110,12 +111,14 @@ class Overview:
 
         tables = []
         lines = []
-        lines, totals = self.create_table_lines(lines, reserves, root, allowed, grootboek, jaar, periodes, headersgrootboek)
-        tables.append(lines)
-        for child in root.children:
-            lines = []
-            lines, totals = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes, headersgrootboek)
+        if not child in root.children:
+            lines, totals = self.create_table_lines(lines, reserves, root, allowed, grootboek, jaar, periodes, headersgrootboek)
             tables.append(lines)
+        else: 
+            for child in root.children:
+                lines = []
+                lines, totals = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes, headersgrootboek)
+                tables.append(lines)
 
         return render.overview(headers, headersgrootboek, tables, sapdatum, grootboek, userHash, root.name)
 
