@@ -98,6 +98,7 @@ class Overview:
         KSgroep = 1
         maxdepth = 1
         periodes = map(int, periode.split(','))
+        root.walk_tree(99)
         root = root.find(groep)
 
         KSgroepen = model.loadKSgroepen()

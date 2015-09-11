@@ -81,8 +81,7 @@ class GrootBoekGroep():
                 result = child.find(name)
                 if result != '':
                     return result
-        else:
-            return ''
+        return ''
 
 
     # Creates a list of all levels in the tree
