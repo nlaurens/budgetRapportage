@@ -84,7 +84,14 @@ $def with (headers, headersgrootboek, tables, sapDatum, grootboek, userHash, gro
                     $for i,line in enumerate(lines):
                         $if line['order']==0:
                             <tr>
-                                <td class="text-right"><a href='?groep=$line['groep']'><b>$line['ordername']</b></a></td>
+                                <td class="text-right">
+                                    <a href='$line['png']' target="_blank">
+                                        *
+                                    </a>
+                                    <a href='?groep=$line['groep']'>
+                                        <b>$line['ordername']</b>
+                                    </a>
+                                </td>
                                 <td class="price-label">k&euro;$line['reserve']</td>
                                 <td class="price-label">k&euro;$line['begroting']</td>
                                 <td class="price-label">k&euro;$line['ruimte']</td>
@@ -119,6 +126,33 @@ $def with (headers, headersgrootboek, tables, sapDatum, grootboek, userHash, gro
                             </tr>
 
                     </tbody>
+                </table>
+                <table class="table">
+                    <tr>
+                    $for lines in tables:
+                            $for i, line in enumerate(lines):
+                                $if line['order']==0 and line['lvl']==1:
+                                    <td>
+                                        <a href='$line['png']' target="_blank">
+                                            <img class="img-responsive" src='$line['png']'>
+                                        </a>
+                                    </td>
+                            </tr><tr>
+                    </tr>
+                </table>
+                <table class="table">
+                    <tr>
+                    $for lines in tables:
+                            $for i,line in enumerate(lines):
+                                $if line['order']!=0 and line['lvl']==0:
+                                    <td>
+                                        <a href='$line['png']' target="_blank">
+                                            <img class="img-responsive" src='$line['png']'>
+                                        </a>
+                                    </td>
+                                $if i%2:
+                                    </tr><tr>
+                    </tr>
                 </table>
     </div>
 </body>

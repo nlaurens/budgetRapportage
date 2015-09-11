@@ -23,9 +23,13 @@ Notice that these records show only transactions up to (datum van laatste update
 - Rewrite templates to be more modular with css and header parts:
     http://webpy.org/cookbook/layout_template
 
+Somday/Maybe:
+
+#cool d3 ding:
+- http://bl.ocks.org/NPashaP/96447623ef4d342ee09b
 """
 import web
-web.config.debug = False #must be done before the rest.
+#web.config.debug = False #must be done before the rest.
 import model
 import GrootBoek
 import GrootBoekGroep
@@ -112,17 +116,17 @@ class Overview:
         tables = []
         lines = []
         if not child in root.children:
-            lines, totals = self.create_table_lines(lines, reserves, root, allowed, grootboek, jaar, periodes, headersgrootboek)
+            lines, totals = self.create_table_lines(lines, reserves, root, allowed, grootboek, jaar, periodes, headersgrootboek, 0)
             tables.append(lines)
         else: 
             for child in root.children:
                 lines = []
-                lines, totals = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes, headersgrootboek)
+                lines, totals = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes, headersgrootboek, 0)
                 tables.append(lines)
 
         return render.overview(headers, headersgrootboek, tables, sapdatum, grootboek, userHash, root.name)
 
-    def create_table_lines(self, lines, reserves, node, allowed, grootboek, jaar, periodes, headersgrootboek):
+    def create_table_lines(self, lines, reserves, node, allowed, grootboek, jaar, periodes, headersgrootboek, depth):
         totals = {}
         totals['reserve'] = 0
         totals['ruimte'] = 0
@@ -131,7 +135,7 @@ class Overview:
             totals[post] = 0
 
         for child in node.children:
-            lines, totals_child = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes, headersgrootboek)
+            lines, totals_child = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes, headersgrootboek, depth+1)
             totals['reserve'] += totals_child['reserve']
             totals['ruimte'] += totals_child['ruimte']
             totals['plan'] += totals_child['plan']
@@ -163,6 +167,8 @@ class Overview:
 
             line['order'] =order
             line['ordername'] = node.orders[order] + ' (' + str(order) + ')'
+            line['png'] = '../static/figs/1-' + str(order) + '.png'
+            line['lvl'] = depth
             line['reserve'] = moneyfmt(line['reserve'], keur=True)
             line['ruimte'] = moneyfmt(line['ruimte'], keur=True)
             line['begroting'] = moneyfmt(line['begroting'], keur=True)
@@ -170,7 +176,9 @@ class Overview:
 
         totaal = {}
         totaal['order'] = 0
+        totaal['lvl'] = depth
         totaal['groep'] = node.name
+        totaal['png'] = '../static/figs/1-' + node.name + '.png'
         totaal['ordername'] = "Totaal " + node.descr + ' (' +node.name+ ')'
         totaal['reserve'] = moneyfmt(totals['reserve'], keur=True)
         totaal['ruimte'] = moneyfmt(totals['ruimte'], keur=True)
