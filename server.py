@@ -98,7 +98,6 @@ class Overview:
         KSgroep = 1
         maxdepth = 1
         periodes = map(int, periode.split(','))
-        root.walk_tree(99)
         root = root.find(groep)
 
         KSgroepen = model.loadKSgroepen()
@@ -278,7 +277,6 @@ class View:
         else:
             totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['begroting']
 
-        print settings["maxdepth"]
         for child in root.children:
             htmlgrootboek.append(child.html_tree(render, settings["maxdepth"], 0))
 # TODO: DIT IS SPECIFIEK VOOR 29FALW2

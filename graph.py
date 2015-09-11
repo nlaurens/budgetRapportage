@@ -549,12 +549,11 @@ class Graph:
         plt.savefig(path+'3-'+name+'.png', bbox_inches='tight')
         plt.close()
 
-def og_graphs(root, i, total):
-
+def og_graphs(root, i, total, jaar):
     merged = Graph()
 # Ook alle childs mergen!
     for child in root.children:
-        graph, i = og_graphs(child, i, total)
+        graph, i = og_graphs(child, i, total, jaar)
         merged.merge(graph)
 
     graph = Graph()
@@ -580,7 +579,7 @@ def create_ordergroep_graphs(OG, jaar, params):
     i = 0
     total = len(root.list_orders_recursive())
     for child in root.children:
-        graph, i = og_graphs(child, i, total)
+        graph, i = og_graphs(child, i, total, jaar)
         merged.merge(graph)
 
     merged.title = root.name + ' - ' + root.descr
@@ -635,7 +634,7 @@ if __name__ == "__main__":
                 if order == os.path.split(OG)[1]:
                     found = True
                     print 'creating graph of group ' + order
-                    create_ordergroep_graphs(OG, 2015, params)
+                    create_ordergroep_graphs(OG, 2014, params)
 
     if not found:
         print 'ERROR Unkown input ' + order
