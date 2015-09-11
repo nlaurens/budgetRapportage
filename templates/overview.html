@@ -133,7 +133,7 @@ $def with (headers, headersgrootboek, tables, sapDatum, grootboek, userHash, gro
                             $for i, line in enumerate(lines):
                                 $if line['order']==0 and line['lvl']==1:
                                     <td>
-                                        <a href='$line['png']' target="_blank">
+                                        <a href='?groep=$line['groep']' target="_blank">
                                             <img class="img-responsive" src='$line['png']'>
                                         </a>
                                     </td>
@@ -146,7 +146,7 @@ $def with (headers, headersgrootboek, tables, sapDatum, grootboek, userHash, gro
                             $for i,line in enumerate(lines):
                                 $if line['order']!=0 and line['lvl']==0:
                                     <td>
-                                        <a href='$line['png']' target="_blank">
+                                        <a href="/view/$userHash/$line['order']" target="_blank">
                                             <img class="img-responsive" src='$line['png']'>
                                         </a>
                                     </td>
