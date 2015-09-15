@@ -1,6 +1,11 @@
 """"
+BUGS
+
+  - Baten verdwijnen
+
 TODO
 
+- 'prognose' posten toevoegen.
 - verplaats alle decode/encode naar model (db_2_regel)
 
 - Het kan zijn dat er begroting is op een KS die niet geboekt is. Dan komt hij NIET in het overzicht. FIXEN!
