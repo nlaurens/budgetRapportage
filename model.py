@@ -2,6 +2,8 @@ import web
 import hashlib
 from config import config
 import glob
+import csv
+from BoekingsRegel import BoekingsRegel
 
 #TODO vervang alle SQL query door de config params ipv de hardcoded kolom namen.
 
@@ -130,7 +132,6 @@ def get_obligos(jaar, periodes=[], order=0, kostensoorten=[]):
 # Returns a dict containing a list of regels at key kostensoort
 # ie. obligos['kostensoort'] = [ <regel>, <regel>, .. ]
 def plan_db_2_regels(db):
-    from BoekingsRegel import BoekingsRegel
 
     plans = {}
     for regelDB in db:
@@ -154,7 +155,6 @@ def plan_db_2_regels(db):
 # Returns a dict containing a list of regels at key kostensoort
 # ie. obligos['kostensoort'] = [ <regel>, <regel>, .. ]
 def obligo_db_2_regels(obligodb):
-    from BoekingsRegel import BoekingsRegel
 
     obligos = {}
     for regelDB in obligodb:
@@ -243,7 +243,6 @@ def get_geboekt(jaar, periodes=[], order=0, kostensoorten=[]):
 # Returns a dictionary that contains a list of regels per key kostensoort
 # ie. geboekt['kostensoort'] = [regels]
 def geboekt_db_2_regel(geboektdb):
-    from BoekingsRegel import BoekingsRegel
 
     geboekt = {}
     for regelDB in geboektdb:
@@ -313,3 +312,26 @@ def get_plan_totaal(jaar, order):
         plan += float(regelDB[config["SAPkeys"]["plan"]["kosten"]].replace(',',''))
 
     return -1*plan
+
+#loads the CSV prognose sheet into regels
+# returns a dictionary of regels, sorted by order#
+def get_prognose_regels(jaar='', order=''):
+    f = open('data/prognose/prognose.csv', 'rb')
+    reader = csv.reader(f)
+    prognose = {}
+    for row in reader:
+        if row[0].isdigit():
+            regel = BoekingsRegel()
+            regel.tiepe = "Prognose"
+            regel.order = row[0]
+            regel.kosten = row[3]
+            regel.jaar = row[1]
+            regel.periode = row[2]
+            regel.omschrijving = row[4]
+            if regel.order in prognose:
+                prognose[regel.order].append(regel)
+            else:
+                prognose[regel.order] = [regel]
+
+    f.close()
+    return prognose
