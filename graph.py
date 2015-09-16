@@ -480,15 +480,16 @@ class Graph:
         #Remove lines that only have 0's (don't check the sum, could be +50, -50)
         remove = []
         for key, line in baten.iteritems():
-            if all(v < 500 for v in line):
+            if all(np.abs(v) < 500 for v in line):
                 remove.append(key)
 
         for key in remove:
             del baten[key]
 
+
         remove = []
         for key, line in lasten.iteritems():
-            if all(v < 500 for v in line):
+            if all(np.abs(v) < 500 for v in line):
                 remove.append(key)
 
         for key in remove:
@@ -592,7 +593,7 @@ if __name__ == "__main__":
     params['show_details_flat'] = True
     params['show_details_stack'] = False
     params['show_table'] = True
-    params['detailed'] = True
+    params['detailed'] = False
     params['figpath'] = 'figs/'
     jaar = 2015
 
@@ -634,7 +635,7 @@ if __name__ == "__main__":
                 if order == os.path.split(OG)[1]:
                     found = True
                     print 'creating graph of group ' + order
-                    create_ordergroep_graphs(OG, 2014, params)
+                    create_ordergroep_graphs(OG, 2015, params)
 
     if not found:
         print 'ERROR Unkown input ' + order
