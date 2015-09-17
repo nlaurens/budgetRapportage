@@ -41,16 +41,8 @@ import GrootBoekGroep
 import os
 from config import config
 from functions import moneyfmt, IpBlock
+import webaccess
 
-
-def authenticated(userHash):
-    if not session.get('logged_in', False):
-        raise web.seeother('/login/' + userHash)
-
-    IPAllowed= IpBlock(web.ctx['ip'], config['IpRanges'])
-    if userHash == '' or not IPAllowed:
-        return False
-    return True
 
 
 class Index:
@@ -91,7 +83,7 @@ class Overview:
     def GET(self, userHash):
         grootboekgroepfile = 'data/grootboekgroep/LION'
 
-        if not authenticated(userHash):
+        if not webaccess.check_auth(session, userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
 
         #intersect of allowed budgets and report group
@@ -242,7 +234,7 @@ class View:
         return {"maxdepth":maxdepth, "KSgroep":KSgroep, "jaar":jaar, "periode":periode, "clean":clean}
 
     def view(self, userHash, order, parent):
-        if not authenticated(userHash):
+        if not webaccess.check_auth(session, userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
 
         form = self.settings_form()
