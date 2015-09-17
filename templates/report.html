@@ -1,4 +1,4 @@
-$def with (summary, settings, body)
+$def with (report)
 
 
 <!doctype html>
@@ -7,7 +7,7 @@ $def with (summary, settings, body)
     <meta charset="UTF-8">
     <title>Budget overview</title>
     <link rel="stylesheet" href="../static/css/bootstrap.css">
-    <link rel="stylesheet" href="../static/css/budgetrapport.css">
+    <link rel="stylesheet" href="../static/css/report.css">
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="../static/js/jquery.min.js"></script>
@@ -41,7 +41,7 @@ $def with (summary, settings, body)
               <h4>Summary</h4>
             </div>
             <div class="panel-body">
-                $summary
+                $:report['summary']
             </div>
           </div>
         </div>
@@ -51,12 +51,12 @@ $def with (summary, settings, body)
               <h4>Settings</h4>
             </div>
             <div class="panel-body">
-                $settings
+                $:report['settings']
             </div>
           </div>
         </div>
       </div>
-            $body
+            $:report['body']
     </div>
 </body>
 </html>

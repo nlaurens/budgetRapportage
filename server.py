@@ -34,7 +34,7 @@ Somday/Maybe:
 - http://bl.ocks.org/NPashaP/96447623ef4d342ee09b
 """
 import web
-web.config.debug = False #must be done before the rest.
+#web.config.debug = False #must be done before the rest.
 import model
 import GrootBoek
 import GrootBoekGroep
@@ -42,6 +42,7 @@ import os
 from config import config
 from functions import moneyfmt, IpBlock
 import webaccess
+import webreport
 
 
 
@@ -314,6 +315,14 @@ class View:
         form.periode.value = settings["periode"]
         form.clean.checked = settings["clean"]
 
+class Report:
+    def POST(self, userHash):
+        report = webreport.groep_report(render)
+        return render.report(report)
+
+    def GET(self, userHash):
+        report = webreport.groep_report(render)
+        return render.report(report)
 
 
 class Login:
@@ -353,6 +362,7 @@ urls = (
     '/view/(.+)/(\d+)', 'View',
     '/login(.+)', 'Login',
     '/logout', 'Logout',
+    '/report/(.+)', 'Report',
 )
 
 ### Templates
