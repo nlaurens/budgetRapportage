@@ -321,7 +321,9 @@ class Report:
         return render.report(report)
 
     def GET(self, userHash):
-        report = webreport.groep_report(render)
+        groep = 'OL-OBP'
+        jaar = '2015'
+        report = webreport.groep_report(render, groep, jaar)
         return render.report(report)
 
 

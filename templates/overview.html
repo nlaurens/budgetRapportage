@@ -92,14 +92,14 @@ $def with (headers, headersgrootboek, tables, sapDatum, grootboek, userHash, gro
                                         <b>$line['ordername']</b>
                                     </a>
                                 </td>
-                                <td class="price-label">k&euro;$line['reserve']</td>
-                                <td class="price-label">k&euro;$line['begroting']</td>
-                                <td class="price-label">k&euro;$line['ruimte']</td>
+                                <td class="price-label">$line['reserve']</td>
+                                <td class="price-label">$line['begroting']</td>
+                                <td class="price-label">$line['ruimte']</td>
                                 $for name in headersgrootboek.iterkeys():
                                     $if name in line:
-                                        <td class="price-label">k&euro;$line[name]</td>
+                                        <td class="price-label">$line[name]</td>
                                     $else:
-                                        <td class="price-label">k&euro;0</td>
+                                        <td class="price-label">0</td>
                             </tr>
                             <tr>
                                 <td class="text-right"></td>
@@ -115,14 +115,14 @@ $def with (headers, headersgrootboek, tables, sapDatum, grootboek, userHash, gro
                         $else:
                             <tr>
                                 <td class="text-right"><a href="/view/$userHash/$line['order']" target="_blank">$line['ordername']</a></td>
-                                <td class="price-label">k&euro;$line['reserve']</td>
-                                <td class="price-label">k&euro;$line['begroting']</td>
-                                <td class="price-label">k&euro;$line['ruimte']</td>
+                                <td class="price-label">$line['reserve']</td>
+                                <td class="price-label">$line['begroting']</td>
+                                <td class="price-label">$line['ruimte']</td>
                                 $for name in headersgrootboek.iterkeys():
                                     $if name in line:
-                                        <td class="price-label">k&euro;$line[name]</td>
+                                        <td class="price-label">$line[name]</td>
                                     $else:
-                                        <td class="price-label">k&euro;0</td>
+                                        <td class="price-label">0</td>
                             </tr>
 
                     </tbody>
