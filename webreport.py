@@ -59,13 +59,21 @@ def parse_groep(root, jaar, render):
 
     return render.report_table_groep(rows, html)
 
+def build_tree(root, jaar, render):
+    regels = []
+    for child in root.children:
+        regels.extend(build_tree(child, jaar, render))
+
+    #render.report_table(regels)
+    regels.append(parse_groep(root, jaar, render))
+
+    return regels
+
 def groep_report(render, groepstr, jaar):
     grootboekgroepfile = 'data/grootboekgroep/LION'
     root = GrootBoekGroep.load(grootboekgroepfile).find(groepstr)
 
-    regels = []
-    for child in root.children:
-        regels.append(parse_groep(child, jaar, render))
+    regels = build_tree(root, jaar, render)
 
     report = {}
     report['settings'] = 'settings!!'
