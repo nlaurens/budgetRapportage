@@ -36,11 +36,11 @@ def row_to_html(row, render):
     html['resultaat'] = table_string(row['resultaat'])
     return render.report_table_row(html)
 
-def parse_groep(root, jaar, render):
+def parse_orders(root, jaar, render):
     rows = []
     groep = {}
     groep['name'] = root.descr
-    groep['begroot'] = 0 
+    groep['begroot'] = 0
     groep['realisatie'] = 0
     groep['obligo'] = 0
     groep['resultaat'] = 0
@@ -52,32 +52,33 @@ def parse_groep(root, jaar, render):
         groep['resultaat'] += row['resultaat']
         rows.append(row_to_html(row, render))
 
-    html = {}
-    html['row'] = row_to_html(groep, render)
-    html['id'] = root.name
-    html['img'] = "../static/figs/"+str(jaar)+"-detailed/1-"+root.name+".png"
+    header = {}
+    header['row'] = row_to_html(groep, render)
+    header['id'] = root.name
+    header['img'] = "../static/figs/"+str(jaar)+"-detailed/1-"+root.name+".png"
 
-    return render.report_table_groep(rows, html)
+    return rows, header
 
-def build_tree(root, jaar, render):
-    regels = []
-    for child in root.children:
-        regels.extend(build_tree(child, jaar, render))
-
-    #render.report_table(regels)
-    regels.append(parse_groep(root, jaar, render))
-
-    return regels
 
 def groep_report(render, groepstr, jaar):
     grootboekgroepfile = 'data/grootboekgroep/LION'
     root = GrootBoekGroep.load(grootboekgroepfile).find(groepstr)
 
-    regels = build_tree(root, jaar, render)
+    table = []
+    childtable = []
+    for child in root.children:
+        rows, header = parse_orders(child, jaar, render)
+        childtable.append(render.report_table_groep(rows, header))
+
+    rows, header = parse_orders(root, jaar, render)
+    rows.extend(childtable)
+    table.append(render.report_table_groep(rows, header))
+
+    body = render.report_table(table)
 
     report = {}
     report['settings'] = 'settings!!'
     report['summary'] = "<a href='../static/figs/"+str(jaar)+"-detailed/1-" + groepstr + ".png' target='_blank'><img class='img-responsive' src='../static/figs/"+str(jaar)+"-detailed/1-"+groepstr+".png'></a>"
 
-    report['body'] = render.report_table(regels)
+    report['body'] = body
     return report

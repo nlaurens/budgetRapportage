@@ -116,7 +116,7 @@ class Overview:
         if not child in root.children:
             lines, totals = self.create_table_lines(lines, reserves, root, allowed, grootboek, jaar, periodes, headersgrootboek, 0)
             tables.append(lines)
-        else: 
+        else:
             for child in root.children:
                 lines = []
                 lines, totals = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes, headersgrootboek, 0)
@@ -321,7 +321,7 @@ class Report:
         return render.report(report)
 
     def GET(self, userHash):
-        groep = 'PL-TP'
+        groep = 'PL'
         jaar = '2015'
         report = webreport.groep_report(render, groep, jaar)
         return render.report(report)
