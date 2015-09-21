@@ -323,7 +323,7 @@ class Report:
     def GET(self, userHash):
         groep = 'LASTEN'
         jaar = '2015'
-        report = webreport.groep_report(render, groep, jaar)
+        report = webreport.groep_report(userHash, render, groep, jaar)
         return render.report(report)
 
 

@@ -12,7 +12,7 @@ def table_string(value):
     else:
         return ('%.f' % value)
 
-def load_order(order, jaar):
+def load_order(order, descr, jaar):
     #parse orders in groep:
     KSgroepen = model.loadKSgroepen()
     grootboek =  [s for s in KSgroepen if "BFRE15E01" in s][0]
@@ -21,7 +21,7 @@ def load_order(order, jaar):
     root.set_totals()
 
     row = {}
-    row['name'] = 'TODO'
+    row['name'] = descr
     row['order'] = order
     row['begroot'] = model.get_plan_totaal(jaar, order)
     row['realisatie'] = -1*(root.totaalGeboektTree)
@@ -35,7 +35,7 @@ def row_to_html(row, render, groep=False):
         html['name'] = row['name']
     else:
 #TODO USERSTRING
-        html['name'] = "<a href='view/USERSTRING"+str(row['order'])+"'>"+row['name']+ "</a>"
+        html['name'] = "<a href='view/"+userHash+"/"+str(row['order'])+"'>"+row['name']+ "</a>"
 
     html['begroot'] = table_string(row['begroot'])
     html['realisatie'] =  table_string(row['realisatie'])
@@ -47,7 +47,7 @@ def parse_orders(root, jaar, render, total):
     rows = []
     total['name'] = root.descr
     for order, descr in root.orders.iteritems():
-        row = load_order(order, jaar)
+        row = load_order(order, descr, jaar)
         rows.append(row_to_html(row, render))
         total['begroot'] += row['begroot']
         total['realisatie'] += row['realisatie']
@@ -79,7 +79,9 @@ def parse_groep(root, jaar, render):
     rows, header, groeptotal = parse_orders(root, jaar, render, groeptotal)
     return rows, header, groeprows, groeptotal
 
-def groep_report(render, groepstr, jaar):
+def groep_report(userID, render, groepstr, jaar):
+    global userHash 
+    userID = userID
     grootboekgroepfile = 'data/grootboekgroep/LION'
     root = GrootBoekGroep.load(grootboekgroepfile).find(groepstr)
 
