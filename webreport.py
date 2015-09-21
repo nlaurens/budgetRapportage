@@ -81,10 +81,11 @@ def parse_groep(root, jaar, render):
 
 def groep_report(userID, render, groepstr, jaar):
     global userHash 
-    userID = userID
+    userHash = userID
     grootboekgroepfile = 'data/grootboekgroep/LION'
     if groepstr != '':
-        root = GrootBoekGroep.load(grootboekgroepfile).find(groepstr)
+        root = GrootBoekGroep.load(grootboekgroepfile)
+        root = root.find(groepstr)
     else: 
         root = GrootBoekGroep.load(grootboekgroepfile)
 
@@ -107,10 +108,26 @@ def groep_report(userID, render, groepstr, jaar):
     table.append(render.report_table_groep(rows, header, childtable))
 
     body = render.report_table(table)
+    figs = ''
+    if not root.children:
+        graphs = []
+        i = 0
+        for order, descr in root.orders.iteritems():
+            graph = {}
+            graph['link'] = ('../view/' + userHash + '/' + str(order))
+            graph['png'] = ('../static/figs/'+str(jaar)+'-detailed/1-' + str(order) + '.png')
+            if i%2:
+                graph['spacer'] = '</tr><tr>'
+            else:
+                graph['spacer'] = ''
+            graphs.append(graph)
+            i +=1
+
+        figs = render.report_figpage(graphs)
 
     report = {}
     report['settings'] = 'settings!!'
     report['summary'] = "<a href='../static/figs/"+str(jaar)+"-detailed/1-" + groepstr + ".png' target='_blank'><img class='img-responsive' src='../static/figs/"+str(jaar)+"-detailed/1-"+groepstr+".png'></a>"
-
     report['body'] = body
+    report['figpage'] = figs
     return report
