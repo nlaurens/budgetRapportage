@@ -59,6 +59,11 @@ def parse_orders(root, jaar, render):
 
     return rows, header
 
+def parse_groep(root, jaar, render):
+    groeprows = []
+    rows, header = parse_orders(root, jaar, render)
+    return rows, header, groeprows
+
 
 def groep_report(render, groepstr, jaar):
     grootboekgroepfile = 'data/grootboekgroep/LION'
@@ -67,8 +72,8 @@ def groep_report(render, groepstr, jaar):
     table = []
     childtable = []
     for child in root.children:
-        rows, header = parse_orders(child, jaar, render)
-        childtable.append(render.report_table_groep(rows, header, ''))
+        rows, header, groeprows = parse_groep(child, jaar, render)
+        childtable.append(render.report_table_groep(rows, header, groeprows))
 
     rows, header = parse_orders(root, jaar, render)
     table.append(render.report_table_groep(rows, header, childtable))
