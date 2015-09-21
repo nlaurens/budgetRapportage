@@ -229,7 +229,7 @@ class Login:
 
         if form['password'].value == config["globalPW"]:
             session.logged_in = True
-            raise web.seeother('/report/'+userHash)
+            raise web.seeother('/report'+userHash)
 
         return render.login(form, 'Wrong Password')
 
