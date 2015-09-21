@@ -34,7 +34,7 @@ Somday/Maybe:
 - http://bl.ocks.org/NPashaP/96447623ef4d342ee09b
 """
 import web
-#web.config.debug = False #must be done before the rest.
+web.config.debug = False #must be done before the rest.
 import model
 import GrootBoek
 import GrootBoekGroep
@@ -52,140 +52,6 @@ class Index:
 
     def GET(self):
         return render.index()
-
-
-class Overview:
-    def __init__(self):
-        pass
-
-    def get_post_params(self):
-        try:
-            KSgroep = int(web.input()['KSgroep'])
-        except:
-            KSgroep = 0
-
-        try:
-            jaar = int(web.input()['jaar'])
-        except:
-            jaar = 2015
-
-        try:
-            periode = web.input()['periode']
-        except:
-            periode = '0,1,2,3,4,5,6,7,8,9,10,11,12'
-
-        try:
-            groep = web.input()['groep']
-        except:
-            groep = 'TOTAAL'
-
-        return KSgroep, jaar, periode, groep
-
-    def GET(self, userHash):
-        grootboekgroepfile = 'data/grootboekgroep/LION'
-
-        if not webaccess.check_auth(session, userHash):
-            return web.notfound("Sorry the page you were looking for was not found.")
-
-        #intersect of allowed budgets and report group
-        allowed = model.get_budgets(userHash, config["salt"])
-        root = GrootBoekGroep.load(grootboekgroepfile)
-
-        # Get params
-        KSgroep, jaar, periode, groep = self.get_post_params()
-        KSgroep = 1
-        maxdepth = 1
-        periodes = map(int, periode.split(','))
-        root = root.find(groep)
-
-        KSgroepen = model.loadKSgroepen()
-        grootboek = KSgroepen[KSgroep]
-#TODO STATIC HACK
-        grootboek =  [s for s in KSgroepen if "BFRE15E01" in s][0]
-        sapdatum = config['lastSAPexport']
-        reserves = model.get_reserves()
-
-        headers = ['Order', 'Reserve', 'Begroting',  'Bestedingsruimte']
-        headersgrootboek = {}
-        emptyGB = GrootBoek.load_empty(grootboek)
-        for child in emptyGB.children:
-            headersgrootboek[child.name] = child.descr
-
-        tables = []
-        lines = []
-        if not child in root.children:
-            lines, totals = self.create_table_lines(lines, reserves, root, allowed, grootboek, jaar, periodes, headersgrootboek, 0)
-            tables.append(lines)
-        else:
-            for child in root.children:
-                lines = []
-                lines, totals = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes, headersgrootboek, 0)
-                tables.append(lines)
-
-        return render.overview(headers, headersgrootboek, tables, sapdatum, grootboek, userHash, root.name)
-
-    def create_table_lines(self, lines, reserves, node, allowed, grootboek, jaar, periodes, headersgrootboek, depth):
-        totals = {}
-        totals['reserve'] = 0
-        totals['ruimte'] = 0
-        totals['plan'] = 0
-        for post in headersgrootboek:
-            totals[post] = 0
-
-        for child in node.children:
-            lines, totals_child = self.create_table_lines(lines, reserves, child, allowed, grootboek, jaar, periodes, headersgrootboek, depth+1)
-            totals['reserve'] += totals_child['reserve']
-            totals['ruimte'] += totals_child['ruimte']
-            totals['plan'] += totals_child['plan']
-            for post in headersgrootboek:
-                totals[post] += totals_child[post]
-
-        budgets = list(set(allowed) & set(node.orders.keys()))
-        for i, order in enumerate(budgets):
-            line = {}
-            root = GrootBoek.load(order, grootboek, jaar, periodes)
-
-            try:
-                line['reserve'] = reserves[str(order)]
-            except:
-                line['reserve'] = 0
-            totals['reserve'] += line['reserve']
-
-
-            line['begroting'] = model.get_plan_totaal(2015,order)
-            totals['plan'] += line['begroting']
-            line['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) - line['begroting']
-            totals['ruimte'] += line['ruimte']
-
-            for child in root.children:
-                value = -1*(child.totaalGeboektTree + child.totaalObligosTree)
-                totals[child.name] += value
-                line[child.name] = moneyfmt(value, keur=True)
-
-
-            line['order'] =order
-            line['ordername'] = node.orders[order] + ' (' + str(order) + ')'
-            line['png'] = '../static/figs/1-' + str(order) + '.png'
-            line['lvl'] = depth
-            line['reserve'] = moneyfmt(line['reserve'], keur=True)
-            line['ruimte'] = moneyfmt(line['ruimte'], keur=True)
-            line['begroting'] = moneyfmt(line['begroting'], keur=True)
-            lines.append(line)
-
-        totaal = {}
-        totaal['order'] = 0
-        totaal['lvl'] = depth
-        totaal['groep'] = node.name
-        totaal['png'] = '../static/figs/1-' + node.name + '.png'
-        totaal['ordername'] = "Totaal " + node.descr + ' (' +node.name+ ')'
-        totaal['reserve'] = moneyfmt(totals['reserve'], keur=True)
-        totaal['ruimte'] = moneyfmt(totals['ruimte'], keur=True)
-        totaal['begroting'] = moneyfmt(totals['plan'], keur=True)
-        for post in headersgrootboek:
-            totaal[post] = moneyfmt(totals[post], keur=True)
-        lines.append(totaal)
-
-        return lines, totals
 
 class View:
     settings_form = web.form.Form(
@@ -316,13 +182,32 @@ class View:
         form.clean.checked = settings["clean"]
 
 class Report:
+    def get_params(self):
+
+        try:
+            jaar = int(web.input()['jaar'])
+        except:
+            jaar = 2015
+
+        try:
+            periode = web.input()['periode']
+        except:
+            periode = '0,1,2,3,4,5,6,7,8,9,10,11,12'
+
+        try:
+            groep = web.input()['groep']
+        except:
+            groep = 'TOTAAL'
+
+        return jaar, periode, groep
+
     def POST(self, userHash):
-        report = webreport.groep_report(render)
-        return render.report(report)
+        return None
 
     def GET(self, userHash):
-        groep = 'LASTEN'
-        jaar = '2015'
+        if not webaccess.check_auth(session, userHash):
+            return web.notfound("Sorry the page you were looking for was not found.")
+        jaar, periode, groep = self.get_params()
         report = webreport.groep_report(userHash, render, groep, jaar)
         return render.report(report)
 
@@ -344,7 +229,7 @@ class Login:
 
         if form['password'].value == config["globalPW"]:
             session.logged_in = True
-            raise web.seeother('/overview'+userHash)
+            raise web.seeother('/report/'+userHash)
 
         return render.login(form, 'Wrong Password')
 
@@ -360,7 +245,6 @@ class Logout:
 ### Url mappings
 urls = (
     '/', 'Index',
-    '/overview/(.+)', 'Overview',
     '/view/(.+)/(\d+)', 'View',
     '/login(.+)', 'Login',
     '/logout', 'Logout',

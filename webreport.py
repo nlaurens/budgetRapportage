@@ -8,7 +8,7 @@ import numpy as np
 def table_string(value):
     value = value/1000
     if value == 0 or np.abs(value) < 0.5:
-        return ''
+        return '&nbsp;'
     else:
         return ('%.f' % value)
 
@@ -35,7 +35,7 @@ def row_to_html(row, render, groep=False):
         html['name'] = row['name']
     else:
 #TODO USERSTRING
-        html['name'] = "<a href='view/"+userHash+"/"+str(row['order'])+"'>"+row['name']+ "</a>"
+        html['name'] = "<a href='/view/"+userHash+"/"+str(row['order'])+"'>"+row['name']+ "</a>"
 
     html['begroot'] = table_string(row['begroot'])
     html['realisatie'] =  table_string(row['realisatie'])
@@ -83,7 +83,10 @@ def groep_report(userID, render, groepstr, jaar):
     global userHash 
     userID = userID
     grootboekgroepfile = 'data/grootboekgroep/LION'
-    root = GrootBoekGroep.load(grootboekgroepfile).find(groepstr)
+    if groepstr != '':
+        root = GrootBoekGroep.load(grootboekgroepfile).find(groepstr)
+    else: 
+        root = GrootBoekGroep.load(grootboekgroepfile)
 
     table = []
     childtable = []
