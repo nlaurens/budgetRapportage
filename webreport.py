@@ -21,15 +21,22 @@ def load_order(order, jaar):
     root.set_totals()
 
     row = {}
-    row['name'] = order
+    row['name'] = 'TODO'
+    row['order'] = order
     row['begroot'] = model.get_plan_totaal(jaar, order)
     row['realisatie'] = -1*(root.totaalGeboektTree)
     row['obligo'] = -1*(root.totaalObligosTree)
     row['resultaat'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) - row['begroot']
     return row
 
-def row_to_html(row, render):
+def row_to_html(row, render, groep=False):
     html = row.copy()
+    if groep:
+        html['name'] = row['name']
+    else:
+#TODO USERSTRING
+        html['name'] = "<a href='view/USERSTRING"+str(row['order'])+"'>"+row['name']+ "</a>"
+
     html['begroot'] = table_string(row['begroot'])
     html['realisatie'] =  table_string(row['realisatie'])
     html['obligo'] =  table_string(row['obligo'])
@@ -41,14 +48,14 @@ def parse_orders(root, jaar, render, total):
     total['name'] = root.descr
     for order, descr in root.orders.iteritems():
         row = load_order(order, jaar)
+        rows.append(row_to_html(row, render))
         total['begroot'] += row['begroot']
         total['realisatie'] += row['realisatie']
         total['obligo'] += row['obligo']
         total['resultaat'] += row['resultaat']
-        rows.append(row_to_html(row, render))
 
     header = {}
-    header['row'] = row_to_html(total, render)
+    header['row'] = row_to_html(total, render, groep=True)
     header['id'] = root.name
     header['img'] = "../static/figs/"+str(jaar)+"-detailed/1-"+root.name+".png"
 
