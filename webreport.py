@@ -69,11 +69,7 @@ def parse_groep(root, jaar, render):
         groeptotal['obligo'] += total['obligo']
         groeptotal['resultaat'] += total['resultaat']
 
-    rows, header, total = parse_orders(root, jaar, render, groeptotal)
-    groeptotal['begroot'] += total['begroot']
-    groeptotal['realisatie'] += total['realisatie']
-    groeptotal['obligo'] += total['obligo']
-    groeptotal['resultaat'] += total['resultaat']
+    rows, header, groeptotal = parse_orders(root, jaar, render, groeptotal)
     return rows, header, groeprows, groeptotal
 
 def groep_report(render, groepstr, jaar):
