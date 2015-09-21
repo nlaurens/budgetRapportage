@@ -68,11 +68,10 @@ def groep_report(render, groepstr, jaar):
     childtable = []
     for child in root.children:
         rows, header = parse_orders(child, jaar, render)
-        childtable.append(render.report_table_groep(rows, header))
+        childtable.append(render.report_table_groep(rows, header, ''))
 
     rows, header = parse_orders(root, jaar, render)
-    rows.extend(childtable)
-    table.append(render.report_table_groep(rows, header))
+    table.append(render.report_table_groep(rows, header, childtable))
 
     body = render.report_table(table)
 

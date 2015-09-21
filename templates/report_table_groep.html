@@ -1,4 +1,4 @@
-$def with(orderrows, html)
+$def with(orderrows, html, groeprows)
 <tr>
     <td>
         <button data-toggle="collapse" data-target="#collapse$html['id']" class="accordion-toggle btn btn-default btn-xs">
@@ -22,22 +22,41 @@ $def with(orderrows, html)
 </tr>
 <tr class="hiddenRow accordian-body collapse" id="collapse$html['id']">
     <td colspan="12">
-        <table class="table table-striped table-condensed">
-                <thead>
-                        <tr>
-                        <th fontsize="0.5em">Order</th>
-                        <th>Begroot</th>
-                        <th>Realisatie</th>
-                        <th>Obligo</th>
-                        <th>Resultaat</th>
-                        </tr>
-                </thead>
-                <tbody>
-                $for row in orderrows:
-                <tr>
-                    $:row
-                </tr>
-                </tbody>
-        </table> 
-        </td>
+        $if groeprows!='':
+            <table class="table table-striped table-condensed">
+                    <thead>
+                            <tr>
+                            <th></th>
+                            <th fontsize="0.5em">Subgroep</th>
+                            <th>Begroot</th>
+                            <th>Realisatie</th>
+                            <th>Obligo</th>
+                            <th>Resultaat</th>
+                            </tr>
+                    </thead>
+                    <tbody>
+                    $for row in groeprows:
+                    <tr>
+                        $:row
+                    </tr>
+                    </tbody>
+            </table> 
+        $if orderrows:
+            <table class="table table-striped table-condensed">
+                    <thead>
+                            <tr>
+                            <th fontsize="0.5em">Order</th>
+                            <th>Begroot</th>
+                            <th>Realisatie</th>
+                            <th>Obligo</th>
+                            <th>Resultaat</th>
+                            </tr>
+                    </thead>
+                    <tbody>
+                    $for row in orderrows:
+                    <tr>
+                        $:row
+                    </tr>
+                    </tbody>
+            </table> 
 </tr>
