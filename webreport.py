@@ -36,14 +36,9 @@ def row_to_html(row, render):
     html['resultaat'] = table_string(row['resultaat'])
     return render.report_table_row(html)
 
-def parse_orders(root, jaar, render):
+def parse_orders(root, jaar, render, total):
     rows = []
-    total = {}
     total['name'] = root.descr
-    total['begroot'] = 0
-    total['realisatie'] = 0
-    total['obligo'] = 0
-    total['resultaat'] = 0
     for order, descr in root.orders.iteritems():
         row = load_order(order, jaar)
         total['begroot'] += row['begroot']
@@ -74,7 +69,7 @@ def parse_groep(root, jaar, render):
         groeptotal['obligo'] += total['obligo']
         groeptotal['resultaat'] += total['resultaat']
 
-    rows, header, total = parse_orders(root, jaar, render)
+    rows, header, total = parse_orders(root, jaar, render, groeptotal)
     groeptotal['begroot'] += total['begroot']
     groeptotal['realisatie'] += total['realisatie']
     groeptotal['obligo'] += total['obligo']
@@ -87,11 +82,20 @@ def groep_report(render, groepstr, jaar):
 
     table = []
     childtable = []
+    groeptotal = {}
+    groeptotal['begroot'] = 0
+    groeptotal['realisatie'] = 0
+    groeptotal['obligo'] = 0
+    groeptotal['resultaat'] = 0
     for child in root.children:
         rows, header, groeprows, total = parse_groep(child, jaar, render)
         childtable.append(render.report_table_groep(rows, header, groeprows))
+        groeptotal['begroot'] += total['begroot']
+        groeptotal['realisatie'] += total['realisatie']
+        groeptotal['obligo'] += total['obligo']
+        groeptotal['resultaat'] += total['resultaat']
 
-    rows, header,total = parse_orders(root, jaar, render)
+    rows, header,total = parse_orders(root, jaar, render, groeptotal)
     table.append(render.report_table_groep(rows, header, childtable))
 
     body = render.report_table(table)
