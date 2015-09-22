@@ -129,7 +129,11 @@ class View:
         totaal['ruimte'] = 0
 
         reserves = model.get_reserves()
-        totaal['reserve'] = reserves[str(order)]
+        try:
+            totaal['reserve'] = reserves[str(order)]
+        except:
+            totaal['reserve'] = 0
+
 
         try:
             totaal['begroting'] = float(begroting[str(order)])
