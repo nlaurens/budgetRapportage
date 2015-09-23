@@ -70,6 +70,7 @@ def parse_groep(root, jaar, render):
     groeprows = []
     for child in root.children:
         childrow, childheader, childgroep, total = parse_groep(child, jaar, render)
+#CATCH childheader ID HERE 
         groeprows.append(render.report_table_groep(childrow, childheader, childgroep))
         groeptotal['begroot'] += total['begroot']
         groeptotal['realisatie'] += total['realisatie']
@@ -79,35 +80,8 @@ def parse_groep(root, jaar, render):
     rows, header, groeptotal = parse_orders(root, jaar, render, groeptotal)
     return rows, header, groeprows, groeptotal
 
-def groep_report(userID, render, groepstr, jaar):
-    global userHash 
-    userHash = userID
-    grootboekgroepfile = 'data/grootboekgroep/LION'
-    if groepstr != '':
-        root = GrootBoekGroep.load(grootboekgroepfile)
-        root = root.find(groepstr)
-    else: 
-        root = GrootBoekGroep.load(grootboekgroepfile)
 
-    table = []
-    childtable = []
-    groeptotal = {}
-    groeptotal['begroot'] = 0
-    groeptotal['realisatie'] = 0
-    groeptotal['obligo'] = 0
-    groeptotal['resultaat'] = 0
-    for child in root.children:
-        rows, header, groeprows, total = parse_groep(child, jaar, render)
-        childtable.append(render.report_table_groep(rows, header, groeprows))
-        groeptotal['begroot'] += total['begroot']
-        groeptotal['realisatie'] += total['realisatie']
-        groeptotal['obligo'] += total['obligo']
-        groeptotal['resultaat'] += total['resultaat']
-
-    rows, header,total = parse_orders(root, jaar, render, groeptotal)
-    table.append(render.report_table_groep(rows, header, childtable))
-
-    body = render.report_table(table)
+def fig_html(root, render, jaar):
     figs = ''
     if not root.children:
         graphs = []
@@ -124,9 +98,59 @@ def groep_report(userID, render, groepstr, jaar):
             i +=1
 
         figs = render.report_figpage(graphs)
+        return figs
+    else:
+        return None
+
+
+def table_html(root, render, jaar):
+    table = []
+    childtable = []
+    groeptotal = {}
+    groeptotal['begroot'] = 0
+    groeptotal['realisatie'] = 0
+    groeptotal['obligo'] = 0
+    groeptotal['resultaat'] = 0
+    for child in root.children:
+        rows, header, groeprows, total = parse_groep(child, jaar, render)
+#CATCH childheader ID HERE 
+        childtable.append(render.report_table_groep(rows, header, groeprows))
+        groeptotal['begroot'] += total['begroot']
+        groeptotal['realisatie'] += total['realisatie']
+        groeptotal['obligo'] += total['obligo']
+        groeptotal['resultaat'] += total['resultaat']
+
+    rows, header,total = parse_orders(root, jaar, render, groeptotal)
+#CATCH childheader ID HERE 
+    table.append(render.report_table_groep(rows, header, childtable))
+
+    body = render.report_table(table)
+    return body
+
+def settings_html(root, render, jaar):
+    form = 'FORM met daarin jaar'
+    buttons = 'BUTTON'
+    lastupdate = '2'
+    return render.report_settings(lastupdate, buttons, form)
+
+def groep_report(userID, render, groepstr, jaar):
+    global userHash 
+    userHash = userID
+    grootboekgroepfile = 'data/grootboekgroep/LION'
+    if groepstr != '':
+        root = GrootBoekGroep.load(grootboekgroepfile)
+        root = root.find(groepstr)
+    else: 
+        root = GrootBoekGroep.load(grootboekgroepfile)
+
+    body = table_html(root, render, jaar)
+    figs = fig_html(root, render, jaar)
+    settings = settings_html(root, render, jaar)
 
     report = {}
-    report['settings'] = 'settings!!'
+#ADD collapse/open all button
+#ADD jaar, groep, warning sap ding
+    report['settings'] = settings
     report['summary'] = "<a href='../static/figs/"+str(jaar)+"-detailed/1-" + groepstr + ".png' target='_blank'><img class='img-responsive' src='../static/figs/"+str(jaar)+"-detailed/1-"+groepstr+".png'></a>"
     report['body'] = body
     report['figpage'] = figs
