@@ -90,10 +90,11 @@ def fig_html(root, render, jaar):
             graph = {}
             graph['link'] = ('../view/' + userHash + '/' + str(order))
             graph['png'] = ('../static/figs/'+str(jaar)+'-detailed/1-' + str(order) + '.png')
-            if i%2:
-                graph['spacer'] = '</tr><tr>'
-            else:
-                graph['spacer'] = ''
+            #if i%2:
+            #    graph['spacer'] = '</tr><tr>'
+            #else:
+            #    graph['spacer'] = ''
+            graph['spacer'] = '</tr><tr>'
             graphs.append(graph)
             i +=1
 
