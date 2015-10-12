@@ -1,4 +1,8 @@
 """"
+Usage
+    $ python graph.py <order/group>
+    use * for all orders
+    
 NOTES
 
     only shows >|500| euro in table
