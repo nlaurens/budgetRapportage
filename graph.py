@@ -182,33 +182,44 @@ class Graph:
                 text.append(self.value_to_table_string(value))
             cell_text.append(text)
             text = []
-            for i, value in enumerate(resultaat):
-                overschot = (begroting[0]/12)*float(i+1) - value
-                text.append(self.value_to_table_string(overschot))
+            # Disabled, doesn't work and doesn't add anything to the graph.
+            #for i, value in enumerate(resultaat):
+            #    overschot = (begroting[0]/12)*float(i+1) - value
+            #    text.append(self.value_to_table_string(overschot))
             #cell_text.append(text)
 
             for key, line in lasten.iteritems():
                 text = []
+                total = 0
                 for value in line:
-                    text.append(self.value_to_table_string(value))
+                    if params['show_table_cumsum']:
+                        total = total + value
+                    else:
+                        total = value
+                    text.append(self.value_to_table_string(total))
 
                 cell_text.append(text)
 
             for key, line in baten.iteritems():
                 text = []
+                total = 0
                 for value in line:
-                    text.append(self.value_to_table_string(value))
+                    if params['show_table_cumsum']:
+                        total = total + value
+                    else:
+                        total = value
+                    text.append(self.value_to_table_string(total))
 
                 cell_text.append(text)
 
             columns = (["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
             rows = []
-            #rows.extend(["Realisatie"])
-            rows.extend(["Te besteden"])
+            rows.extend(["Totaal"])
+            #rows.extend(["Te besteden"])
             rows.extend(lasten.keys())
             rows.extend(baten.keys())
-            colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure colors te besteden
-            #colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure color realisatie
+            #colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure colors te besteden
+            colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure color realisatie
             the_table = plt.table(cellText=cell_text,
                             rowLabels=rows,
                             rowColours=colors,
@@ -597,6 +608,7 @@ if __name__ == "__main__":
     params['show_details_flat'] = True
     params['show_details_stack'] = False
     params['show_table'] = True
+    params['show_table_cumsum'] = False
     params['detailed'] = False
     params['figpath'] = 'figs/'
     jaar = 2015
