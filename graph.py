@@ -198,6 +198,7 @@ class Graph:
                         total = value
                     text.append(self.value_to_table_string(total))
 
+                text.append(self.value_to_table_string(total))
                 cell_text.append(text)
 
             for key, line in baten.iteritems():
@@ -458,8 +459,8 @@ class Graph:
         maxdepth = 1
 
         KSgroepen = model.loadKSgroepen()
-        grootboekBaten =  [s for s in KSgroepen if "BFRE15BT00" in s][0]
-        grootboekLasten = [s for s in KSgroepen if "BFRE15LT00" in s][0]
+        grootboekBaten =  [s for s in KSgroepen if "BFRE15BT00-CODE" in s][0]  #Use -CODE to include BFR codes
+        grootboekLasten = [s for s in KSgroepen if "BFRE15LT00-CODE" in s][0]  # ..
         sapdatum = config['lastSAPexport']
 
         begroot = {}
@@ -608,8 +609,8 @@ if __name__ == "__main__":
     params['show_details_flat'] = True
     params['show_details_stack'] = False
     params['show_table'] = True
-    params['show_table_cumsum'] = False
-    params['detailed'] = False
+    params['show_table_cumsum'] = True
+    params['detailed'] = True
     params['figpath'] = 'figs/'
     jaar = 2015
 
