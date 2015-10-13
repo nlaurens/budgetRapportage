@@ -246,7 +246,7 @@ class Graph:
             plt.xlabel("")
 
             #Save table to text
-            self.save_table_to_file(rows, cell_vals, name_fig)
+            self.save_table_to_file(rows, cell_vals, name_fig, columns)
 
         #place upper left or lower left (depending on resultaat + or -)
         if resultaat[-1] <0:
@@ -258,8 +258,9 @@ class Graph:
         return plt
 
     # Saves the table from exploitatie overview to a text file
-    def save_table_to_file(self, number_descr, numbers, file_name):
-        np.savetxt('figs/1-' + file_name+ '-num.dat', numbers, fmt='%f')
+    def save_table_to_file(self, number_descr, numbers, file_name, header_rows):
+        header_rows = ','.join(header_rows)
+        np.savetxt('figs/1-' + file_name+ '-num.dat', numbers, fmt='%f', header=header_rows)
         import csv
         myfile = open('figs/1-'+file_name+'-descr.dat', 'wb')
         wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
