@@ -198,7 +198,6 @@ class Graph:
                         total = value
                     text.append(self.value_to_table_string(total))
 
-                text.append(self.value_to_table_string(total))
                 cell_text.append(text)
 
             for key, line in baten.iteritems():
@@ -619,7 +618,7 @@ if __name__ == "__main__":
     params['show_details_flat'] = True
     params['show_details_stack'] = False
     params['show_table'] = True
-    params['show_table_cumsum'] = True
+    params['show_table_cumsum'] = False
     params['detailed'] = True
     params['figpath'] = 'figs/'
     jaar = 2015
