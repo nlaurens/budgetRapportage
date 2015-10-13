@@ -552,6 +552,9 @@ class Graph:
             else:
                 self.lasten[key] = arr
 
+    def bfr(self):
+        return plt_baten, plt_lasten_pl, plt_lasten_ml
+
     def save_figs(self, name, params):
         path = params['figpath']
         plt = self.realisatie(params)
@@ -565,6 +568,13 @@ class Graph:
         plt = self.besteed_begroot()
         plt.savefig(path+'3-'+name+'.png', bbox_inches='tight')
         plt.close()
+
+#TODO IMPLEMENT
+        #plt_baten, plt_lasten_pl, plt_lasten_ml = self.bfr()
+        #plt_baten.savefig(path+'3-baten-'+name+'.png', bbox_inches='tight')
+        #plt_lasten_pl.savefig(path+'3-lasten-pl-'+name+'.png', bbox_inches='tight')
+        #plt_lasten_ml.savefig(path+'3-lasten-ml-'+name+'.png', bbox_inches='tight')
+        #plt.close()
 
 def og_graphs(root, i, total, jaar):
     merged = Graph()
