@@ -466,7 +466,10 @@ class Graph:
 
         # parse each node
         for node in pars:
-            totaal = ( ((node.totaalGeboektTree + node.totaalObligosTree)))
+            if params['ignore_obligos']:
+                totaal = node.totaalGeboektTree
+            else:
+                totaal = node.totaalGeboektTree + node.totaalObligosTree
             if periode == [0,1]:
                 begroot[node.descr] = node.totaalPlanTree
                 lines[node.descr] = [ totaal ]
@@ -511,8 +514,12 @@ class Graph:
             rootBaten.set_totals(periode=periode)
             rootLasten.set_totals(periode=periode)
 
-            totaal = rootBaten.totaalGeboektTree + rootBaten.totaalObligosTree
-            totaal += rootLasten.totaalGeboektTree + rootLasten.totaalObligosTree
+            if params['ignore_obligos']:
+                totaal = rootBaten.totaalGeboektTree 
+                totaal += rootLasten.totaalGeboektTree 
+            else:
+                totaal = rootBaten.totaalGeboektTree + rootBaten.totaalObligosTree
+                totaal += rootLasten.totaalGeboektTree + rootLasten.totaalObligosTree
             resultaat.append(totaal)
 
             begroot['totaal'] += rootLasten.totaalPlanTree
@@ -651,6 +658,7 @@ if __name__ == "__main__":
     params['show_table_cumsum'] = False
     params['detailed'] = True
     params['figpath'] = 'figs/'
+    params['ignore_obligos'] = True
     jaar = 2015
 
 
