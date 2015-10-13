@@ -63,7 +63,7 @@ class Graph:
         else:
             return ('%.f' % value)
 
-    def realisatie(self, params):
+    def realisatie(self, params, name_fig):
         baten = self.baten.copy()
         lasten = self.lasten.copy()
         resultaat = self.resultaat
@@ -177,10 +177,14 @@ class Graph:
         if params['show_table']:
             cell_text = []
             text = []
+            cell_vals = []
+            vals = []
             #Realisatie, begroting en R-B:
             for value in resultaat:
                 text.append(self.value_to_table_string(value))
+                vals.append(value)
             cell_text.append(text)
+            cell_vals.append(vals)
             text = []
             # Disabled, doesn't work and doesn't add anything to the graph.
             #for i, value in enumerate(resultaat):
@@ -189,6 +193,7 @@ class Graph:
             #cell_text.append(text)
 
             for key, line in lasten.iteritems():
+                vals = []
                 text = []
                 total = 0
                 for value in line:
@@ -197,10 +202,13 @@ class Graph:
                     else:
                         total = value
                     text.append(self.value_to_table_string(total))
+                    vals.append(total)
 
                 cell_text.append(text)
+                cell_vals.append(vals)
 
             for key, line in baten.iteritems():
+                vals = []
                 text = []
                 total = 0
                 for value in line:
@@ -209,8 +217,10 @@ class Graph:
                     else:
                         total = value
                     text.append(self.value_to_table_string(total))
+                    vals.append(total)
 
                 cell_text.append(text)
+                cell_vals.append(vals)
 
             columns = (["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
             rows = []
@@ -235,6 +245,9 @@ class Graph:
             plt.xticks([])
             plt.xlabel("")
 
+            #Save table to text
+            self.save_table_to_file(rows, cell_vals, name_fig)
+
         #place upper left or lower left (depending on resultaat + or -)
         if resultaat[-1] <0:
             leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=3)
@@ -243,6 +256,16 @@ class Graph:
         leg.get_frame().set_linewidth(0.0)
 
         return plt
+
+    # Saves the table from exploitatie overview to a text file
+    def save_table_to_file(self, number_descr, numbers, file_name):
+        np.savetxt('figs/1-' + file_name+ '-num.dat', numbers, fmt='%f')
+        import csv
+        myfile = open('figs/1-'+file_name+'-descr.dat', 'wb')
+        wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+        for descr in enumerate(number_descr):
+            wr.writerow(descr)
+
 
     #remove pieces < threshold of the total:
     def remove_small_pieces(self, values, labels):
@@ -556,7 +579,7 @@ class Graph:
 
     def save_figs(self, name, params):
         path = params['figpath']
-        plt = self.realisatie(params)
+        plt = self.realisatie(params, name)
         plt.savefig(path+'1-'+name+'.png', bbox_inches='tight')
         plt.close()
 
