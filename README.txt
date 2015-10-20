@@ -65,6 +65,22 @@ Export SAP posten
     * Exporteer naar Excel XXL-indeling (CTRL+SHFT+F7)
     * In Excel: Sla op als CSV file
 
+* Geboekte Salarislasten
+    * Bedrijfsnummer invullen
+    * Kostenplaats range invullen
+    * Begin/einddatum
+    * Uitvoeren
+    * Layout(CTRL + F8) minimaal (geen agregatie!)
+        * Kostenplaaats
+        * Naam
+        * Bedrag
+        * Personeelsnummer
+        * Begin datum afrekenperiode
+    * Alle kolommen even breed
+    * Exporteer naar Excel: Lijst -> Exporteren -> Spreadsheet -> XXL -> tabel
+    * Excel: sla op als csv
+
+
 
 Import SAP posten in MySQL
 --------------------------
