@@ -6,6 +6,12 @@ import csv
 from BoekingsRegel import BoekingsRegel
 
 #TODO vervang alle SQL query door de config params ipv de hardcoded kolom namen.
+#TODO vervang alle *_db_2_regel door 1 functie. Met de nieuwe config zou alles te mappen
+#     moeten zijn door 1 functie. Wel zo dat er misschien wat 'if type=salaris: parse datum' etc. erin.
+#     Deze functie geeft een LIJST geen dictionary. Daarna kan je functie aanroepen
+#     die deze lijst in een dict sorteert afhankelijk van welke key je wilt
+#     obligos = get_obligos()
+#     obligos_per_ks = list_2_dict('ks') <-- veel duidelijk
 
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"], host=config["mysql"]["host"])
 
@@ -335,3 +341,44 @@ def get_prognose_regels(jaar='', order=''):
 
     f.close()
     return prognose
+
+
+# Returns a list of geboekte salaris regels 
+def get_salaris_geboekt_regels(jaar, periodes=[], orders=[], kostensoorten=[]):
+    sqlwhere = '1'
+    if orders:
+        sqlwhere = '`'+config["SAPkeys"]["salaris"]["order"]+'` IN (' + ','.join(str(order) for order in orders) + ')'
+
+    if kostensoorten:
+        if sqlwhere == '1':
+            sqlwhere = '`'+config["SAPkeys"]["salaris"]["ks"]+'` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+        else:
+            sqlwhere += ' AND `'+config["SAPkeys"]["salaris"]["ks"]+'` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+
+#TODO jaar en periode zitten niet in de db. Wel de datum. Slimme query schrijven die dit oppakt.
+    #if sqlwhere == '1':
+    #    sqlwhere = ' AND `'+config["SAPkeys"]["salaris"]["order"]+'Boekjaar` = $jaar'
+    #else:
+    #    sqlwhere += ' AND `'+config["SAPkeys"]["salaris"]["order"]+'Boekjaar` = $jaar'
+
+    #if periodes:
+    #    sqlwhere += ' AND `'+config["SAPkeys"]["salaris"]["order"]+'Periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
+
+    try:
+        salarisdb = db.select('salaris', where=sqlwhere, vars=locals())
+    except IndexError:
+        return None
+
+    return db_2_regels(salarisdb, 'salaris')
+
+# Returns a list of regels loaded from the dbSelect
+def db_2_regels(dbSelect, tiepe):
+# TODO HIER ALLE CONVERSIES
+# TODO voor tiepe salaris converteren van datum
+    regels = []
+    for dbRegel in dbSelect:
+        regel = BoekingsRegel()
+        regel.import_from_db_select(dbRegel, tiepe, config)
+        regels.append(regel)
+
+    return regels
