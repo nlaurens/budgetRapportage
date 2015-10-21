@@ -64,24 +64,6 @@ def gen_auth_list(salt):
         print orders
         print ''
 
-# returns the list of all begrote orders
-def get_personeelsbegroting(jaar):
-    personeelsbegroting = {}
-    with open('data/personeelsbegroting/'+str(jaar)+'.txt') as f:
-        for line in f.readlines():
-            line = line.strip()
-            if not line == '':
-                order, personeelsnummer, bedrag = line.split()
-                if order not in personeelsbegroting:
-                    personeelsbegroting[order] = {}
-
-                if personeelsnummer in personeelsbegroting[order]:
-                    personeelsbegroting[order][personeelsnummer] += bedrag
-                else:
-                    personeelsbegroting[order][personeelsnummer] = bedrag
-
-
-    return personeelsbegroting
 
 # returns the list of all reserves
 def get_reserves():
@@ -382,6 +364,23 @@ def get_salaris_geboekt_regels(jaar, periodes=[], orders=[], kostensoorten=[]):
     for regel in regels:
         regel.kosten = float(regel.kosten.replace(',',''))
     return regels
+
+
+# Returns a list of begroting salaris regels 
+def get_salaris_begroot_regels(jaar, orders=[]):
+    sqlwhere = '1'
+    if orders:
+        sqlwhere = '`'+config["SAPkeys"]["salaris_begroting"]["order"]+'` IN (' + ','.join(str(order) for order in orders) + ')'
+
+    try:
+        salarisdb = db.select('salaris_begroting', where=sqlwhere, vars=locals())
+    except IndexError:
+        return None
+
+    regels = db_2_regels(salarisdb, 'salaris_begroting')
+
+    return regels
+
 
 # Returns a list of regels loaded from the dbSelect
 def db_2_regels(dbSelect, tiepe):
