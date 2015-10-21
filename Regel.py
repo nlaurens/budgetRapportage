@@ -1,8 +1,7 @@
-#TODO Replace BoekingsRegel met 'Regel'
-class BoekingsRegel():
+class Regel():
 
 
-    # All attributes of BoekingsRegel should be initialized here
+    # All attributes of Regel should be initialized here
     # The rest of the code should not add any attributes.
     def __init__(self):
         # general attributes that should exist in all tiepes (SAPkeys in config)
@@ -30,12 +29,12 @@ class BoekingsRegel():
 
 
     def copy(self):
-        new = BoekingsRegel()
+        new = Regel()
         for attribute, value in vars(self).iteritems():
             try:
                 setattr(new, attribute, value)
             except:
-                print 'Warning something went wrong with BoekingsRegel.copy'
+                print 'Warning something went wrong with Regel.copy'
                 exit()
         return new
 

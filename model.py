@@ -3,7 +3,7 @@ import hashlib
 from config import config
 import glob
 import csv
-from BoekingsRegel import BoekingsRegel
+from Regel import Regel
 
 #TODO vervang alle SQL query door de config params ipv de hardcoded kolom namen.
 #TODO vervang alle *_db_2_regel door 1 functie. Met de nieuwe config zou alles te mappen
@@ -141,7 +141,7 @@ def plan_db_2_regels(db):
 
     plans = {}
     for regelDB in db:
-        regel = BoekingsRegel()
+        regel = Regel()
 
         regel.tiepe = 'Plan'
         regel.order = regelDB[config["SAPkeys"]["plan"]["order"]]
@@ -164,7 +164,7 @@ def obligo_db_2_regels(obligodb):
 
     obligos = {}
     for regelDB in obligodb:
-        regel = BoekingsRegel()
+        regel = Regel()
 
         regel.tiepe = 'Obligo'
         regel.order = regelDB[config["SAPkeys"]["obligo"]["order"]]
@@ -252,7 +252,7 @@ def geboekt_db_2_regel(geboektdb):
 
     geboekt = {}
     for regelDB in geboektdb:
-        regel = BoekingsRegel()
+        regel = Regel()
         regel.tiepe = "Geboekt"
         regel.order = regelDB[config["SAPkeys"]["geboekt"]["order"]]
         regel.kostensoort = regelDB[config["SAPkeys"]["geboekt"]["ks"]]
@@ -327,7 +327,7 @@ def get_prognose_regels(jaar='', order=''):
     prognose = {}
     for row in reader:
         if row[0].isdigit():
-            regel = BoekingsRegel()
+            regel = Regel()
             regel.tiepe = "Prognose"
             regel.order = row[0]
             regel.kosten = row[3]
@@ -369,15 +369,18 @@ def get_salaris_geboekt_regels(jaar, periodes=[], orders=[], kostensoorten=[]):
     except IndexError:
         return None
 
-    return db_2_regels(salarisdb, 'salaris')
+    regels = db_2_regels(salarisdb, 'salaris')
+
+    # convert kosten from unicode to realnumber:
+    for regel in regels:
+        regel.kosten = float(regel.kosten.replace(',',''))
+    return regels
 
 # Returns a list of regels loaded from the dbSelect
 def db_2_regels(dbSelect, tiepe):
-# TODO HIER ALLE CONVERSIES
-# TODO voor tiepe salaris converteren van datum
     regels = []
     for dbRegel in dbSelect:
-        regel = BoekingsRegel()
+        regel = Regel()
         regel.import_from_db_select(dbRegel, tiepe, config)
         regels.append(regel)
 

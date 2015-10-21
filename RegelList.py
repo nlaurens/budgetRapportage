@@ -42,3 +42,11 @@ class RegelList():
 
         return regelListDict
 
+
+    def total(self):
+        total = 0
+        for regel in self.regels:
+            total = total + regel.kosten
+
+        return total
+
