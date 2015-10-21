@@ -119,7 +119,8 @@ class View:
         if settings["clean"]:
             root.clean_empty_nodes()
 
-        begroting = model.get_begroting()
+#TODO Begroting uit sap 'plan' halen!
+        #begroting = model.get_begroting() # dit is de oude functie van VU
         totaal = {}
         htmlgrootboek = []
 
@@ -135,10 +136,7 @@ class View:
             totaal['reserve'] = 0
 
 
-        try:
-            totaal['begroting'] = float(begroting[str(order)])
-        except:
-            totaal['begroting'] = 0
+        totaal['begroting'] = 0#float(begroting[str(order)])
 
         if totaal['reserve'] < 0:
             totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['begroting'] + totaal['reserve']

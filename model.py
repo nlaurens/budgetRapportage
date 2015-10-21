@@ -65,16 +65,23 @@ def gen_auth_list(salt):
         print ''
 
 # returns the list of all begrote orders
-def get_begroting():
-    begroting = {}
-    with open('data/begroting/2015.txt') as f:
+def get_personeelsbegroting(jaar):
+    personeelsbegroting = {}
+    with open('data/personeelsbegroting/'+str(jaar)+'.txt') as f:
         for line in f.readlines():
             line = line.strip()
             if not line == '':
-                order, bedrag = line.split()
-                begroting[order] = bedrag
+                order, personeelsnummer, bedrag = line.split()
+                if order not in personeelsbegroting:
+                    personeelsbegroting[order] = {}
 
-    return begroting
+                if personeelsnummer in personeelsbegroting[order]:
+                    personeelsbegroting[order][personeelsnummer] += bedrag
+                else:
+                    personeelsbegroting[order][personeelsnummer] = bedrag
+
+
+    return personeelsbegroting
 
 # returns the list of all reserves
 def get_reserves():
