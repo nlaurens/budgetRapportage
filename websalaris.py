@@ -112,14 +112,8 @@ def cmd_output(userID, groepstr, jaar):
 #-------------------------
 
 
-def table_string(value):
-    value = value/1000
-    if value == 0 or np.abs(value) < 0.5:
-        return '&nbsp;'
-    else:
-        return ('%.f' % value)
 
-def load_order(order, descr, jaar):
+def parse_order(order, descr, jaar):
     #parse orders in groep:
     KSgroepen = model.loadKSgroepen()
     grootboek =  [s for s in KSgroepen if "BFRE15E01" in s][0]
@@ -128,25 +122,28 @@ def load_order(order, descr, jaar):
     root.set_totals()
 
     row = {}
-    row['name'] = descr
-    row['order'] = order
-    row['begroot'] = model.get_plan_totaal(jaar, order)
-    row['realisatie'] = -1*(root.totaalGeboektTree)
-    row['obligo'] = -1*(root.totaalObligosTree)
-    row['resultaat'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) - row['begroot']
+    row['personeelsnummer'] = 'persnNR'
+    row['naam'] = 'naam persoon'
+    row['begroot'] = 10000
+    row['realisatie'] = 20000
+    row['resultaat'] = -10000
     return row
+
+
+def table_string(value):
+    value = value/1000
+    if value == 0 or np.abs(value) < 0.5:
+        return '&nbsp;'
+    else:
+        return ('%.f' % value)
+
 
 def row_to_html(row, render, groep=False):
     html = row.copy()
-    if groep:
-        html['name'] = row['name']
-    else:
-#TODO USERSTRING
-        html['name'] = "<a href='/view/"+userHash+"/"+str(row['order'])+"'>"+row['name']+ "</a>"
-
+    html['personeelsnummer'] = row['personeelsnummer']
+    html['name'] = row['name']
     html['begroot'] = table_string(row['begroot'])
     html['realisatie'] =  table_string(row['realisatie'])
-    html['obligo'] =  table_string(row['obligo'])
     html['resultaat'] = table_string(row['resultaat'])
     return render.salaris_table_row(html)
 
@@ -154,11 +151,10 @@ def parse_orders(root, jaar, render, total):
     rows = []
     total['name'] = root.descr
     for order, descr in root.orders.iteritems():
-        row = load_order(order, descr, jaar)
+        row = parse_order(order, descr, jaar)
         rows.append(row_to_html(row, render))
         total['begroot'] += row['begroot']
         total['realisatie'] += row['realisatie']
-        total['obligo'] += row['obligo']
         total['resultaat'] += row['resultaat']
 
     header = {}
@@ -177,7 +173,6 @@ def parse_groep(root, jaar, render):
     groeprows = []
     for child in root.children:
         childrow, childheader, childgroep, total = parse_groep(child, jaar, render)
-#CATCH childheader ID HERE 
         groeprows.append(render.salaris_table_groep(childrow, childheader, childgroep))
         groeptotal['begroot'] += total['begroot']
         groeptotal['realisatie'] += total['realisatie']
@@ -198,7 +193,6 @@ def table_html(root, render, jaar):
     groeptotal['resultaat'] = 0
     for child in root.children:
         rows, header, groeprows, total = parse_groep(child, jaar, render)
-#CATCH childheader ID HERE 
         childtable.append(render.salaris_table_groep(rows, header, groeprows))
         groeptotal['begroot'] += total['begroot']
         groeptotal['realisatie'] += total['realisatie']
@@ -206,7 +200,6 @@ def table_html(root, render, jaar):
         groeptotal['resultaat'] += total['resultaat']
 
     rows, header,total = parse_orders(root, jaar, render, groeptotal)
-#CATCH childheader ID HERE 
     table.append(render.salaris_table_groep(rows, header, childtable))
 
     body = render.salaris_table(table)
