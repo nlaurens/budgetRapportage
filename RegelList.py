@@ -50,3 +50,7 @@ class RegelList():
 
         return total
 
+
+    def extend(self, regelsToAdd):
+        self.regels = self.regels + regelsToAdd.regels
+
