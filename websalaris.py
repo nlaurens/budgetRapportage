@@ -19,31 +19,7 @@ def get_begroting_geboekt(userID, groepstr, jaar):
 
     return regelsGeboekt, regelsBegroot
 
-
-def groep_report(userID, render, groepstr, jaar):
-    report = {}
-    regelsGeboekt, regelsBegroot = get_begroting_geboekt(userID, groepstr, jaar)
-
-    body = 'TODO BODY'
-    settings = 'TODO settings'
-    summary = 'TODO summary'
-    report['settings'] = settings
-    report['summary'] = summary
-    report['body'] = body
-    return report
-
-
-def cmd_output():
-# get regels geboekt
-    regels = model.get_salaris_geboekt_regels(2015)
-    regelsGeboekt = RegelList(regels)
-
-# get begroting
-    regels = model.get_salaris_begroot_regels(2015)
-    regelsBegroot = RegelList(regels)
-    begrootDict = regelsBegroot.split_by_regel_attributes(['order', 'personeelsnummer'])
-
-
+def correlate_personeelsnummers(regelsBegroot, regelsGeboekt):
 # Cross personeelsnummers begroting -> boekingsnummers
     begroot = regelsBegroot.split_by_regel_attributes(['personeelsnummer'])
     kosten = regelsGeboekt.split_by_regel_attributes(['personeelsnummer'])
@@ -72,6 +48,26 @@ def cmd_output():
                     noMatchPerOrder[order] = begrootRegelsList
                 else:
                     noMatchPerOrder[order].extend(begrootRegelsList)
+
+    return matchpersoneelsnummers, noMatchPerOrder
+
+def groep_report(userID, render, groepstr, jaar):
+    report = {}
+    regelsGeboekt, regelsBegroot = get_begroting_geboekt(userID, groepstr, jaar)
+    matchpersoneelsnummers, noMatchPerOrder = correlate_personeelsnummers(regelsBegroot, regelsGeboekt)
+
+    body = 'TODO BODY'
+    settings = 'TODO settings'
+    summary = 'TODO summary'
+    report['settings'] = settings
+    report['summary'] = summary
+    report['body'] = body
+    return report
+
+
+def cmd_output(userID, groepstr, jaar):
+    regelsGeboekt, regelsBegroot = get_begroting_geboekt(userID, groepstr, jaar)
+    matchpersoneelsnummers, noMatchPerOrder = correlate_personeelsnummers(regelsBegroot, regelsGeboekt)
 
 
 # dict per order per persnr
