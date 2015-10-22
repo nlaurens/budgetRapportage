@@ -148,7 +148,7 @@ def row_to_html(row, render, groep=False):
     html['realisatie'] =  table_string(row['realisatie'])
     html['obligo'] =  table_string(row['obligo'])
     html['resultaat'] = table_string(row['resultaat'])
-    return render.report_table_row(html)
+    return render.salaris_table_row(html)
 
 def parse_orders(root, jaar, render, total):
     rows = []
@@ -178,7 +178,7 @@ def parse_groep(root, jaar, render):
     for child in root.children:
         childrow, childheader, childgroep, total = parse_groep(child, jaar, render)
 #CATCH childheader ID HERE 
-        groeprows.append(render.report_table_groep(childrow, childheader, childgroep))
+        groeprows.append(render.salaris_table_groep(childrow, childheader, childgroep))
         groeptotal['begroot'] += total['begroot']
         groeptotal['realisatie'] += total['realisatie']
         groeptotal['obligo'] += total['obligo']
@@ -186,29 +186,6 @@ def parse_groep(root, jaar, render):
 
     rows, header, groeptotal = parse_orders(root, jaar, render, groeptotal)
     return rows, header, groeprows, groeptotal
-
-
-def fig_html(root, render, jaar):
-    figs = ''
-    if not root.children:
-        graphs = []
-        i = 0
-        for order, descr in root.orders.iteritems():
-            graph = {}
-            graph['link'] = ('../view/' + userHash + '/' + str(order))
-            graph['png'] = ('../static/figs/'+str(jaar)+'-detailed/1-' + str(order) + '.png')
-            #if i%2:
-            #    graph['spacer'] = '</tr><tr>'
-            #else:
-            #    graph['spacer'] = ''
-            graph['spacer'] = '</tr><tr>'
-            graphs.append(graph)
-            i +=1
-
-        figs = render.report_figpage(graphs)
-        return figs
-    else:
-        return None
 
 
 def table_html(root, render, jaar):
@@ -222,7 +199,7 @@ def table_html(root, render, jaar):
     for child in root.children:
         rows, header, groeprows, total = parse_groep(child, jaar, render)
 #CATCH childheader ID HERE 
-        childtable.append(render.report_table_groep(rows, header, groeprows))
+        childtable.append(render.salaris_table_groep(rows, header, groeprows))
         groeptotal['begroot'] += total['begroot']
         groeptotal['realisatie'] += total['realisatie']
         groeptotal['obligo'] += total['obligo']
@@ -230,16 +207,16 @@ def table_html(root, render, jaar):
 
     rows, header,total = parse_orders(root, jaar, render, groeptotal)
 #CATCH childheader ID HERE 
-    table.append(render.report_table_groep(rows, header, childtable))
+    table.append(render.salaris_table_groep(rows, header, childtable))
 
-    body = render.report_table(table)
+    body = render.salaris_table(table)
     return body
 
 def settings_html(root, render, jaar):
     form = 'FORM met daarin jaar'
     buttons = 'BUTTON'
     lastupdate = '2'
-    return render.report_settings(lastupdate, buttons, form)
+    return render.salaris_settings(lastupdate, buttons, form)
 
 def groep_report(userID, render, groepstr, jaar):
 #NEW websalaris
@@ -258,7 +235,6 @@ def groep_report(userID, render, groepstr, jaar):
         root = GrootBoekGroep.load(grootboekgroepfile)
 
     body = table_html(root, render, jaar)
-    figs = fig_html(root, render, jaar)
     settings = settings_html(root, render, jaar)
 
     report = {}
@@ -267,5 +243,4 @@ def groep_report(userID, render, groepstr, jaar):
     report['settings'] = settings
     report['summary'] = "<a href='../static/figs/"+str(jaar)+"-detailed/1-" + groepstr + ".png' target='_blank'><img class='img-responsive' src='../static/figs/"+str(jaar)+"-detailed/1-"+groepstr+".png'></a>"
     report['body'] = body
-    report['figpage'] = figs
     return report
