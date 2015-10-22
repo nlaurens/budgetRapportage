@@ -138,31 +138,43 @@ def table_string(value):
         return ('%.f' % value)
 
 
-def row_to_html(row, render, groep=False):
+def personeel_regel_to_html(row, render):
     html = row.copy()
     html['personeelsnummer'] = row['personeelsnummer']
-    html['name'] = row['name']
+    html['name'] = row['naam']
     html['begroot'] = table_string(row['begroot'])
     html['realisatie'] =  table_string(row['realisatie'])
     html['resultaat'] = table_string(row['resultaat'])
-    return render.salaris_table_row(html)
+    return render.salaris_table_personeel_regel(html)
+
+
+def order_regel_to_html(row, render):
+    html = row.copy()
+#TODO
+    html['order'] = 'order'#row['order']
+    html['begroot'] = table_string(row['begroot'])
+    html['realisatie'] =  table_string(row['realisatie'])
+    html['resultaat'] = table_string(row['resultaat'])
+    return render.salaris_table_order_regel(html)
+
 
 def parse_orders(root, jaar, render, total):
     rows = []
     total['name'] = root.descr
     for order, descr in root.orders.iteritems():
         row = parse_order(order, descr, jaar)
-        rows.append(row_to_html(row, render))
+        rows.append(personeel_regel_to_html(row, render))
         total['begroot'] += row['begroot']
         total['realisatie'] += row['realisatie']
         total['resultaat'] += row['resultaat']
 
     header = {}
-    header['row'] = row_to_html(total, render, groep=True)
+    header['row'] = order_regel_to_html(total, render)
     header['id'] = root.name
     header['img'] = "../static/figs/"+str(jaar)+"-detailed/1-"+root.name+".png"
 
     return rows, header, total
+
 
 def parse_groep(root, jaar, render):
     groeptotal = {}
@@ -173,6 +185,7 @@ def parse_groep(root, jaar, render):
     groeprows = []
     for child in root.children:
         childrow, childheader, childgroep, total = parse_groep(child, jaar, render)
+#AFHANKELIJK VAN OF DE vorige recursie wel/geen order heeft geparst hier render.salaris_table_groep of render.salaris_table_order gebruiken!
         groeprows.append(render.salaris_table_groep(childrow, childheader, childgroep))
         groeptotal['begroot'] += total['begroot']
         groeptotal['realisatie'] += total['realisatie']
