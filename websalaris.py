@@ -25,13 +25,17 @@ begroot = regelsBegroot.split_by_regel_attributes(['personeelsnummer'])
 kosten = regelsGeboekt.split_by_regel_attributes(['personeelsnummer'])
 
 for begrootpersoneelsnummer in begroot.keys():
-    ALS BEGROOT <> "" en echt een nummer is!
-    print begrootpersoneelsnummer
-    print float(begrootpersoneelsnummer) 
-    if begrootpersoneelsnummer in kosten.keys():
-        print 'ja'
-    else:
-        print 'nee'
+    begrootpersoneelsnummer = list(begrootpersoneelsnummer.strip())
+    if begrootpersoneelsnummer:
+        if begrootpersoneelsnummer[0] == '2':
+            begrootpersoneelsnummer[0] = '9'
+        elif begrootpersoneelsnummer[0] == '1':
+            begrootpersoneelsnummer[0] = '8'
+        begrootpersoneelsnummer = ''.join(begrootpersoneelsnummer)
+        if long(begrootpersoneelsnummer) in kosten.keys():
+            print 'ja'
+        else:
+            print 'nee'
 exit()
 
 # dict per order per persnr
