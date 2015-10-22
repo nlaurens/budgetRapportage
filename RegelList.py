@@ -17,7 +17,7 @@ class RegelList():
         dict['order..']['kostensoort..'] = RegelList
     '''
     def split_by_regel_attributes(self, attributes_to_group):
-        regelListDict = self.split_by_regel_attribute(attributes_to_group.pop(0))
+        regelListDict = self.__split_by_regel_attribute(attributes_to_group.pop(0))
             
         if attributes_to_group:
             for key, regelListDictChild  in regelListDict.iteritems():
@@ -26,7 +26,7 @@ class RegelList():
         return regelListDict
 
 
-    def split_by_regel_attribute(self, attribute_to_group):
+    def __split_by_regel_attribute(self, attribute_to_group):
         regelDict = {}
         # Sort out regels for each attribute to group
         for regel in self.regels:
