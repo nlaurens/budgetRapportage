@@ -34,7 +34,7 @@ Somday/Maybe:
 - http://bl.ocks.org/NPashaP/96447623ef4d342ee09b
 """
 import web
-web.config.debug = False #must be done before the rest.
+web.config.debug = True #must be done before the rest.
 import model
 import GrootBoek
 import GrootBoekGroep
@@ -43,7 +43,7 @@ from config import config
 from functions import moneyfmt, IpBlock
 import webaccess
 import webreport
-
+import websalaris
 
 
 class Index:
@@ -214,6 +214,32 @@ class Report:
         return render.report(report)
 
 
+class Salaris:
+    def get_params(self):
+
+        try:
+            jaar = int(web.input()['jaar'])
+        except:
+            jaar = 2015
+
+        try:
+            groep = web.input()['groep']
+        except:
+            groep = 'TOTAAL'
+
+        return jaar, groep
+
+    def POST(self, userHash):
+        return None
+
+    def GET(self, userHash):
+        if not webaccess.check_auth(session, userHash):
+            return web.notfound("Sorry the page you were looking for was not found.")
+        jaar, groep = self.get_params()
+        salaris = websalaris.groep_report(userHash, render, groep, jaar)
+        return render.salaris(salaris)
+
+
 class Login:
     login_form = web.form.Form(
         web.form.Password('password', web.form.notnull),
@@ -251,6 +277,7 @@ urls = (
     '/login(.+)', 'Login',
     '/logout', 'Logout',
     '/report/(.+)', 'Report',
+    '/salaris/(.+)', 'Salaris',
 )
 
 ### Templates
