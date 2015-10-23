@@ -173,13 +173,20 @@ def parse_order(order, descr, jaar, render):
     totals_order['realisatie'] = 0
     totals_order['resultaat'] = 0 
     for i in range(0,10):
+        begroot = 10000
+        realisatie = 20000
+        resultaat = -10000
         row = {}
         row['personeelsnummer'] = 'persnNR'
         row['naam'] = 'naam persoon'
-        row['begroot'] = 10000
-        row['realisatie'] = 20000
-        row['resultaat'] = -10000
+        row['begroot'] = begroot
+        row['realisatie'] = realisatie
+        row['resultaat'] = resultaat
         html_rows.append(personeel_regel_to_html(row, render))
+
+        totals_order['begroot'] += begroot
+        totals_order['realisatie'] += realisatie
+        totals_order['resultaat'] += resultaat
 
     order_table = render.salaris_table_order(html_rows)
     return order_table, totals_order
@@ -187,6 +194,7 @@ def parse_order(order, descr, jaar, render):
 def parse_orders_in_groep(root, jaar, render, total_groep):
     order_tables = []
     total_groep['name'] = root.descr
+    print root.descr
     for order, descr in root.orders.iteritems():
         order_table,total_order = parse_order(order, descr, jaar, render)
         order_tables.append(order_table)
