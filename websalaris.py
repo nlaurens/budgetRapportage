@@ -149,30 +149,32 @@ def order_regel_to_html(row, render):
     return render.salaris_table_order_regel(html)
 
 
-def parse_order(order, descr, jaar):
+def parse_order(order, descr, jaar, render):
     #parse orders in groep:
     KSgroepen = model.loadKSgroepen()
     grootboek =  [s for s in KSgroepen if "BFRE15E01" in s][0]
 
     root = GrootBoek.load(order, grootboek, jaar, [])
     root.set_totals()
-#TODO FOR EACH PERSONEEL:
-    row = {}
-    row['personeelsnummer'] = 'persnNR'
-    row['naam'] = 'naam persoon'
-    row['begroot'] = 10000
-    row['realisatie'] = 20000
-    row['resultaat'] = -10000
+    html_rows = []
+#TODO DUMMY code
+    for i in range(0,10):
+        row = {}
+        row['personeelsnummer'] = 'persnNR'
+        row['naam'] = 'naam persoon'
+        row['begroot'] = 10000
+        row['realisatie'] = 20000
+        row['resultaat'] = -10000
+        html_rows.append(personeel_regel_to_html(row, render))
 
-    personeel_regel_to_html(row, render))
-#TODO return a html table!
+    order_table = render.salaris_table_order(html_rows)
     return order_table, totals_order
 
-def parse_orders_in_groep(root, jaar, render, total):
+def parse_orders_in_groep(root, jaar, render, total_groep):
     order_tables = []
     total_groep['name'] = root.descr
     for order, descr in root.orders.iteritems():
-        order_table,total_order = parse_order(order, descr, jaar)
+        order_table,total_order = parse_order(order, descr, jaar, render)
         order_tables.append(order_table)
         total_groep['begroot'] += total_order['begroot']
         total_groep['realisatie'] += total_order['realisatie']
