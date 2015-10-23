@@ -188,7 +188,16 @@ def parse_order(order, descr, jaar, render):
         totals_order['realisatie'] += realisatie
         totals_order['resultaat'] += resultaat
 
-    order_table = render.salaris_table_order(html_rows)
+    header = {}
+    header['name'] = descr
+    header['id'] = order
+#TODO
+    header['img'] = 'NO'
+    header['begroot'] = table_string(totals_order['begroot'])
+    header['realisatie'] =  table_string(totals_order['realisatie'])
+    header['resultaat'] = table_string(totals_order['resultaat'])
+
+    order_table = render.salaris_table_order(html_rows, header)
     return order_table, totals_order
 
 def parse_orders_in_groep(root, jaar, render, total_groep):
