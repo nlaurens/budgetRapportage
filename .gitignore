@@ -1,6 +1,9 @@
 # VIM tmp files
 *.*~
 
+#output graphs and static files
+static/*
+figs/*
 
 # test and config scripts
 test.py
