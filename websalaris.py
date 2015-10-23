@@ -1,7 +1,8 @@
 """
 TODO
-    Change glyph on collapse:
+    * Change glyph on collapse:
         http://www.bootply.com/73101
+    * Collapse/Expand orders
 
 """
 import web
@@ -148,6 +149,15 @@ def order_regel_to_html(row, render):
     html['resultaat'] = table_string(row['resultaat'])
     return render.salaris_table_order_regel(html)
 
+def groep_regel_to_html(row, render):
+    html = row.copy()
+#TODO
+    html['name'] = row['name']
+    html['begroot'] = table_string(row['begroot'])
+    html['realisatie'] =  table_string(row['realisatie'])
+    html['resultaat'] = table_string(row['resultaat'])
+    return render.salaris_table_groep_regel(html)
+
 
 def parse_order(order, descr, jaar, render):
     #parse orders in groep:
@@ -158,6 +168,10 @@ def parse_order(order, descr, jaar, render):
     root.set_totals()
     html_rows = []
 #TODO DUMMY code
+    totals_order = {}
+    totals_order['begroot'] = 0
+    totals_order['realisatie'] = 0
+    totals_order['resultaat'] = 0 
     for i in range(0,10):
         row = {}
         row['personeelsnummer'] = 'persnNR'
