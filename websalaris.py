@@ -1,3 +1,9 @@
+"""
+TODO
+    Change glyph on collapse:
+        http://www.bootply.com/73101
+
+"""
 import web
 from config import config
 import GrootBoekGroep
@@ -113,21 +119,6 @@ def cmd_output(userID, groepstr, jaar):
 
 
 
-def parse_order(order, descr, jaar):
-    #parse orders in groep:
-    KSgroepen = model.loadKSgroepen()
-    grootboek =  [s for s in KSgroepen if "BFRE15E01" in s][0]
-
-    root = GrootBoek.load(order, grootboek, jaar, [])
-    root.set_totals()
-
-    row = {}
-    row['personeelsnummer'] = 'persnNR'
-    row['naam'] = 'naam persoon'
-    row['begroot'] = 10000
-    row['realisatie'] = 20000
-    row['resultaat'] = -10000
-    return row
 
 
 def table_string(value):
@@ -151,29 +142,48 @@ def personeel_regel_to_html(row, render):
 def order_regel_to_html(row, render):
     html = row.copy()
 #TODO
-    html['order'] = 'order'#row['order']
+    html['order'] = row['name']
     html['begroot'] = table_string(row['begroot'])
     html['realisatie'] =  table_string(row['realisatie'])
     html['resultaat'] = table_string(row['resultaat'])
     return render.salaris_table_order_regel(html)
 
 
-def parse_orders(root, jaar, render, total):
-    rows = []
-    total['name'] = root.descr
+def parse_order(order, descr, jaar):
+    #parse orders in groep:
+    KSgroepen = model.loadKSgroepen()
+    grootboek =  [s for s in KSgroepen if "BFRE15E01" in s][0]
+
+    root = GrootBoek.load(order, grootboek, jaar, [])
+    root.set_totals()
+#TODO FOR EACH PERSONEEL:
+    row = {}
+    row['personeelsnummer'] = 'persnNR'
+    row['naam'] = 'naam persoon'
+    row['begroot'] = 10000
+    row['realisatie'] = 20000
+    row['resultaat'] = -10000
+
+    personeel_regel_to_html(row, render))
+#TODO return a html table!
+    return order_table, totals_order
+
+def parse_orders_in_groep(root, jaar, render, total):
+    order_tables = []
+    total_groep['name'] = root.descr
     for order, descr in root.orders.iteritems():
-        row = parse_order(order, descr, jaar)
-        rows.append(personeel_regel_to_html(row, render))
-        total['begroot'] += row['begroot']
-        total['realisatie'] += row['realisatie']
-        total['resultaat'] += row['resultaat']
+        order_table,total_order = parse_order(order, descr, jaar)
+        order_tables.append(order_table)
+        total_groep['begroot'] += total_order['begroot']
+        total_groep['realisatie'] += total_order['realisatie']
+        total_groep['resultaat'] += total_order['resultaat']
 
-    header = {}
-    header['row'] = order_regel_to_html(total, render)
-    header['id'] = root.name
-    header['img'] = "../static/figs/"+str(jaar)+"-detailed/1-"+root.name+".png"
+    groep_header = {}
+    groep_header['row'] = groep_regel_to_html(total_groep, render)
+    groep_header['id'] = root.name
+    groep_header['img'] = "../static/figs/"+str(jaar)+"-detailed/1-"+root.name+".png"
 
-    return rows, header, total
+    return order_tables, groep_header, total_groep
 
 
 def parse_groep(root, jaar, render):
@@ -184,16 +194,15 @@ def parse_groep(root, jaar, render):
     groeptotal['resultaat'] = 0
     groeprows = []
     for child in root.children:
-        childrow, childheader, childgroep, total = parse_groep(child, jaar, render)
-#AFHANKELIJK VAN OF DE vorige recursie wel/geen order heeft geparst hier render.salaris_table_groep of render.salaris_table_order gebruiken!
-        groeprows.append(render.salaris_table_groep(childrow, childheader, childgroep))
+        childOrderTables, childheader, childgroep, total = parse_groep(child, jaar, render)
+        groeprows.append(render.salaris_table_groep(childOrderTables, childheader, childgroep))
         groeptotal['begroot'] += total['begroot']
         groeptotal['realisatie'] += total['realisatie']
         groeptotal['obligo'] += total['obligo']
         groeptotal['resultaat'] += total['resultaat']
 
-    rows, header, groeptotal = parse_orders(root, jaar, render, groeptotal)
-    return rows, header, groeprows, groeptotal
+    order_tables, groepheader, groeptotal = parse_orders_in_groep(root, jaar, render, groeptotal)
+    return order_tables, groepheader, groeprows, groeptotal
 
 
 def table_html(root, render, jaar):
@@ -212,8 +221,9 @@ def table_html(root, render, jaar):
         groeptotal['obligo'] += total['obligo']
         groeptotal['resultaat'] += total['resultaat']
 
-    rows, header,total = parse_orders(root, jaar, render, groeptotal)
-    table.append(render.salaris_table_groep(rows, header, childtable))
+    #add orders of the top group (if any)
+    order_tables, header,total = parse_orders_in_groep(root, jaar, render, groeptotal)
+    table.append(render.salaris_table_groep(order_tables, header, childtable))
 
     body = render.salaris_table(table)
     return body
