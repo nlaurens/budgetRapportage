@@ -172,7 +172,7 @@ def parse_order(order, descr, jaar, render):
     totals_order['begroot'] = 0
     totals_order['realisatie'] = 0
     totals_order['resultaat'] = 0 
-    for i in range(0,10):
+    for i in range(0,2):
         begroot = 10000
         realisatie = 20000
         resultaat = -10000
@@ -194,7 +194,6 @@ def parse_order(order, descr, jaar, render):
 def parse_orders_in_groep(root, jaar, render, total_groep):
     order_tables = []
     total_groep['name'] = root.descr
-    print root.descr
     for order, descr in root.orders.iteritems():
         order_table,total_order = parse_order(order, descr, jaar, render)
         order_tables.append(order_table)
