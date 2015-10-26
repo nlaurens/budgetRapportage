@@ -27,7 +27,7 @@ def personeel_regel_to_html(row, render):
     html['begroot'] = table_string(row['begroot'])
     html['realisatie'] =  table_string(row['realisatie'])
     html['resultaat'] = table_string(row['resultaat'])
-    return render.salaris_table_personeel_regel(html)
+    return render.report_table_personeel_regel(html)
 
 
 def order_regel_to_html(row, render):
@@ -37,7 +37,7 @@ def order_regel_to_html(row, render):
     html['begroot'] = table_string(row['begroot'])
     html['realisatie'] =  table_string(row['realisatie'])
     html['resultaat'] = table_string(row['resultaat'])
-    return render.salaris_table_order_regel(html)
+    return render.report_table_order_regel(html)
 
 def groep_regel_to_html(row, render):
     html = row.copy()
@@ -46,7 +46,7 @@ def groep_regel_to_html(row, render):
     html['begroot'] = table_string(row['begroot'])
     html['realisatie'] =  table_string(row['realisatie'])
     html['resultaat'] = table_string(row['resultaat'])
-    return render.salaris_table_groep_regel(html)
+    return render.report_table_groep_regel(html)
 
 
 def parse_order(order, descr, jaar, render):
@@ -83,7 +83,7 @@ def parse_order(order, descr, jaar, render):
     header['obligo'] = table_string(totals_order['obligo'])
     header['resultaat'] = table_string(totals_order['resultaat'])
 
-    order_table = render.salaris_table_order(html_rows, header)
+    order_table = render.report_table_order(html_rows, header)
     return order_table, totals_order
 
 def parse_orders_in_groep(root, jaar, render, total_groep):
@@ -113,7 +113,7 @@ def parse_groep(root, jaar, render):
     groeprows = []
     for child in root.children:
         childOrderTables, childheader, childgroep, total = parse_groep(child, jaar, render)
-        groeprows.append(render.salaris_table_groep(childOrderTables, childheader, childgroep))
+        groeprows.append(render.report_table_groep(childOrderTables, childheader, childgroep))
         groeptotal['begroot'] += total['begroot']
         groeptotal['realisatie'] += total['realisatie']
         groeptotal['obligo'] += total['obligo']
@@ -156,7 +156,7 @@ def table_html(root, render, jaar):
     groeptotal['resultaat'] = 0
     for child in root.children:
         rows, header, groeprows, total = parse_groep(child, jaar, render)
-        childtable.append(render.salaris_table_groep(rows, header, groeprows))
+        childtable.append(render.report_table_groep(rows, header, groeprows))
         groeptotal['begroot'] += total['begroot']
         groeptotal['realisatie'] += total['realisatie']
         groeptotal['obligo'] += total['obligo']
@@ -164,16 +164,16 @@ def table_html(root, render, jaar):
 
     #add orders of the top group (if any)
     order_tables, header,total = parse_orders_in_groep(root, jaar, render, groeptotal)
-    table.append(render.salaris_table_groep(order_tables, header, childtable))
+    table.append(render.report_table_groep(order_tables, header, childtable))
 
-    body = render.salaris_table(table)
+    body = render.report_table(table)
     return body
 
 def settings_html(root, render, jaar):
     form = 'FORM met daarin jaar'
     buttons = 'BUTTON'
     lastupdate = '2'
-    return render.salaris_settings(lastupdate, buttons, form)
+    return render.report_settings(lastupdate, buttons, form)
 
 def groep_report(userID, render, groepstr, jaar):
     global userHash 
