@@ -1,0 +1,51 @@
+$def with(orderrows, html)
+<tr>
+    <td>
+        <button data-toggle="collapse" data-target="#collapse$html['id']" class="accordion-toggle btn btn-default btn-xs">
+            <span class="glyphicon glyphicon-plus"></span>
+        </button>
+        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph$html['id']">
+            <span class="glyphicon glyphicon-paperclip"></span>
+        </button>
+        <a class="btn btn-default btn-xs" href="/view/$:html['userHash']/$:html['id']" role="button">
+            <span class="glyphicon glyphicon-zoom-in"></span>
+        </a>
+        <div id="graph$html['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <img src="$:html['img']" class="img-responsive">
+                </div>
+            </div>
+        </div>
+        </div>
+
+    </td>
+    <td class="text-right">$:html['name']</td>
+    <td class="text-right">$:html['begroot']</td>
+    <td class="text-right">$:html['realisatie']</td>
+    <td class="text-right">$:html['resultaat']</td>
+</tr>
+<tr class="hiddenRow accordian-body collapse" id="collapse$html['id']">
+    <td colspan="12">
+        $if orderrows:
+            <table class="table table-bordered table-condensed">
+                    <thead>
+                            <tr>
+                            <th class="text-right">persnr</th>
+                            <th class="text-right">Naam</th>
+                            <th class="text-right">Begroot</th>
+                            <th class="text-right">Realisatie</th>
+                            <th class="text-right">Resultaat</th>
+                            </tr>
+                    </thead>
+                    <tbody>
+                    $for row in orderrows:
+                        <tr>
+                        $:row
+                    </tr>
+                    </tbody>
+            </table> 
+    </td>
+</tr>
+
