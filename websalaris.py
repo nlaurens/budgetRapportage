@@ -146,7 +146,8 @@ def fig_html(root, render, jaar):
         return None
 
 
-def table_html(root, render, jaar):
+def table_html(render, jaar):
+    return 'body'
     table = []
     childtable = []
     groeptotal = {}
@@ -169,7 +170,7 @@ def table_html(root, render, jaar):
     body = render.report_table(table)
     return body
 
-def settings_html(root, render, jaar):
+def settings_html(render, jaar):
     form = 'FORM met daarin jaar'
     buttons = 'BUTTON'
     lastupdate = '2'
@@ -178,21 +179,13 @@ def settings_html(root, render, jaar):
 def groep_report(userID, render, groepstr, jaar):
     global userHash 
     userHash = userID
-    grootboekgroepfile = 'data/grootboekgroep/LION'
-    if groepstr != '':
-        root = GrootBoekGroep.load(grootboekgroepfile)
-        root = root.find(groepstr)
-    else: 
-        root = GrootBoekGroep.load(grootboekgroepfile)
 
-    body = table_html(root, render, jaar)
-    figs = fig_html(root, render, jaar)
-    settings = settings_html(root, render, jaar)
+    body = table_html(render, jaar)
+    settings = settings_html(render, jaar)
 
     report = {}
     report['settings'] = settings
-    report['figpage'] = figs
-    report['summary'] = "<a href='../static/figs/"+str(jaar)+"-detailed/1-" + groepstr + ".png' target='_blank'><img class='img-responsive' src='../static/figs/"+str(jaar)+"-detailed/1-"+groepstr+".png'></a>"
+    report['summary'] = "TODO Summary"
     report['body'] = body
     return report
 
