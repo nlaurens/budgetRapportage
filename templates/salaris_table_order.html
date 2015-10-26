@@ -31,17 +31,18 @@ $def with(orderrows, html)
         $if orderrows:
             <table class="table table-bordered table-condensed">
                     <thead>
-                            <tr>
+                            <tr class="warning">
                             <th class="text-right">persnr</th>
                             <th class="text-right">Naam</th>
                             <th class="text-right">Begroot</th>
                             <th class="text-right">Realisatie</th>
-                            <th class="text-right">Resultaat</th>
+                            <th class="text-right">Prognose</th>
+                            <th class="text-right">Verwacht Resultaat</th>
                             </tr>
                     </thead>
                     <tbody>
                     $for row in orderrows:
-                        <tr>
+                    <tr>
                         $:row
                     </tr>
                     </tbody>
