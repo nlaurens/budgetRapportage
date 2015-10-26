@@ -3,8 +3,6 @@ TODO
     * Change glyph on collapse:
         http://www.bootply.com/73101
     * Collapse/Expand orders
-    * Figpage
-
 """
 import web
 from config import config
@@ -65,14 +63,14 @@ def parse_order(order, descr, jaar, render):
     totals_order['obligo'] = -1*(root.totaalObligosTree)
     totals_order['resultaat'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) - totals_order['begroot']
 
-#TODO DUMMY code
-    for i in range(0,2):
+#TODO DUMMY code -> order details.
+    for i in range(0,1):
         row = {}
-        row['personeelsnummer'] = 'dummy txt'
-        row['naam'] = 'dummy txt'
-        row['begroot'] = 5000
-        row['realisatie'] = 5000
-        row['resultaat'] = 10000
+        row['personeelsnummer'] = 'todo'
+        row['naam'] = 'todo'
+        row['begroot'] = 0
+        row['realisatie'] = 0
+        row['resultaat'] = 0
         html_rows.append(personeel_regel_to_html(row, render))
 
     header = {}
