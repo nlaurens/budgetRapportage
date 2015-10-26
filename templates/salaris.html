@@ -1,0 +1,67 @@
+$def with (report)
+
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Budget overview</title>
+    <link rel="stylesheet" href="../static/css/bootstrap.css">
+    <link rel="stylesheet" href="../static/css/report.css">
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="../static/js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../static/js/bootstrap.min.js"></script>
+
+    <style>/#
+      @import url(http://fonts.googleapis.com/css?family=Bree+Serif);
+      body, h1, h2, h3, h4, h5, h6{
+      font-family: 'Bree Serif', serif;
+      }
+
+    </style>
+  </head>
+  
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-6">
+          <h1>
+          </h1>
+        </div>
+        <div class="col-xs-6 text-right">
+          <h1></h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-5">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4>Summary</h4>
+            </div>
+            <div class="panel-body">
+                $:report['summary']
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-5 col-xs-offset-2 text-right">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4>Settings</h4>
+            </div>
+            <div class="panel-body">
+                $:report['settings']
+            </div>
+          </div>
+        </div>
+      </div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            $:report['body']
+        </div>
+    </div>
+        <p style="page-break-after:always;"></p>
+            $:report['figpage']
+</body>
+</html>
