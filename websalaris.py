@@ -3,7 +3,6 @@ TODO
     * Change glyph on collapse:
         http://www.bootply.com/73101
     * Collapse/Expand orders
-    * Resultaat regels invullen
     * Laats geboekte periode kopppelen aan model.regels (nu nog een dummy)
 """
 import web
