@@ -1,6 +1,12 @@
 """
 TODO
+    * Clean up all non-used functions (remainders of webreport.py)
+    * Prognose gaat er nu van uit dat iemand het volledige jaar in dienst is. 
+      We zouden ipv /x * 12 ook de SAP obligos kunnen pakken!! En dan prognose vervangen door Obligo..
     * Laats geboekte periode kopppelen aan model.regels (nu nog een dummy)
+    * Naam order ook laten zien als je hem open klapt.
+    * Plaatjes koppelen
+    * inzoom knopje -> koppelen aan 'view' van een order.
 """
 import web
 from config import config
