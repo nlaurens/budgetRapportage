@@ -1,6 +1,5 @@
 """
 TODO
-    * Collapse/Expand orders
     * Laats geboekte periode kopppelen aan model.regels (nu nog een dummy)
 """
 import web
@@ -242,6 +241,7 @@ def groep_report(userID, render, groepstr, jaar):
     userHash = userID
 
     regelsGeboekt, regelsBegroot = get_begroting_geboekt(jaar)
+    regelsGeboekt, regelsBegroot = filter_orders_in_groep(regelsGeboekt, regelsBegroot, groepstr)
     matchpersoneelsnummers, noMatchPerOrder = correlate_personeelsnummers(regelsBegroot, regelsGeboekt)
     laatstePeriodeGeboekt = 10 #TODO DUMMY
 
@@ -262,6 +262,20 @@ def groep_report(userID, render, groepstr, jaar):
 ##########################
 
 from RegelList import RegelList
+
+def filter_orders_in_groep(regelsGeboekt, regelsBegroot, groepstr):
+    grootboekgroepfile = 'data/grootboekgroep/LION'
+    if groepstr != '':
+        root = GrootBoekGroep.load(grootboekgroepfile)
+        root = root.find(groepstr)
+    else: 
+        root = GrootBoekGroep.load(grootboekgroepfile)
+
+    orders_allowed = root.list_orders_recursive()
+    regelsGeboekt = regelsGeboekt.filter_regels_by_attribute('order', orders_allowed)
+    regelsBegroot = regelsBegroot.filter_regels_by_attribute('order', orders_allowed)
+
+    return regelsGeboekt, regelsBegroot
 
 def get_begroting_geboekt(jaar):
     regels = model.get_salaris_geboekt_regels(jaar)

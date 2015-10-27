@@ -54,3 +54,12 @@ class RegelList():
     def extend(self, regelsToAdd):
         self.regels = self.regels + regelsToAdd.regels
 
+
+    def filter_regels_by_attribute(self, attribute, list_allowed):
+        new_regels = []
+        for regel in self.regels:
+            if getattr(regel, attribute) in list_allowed:
+                new_regels.append(regel)
+
+        self.regels = new_regels
+        return self
