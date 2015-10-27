@@ -30,8 +30,8 @@ def personeel_regel_to_html(row, render):
     html['name'] = row['naam']
     html['begroot'] = table_string(row['begroot'])
     html['realisatie'] =  table_string(row['realisatie'])
+    html['obligo'] = table_string(row['obligo'])
     html['resultaat'] = table_string(row['resultaat'])
-    html['prognose'] = table_string(row['prognose'])
     html['td_class'] = 'success'
     if row['td_class']:
         html['td_class'] = row['td_class']
@@ -128,6 +128,8 @@ def parse_order(render, order, kostenDict, matchpersoneelsnummers, noMatchPerOrd
 
         naamBegroot = '' # Reset begroot to not found
         begroot = 0
+#TODO
+        obligo = 0
 
         if personeelsnummer in matchpersoneelsnummers:
             persoonbegroot = matchpersoneelsnummers[personeelsnummer].split_by_regel_attributes(['order'])
@@ -141,8 +143,8 @@ def parse_order(render, order, kostenDict, matchpersoneelsnummers, noMatchPerOrd
             row['naam'] = naamBegroot
         row['begroot'] = begroot
         row['realisatie'] = geboekt
-        row['prognose'] = (geboekt / laatstePeriodeGeboekt ) * 12
-        row['resultaat'] = float(begroot) - row['prognose']
+        row['obligo'] = obligo
+        row['resultaat'] = float(begroot) - geboekt - obligo
         row['td_class'] = ''
         if begroot == 0:
             row['td_class'] = 'danger'
@@ -160,8 +162,8 @@ def parse_order(render, order, kostenDict, matchpersoneelsnummers, noMatchPerOrd
             row['naam'] = regel.personeelsnaam
             row['begroot'] = regel.kosten
             row['realisatie'] = 0
+            row['obligo'] = 0
             row['resultaat'] = regel.kosten
-            row['prognose'] = 0
             row['td_class'] = ''
             orderRows.append(personeel_regel_to_html(row, render))
         del noMatchPerOrder[order] #Remove so we end up with a list of remaining begrotingsposten
@@ -173,6 +175,7 @@ def parse_order(render, order, kostenDict, matchpersoneelsnummers, noMatchPerOrd
     header['name'] = order
     header['begroot'] = table_string(totalOrderBegroot)
     header['realisatie'] = table_string(totalOrderGeboekt)
+    header['obligo'] = 'TODO'
     header['resultaat'] = table_string(totalOrderResultaat)
     html_table = render.salaris_table_order(orderRows, header)
     return html_table, totalOrderBegroot, totalOrderGeboekt
@@ -187,8 +190,8 @@ def parse_empty_order(render, order, regelList):
         row['naam'] = regel.personeelsnaam
         row['begroot'] = regel.kosten
         row['realisatie'] = 0
+        row['obligo'] = 0
         row['resultaat'] = regel.kosten
-        row['prognose'] = 0
         row['td_class'] = ''
         orderRows.append(personeel_regel_to_html(row, render))
         totalOrderBegroot += regel.kosten
@@ -200,6 +203,7 @@ def parse_empty_order(render, order, regelList):
     header['name'] = order
     header['begroot'] = table_string(totalOrderBegroot)
     header['realisatie'] = table_string(0)
+    header['obligo'] = 0
     header['resultaat'] = 'TODO'
     html_table = render.salaris_table_order(orderRows, header)
     return html_table, totalOrderBegroot
