@@ -16,7 +16,9 @@ from Regel import Regel
 """"
 
 TODO
-    * SAP-HR obligo omzetten naar meerdere regels (is er uit gehaald tijdelijk)
+    * SAP-HR obligo omzetten naar meerdere regels (is er uit gehaald tijdelijk).
+      Doe dit niet in model maar op de plek die hier last van heeft! Want het is elke keer anders
+      b.v. voor salaris vervangen we hem door salaris regel!
 
 """
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"], host=config["mysql"]["host"])
