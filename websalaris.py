@@ -157,7 +157,7 @@ def parse_order(render, order, kostenDict, matchpersoneelsnummers, noMatchPerOrd
             row['naam'] = regel.personeelsnaam
             row['begroot'] = regel.kosten
             row['realisatie'] = 0
-            row['resultaat'] = -regel.kosten
+            row['resultaat'] = regel.kosten
             row['prognose'] = 0
             row['td_class'] = ''
             orderRows.append(personeel_regel_to_html(row, render))
