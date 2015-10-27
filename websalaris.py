@@ -1,12 +1,20 @@
 """
+Working on:
+    * Prognose gaat er nu van uit dat iemand het volledige jaar in dienst is. Meer kunnen we ook niet zien
+      Obligos gaan voor elke order totaal (niet per persoon).
+
+      - Obligo uit de personeels kolom
+      - Prognose in personeelskolom vervangen door realisatie (in begroot - realisatie en %!)
+      - 1 regel in personeels tabel: nvt - Obligos - 0 - <OBLIGO BEDRAG>
+      - Obligo wel laten zien in totaal van order.
+
 TODO
     * Clean up all non-used functions (remainders of webreport.py)
-    * Prognose gaat er nu van uit dat iemand het volledige jaar in dienst is. 
-      We zouden ipv /x * 12 ook de SAP obligos kunnen pakken!! En dan prognose vervangen door Obligo..
     * Laats geboekte periode kopppelen aan model.regels (nu nog een dummy)
     * Naam order ook laten zien als je hem open klapt.
     * Plaatjes koppelen
     * inzoom knopje -> koppelen aan 'view' van een order.
+    * Summary van alle totalen maken (totalOrderGeboekt, etc opvangen uit html_table)
 """
 import web
 from config import config
@@ -121,6 +129,7 @@ def parse_order(render, order, kostenDict, matchpersoneelsnummers, noMatchPerOrd
     begroot = 0
     totalOrderGeboekt = 0
     totalOrderBegroot = 0
+    totalOrderObligo = 0
     totalOrderResultaat = 0
     for personeelsnummer, regelsGeboekt in kostenDict[order].iteritems():
         naamGeboekt = regelsGeboekt.regels[0].personeelsnaam
@@ -151,6 +160,7 @@ def parse_order(render, order, kostenDict, matchpersoneelsnummers, noMatchPerOrd
 
         totalOrderGeboekt +=  row['realisatie']
         totalOrderBegroot +=  row['begroot']
+        totalOrderObligo +=  row['obligo']
         totalOrderResultaat += row['resultaat']
         orderRows.append(personeel_regel_to_html(row, render))
     
@@ -175,10 +185,10 @@ def parse_order(render, order, kostenDict, matchpersoneelsnummers, noMatchPerOrd
     header['name'] = order
     header['begroot'] = table_string(totalOrderBegroot)
     header['realisatie'] = table_string(totalOrderGeboekt)
-    header['obligo'] = 'TODO'
+    header['obligo'] = table_string(totalOrderObligo)
     header['resultaat'] = table_string(totalOrderResultaat)
     html_table = render.salaris_table_order(orderRows, header)
-    return html_table, totalOrderBegroot, totalOrderGeboekt
+    return html_table, totalOrderBegroot, totalOrderGeboekt, totalOrderObligo
 
 
 def parse_empty_order(render, order, regelList):
@@ -215,12 +225,14 @@ def table_html(render, regelsGeboekt, regelsBegroot, matchpersoneelsnummers, noM
     kostenDict = regelsGeboekt.split_by_regel_attributes(['order', 'personeelsnummer'])
     totalBegroot = 0
     totalGeboekt = 0
+    totalObligo = 0
     parsed_orders = []
     i = 0
     for order in kostenDict.keys():
-        html_order, totalOrderBegroot, totalOrderGeboekt = parse_order(render, order, kostenDict, matchpersoneelsnummers, noMatchPerOrder, laatstePeriodeGeboekt)
+        html_order, totalOrderBegroot, totalOrderGeboekt, totalOrderObligo = parse_order(render, order, kostenDict, matchpersoneelsnummers, noMatchPerOrder, laatstePeriodeGeboekt)
         totalBegroot += totalOrderBegroot
         totalGeboekt += totalOrderGeboekt
+        totalObligo += totalOrderGeboekt
         parsed_orders.append(html_order)
         i+=1
 
