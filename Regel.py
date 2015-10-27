@@ -63,3 +63,9 @@ class Regel():
 
         for attribute in attributes_remove_list:
             delattr(self, attribute)
+
+
+        #Specific rules per tiepe:
+        if tiepe == 'obligo':
+            self.omschrijving = self.omschrijving.decode('ascii', 'replace').encode('utf-8')
+            self.kosten = float(self.kosten.replace(',',''))
