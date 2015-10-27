@@ -13,6 +13,12 @@ from Regel import Regel
 #     obligos = get_obligos()
 #     obligos_per_ks = list_2_dict('ks') <-- veel duidelijk
 
+""""
+
+TODO
+    * SAP-HR obligo omzetten naar meerdere regels (is er uit gehaald tijdelijk)
+
+"""
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"], host=config["mysql"]["host"])
 
 # Gives a list of allowed budgets for that user.
@@ -98,10 +104,10 @@ def get_orders(sqlLike='%'):
     return orders
 
 # Returns a list of boekingsRegel from the obligo table
-def get_obligos(jaar, periodes=[], order=0, kostensoorten=[]):
+def get_obligos_regels(jaar, periodes=[], orders=[], kostensoorten=[]):
     sqlwhere = '1'
-    if order > 0:
-        sqlwhere = '`Order`=$order'
+    if orders:
+        sqlwhere = '`'+config["SAPkeys"]["obligo"]["order"]+'` IN (' + ','.join(str(order) for order in orders) + ')'
 
     if kostensoorten:
         if sqlwhere == '1':
@@ -122,7 +128,34 @@ def get_obligos(jaar, periodes=[], order=0, kostensoorten=[]):
     except IndexError:
         return None
 
-    return obligo_db_2_regels(obligodb)
+    regels = db_2_regels(obligodb, 'obligo')
+
+    #DIRTY HACK for UL.nl SAP inrichting (obligo personeel wordt elke maand aangepast maar altijd op periode 1 gezet)
+    # Hier maken we van die regel aparte regels voor elke resterende maand
+    #for regel in regels:
+    #    if regel.kostensoort == 411101:
+    #        digits = [int(s) for s in regel.omschrijving.split() if s.isdigit()]
+    #        periodeleft = range(digits[-2],digits[-1]+1)
+    #        bedrag = regel.kosten/len(periodeleft)
+    #        omschrijving = regel.omschrijving.decode('ascii', 'replace').encode('utf-8')
+    #        for periode in periodeleft:
+    #            regelNew = regel.copy()
+    #            regelNew.omschrijving = omschrijving + '-per. ' + str(periode)
+    #            regelNew.omschrijving
+    #            regelNew.periode = periode
+    #            regelNew.kosten = bedrag
+    #            if regelNew.kostensoort in obligos:
+    #                obligos[regelNew.kostensoort].append(regelNew)
+    #            else:
+    #                obligos[regelNew.kostensoort] = [regelNew]
+    #    else:
+    #        if regel.kostensoort in obligos:
+    #            obligos[regel.kostensoort].append(regel)
+    #        else:
+    #            obligos[regel.kostensoort] = [regel]
+
+
+    return  regels
 
 # Returns a dict containing a list of regels at key kostensoort
 # ie. obligos['kostensoort'] = [ <regel>, <regel>, .. ]
@@ -147,47 +180,6 @@ def plan_db_2_regels(db):
 
     return plans
 
-# Returns a dict containing a list of regels at key kostensoort
-# ie. obligos['kostensoort'] = [ <regel>, <regel>, .. ]
-def obligo_db_2_regels(obligodb):
-
-    obligos = {}
-    for regelDB in obligodb:
-        regel = Regel()
-
-        regel.tiepe = 'Obligo'
-        regel.order = regelDB[config["SAPkeys"]["obligo"]["order"]]
-        regel.kostensoort = regelDB[config["SAPkeys"]["obligo"]["ks"]]
-        regel.naamkostensoort = regelDB[config["SAPkeys"]["obligo"]["ks-naam"]]
-        regel.kosten = float(regelDB[config["SAPkeys"]["obligo"]["kosten"]].replace(',',''))
-        regel.jaar = regelDB[config["SAPkeys"]["obligo"]["jaar"]]
-        regel.periode = regelDB[config["SAPkeys"]["obligo"]["periode"]]
-        regel.omschrijving = regelDB[config["SAPkeys"]["obligo"]["descr"]]
-        regel.documentnummer = regelDB[config["SAPkeys"]["obligo"]["doc.nr."]]
-
-#DIRTY HACK for UL.nl SAP inrichting (obligo personeel wordt elke maand aangepast maar altijd op periode 1 gezet)
-        if regel.kostensoort == 411101:
-            digits = [int(s) for s in regel.omschrijving.split() if s.isdigit()]
-            periodeleft = range(digits[-2],digits[-1]+1)
-            bedrag = regel.kosten/len(periodeleft)
-            omschrijving = regel.omschrijving.decode('ascii', 'replace').encode('utf-8')
-            for periode in periodeleft:
-                regelNew = regel.copy()
-                regelNew.omschrijving = omschrijving + '-per. ' + str(periode)
-                regelNew.omschrijving
-                regelNew.periode = periode
-                regelNew.kosten = bedrag
-                if regelNew.kostensoort in obligos:
-                    obligos[regelNew.kostensoort].append(regelNew)
-                else:
-                    obligos[regelNew.kostensoort] = [regelNew]
-        else:
-            if regel.kostensoort in obligos:
-                obligos[regel.kostensoort].append(regel)
-            else:
-                obligos[regel.kostensoort] = [regel]
-
-    return obligos
 
 # Returns a list of planregels from the geboekt table
 def get_plan(jaar, order=0, kostensoorten=[]):
@@ -330,6 +322,7 @@ def get_prognose_regels(jaar='', order=''):
 
     f.close()
     return prognose
+
 
 
 # Returns a list of geboekte salaris regels 

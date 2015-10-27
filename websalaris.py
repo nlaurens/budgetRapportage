@@ -246,8 +246,8 @@ def groep_report(userID, render, groepstr, jaar):
     global userHash 
     userHash = userID
 
-    regelsGeboekt, regelsBegroot = get_begroting_geboekt(jaar)
-    regelsGeboekt, regelsBegroot = filter_orders_in_groep(regelsGeboekt, regelsBegroot, groepstr)
+    orders_allowed = orders_in_grootboekgroep(groepstr)
+    regelsGeboekt, regelsBegroot, regelsObligos = get_HR_regels(jaar, orders_allowed)
     matchpersoneelsnummers, noMatchPerOrder = correlate_personeelsnummers(regelsBegroot, regelsGeboekt)
     laatstePeriodeGeboekt = 10 #TODO DUMMY
 
@@ -269,7 +269,7 @@ def groep_report(userID, render, groepstr, jaar):
 
 from RegelList import RegelList
 
-def filter_orders_in_groep(regelsGeboekt, regelsBegroot, groepstr):
+def orders_in_grootboekgroep(groepstr):
     grootboekgroepfile = 'data/grootboekgroep/LION'
     if groepstr != '':
         root = GrootBoekGroep.load(grootboekgroepfile)
@@ -278,19 +278,20 @@ def filter_orders_in_groep(regelsGeboekt, regelsBegroot, groepstr):
         root = GrootBoekGroep.load(grootboekgroepfile)
 
     orders_allowed = root.list_orders_recursive()
-    regelsGeboekt = regelsGeboekt.filter_regels_by_attribute('order', orders_allowed)
-    regelsBegroot = regelsBegroot.filter_regels_by_attribute('order', orders_allowed)
 
-    return regelsGeboekt, regelsBegroot
+    return orders_allowed
 
-def get_begroting_geboekt(jaar):
-    regels = model.get_salaris_geboekt_regels(jaar)
+def get_HR_regels(jaar, orders):
+    regels = model.get_salaris_geboekt_regels(jaar, orders=orders)
     regelsGeboekt = RegelList(regels)
 
-    regels = model.get_salaris_begroot_regels(jaar)
+    regels = model.get_salaris_begroot_regels(jaar, orders=orders)
     regelsBegroot = RegelList(regels)
 
-    return regelsGeboekt, regelsBegroot
+    regels = model.get_obligos_regels(jaar, orders=orders, kostensoorten=[411101])
+    regelsObligos = RegelList(regels)
+
+    return regelsGeboekt, regelsBegroot, regelsObligos
 
 def correlate_personeelsnummers(regelsBegroot, regelsGeboekt):
 # Cross personeelsnummers begroting -> boekingsnummers

@@ -1,3 +1,6 @@
+"""
+TODO
+"""
 class Regel():
 
 
@@ -19,6 +22,10 @@ class Regel():
         self.personeelsnaam = None
         self.schaal = None
         self.trede = None
+
+        #specific for obligo
+        self.omschrijving = None
+        self.documentnummer = None
 
 
     def druk_af(self):
