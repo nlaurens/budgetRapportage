@@ -201,23 +201,21 @@ def parse_empty_order(render, order, regelList):
     html_table = render.salaris_table_order(orderRows, header)
     return html_table, totalOrderBegroot
 
-def table_html(render, jaar):
-    regelsGeboekt, regelsBegroot = get_begroting_geboekt(jaar)
-    matchpersoneelsnummers, noMatchPerOrder = correlate_personeelsnummers(regelsBegroot, regelsGeboekt)
 
-#TODO DUMMY
-    laatstePeriodeGeboekt = 10
+def table_html(render, regelsGeboekt, regelsBegroot, matchpersoneelsnummers, noMatchPerOrder, laatstePeriodeGeboekt):
 
     # Parse all orders & begrote kosten:
     kostenDict = regelsGeboekt.split_by_regel_attributes(['order', 'personeelsnummer'])
     totalBegroot = 0
     totalGeboekt = 0
     parsed_orders = []
+    i = 0
     for order in kostenDict.keys():
         html_order, totalOrderBegroot, totalOrderGeboekt = parse_order(render, order, kostenDict, matchpersoneelsnummers, noMatchPerOrder, laatstePeriodeGeboekt)
         totalBegroot += totalOrderBegroot
         totalGeboekt += totalOrderGeboekt
         parsed_orders.append(html_order)
+        i+=1
 
     # Begroot maar geen kosten/realisatie:
     empty_orders = []
@@ -234,17 +232,31 @@ def settings_html(render, jaar):
     lastupdate = '2'
     return render.report_settings(lastupdate, buttons, form)
 
+def java_scripts(render, regelsGeboekt, regelsBegroot):
+    ordersGeboekt = regelsGeboekt.split_by_regel_attributes(['order']).keys()
+    ordersBegroot = regelsBegroot.split_by_regel_attributes(['order']).keys()
+    print type(ordersGeboekt)
+    orders = set(ordersGeboekt + ordersBegroot)
+
+    return render.salaris_javascripts(orders)
+
 def groep_report(userID, render, groepstr, jaar):
     global userHash 
     userHash = userID
 
-    body = table_html(render, jaar)
+    regelsGeboekt, regelsBegroot = get_begroting_geboekt(jaar)
+    matchpersoneelsnummers, noMatchPerOrder = correlate_personeelsnummers(regelsBegroot, regelsGeboekt)
+    laatstePeriodeGeboekt = 10 #TODO DUMMY
+
+    body = table_html(render, regelsGeboekt, regelsBegroot, matchpersoneelsnummers, noMatchPerOrder, laatstePeriodeGeboekt)
     settings = settings_html(render, jaar)
+    javaScripts = java_scripts(render, regelsGeboekt, regelsBegroot)
 
     report = {}
     report['settings'] = settings
     report['summary'] = "TODO Summary"
     report['body'] = body
+    report['javaScripts'] = javaScripts
     return report
 
 
