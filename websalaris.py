@@ -1,7 +1,5 @@
 """
 TODO
-    * Change glyph on collapse:
-        http://www.bootply.com/73101
     * Collapse/Expand orders
     * Laats geboekte periode kopppelen aan model.regels (nu nog een dummy)
 """
@@ -235,7 +233,6 @@ def settings_html(render, jaar):
 def java_scripts(render, regelsGeboekt, regelsBegroot):
     ordersGeboekt = regelsGeboekt.split_by_regel_attributes(['order']).keys()
     ordersBegroot = regelsBegroot.split_by_regel_attributes(['order']).keys()
-    print type(ordersGeboekt)
     orders = set(ordersGeboekt + ordersBegroot)
 
     return render.salaris_javascripts(orders)

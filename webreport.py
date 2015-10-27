@@ -1,7 +1,6 @@
 """
 TODO
-    * Change glyph on collapse:
-        http://www.bootply.com/73101
+    * Change glyph on collapse like in websalaris!
     * Collapse/Expand orders
 """
 import web
