@@ -160,14 +160,12 @@ def table_html(render, HRregels, matchpersoneelsnummers, noMatchPerOrder):
     total['geboekt'] = 0
     total['obligo'] = 0
     parsed_orders = []
-    i = 0
     for order in kostenDict.keys():
         html_order, totalOrder = parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, noMatchPerOrder)
         total['begroot'] += totalOrder['begroot']
         total['geboekt'] += totalOrder['geboekt']
         total['obligo'] += totalOrder['obligo']
         parsed_orders.append(html_order)
-        i+=1
 
     # Begroot maar geen kosten
     empty_orders = []
