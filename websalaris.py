@@ -109,7 +109,7 @@ def parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, n
     header['id'] = order
     header['userHash'] = userHash
     header['img'] = '../static/figs/TODO.png'
-    header['name'] = order
+    header['name'] = ordernaam + ' - ' + str(order)
     header['ordernaam'] = ordernaam
     header['begroot'] = table_string(totalOrder['begroot'])
     header['geboekt'] = table_string(totalOrder['geboekt'])
