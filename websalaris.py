@@ -27,7 +27,7 @@ def personeel_regel_to_html(row, render):
     html['personeelsnummer'] = row['personeelsnummer']
     html['name'] = row['naam']
     html['begroot'] = table_string(row['begroot'])
-    html['realisatie'] =  table_string(row['realisatie'])
+    html['geboekt'] =  table_string(row['geboekt'])
     html['resultaat'] = table_string(row['resultaat'])
     html['resultaat_perc'] = '%.f' % row['resultaat_perc'] + '%'
     html['td_class'] = row['td_class']
@@ -41,7 +41,6 @@ def parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, n
     totalOrder['geboekt'] = 0
     totalOrder['begroot'] = 0
     totalOrder['resultaat'] = 0
-    totalOrder['realisatie'] = 0
     totalOrder['obligo'] = 0
 
 
@@ -63,15 +62,15 @@ def parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, n
         row['naam'] = naamGeboekt
         row['resultaat_perc'] = 0
         row['begroot'] = begroot
-        row['realisatie'] = geboekt
+        row['geboekt'] = geboekt
         row['resultaat'] = float(begroot) - geboekt
         row['td_class'] = 'danger'
         if naamBegroot != '':
             row['naam'] = naamBegroot
-            row['resultaat_perc'] = (row['realisatie'] / float(begroot)) * 100
+            row['resultaat_perc'] = (row['geboekt'] / float(begroot)) * 100
             row['td_class'] = 'success'
 
-        totalOrder['realisatie'] +=  row['realisatie']
+        totalOrder['geboekt'] +=  row['geboekt']
         totalOrder['begroot'] +=  row['begroot']
         totalOrder['resultaat'] += row['resultaat']
         orderRows.append(personeel_regel_to_html(row, render))
@@ -84,7 +83,7 @@ def parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, n
             row['personeelsnummer'] = regel.personeelsnummer
             row['naam'] = regel.personeelsnaam
             row['begroot'] = regel.kosten
-            row['realisatie'] = 0
+            row['geboekt'] = 0
             row['resultaat'] = regel.kosten
             row['resultaat_perc'] = 0
             row['td_class'] = 'danger'
@@ -99,7 +98,7 @@ def parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, n
                 row['personeelsnummer'] = 'Obligos'
                 row['naam'] = regel.omschrijving
                 row['begroot'] = 0
-                row['realisatie'] = regel.kosten
+                row['geboekt'] = regel.kosten
                 row['resultaat'] = - regel.kosten
                 row['resultaat_perc'] = 0
                 row['td_class'] = ''
@@ -113,7 +112,7 @@ def parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, n
     header['name'] = order
     header['ordernaam'] = ordernaam
     header['begroot'] = table_string(totalOrder['begroot'])
-    header['realisatie'] = table_string(totalOrder['realisatie'])
+    header['geboekt'] = table_string(totalOrder['geboekt'])
     header['obligo'] = table_string(totalOrder['obligo'])
     header['resultaat'] = table_string(totalOrder['resultaat'])
     html_table = render.salaris_table_order(orderRows, header)
@@ -128,7 +127,7 @@ def parse_empty_order(render, order, regelList):
         row['personeelsnummer'] = regel.personeelsnummer
         row['naam'] = regel.personeelsnaam
         row['begroot'] = regel.kosten
-        row['realisatie'] = 0
+        row['geboekt'] = 0
         row['obligo'] = 0
         row['resultaat'] = regel.kosten
         row['resultaat_perc'] = 0
@@ -143,7 +142,7 @@ def parse_empty_order(render, order, regelList):
     header['name'] = order
     header['ordernaam'] = 'todo order naam'
     header['begroot'] = table_string(totalOrderBegroot)
-    header['realisatie'] = table_string(0)
+    header['geboekt'] = table_string(0)
     header['obligo'] = 0
     header['resultaat'] = table_string(-totalOrderBegroot)
     html_table = render.salaris_table_order(orderRows, header)
@@ -168,7 +167,7 @@ def table_html(render, HRregels, matchpersoneelsnummers, noMatchPerOrder):
         parsed_orders.append(html_order)
         i+=1
 
-    # Begroot maar geen kosten/realisatie:
+    # Begroot maar geen kosten
     empty_orders = []
     for order, regelList in noMatchPerOrder.iteritems():
         html_order, totalOrderBegroot = parse_empty_order(render, order, regelList)
@@ -190,6 +189,21 @@ def java_scripts(render, regelsGeboekt, regelsBegroot):
 
     return render.salaris_javascripts(orders)
 
+
+def get_summary(render,totals):
+    kosten = float(totals['geboekt']) + float(totals['obligo'])
+    resultaat = float(totals['begroot']) - kosten
+
+    html = {}
+    html['begroot'] = table_string(totals['begroot'])
+    html['geboekt'] = table_string(totals['geboekt'])
+    html['obligo'] = table_string(totals['obligo'])
+    html['resultaat'] = table_string(resultaat)
+    html['totaalkosten'] = table_string(kosten)
+
+    return render.salaris_summary(html)
+
+
 def groep_report(userID, render, groepstr, jaar):
     global userHash
     userHash = userID
@@ -202,10 +216,11 @@ def groep_report(userID, render, groepstr, jaar):
     body, totals = table_html(render, HRregels, matchpersoneelsnummers, noMatchPerOrder)
     settings = settings_html(render, jaar)
     javaScripts = java_scripts(render, HRregels['geboekt'], HRregels['begroot'])
+    summary = get_summary(render, totals)
 
     report = {}
     report['settings'] = settings
-    report['summary'] = "TODO Summary"
+    report['summary'] = summary
     report['body'] = body
     report['javaScripts'] = javaScripts
     return report
