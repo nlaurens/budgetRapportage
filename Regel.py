@@ -28,11 +28,11 @@ class Regel():
         self.documentnummer = None
 
 
-    def druk_af(self):
-        print self.order
-        print self.kostensoort
-        print self.kosten
-        print self.omschrijving
+    def drukAf(self):
+        for attribute, value in vars(self).iteritems():
+            print attribute 
+            print value
+            print ''
 
 
     def copy(self):
