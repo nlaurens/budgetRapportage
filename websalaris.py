@@ -1,9 +1,7 @@
 """
 TODO
-    * Laats geboekte periode kopppelen aan model.regels (nu nog een dummy)
-    * Naam order ook laten zien als je hem open klapt.
-    * Plaatjes koppelen
-    * inzoom knopje -> koppelen aan 'view' van een order.
+    * Naam order uit andere db halen, salaris geeft korte namen.. (kostensoort groep?)
+    * Plaatjes maken/koppelen
     * Summary van alle totalen maken (totalOrderGeboekt, etc opvangen uit html_table)
     * alle casting van kosten float(begroting) etc. omzetten naar de regel.py import_from_db_select()
 """
