@@ -6,6 +6,7 @@ TODO
     * alle casting van kosten float(begroting) etc. omzetten naar de regel.py import_from_db_select()
     * Collapse/open all volgens: 
         http://stackoverflow.com/questions/20347553/bootstrap-3-collapse-accordion-collapse-all-works-but-then-cannot-expand-all-wh
+    * Obligos salarissen ECHT uit systeem halen (kan! ipv de HR-obligos per order!)
 """
 import web
 from config import config
