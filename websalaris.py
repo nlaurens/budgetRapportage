@@ -46,8 +46,10 @@ def parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, n
     totalOrder['realisatie'] = 0
     totalOrder['obligo'] = 0
 
+
     #Geboekte kosten + eventueel begroting
     for personeelsnummer, regelsGeboekt in kostenDict[order].iteritems():
+        ordernaam = regelsGeboekt.regels[0].ordernaam
         naamGeboekt = regelsGeboekt.regels[0].personeelsnaam
         geboekt = regelsGeboekt.total()
 
@@ -111,6 +113,7 @@ def parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, n
     header['userHash'] = userHash
     header['img'] = '../static/figs/TODO.png'
     header['name'] = order
+    header['ordernaam'] = ordernaam
     header['begroot'] = table_string(totalOrder['begroot'])
     header['realisatie'] = table_string(totalOrder['realisatie'])
     header['obligo'] = table_string(totalOrder['obligo'])
@@ -140,6 +143,7 @@ def parse_empty_order(render, order, regelList):
     header['userHash'] = userHash
     header['img'] = '../static/figs/TODO.png'
     header['name'] = order
+    header['ordernaam'] = 'todo order naam'
     header['begroot'] = table_string(totalOrderBegroot)
     header['realisatie'] = table_string(0)
     header['obligo'] = 0
