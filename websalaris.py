@@ -179,10 +179,9 @@ def table_html(render, HRregels, matchpersoneelsnummers, noMatchPerOrder):
     return render.salaris_body(parsed_orders, empty_orders), total
 
 def settings_html(render, jaar):
-    form = 'FORM met daarin jaar'
-    buttons = 'BUTTON'
-    lastupdate = '2'
-    return render.salaris_settings(lastupdate, buttons, form)
+    form = 'todo form met optie'
+    lastupdate = config['lastSAPexport']
+    return render.salaris_settings(lastupdate, form)
 
 def java_scripts(render, regelsGeboekt, regelsBegroot):
     ordersGeboekt = regelsGeboekt.split_by_regel_attributes(['order']).keys()
