@@ -32,9 +32,7 @@ def personeel_regel_to_html(row, render):
     html['realisatie'] =  table_string(row['realisatie'])
     html['resultaat'] = table_string(row['resultaat'])
     html['resultaat_perc'] = '%.f' % row['resultaat_perc'] + '%'
-    html['td_class'] = 'success'
-    if row['td_class']:
-        html['td_class'] = row['td_class']
+    html['td_class'] = row['td_class']
     return render.salaris_personeel_regel(html)
 
 
@@ -67,11 +65,11 @@ def parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, n
         row['begroot'] = begroot
         row['realisatie'] = geboekt
         row['resultaat'] = float(begroot) - geboekt
-        row['td_class'] = ''
+        row['td_class'] = 'danger'
         if naamBegroot != '':
             row['naam'] = naamBegroot
             row['resultaat_perc'] = (row['realisatie'] / float(begroot)) * 100
-            row['td_class'] = 'danger'
+            row['td_class'] = 'success'
 
         totalOrder['realisatie'] +=  row['realisatie']
         totalOrder['begroot'] +=  row['begroot']
@@ -102,7 +100,7 @@ def parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, n
                 row['naam'] = regel.omschrijving
                 row['begroot'] = 0
                 row['realisatie'] = regel.kosten
-                row['resultaat'] = regel.kosten
+                row['resultaat'] = - regel.kosten
                 row['resultaat_perc'] = 0
                 row['td_class'] = ''
                 orderRows.append(personeel_regel_to_html(row, render))
@@ -111,7 +109,7 @@ def parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, n
     header = {}
     header['id'] = order
     header['userHash'] = userHash
-    header['img'] = 'link to img'
+    header['img'] = '../static/figs/TODO.png'
     header['name'] = order
     header['begroot'] = table_string(totalOrder['begroot'])
     header['realisatie'] = table_string(totalOrder['realisatie'])
@@ -133,19 +131,19 @@ def parse_empty_order(render, order, regelList):
         row['obligo'] = 0
         row['resultaat'] = regel.kosten
         row['resultaat_perc'] = 0
-        row['td_class'] = ''
+        row['td_class'] = 'danger'
         orderRows.append(personeel_regel_to_html(row, render))
         totalOrderBegroot += regel.kosten
 
     header = {}
     header['id'] = order
     header['userHash'] = userHash
-    header['img'] = 'link to img'
+    header['img'] = '../static/figs/TODO.png'
     header['name'] = order
     header['begroot'] = table_string(totalOrderBegroot)
     header['realisatie'] = table_string(0)
     header['obligo'] = 0
-    header['resultaat'] = 'TODO'
+    header['resultaat'] = table_string(-totalOrderBegroot)
     html_table = render.salaris_table_order(orderRows, header)
     return html_table, totalOrderBegroot
 
