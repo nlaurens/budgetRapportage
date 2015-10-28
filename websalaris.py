@@ -4,6 +4,8 @@ TODO
     * Plaatjes maken/koppelen
     * Summary van alle totalen maken (totalOrderGeboekt, etc opvangen uit html_table)
     * alle casting van kosten float(begroting) etc. omzetten naar de regel.py import_from_db_select()
+    * Collapse/open all volgens: 
+        http://stackoverflow.com/questions/20347553/bootstrap-3-collapse-accordion-collapse-all-works-but-then-cannot-expand-all-wh
 """
 import web
 from config import config
@@ -180,7 +182,7 @@ def settings_html(render, jaar):
     form = 'FORM met daarin jaar'
     buttons = 'BUTTON'
     lastupdate = '2'
-    return render.report_settings(lastupdate, buttons, form)
+    return render.salaris_settings(lastupdate, buttons, form)
 
 def java_scripts(render, regelsGeboekt, regelsBegroot):
     ordersGeboekt = regelsGeboekt.split_by_regel_attributes(['order']).keys()
