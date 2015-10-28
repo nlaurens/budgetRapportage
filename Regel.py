@@ -49,6 +49,8 @@ class Regel():
     # Delete all remaining 'None' attributes to make sure Python gives
     # an error when using an attribute that is not loaded/set.
     def import_from_db_select(self, dbRegel, tiepe, config):
+        self.tiepe = tiepe
+
         for attribute in vars(self):
             try:
                 dbValue = dbRegel[config["SAPkeys"][tiepe][attribute]]
