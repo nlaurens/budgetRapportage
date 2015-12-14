@@ -2,6 +2,7 @@
 TODO
     * Change glyph on collapse like in websalaris!
     * Collapse/Expand orders
+    * Use the new model db system. Load all regels from db once. Select afterwards.
 """
 import web
 from config import config
@@ -174,6 +175,18 @@ def settings_html(root, render, jaar):
     lastupdate = '2'
     return render.report_settings(lastupdate, buttons, form)
 
+
+def java_scripts(render, root):
+#def java_scripts(render, regelsGeboekt, regelsBegroot):
+    #ordersGeboekt = regelsGeboekt.split_by_regel_attributes(['order']).keys()
+    #ordersBegroot = regelsBegroot.split_by_regel_attributes(['order']).keys()
+    #orders = set(ordersGeboekt + ordersBegroot)
+
+    orders = root.list_orders_recursive()
+
+    return render.salaris_javascripts(orders)
+
+
 def groep_report(userID, render, groepstr, jaar):
     global userHash 
     userHash = userID
@@ -187,10 +200,13 @@ def groep_report(userID, render, groepstr, jaar):
     body = table_html(root, render, jaar)
     figs = fig_html(root, render, jaar)
     settings = settings_html(root, render, jaar)
+    #javaScripts = java_scripts(render, HRregels['geboekt'], HRregels['begroot']) <- should be used in new db system
+    javaScripts = java_scripts(render, root)
 
     report = {}
     report['settings'] = settings
     report['figpage'] = figs
     report['summary'] = "<a href='../static/figs/"+str(jaar)+"-detailed/1-" + groepstr + ".png' target='_blank'><img class='img-responsive' src='../static/figs/"+str(jaar)+"-detailed/1-"+groepstr+".png'></a>"
     report['body'] = body
+    report['javaScripts'] = javaScripts
     return report
