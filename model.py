@@ -238,13 +238,13 @@ def geboekt_db_2_regel(geboektdb):
         regel = Regel()
         regel.tiepe = "Geboekt"
         regel.order = regelDB[config["SAPkeys"]["geboekt"]["order"]]
-        regel.kostensoort = regelDB[config["SAPkeys"]["geboekt"]["ks"]]
-        regel.naamkostensoort = regelDB[config["SAPkeys"]["geboekt"]["ks-naam"]]
+        regel.kostensoort = regelDB[config["SAPkeys"]["geboekt"]["kostensoort"]]
+        regel.naamkostensoort = regelDB[config["SAPkeys"]["geboekt"]["kostensoortnaam"]]
         regel.kosten = float(regelDB[config["SAPkeys"]["geboekt"]["kosten"]].replace(',',''))
         regel.jaar = regelDB[config["SAPkeys"]["geboekt"]["jaar"]]
         regel.periode = regelDB[config["SAPkeys"]["geboekt"]["periode"]]
-        regel.omschrijving = regelDB[config["SAPkeys"]["geboekt"]["descr"]]
-        regel.documentnummer = regelDB[config["SAPkeys"]["geboekt"]["doc.nr."]]
+        regel.omschrijving = regelDB[config["SAPkeys"]["geboekt"]["omschrijving"]]
+        regel.documentnummer = regelDB[config["SAPkeys"]["geboekt"]["documentnummer"]]
         if regel.kostensoort in geboekt:
             geboekt[regel.kostensoort].append(regel)
         else:
