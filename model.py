@@ -23,6 +23,84 @@ TODO
 """
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"], host=config["mysql"]["host"])
 
+###########################################################
+# OLD functions, should be removed later by using the 2db functions
+
+# Returns a list of boekingsRegel from the obligo table
+def get_obligos(jaar, periodes=[], order=0, kostensoorten=[]):
+    sqlwhere = '1'
+    if order > 0:
+        sqlwhere = '`Order`=$order'
+
+    if kostensoorten:
+        if sqlwhere == '1':
+            sqlwhere = '`Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+        else:
+            sqlwhere += ' AND `Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+
+    if sqlwhere == '1':
+        sqlwhere = ' AND `Boekjaar` = $jaar'
+    else:
+        sqlwhere += ' AND `Boekjaar` = $jaar'
+
+    if periodes:
+        sqlwhere += ' AND `Periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
+
+    try:
+        obligodb = db.select('obligo', where=sqlwhere, vars=locals())
+    except IndexError:
+        return None
+
+    return obligo_db_2_regels(obligodb)
+
+# Returns a dict containing a list of regels at key kostensoort
+# ie. obligos['kostensoort'] = [ <regel>, <regel>, .. ]
+def obligo_db_2_regels(obligodb):
+
+    obligos = {}
+    for regelDB in obligodb:
+        regel = Regel()
+
+        regel.tiepe = 'Obligo'
+        regel.order = regelDB[config["SAPkeys"]["obligo"]["order"]]
+        regel.kostensoort = regelDB[config["SAPkeys"]["obligo"]["kostensoort"]]
+        regel.naamkostensoort = regelDB[config["SAPkeys"]["obligo"]["kostensoortnaam"]]
+        regel.kosten = float(regelDB[config["SAPkeys"]["obligo"]["kosten"]].replace(',',''))
+        regel.jaar = regelDB[config["SAPkeys"]["obligo"]["jaar"]]
+        regel.periode = regelDB[config["SAPkeys"]["obligo"]["periode"]]
+        regel.omschrijving = regelDB[config["SAPkeys"]["obligo"]["omschrijving"]]
+        regel.documentnummer = regelDB[config["SAPkeys"]["obligo"]["documentnummer"]]
+
+#DIRTY HACK for UL.nl SAP inrichting (obligo personeel wordt elke maand aangepast maar altijd op periode 1 gezet)
+        if regel.kostensoort == 411101:
+            digits = [int(s) for s in regel.omschrijving.split() if s.isdigit()]
+            periodeleft = range(digits[-2],digits[-1]+1)
+            bedrag = regel.kosten/len(periodeleft)
+            omschrijving = regel.omschrijving.decode('ascii', 'replace').encode('utf-8')
+            for periode in periodeleft:
+                regelNew = regel.copy()
+                regelNew.omschrijving = omschrijving + '-per. ' + str(periode)
+                regelNew.omschrijving
+                regelNew.periode = periode
+                regelNew.kosten = bedrag
+                if regelNew.kostensoort in obligos:
+                    obligos[regelNew.kostensoort].append(regelNew)
+                else:
+                    obligos[regelNew.kostensoort] = [regelNew]
+        else:
+            if regel.kostensoort in obligos:
+                obligos[regel.kostensoort].append(regel)
+            else:
+                obligos[regel.kostensoort] = [regel]
+
+    return obligos
+
+
+
+
+
+###########################################################
+
 # Gives a list of allowed budgets for that user.
 def get_budgets(verifyHash, salt):
     authorisation = load_auth_list()
