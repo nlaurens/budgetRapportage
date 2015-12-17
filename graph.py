@@ -652,10 +652,10 @@ if __name__ == "__main__":
     params['show_details_flat'] = True
     params['show_details_stack'] = False
     params['show_table'] = True
-    params['show_table_cumsum'] = True
+    params['show_table_cumsum'] = False
     params['detailed'] = True
     params['figpath'] = 'figs/'
-    params['ignore_obligos'] = True
+    params['ignore_obligos'] = False
     jaar = 2015
 
 
