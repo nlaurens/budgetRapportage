@@ -246,6 +246,7 @@ def plan_db_2_regels(db):
         regel = Regel()
 
         regel.tiepe = 'Plan'
+        regel.periode = 0
         regel.order = regelDB[config["SAPkeys"]["plan"]["order"]]
         regel.kostensoort = regelDB[config["SAPkeys"]["plan"]["ks"]]
         regel.naamkostensoort = regelDB[config["SAPkeys"]["plan"]["ks-naam"]]
