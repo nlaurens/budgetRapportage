@@ -1,0 +1,10 @@
+$def with(graphs)
+<table class="table">
+    <tbody>
+    $for graph in graphs:
+        <td><tr>
+        <a href="$:graph['link']"><img src="$:graph['png']" class="img-fluid"></a>
+        </tr></td>
+    </tbody>
+<table>
+

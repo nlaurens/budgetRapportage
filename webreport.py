@@ -136,7 +136,6 @@ def fig_html(root, render, jaar):
             #    graph['spacer'] = '</tr><tr>'
             #else:
             #    graph['spacer'] = ''
-            graph['spacer'] = '</tr><tr>'
             graphs.append(graph)
             i +=1
 
