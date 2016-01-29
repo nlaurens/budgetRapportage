@@ -311,8 +311,8 @@ class Admin:
 
         msg.append('Preparing to process data for table: ' + table)
         xlsx2csv = Xlsx2csv('tmp.xlsx')
-        xlsx2csv.convert('tmp.csv', sheetid=1)
-        if not os.path.isfile('tmp.csv'):
+        xlsx2csv.convert(table + '.csv', sheetid=1)
+        if not os.path.isfile(table+'.csv'):
             msg.append('xlsx to csv convertion failed')
             return render.webadmin_overview(form, msg)
         msg.append('xlsx to csv convertion succes')
@@ -337,7 +337,7 @@ class Admin:
                 fields.append(header)
 
         msg.append('Creating new table using headers')
-        model.create_table(table, fields)
+        #model.create_table(table, fields)
 
         # Fill table from CSV
         # clean up
