@@ -274,7 +274,6 @@ class Upload:
         if 'myfile' in x: 
             pwd, filenamefull = os.path.split(x.myfile.filename)
             filename, extension = os.path.splitext(filenamefull)
-            print extension
             if extension in allowed:
                 fout = open(filedir +'/'+ filenamefull,'wb')
                 fout.write(x.myfile.file.read()) 
