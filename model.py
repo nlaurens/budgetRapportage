@@ -473,3 +473,9 @@ def check_table_exists(table):
         return False
     return True
 
+def move_table(table, target):
+    if not check_table_exists(table):
+        return False
+
+    results = db.query("RENAME TABLE `sap`.`"+table+"` TO `sap`.`"+target+"`;")
+    return True

@@ -39,8 +39,11 @@ import model
 import GrootBoek
 import GrootBoekGroep
 import os
+import datetime
 from config import config
 from functions import moneyfmt, IpBlock
+from xlsx2csv import Xlsx2csv
+import csv
 
 # web-pages
 import webaccess
@@ -279,8 +282,7 @@ class Admin:
     def POST(self):
         form = self.upload_form()
         x = web.input(myfile={})
-        filedir = './data' # change this to the directory you want to store the file in.
-        allowed = ['.txt', '.xlsx', '.xls', '.cvs']
+        allowed = ['.xlsx']
         
         msg = ['Uploading file.']
         succes_upload = False
@@ -288,7 +290,7 @@ class Admin:
             pwd, filenamefull = os.path.split(x.myfile.filename)
             filename, extension = os.path.splitext(filenamefull)
             if extension in allowed:
-                fout = open(filedir +'/'+ filenamefull,'wb')
+                fout = open('tmp.xlsx','wb')
                 fout.write(x.myfile.file.read()) 
                 fout.close() 
                 succes_upload = True
@@ -308,10 +310,30 @@ class Admin:
             return render.webadmin_overview(form, msg)
 
         msg.append('Preparing to process data for table: ' + table)
+        xlsx2csv = Xlsx2csv('tmp.xlsx')
+        xlsx2csv.convert('tmp.csv', sheetid=1)
+        if not os.path.isfile('tmp.csv'):
+            msg.append('xlsx to csv convertion failed')
+            return render.webadmin_overview(form, msg)
+        msg.append('xlsx to csv convertion succes')
 
-        # excel -> csv
-        # extract headers csv
-        # Move old table -> backup
+        table_backup = table + datetime.datetime.now().strftime("%Y%m%d%H%M")
+        msg.append('Rename '+table+' to ' + table_backup)
+        #if not model.move_table(table, table_backup):
+            #msg.append('Renaming table failed!')
+            #return render.webadmin_overview(form, msg)
+        msg.append('Renaming table succes')
+
+        msg.append('Reading headers from CSV')
+        f = open('tmp.csv', 'rb')
+        reader = csv.reader(f)
+        headers = reader.next()
+
+        msg.append('Reading first values from CSV')
+        firstrow = reader.next()
+        print firstrow
+
+        msg.append('Creating new table using headers')
         # Create new table (use csv headers!)
         # Fill table from CSV
         # clean up
