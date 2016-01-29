@@ -267,8 +267,10 @@ class Login:
 class Admin:
     upload_form = web.form.Form(
         web.form.File('myfile'),
+        web.form.Dropdown('Type', [('', ''),('geboekt','Realisatie'), ('obligo','Obligo'), ('plan', 'Begroting Orders'), ('salaris', 'Salarissen'), ('salaris_begroting', 'Begroting Salarissen')]),
         web.form.Button('Upload data'),
         )
+
     def GET(self):
         form = self.upload_form()
         msg = webadmin.checkDB()
@@ -281,6 +283,7 @@ class Admin:
         allowed = ['.txt', '.xlsx', '.xls', '.cvs']
         
         msg = ['Uploading file.']
+        succes_upload = False
         if 'myfile' in x: 
             pwd, filenamefull = os.path.split(x.myfile.filename)
             filename, extension = os.path.splitext(filenamefull)
@@ -288,9 +291,29 @@ class Admin:
                 fout = open(filedir +'/'+ filenamefull,'wb')
                 fout.write(x.myfile.file.read()) 
                 fout.close() 
-                msg.append('upload succes!')
-            else:
-                msg.append('file not allowed')
+                succes_upload = True
+
+        if not succes_upload:
+            msg.append('upload failed!')
+            return render.webadmin_overview(form, msg)
+
+        msg.append('upload succes')
+        table = web.input()['Type']
+        table_allowed = False
+        if table in ['geboekt', 'obligo', 'plan', 'salaris', 'salaris_begroting']:
+            table_allowed = True
+
+        if not table_allowed:
+            msg.append('Type not selected!')
+            return render.webadmin_overview(form, msg)
+
+        msg.append('Preparing to process data for table: ' + table)
+
+        # excel -> csv
+        # extract headers csv
+        # Move old table -> backup
+        # Create new table (use csv headers!)
+        # Fill table from CSV
 
         return render.webadmin_overview(form, msg)
 
