@@ -479,3 +479,12 @@ def move_table(table, target):
 
     results = db.query("RENAME TABLE `sap`.`"+table+"` TO `sap`.`"+target+"`;")
     return True
+
+def create_table(table, fields):
+    fieldsAndType = []
+    for field in fields:
+        sqlType = config["SAPkeys"]["types"][field]
+        fieldsAndType.append('`'+field + '` ' + sqlType)
+
+    sql = "CREATE TABLE " + table + " (" + ', '.join(fieldsAndType) + ");"
+    results = db.query(sql)

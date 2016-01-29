@@ -328,13 +328,17 @@ class Admin:
         f = open('tmp.csv', 'rb')
         reader = csv.reader(f)
         headers = reader.next()
-
-        msg.append('Reading first values from CSV')
-        firstrow = reader.next()
-        print firstrow
+        header_map = {y:x for x,y in config["SAPkeys"][table].iteritems()}
+        fields = []
+        for header in headers:
+            if header in header_map:
+                fields.append(header_map[header])
+            else:
+                fields.append(header)
 
         msg.append('Creating new table using headers')
-        # Create new table (use csv headers!)
+        model.create_table(table, fields)
+
         # Fill table from CSV
         # clean up
 
