@@ -265,15 +265,22 @@ class Login:
         return render.login(form, 'Wrong Password')
 
 class Admin:
+    upload_form = web.form.Form(
+        web.form.File('myfile'),
+        web.form.Button('Upload data'),
+        )
     def GET(self):
-        web.header("Content-Type","text/html; charset=utf-8")
+        form = self.upload_form()
         msg = webadmin.checkDB()
-        return render.webadmin_overview(msg)
+        return render.webadmin_overview(form, msg)
 
     def POST(self):
+        form = self.upload_form()
         x = web.input(myfile={})
         filedir = './data' # change this to the directory you want to store the file in.
         allowed = ['.txt', '.xlsx', '.xls', '.cvs']
+        
+        msg = ['Uploading file.']
         if 'myfile' in x: 
             pwd, filenamefull = os.path.split(x.myfile.filename)
             filename, extension = os.path.splitext(filenamefull)
@@ -281,9 +288,11 @@ class Admin:
                 fout = open(filedir +'/'+ filenamefull,'wb')
                 fout.write(x.myfile.file.read()) 
                 fout.close() 
+                msg.append('upload succes!')
+            else:
+                msg.append('file not allowed')
 
-        msg = ['TODO UPLOAD NAAR APARTE FORM/CLASS']
-        return render.webadmin_overview(msg)
+        return render.webadmin_overview(form, msg)
 
 
 class Logout:
