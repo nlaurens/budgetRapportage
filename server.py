@@ -261,6 +261,28 @@ class Login:
 
         return render.login(form, 'Wrong Password')
 
+class Upload:
+
+    def GET(self):
+        web.header("Content-Type","text/html; charset=utf-8")
+        return render.upload()
+
+    def POST(self):
+        x = web.input(myfile={})
+        filedir = './data' # change this to the directory you want to store the file in.
+        allowed = ['.txt', '.xlsx', '.xls', '.cvs']
+        if 'myfile' in x: 
+            pwd, filenamefull = os.path.split(x.myfile.filename)
+            filename, extension = os.path.splitext(filenamefull)
+            print extension
+            if extension in allowed:
+                fout = open(filedir +'/'+ filenamefull,'wb')
+                fout.write(x.myfile.file.read()) 
+                fout.close() 
+
+        return render.upload()
+
+
 class Logout:
     def __init__(self):
         pass
@@ -278,6 +300,7 @@ urls = (
     '/logout', 'Logout',
     '/report/(.+)', 'Report',
     '/salaris/(.+)', 'Salaris',
+    '/upload', 'Upload',
 )
 
 ### Templates
