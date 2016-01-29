@@ -1,6 +1,10 @@
-$def with()
+$def with(msg)
 
 <html><head></head><body>
+
+$for line in msg:
+    $line<BR>
+<HR>
 <form method="POST" enctype="multipart/form-data" action="">
 <input type="file" name="myfile" />
 <br/>

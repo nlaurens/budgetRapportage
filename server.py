@@ -41,9 +41,12 @@ import GrootBoekGroep
 import os
 from config import config
 from functions import moneyfmt, IpBlock
+
+# web-pages
 import webaccess
 import webreport
 import websalaris
+import webadmin
 
 
 class Index:
@@ -261,11 +264,11 @@ class Login:
 
         return render.login(form, 'Wrong Password')
 
-class Upload:
-
+class Admin:
     def GET(self):
         web.header("Content-Type","text/html; charset=utf-8")
-        return render.upload()
+        msg = webadmin.checkDB()
+        return render.webadmin_overview(msg)
 
     def POST(self):
         x = web.input(myfile={})
@@ -279,7 +282,8 @@ class Upload:
                 fout.write(x.myfile.file.read()) 
                 fout.close() 
 
-        return render.upload()
+        msg = ['TODO UPLOAD NAAR APARTE FORM/CLASS']
+        return render.webadmin_overview(msg)
 
 
 class Logout:
@@ -299,7 +303,7 @@ urls = (
     '/logout', 'Logout',
     '/report/(.+)', 'Report',
     '/salaris/(.+)', 'Salaris',
-    '/upload', 'Upload',
+    '/admin', 'Admin',
 )
 
 ### Templates

@@ -465,3 +465,11 @@ def db_2_regels(dbSelect, tiepe):
         regels.append(regel)
 
     return regels
+
+# Checks if all tables exist:
+def check_table_exists(table):
+    results = db.query("SHOW TABLES LIKE '"+table+"'")
+    if len(results) == 0:
+        return False
+    return True
+
