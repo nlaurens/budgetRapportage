@@ -314,6 +314,7 @@ class Admin:
         # Move old table -> backup
         # Create new table (use csv headers!)
         # Fill table from CSV
+        # clean up
 
         return render.webadmin_overview(form, msg)
 
