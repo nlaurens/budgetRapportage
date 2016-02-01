@@ -410,13 +410,13 @@ def get_prognose_regels(jaar='', order=''):
 def get_salaris_geboekt_regels(jaar, periodes=[], orders=[], kostensoorten=[]):
     sqlwhere = '1'
     if orders:
-        sqlwhere = '`'+config["SAPkeys"]["salaris"]["order"]+'` IN (' + ','.join(str(order) for order in orders) + ')'
+        sqlwhere = '`order` IN (' + ','.join(str(order) for order in orders) + ')'
 
     if kostensoorten:
         if sqlwhere == '1':
-            sqlwhere = '`'+config["SAPkeys"]["salaris"]["ks"]+'` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+            sqlwhere = '`kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
         else:
-            sqlwhere += ' AND `'+config["SAPkeys"]["salaris"]["ks"]+'` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+            sqlwhere += ' AND `kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
 
 #TODO jaar en periode zitten niet in de db. Wel de datum. Slimme query schrijven die dit oppakt.
     #if sqlwhere == '1':
@@ -434,9 +434,6 @@ def get_salaris_geboekt_regels(jaar, periodes=[], orders=[], kostensoorten=[]):
 
     regels = db_2_regels(salarisdb, 'salaris')
 
-    # convert kosten from unicode to realnumber:
-    for regel in regels:
-        regel.kosten = float(regel.kosten.replace(',',''))
     return regels
 
 
@@ -461,7 +458,7 @@ def db_2_regels(dbSelect, tiepe):
     regels = []
     for dbRegel in dbSelect:
         regel = Regel()
-        regel.import_from_db_select(dbRegel, tiepe, config)
+        regel.import_from_db_select(dbRegel, tiepe)
         regels.append(regel)
 
     return regels
