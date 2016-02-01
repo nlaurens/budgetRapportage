@@ -1,12 +1,12 @@
 config = {
     "IpRanges": '127.0.0.0 127.255.255.255 10.0.0.1 10.255.255.255',
-    "globalPW": '<PASSWORD>',
+    "globalPW": '<INSERT>',
     "lastSAPexport": '15 Sep 2015',
-    "salt": '<UNIQUE SALT>',
+    "salt": '<INSERT>',
     "mysql": {
-        "user": "<USER NAME>",
-        "pass": "<PASSWORD>",
-        "db": "<DB NAME>",
+        "user": "<INSERT>",
+        "pass": "<INSERT>",
+        "db": "<INSERT>",
         "host": ""
     },
     "SAPkeys": {
@@ -20,6 +20,11 @@ config = {
             "omschrijving": "varchar(255)",
             "documentnummer": "int",
             "invoerdatum": "varchar(255)",
+            "personeelsnummer": "int",
+            "personeelsnaam": "varchar(255)",
+            "schaal": "varchar(255)",
+            "trede": "int",
+            "ordernaam": "varchar(255)",
         },
         "geboekt":{
             "order": "Order",
@@ -51,23 +56,24 @@ config = {
             "kosten": "Totaalwrd./vslg.val.",
         },
         "salaris":{
+            "personeelsnummer": "PersNr",
+            "personeelsnaam": "Naam",
+            "schaal": "Schaal",
+            "trede": "Tr.",
             "order": "Kostenpl.",
             "ordernaam": "Omschr. Kost.pl.",
             "kostensoort": "Gr.boek",
             "kostensoortnaam": "omschr.g.boekrek.",
             "kosten": "Bedrag",
-            "personeelsnummer": "PersNr",
-            "personeelsnaam": "Naam",
-            "schaal": "Schaal",
-            "trede": "Tr.",
+            "invoerdatum": "Begda afr.",
         },
         "salaris_begroting":{
-            "order": "Order",
-            "kosten": "Kosten",
             "personeelsnummer": "Personeelsnummer",
             "personeelsnaam": "Naam",
-            "schaal": "Schaal",
             "trede": "Trede",
+            "order": "Order",
+            "schaal": "Schaal",
+            "kosten": "Kosten",
         },
     }
 }
