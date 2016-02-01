@@ -374,7 +374,7 @@ def loadKSgroepen():
 # Returns all the plan cost for an order:
 def get_plan_totaal(jaar, order):
     plan = 0
-    sqlwhere = '`Order`=$order AND `Boekjaar`=$jaar'
+    sqlwhere = '`order`=$order AND `jaar`=$jaar'
     plandb = db.select('plan', where=sqlwhere, vars=locals())
     for regelDB in plandb:
         plan += float(regelDB[config["SAPkeys"]["plan"]["kosten"]].replace(',',''))
