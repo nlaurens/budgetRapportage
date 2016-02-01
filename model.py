@@ -466,7 +466,7 @@ def db_2_regels(dbSelect, tiepe):
 
     return regels
 
-# Checks if all tables exist:
+# Checks if all tables exist: def check_table_exists(table):
 def check_table_exists(table):
     results = db.query("SHOW TABLES LIKE '"+table+"'")
     if len(results) == 0:
@@ -480,6 +480,7 @@ def move_table(table, target):
     results = db.query("RENAME TABLE `sap`.`"+table+"` TO `sap`.`"+target+"`;")
     return True
 
+### SQL INJECTION POSSIBLE.. STRIP/VALUES FOR VALUES!
 def create_table(table, fields):
     fieldsAndType = []
     for field in fields:
@@ -488,3 +489,10 @@ def create_table(table, fields):
 
     sql = "CREATE TABLE " + table + " (" + ', '.join(fieldsAndType) + ");"
     results = db.query(sql)
+
+def insert_into_table(table, rows):
+
+    for row in rows:
+        sqlVars = {}
+        sqlVars['VALUES'] = row
+        result = db.query("INSERT INTO "+table+" VALUES $VALUES;", vars=sqlVars)
