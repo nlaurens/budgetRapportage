@@ -4,7 +4,7 @@ TODO
     * Plaatjes maken/koppelen
     * Summary van alle totalen maken (totalOrderGeboekt, etc opvangen uit html_table)
     * alle casting van kosten float(begroting) etc. omzetten naar de regel.py import_from_db_select()
-    * Collapse/open all volgens: 
+    * Collapse/open all volgens:
         http://stackoverflow.com/questions/20347553/bootstrap-3-collapse-accordion-collapse-all-works-but-then-cannot-expand-all-wh
     * Obligos salarissen ECHT uit systeem halen (kan! ipv de HR-obligos per order!)
 """
@@ -260,7 +260,8 @@ def correlate_personeelsnummers(regelsBegroot, regelsGeboekt):
     matchpersoneelsnummers = {} # personeelsnummer in kosten: { regels begroot}
     noMatchPerOrder = {} # order : {regelList met regels}
     for begrootpersoneelsnummer, begrootRegelsList in begroot.iteritems():
-        begrootpersoneelsnummer = list(begrootpersoneelsnummer.strip())
+        print
+        begrootpersoneelsnummer = int(begrootpersoneelsnummer)
 
         if begrootpersoneelsnummer:
             matchfound = False
