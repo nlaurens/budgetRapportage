@@ -62,14 +62,14 @@ def obligo_db_2_regels(obligodb):
         regel = Regel()
 
         regel.tiepe = 'Obligo'
-        regel.order = regelDB[config["SAPkeys"]["obligo"]["order"]]
-        regel.kostensoort = regelDB[config["SAPkeys"]["obligo"]["kostensoort"]]
-        regel.naamkostensoort = regelDB[config["SAPkeys"]["obligo"]["kostensoortnaam"]]
-        regel.kosten = float(regelDB[config["SAPkeys"]["obligo"]["kosten"]].replace(',',''))
-        regel.jaar = regelDB[config["SAPkeys"]["obligo"]["jaar"]]
-        regel.periode = regelDB[config["SAPkeys"]["obligo"]["periode"]]
-        regel.omschrijving = regelDB[config["SAPkeys"]["obligo"]["omschrijving"]]
-        regel.documentnummer = regelDB[config["SAPkeys"]["obligo"]["documentnummer"]]
+        regel.order = regelDB['order']
+        regel.kostensoort = regelDB['kostensoort']
+        regel.naamkostensoort = regelDB['kostensoortnaam']
+        regel.kosten = regelDB['kosten']
+        regel.jaar = regelDB['jaar']
+        regel.periode = regelDB['periode']
+        regel.omschrijving = regelDB['omschrijving']
+        regel.documentnummer = regelDB['documentnummer']
 
 #DIRTY HACK for UL.nl SAP inrichting (obligo personeel wordt elke maand aangepast maar altijd op periode 1 gezet)
         if regel.kostensoort == 411101:
