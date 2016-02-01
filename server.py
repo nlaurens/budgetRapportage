@@ -342,6 +342,8 @@ class Admin:
                 return render.webadmin_overview(form, msg)
 
 #TODO CHECK IF ALL REQUIRED HEADERS ARE THERE!!!!
+        for attribute in config["SAPkeys"][tablel].iteritems():
+            print attribute
 
 TODO SCHRIJF DIT
 
