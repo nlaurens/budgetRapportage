@@ -335,25 +335,25 @@ def geboekt_db_2_regel(geboektdb):
 # Returns a tuple of all kostensoorten and their names in order:
 def get_kosten_soorten(order=0):
     if order == 0:
-        geboektdb = db.query("SELECT DISTINCT(`Kostensoort`), `Naam v. kostensoort` FROM `geboekt`")
-        obligodb = db.query("SELECT DISTINCT(`Kostensoort`), `Naam v. kostensoort` FROM `obligo`")
-        plandb = db.query("SELECT DISTINCT(`Kostensoort`), `Naam v. kostensoort` FROM `plan`")
+        geboektdb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `geboekt`")
+        obligodb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `obligo`")
+        plandb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `plan`")
     else:
-        geboektdb = db.query("SELECT DISTINCT(`Kostensoort`), `Naam v. kostensoort` FROM `geboekt` WHERE `order`=" + str(order))
-        obligodb = db.query("SELECT DISTINCT(`Kostensoort`), `Naam v. kostensoort` FROM `obligo` WHERE `order`=" + str(order))
-        plandb = db.query("SELECT DISTINCT(`Kostensoort`), `Naam v. kostensoort` FROM `plan` WHERE `order`=" + str(order))
+        geboektdb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `geboekt` WHERE `order`=" + str(order))
+        obligodb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `obligo` WHERE `order`=" + str(order))
+        plandb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `plan` WHERE `order`=" + str(order))
 
     geboektks = {}
     for regel in geboektdb:
-        geboektks[regel['Kostensoort']] = regel['Naam v. kostensoort']
+        geboektks[regel['kostensoort']] = regel['kostensoortnaam']
 
     obligoks = {}
     for regel in obligodb:
-        obligoks[regel['Kostensoort']] = regel['Naam v. kostensoort']
+        obligoks[regel['kostensoort']] = regel['kostensoortnaam']
 
     planks = {}
     for regel in plandb:
-        planks[regel['Kostensoort']] = regel['Naam v. kostensoort']
+        planks[regel['kostensoort']] = regel['kostensoortnaam']
 
     return geboektks, obligoks, planks
 
