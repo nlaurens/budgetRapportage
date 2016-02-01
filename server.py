@@ -341,11 +341,10 @@ class Admin:
                 msg.append('Import stopped!')
                 return render.webadmin_overview(form, msg)
 
-#TODO CHECK IF ALL REQUIRED HEADERS ARE THERE!!!!
-        for attribute in config["SAPkeys"][tablel].iteritems():
-            print attribute
-
-TODO SCHRIJF DIT
+        for attribute, SAPkey in config["SAPkeys"][table].iteritems():
+            if attribute not in fields:
+                msg.append('Required field not in excel: ' + attribute)
+                return render.webadmin_overview(form, msg)
 
         msg.append('Creating new table using headers')
         model.create_table(table, fields)
