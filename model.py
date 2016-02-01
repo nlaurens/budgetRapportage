@@ -30,21 +30,21 @@ db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["u
 def get_obligos(jaar, periodes=[], order=0, kostensoorten=[]):
     sqlwhere = '1'
     if order > 0:
-        sqlwhere = '`Order`=$order'
+        sqlwhere = '`order`=$order'
 
     if kostensoorten:
         if sqlwhere == '1':
-            sqlwhere = '`Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+            sqlwhere = '`kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
         else:
-            sqlwhere += ' AND `Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+            sqlwhere += ' AND `kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
 
     if sqlwhere == '1':
-        sqlwhere = ' AND `Boekjaar` = $jaar'
+        sqlwhere = ' AND `jaar` = $jaar'
     else:
-        sqlwhere += ' AND `Boekjaar` = $jaar'
+        sqlwhere += ' AND `jaar` = $jaar'
 
     if periodes:
-        sqlwhere += ' AND `Periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
+        sqlwhere += ' AND `periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
 
     try:
         obligodb = db.select('obligo', where=sqlwhere, vars=locals())
@@ -168,8 +168,8 @@ def get_reserves():
 # in both geboekt and obligo
 def get_orders(sqlLike='%'):
 
-    geboekt = db.query("SELECT DISTINCT(`Order`) FROM `geboekt` WHERE `Order` LIKE '"+sqlLike+"'")
-    obligo = db.query("SELECT DISTINCT(`Order`) FROM `obligo` WHERE `Order` LIKE '"+sqlLike+"'")
+    geboekt = db.query("SELECT DISTINCT(`order`) FROM `geboekt` WHERE `order` LIKE '"+sqlLike+"'")
+    obligo = db.query("SELECT DISTINCT(`order`) FROM `obligo` WHERE `order` LIKE '"+sqlLike+"'")
 
     orders = set()
     for regel in geboekt:
@@ -196,9 +196,9 @@ def get_obligos_regels(jaar, periodes=[], orders=[], kostensoorten=[]):
             sqlwhere += ' AND `Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
 
     if sqlwhere == '1':
-        sqlwhere = ' AND `Boekjaar` = $jaar'
+        sqlwhere = ' AND `jaar` = $jaar'
     else:
-        sqlwhere += ' AND `Boekjaar` = $jaar'
+        sqlwhere += ' AND `jaar` = $jaar'
 
     if periodes:
         sqlwhere += ' AND `Periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
@@ -266,7 +266,7 @@ def plan_db_2_regels(db):
 def get_plan(jaar, order=0, kostensoorten=[]):
 
     if order > 0:
-        sqlwhere = '`Order`=$order'
+        sqlwhere = '`order`=$order'
 
     if kostensoorten:
         if sqlwhere == '':
@@ -274,7 +274,7 @@ def get_plan(jaar, order=0, kostensoorten=[]):
         else:
             sqlwhere += ' AND `Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
 
-    sqlwhere += ' AND `Boekjaar` = $jaar'
+    sqlwhere += ' AND `jaar` = $jaar'
 
     try:
         plandb = db.select('plan', where=sqlwhere, vars=locals())
@@ -288,17 +288,17 @@ def get_plan(jaar, order=0, kostensoorten=[]):
 def get_geboekt(jaar, periodes=[], order=0, kostensoorten=[]):
 
     if order > 0:
-        sqlwhere = '`Order`=$order'
+        sqlwhere = '`order`=$order'
 
     if kostensoorten:
         if sqlwhere == '':
-            sqlwhere = '`Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+            sqlwhere = '`kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
         else:
-            sqlwhere += ' AND `Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+            sqlwhere += ' AND `kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
 
-    sqlwhere += ' AND `Jaar` = $jaar'
+    sqlwhere += ' AND `jaar` = $jaar'
     if periodes:
-        sqlwhere += ' AND `Periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
+        sqlwhere += ' AND `periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
 
     try:
         geboektdb = db.select('geboekt', where=sqlwhere, vars=locals())
@@ -316,14 +316,14 @@ def geboekt_db_2_regel(geboektdb):
     for regelDB in geboektdb:
         regel = Regel()
         regel.tiepe = "Geboekt"
-        regel.order = regelDB[config["SAPkeys"]["geboekt"]["order"]]
-        regel.kostensoort = regelDB[config["SAPkeys"]["geboekt"]["kostensoort"]]
-        regel.naamkostensoort = regelDB[config["SAPkeys"]["geboekt"]["kostensoortnaam"]]
-        regel.kosten = float(regelDB[config["SAPkeys"]["geboekt"]["kosten"]].replace(',',''))
-        regel.jaar = regelDB[config["SAPkeys"]["geboekt"]["jaar"]]
-        regel.periode = regelDB[config["SAPkeys"]["geboekt"]["periode"]]
-        regel.omschrijving = regelDB[config["SAPkeys"]["geboekt"]["omschrijving"]]
-        regel.documentnummer = regelDB[config["SAPkeys"]["geboekt"]["documentnummer"]]
+        regel.order = regelDB['order']
+        regel.kostensoort = regelDB['kostensoort']
+        regel.naamkostensoort = regelDB['kostensoortnaam']
+        regel.kosten = regelDB['kosten']
+        regel.jaar = regelDB['jaar']
+        regel.periode = regelDB['periode']
+        regel.omschrijving = regelDB['omschrijving']
+        regel.documentnummer = regelDB['documentnummer']
         if regel.kostensoort in geboekt:
             geboekt[regel.kostensoort].append(regel)
         else:
