@@ -151,6 +151,19 @@ def gen_auth_list(salt):
         print ''
 
 
+# Read/write last sap-update date:
+def last_update(newdate=''):
+    if newdate == '':
+        sqlwhere = "`key` = 'sapdate'"
+        results = db.select('config', where=sqlwhere)
+        sapdate = results[0]['value']
+    else:
+        db.update('config', where="`key` = 'sapdate'", value = newdate)
+        sapdate = newdate
+
+    return sapdate
+
+
 # returns the list of all reserves
 def get_reserves():
     from decimal import Decimal

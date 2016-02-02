@@ -490,7 +490,7 @@ class Graph:
         KSgroepen = model.loadKSgroepen()
         grootboekBaten =  [s for s in KSgroepen if "BFRE15BT00" in s][0]  #Use -CODE to include BFR codes
         grootboekLasten = [s for s in KSgroepen if "BFRE15LT00" in s][0]  # ..
-        sapdatum = config['lastSAPexport']
+        sapdatum = model.last_update()
 
         begroot = {}
         baten = {}

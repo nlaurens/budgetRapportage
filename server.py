@@ -207,16 +207,26 @@ class Admin:
         web.form.Dropdown('Type', [('', ''),('geboekt','Realisatie'), ('obligo','Obligo'), ('plan', 'Begroting Orders'), ('salaris', 'Salarissen'), ('salaris_begroting', 'Begroting Salarissen')]),
         web.form.Button('Upload data'),
         )
+    sapdate_form = web.form.Form(
+        web.form.Textbox('Sapdate'),
+        web.form.Button('Update'),
+        )
 
     def GET(self):
-        form = self.upload_form()
         msg = webadmin.checkDB()
-        return render.webadmin_overview(form, msg)
+        msg.append('')
+        msg.append('latest sap date: ' + model.last_update())
+
+        return render.webadmin_overview(self.upload_form, self.sapdate_form, msg)
 
     def POST(self):
-        form = self.upload_form()
-        msg = webadmin.parse_form(render, form)
-        return render.webadmin_overview(form, msg)
+        if 'Update' in web.input():
+            msg = ['Updating last sap update date']
+            model.last_update(web.input()['Sapdate'])
+            msg.append('DONE')
+        if 'Upload data' in web.input():
+            msg = webadmin.parse_form(render, self_uploadform)
+        return render.webadmin_overview(self.upload_form, self.sapdate_form, msg)
 
 
 class Logout:

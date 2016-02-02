@@ -1,7 +1,6 @@
 config = {
     "IpRanges": '127.0.0.0 127.255.255.255 10.0.0.1 10.255.255.255',
     "globalPW": '<INSERT>',
-    "lastSAPexport": '15 Sep 2015',
     "salt": '<INSERT>',
     "mysql": {
         "user": "<INSERT>",

@@ -179,7 +179,7 @@ def table_html(render, HRregels, matchpersoneelsnummers, noMatchPerOrder):
 
 def settings_html(render, jaar):
     form = 'todo form met optie'
-    lastupdate = config['lastSAPexport']
+    lastupdate = model.last_update() 
     return render.salaris_settings(lastupdate, form)
 
 def java_scripts(render, regelsGeboekt, regelsBegroot):
