@@ -488,8 +488,8 @@ class Graph:
 
     def load_order(self, jaar, order, params):
         KSgroepen = model.loadKSgroepen()
-        grootboekBaten =  [s for s in KSgroepen if "BFRE15BT00-CODE" in s][0]  #Use -CODE to include BFR codes
-        grootboekLasten = [s for s in KSgroepen if "BFRE15LT00-CODE" in s][0]  # ..
+        grootboekBaten =  [s for s in KSgroepen if "BFRE15BT00" in s][0]  #Use -CODE to include BFR codes
+        grootboekLasten = [s for s in KSgroepen if "BFRE15LT00" in s][0]  # ..
         sapdatum = config['lastSAPexport']
 
         begroot = {}

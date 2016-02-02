@@ -58,28 +58,24 @@ class Index:
         return render.index()
 
 class View:
-    settings_form = web.form.Form(
+    settings_simple_form = web.form.Form(
+        web.form.Dropdown('jaar', [(2015, '2015'), (2014, '2014'), (2013, '2013'), (2012, '2012')], class_="btn btn-default btn-sm"),
+        web.form.Dropdown('periode', [(0, 'All'), (1, 'Jan'), (2, 'Feb'), (3, 'March'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'), (9, 'Sep'), (10, 'Okt'), (11, 'Nov'), (12, 'Dec')], class_="btn btn-default btn-sm"),
+        web.form.Hidden('maxdepth', [(0,'1. Totals'), (1,'2. Subtotals'), (10, '3. Details')]),
+        web.form.Hidden('ksgroep', []),
+        web.form.Hidden('clean'),
+        web.form.Button('Update', 'update', class_="btn btn-default btn-sm"),
+    )
+    settings_expert_form = web.form.Form(
         web.form.Dropdown('jaar', [(2015, '2015'), (2014, '2014'), (2013, '2013'), (2012, '2012')]),
+        web.form.Dropdown('periode', [('', 'all')]),
         web.form.Dropdown('maxdepth', [(0,'1. Totals'), (1,'2. Subtotals'), (10, '3. Details')]),
         web.form.Dropdown('ksgroep', []),
         web.form.Checkbox('clean'),
-        web.form.Dropdown('periode', [('', 'all')]),
         web.form.Button('Update', 'update'),
     )
     def __init__(self):
         pass
-
-    def fill_dropdowns(self, form, settings, KSgroepen):
-        dropdownlist = []
-        for i, path in enumerate(KSgroepen):
-            dropdownlist.append( (i, os.path.split(path)[-1] ))
-        form.ksgroep.args = dropdownlist
-
-        form.ksgroep.value = settings["KSgroep"]
-        form.jaar.value = settings["jaar"]
-        form.maxdepth.value = settings["maxdepth"]
-        form.periode.value = settings["periode"]
-        form.clean.checked = settings["clean"]
 
 
     def get_post_params(self, form):
@@ -91,7 +87,9 @@ class View:
         try:
             KSgroep = int(web.input()['ksgroep'])
         except:
-            KSgroep = 0
+            groepen = model.loadKSgroepen()
+            match =  [s for s in groepen if "WNMODEL4" in s][0]
+            KSgroep = groepen.index(match)
 
         try:
             jaar = int(web.input()['jaar'])
@@ -101,14 +99,14 @@ class View:
         try:
             periode = int(web.input()['periode'])
         except:
-            periode = ''
+            periode = 0 
 
         clean = web.input().has_key('clean')
 
         return {"maxdepth":maxdepth, "KSgroep":KSgroep, "jaar":jaar, "periode":periode, "clean":clean}
 
     def POST(self, userHash, order):
-        form = self.settings_form
+        form = self.settings_simple_form
         if not webaccess.check_auth(session, userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
 
@@ -116,7 +114,7 @@ class View:
         return webview.view(settings, render, form, order)
 
     def GET(self, userHash, order):
-        form = self.settings_form
+        form = self.settings_simple_form
         if not webaccess.check_auth(session, userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
 
