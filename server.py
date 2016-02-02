@@ -59,7 +59,6 @@ class Index:
 
 class View:
     settings_form = web.form.Form(
-        #web.form.Checkbox("lovelycheckbox", description="lovelycheckbox", class_="standard", value="something.. Anything!"),
         web.form.Dropdown('jaar', [(2015, '2015'), (2014, '2014'), (2013, '2013'), (2012, '2012')]),
         web.form.Dropdown('maxdepth', [(0,'1. Totals'), (1,'2. Subtotals'), (10, '3. Details')]),
         web.form.Dropdown('ksgroep', []),
@@ -84,33 +83,25 @@ class View:
 
 
     def get_post_params(self, form):
-        maxdepth = form['maxdepth'].value
-        if maxdepth is None:
-            try:
-                maxdepth = int(web.input()['maxdepth'])
-            except:
-                maxdepth = 1
+        try:
+            maxdepth = int(web.input()['maxdepth'])
+        except:
+            maxdepth = 1
 
-        KSgroep = form['ksgroep'].value
-        if KSgroep is None:
-            try:
-                KSgroep = int(web.input()['ksgroep'])
-            except:
-                KSgroep = 0
+        try:
+            KSgroep = int(web.input()['ksgroep'])
+        except:
+            KSgroep = 0
 
-        jaar = form['jaar'].value
-        if jaar is None:
-            try:
-                jaar = int(web.input()['jaar'])
-            except:
-                jaar = 2015
+        try:
+            jaar = int(web.input()['jaar'])
+        except:
+            jaar = 2015
 
-        periode = form['periode'].value
-        if periode is None:
-            try:
-                periode = int(web.input()['periode'])
-            except:
-                periode = ''
+        try:
+            periode = int(web.input()['periode'])
+        except:
+            periode = ''
 
         clean = web.input().has_key('clean')
 
@@ -122,9 +113,7 @@ class View:
             return web.notfound("Sorry the page you were looking for was not found.")
 
         settings = self.get_post_params(form)
-        KSgroepen = model.loadKSgroepen()
-        self.fill_dropdowns(form, settings, KSgroepen)
-        return webview.view(render, KSgroepen, form, settings, order)
+        return webview.view(settings, render, form, order)
 
     def GET(self, userHash, order):
         form = self.settings_form
@@ -132,11 +121,8 @@ class View:
             return web.notfound("Sorry the page you were looking for was not found.")
 
         settings = self.get_post_params(form)
-        KSgroepen = model.loadKSgroepen()
         settings["clean"] = True
-        self.fill_dropdowns(form, settings, KSgroepen)
-
-        return webview.view(render, KSgroepen, form, settings, order)
+        return webview.view(settings, render, form, order)
 
 
 class Report:
