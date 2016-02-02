@@ -41,13 +41,13 @@ import GrootBoek
 import GrootBoekGroep
 import os
 from config import config
-from functions import moneyfmt, IpBlock
 
 # web-pages
 import webaccess
 import webreport
 import websalaris
 import webadmin
+import webview
 
 
 class Index:
@@ -70,8 +70,20 @@ class View:
     def __init__(self):
         pass
 
-    def get_post_params(self, form):
+    def fill_dropdowns(self, form, settings, KSgroepen):
+        dropdownlist = []
+        for i, path in enumerate(KSgroepen):
+            dropdownlist.append( (i, os.path.split(path)[-1] ))
+        form.ksgroep.args = dropdownlist
 
+        form.ksgroep.value = settings["KSgroep"]
+        form.jaar.value = settings["jaar"]
+        form.maxdepth.value = settings["maxdepth"]
+        form.periode.value = settings["periode"]
+        form.clean.checked = settings["clean"]
+
+
+    def get_post_params(self, form):
         maxdepth = form['maxdepth'].value
         if maxdepth is None:
             try:
@@ -104,88 +116,28 @@ class View:
 
         return {"maxdepth":maxdepth, "KSgroep":KSgroep, "jaar":jaar, "periode":periode, "clean":clean}
 
-    def view(self, userHash, order, parent):
+    def POST(self, userHash, order):
+        form = self.settings_form
         if not webaccess.check_auth(session, userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
 
-        form = self.settings_form()
-        KSgroepen = model.loadKSgroepen()
         settings = self.get_post_params(form)
-        if parent == 'GET':
-            settings["clean"] = True
+        KSgroepen = model.loadKSgroepen()
         self.fill_dropdowns(form, settings, KSgroepen)
-
-        order = int(order)
-        grootboek = KSgroepen[settings["KSgroep"]]
-        sapdatum = config['lastSAPexport']
-
-        root = GrootBoek.load(order, grootboek, settings["jaar"], settings["periode"])
-        if settings["clean"]:
-            root.clean_empty_nodes()
-
-#TODO Begroting uit sap 'plan' halen!
-        #begroting = model.get_begroting() # dit is de oude functie van VU
-        totaal = {}
-        htmlgrootboek = []
-
-        totaal['order'] = order
-        totaal['baten'] = 0
-        totaal['lasten'] = 0
-        totaal['ruimte'] = 0
-
-        reserves = model.get_reserves()
-        try:
-            totaal['reserve'] = reserves[str(order)]
-        except:
-            totaal['reserve'] = 0
-
-
-        totaal['begroting'] = 0#float(begroting[str(order)])
-
-        if totaal['reserve'] < 0:
-            totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['begroting'] + totaal['reserve']
-        else:
-            totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['begroting']
-
-        for child in root.children:
-            htmlgrootboek.append(child.html_tree(render, settings["maxdepth"], 0))
-# TODO: DIT IS SPECIFIEK VOOR 29FALW2
-            if child.name == 'BATEN-2900':
-                totaal['baten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
-            elif child.name == 'LASTEN2900':
-                totaal['lasten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
-
-        totaal['reserve'] = moneyfmt(totaal['reserve'])
-        totaal['ruimte'] = moneyfmt(totaal['ruimte'])
-        totaal['baten'] = moneyfmt(totaal['baten'])
-        totaal['lasten'] = moneyfmt(totaal['lasten'])
-        totaal['begroting'] = moneyfmt(totaal['begroting'])
-
-# TODO: INFO ERGENS ANDERS VANDAAN HALEN VOOR UL
-        #if str(order)[4] != '0' and str(order)[4] != '1':
-            #return render.viewproject(grootboek, sapdatum, htmlgrootboek, totaal)
-
-        #print '----------------'
-        #root.walk_tree(9999)
-        return render.vieworder(form, grootboek, sapdatum, htmlgrootboek, totaal)
-
-    def POST(self, userHash, order):
-        return self.view(userHash, order, 'POST')
+        return webview.view(render, KSgroepen, form, settings, order)
 
     def GET(self, userHash, order):
-        return self.view(userHash, order, 'GET')
+        form = self.settings_form
+        if not webaccess.check_auth(session, userHash):
+            return web.notfound("Sorry the page you were looking for was not found.")
 
-    def fill_dropdowns(self, form, settings, KSgroepen):
-        dropdownlist = []
-        for i, path in enumerate(KSgroepen):
-            dropdownlist.append( (i, os.path.split(path)[-1] ))
-        form.ksgroep.args = dropdownlist
+        settings = self.get_post_params(form)
+        KSgroepen = model.loadKSgroepen()
+        settings["clean"] = True
+        self.fill_dropdowns(form, settings, KSgroepen)
 
-        form.ksgroep.value = settings["KSgroep"]
-        form.jaar.value = settings["jaar"]
-        form.maxdepth.value = settings["maxdepth"]
-        form.periode.value = settings["periode"]
-        form.clean.checked = settings["clean"]
+        return webview.view(render, KSgroepen, form, settings, order)
+
 
 class Report:
     def get_params(self):
