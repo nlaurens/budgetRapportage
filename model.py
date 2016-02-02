@@ -153,13 +153,14 @@ def gen_auth_list(salt):
 
 # returns the list of all reserves
 def get_reserves():
+    from decimal import Decimal
     reserves = {}
     with open('data/reserves/2015.txt') as f:
         for line in f.readlines():
             line = line.strip()
             if not line == '':
                 order, reserve = line.split()
-                reserves[order] = -1*float(reserve)
+                reserves[order] = -1*Decimal(reserve)
 
     return reserves
 
