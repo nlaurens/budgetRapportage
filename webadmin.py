@@ -12,7 +12,7 @@ import datetime
 
 def checkDB():
     msg = ["Checking tables..."]
-    tables = ['geboekt', 'obligo', 'plan', 'salaris', 'test']
+    tables = ['geboekt', 'obligo', 'plan', 'salaris']
     for table in tables:
         if model.check_table_exists(table):
             msg.append(table + " " + "ok")
@@ -35,16 +35,16 @@ def parse_form(render, form):
     if not table_allowed:
         msg.append('Type not selected!')
         return msg
-    
+
     msg.append('Uploading file.')
     succes_upload = False
-    if 'myfile' in x: 
+    if 'myfile' in x:
         pwd, filenamefull = os.path.split(x.myfile.filename)
         filename, extension = os.path.splitext(filenamefull)
         if extension in allowed:
             fout = open(table+'.xlsx','wb')
-            fout.write(x.myfile.file.read()) 
-            fout.close() 
+            fout.write(x.myfile.file.read())
+            fout.close()
             succes_upload = True
 
     if not succes_upload:
@@ -97,7 +97,7 @@ def parse_form(render, form):
         rows.append(row)
     f.close()
     model.insert_into_table(table, rows)
-        
+
     # clean up
     msg.append('Cleaning up files')
     #os.remove(table+'.xlsx') # BUG.. xlsx2csv seems to block the file handle.

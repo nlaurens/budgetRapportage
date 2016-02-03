@@ -3,9 +3,6 @@ TODO
     * Naam order uit andere db halen, salaris geeft korte namen.. (kostensoort groep?)
     * Plaatjes maken/koppelen
     * Summary van alle totalen maken (totalOrderGeboekt, etc opvangen uit html_table)
-    * alle casting van kosten float(begroting) etc. omzetten naar de regel.py import_from_db_select()
-    * Collapse/open all volgens: 
-        http://stackoverflow.com/questions/20347553/bootstrap-3-collapse-accordion-collapse-all-works-but-then-cannot-expand-all-wh
     * Obligos salarissen ECHT uit systeem halen (kan! ipv de HR-obligos per order!)
 """
 import web
@@ -66,11 +63,11 @@ def parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, n
         row['resultaat_perc'] = 0
         row['begroot'] = begroot
         row['geboekt'] = geboekt
-        row['resultaat'] = float(begroot) - geboekt
+        row['resultaat'] = begroot - geboekt
         row['td_class'] = 'danger'
-        if naamBegroot != '':
+        if naamBegroot != '' and begroot > 0:
             row['naam'] = naamBegroot
-            row['resultaat_perc'] = (row['geboekt'] / float(begroot)) * 100
+            row['resultaat_perc'] = (row['geboekt'] / begroot) * 100
             row['td_class'] = 'success'
 
         totalOrder['geboekt'] +=  row['geboekt']
@@ -191,8 +188,8 @@ def java_scripts(render, regelsGeboekt, regelsBegroot):
 
 
 def get_summary(render,totals):
-    kosten = float(totals['geboekt']) + float(totals['obligo'])
-    resultaat = float(totals['begroot']) - kosten
+    kosten = totals['geboekt'] + totals['obligo']
+    resultaat = totals['begroot'] - kosten
 
     html = {}
     html['begroot'] = table_string(totals['begroot'])
@@ -249,7 +246,6 @@ def get_HR_regels(jaar, orders):
 
     regels = model.get_obligos_regels(jaar, orders=orders, kostensoorten=[411101])
     HRregels['obligos'] = RegelList(regels)
-
     return HRregels
 
 def correlate_personeelsnummers(regelsBegroot, regelsGeboekt):
@@ -260,18 +256,17 @@ def correlate_personeelsnummers(regelsBegroot, regelsGeboekt):
     matchpersoneelsnummers = {} # personeelsnummer in kosten: { regels begroot}
     noMatchPerOrder = {} # order : {regelList met regels}
     for begrootpersoneelsnummer, begrootRegelsList in begroot.iteritems():
-        begrootpersoneelsnummer = list(begrootpersoneelsnummer.strip())
 
         if begrootpersoneelsnummer:
             matchfound = False
-            if begrootpersoneelsnummer[0] == '2':
-                begrootpersoneelsnummer[0] = '9'
-            elif begrootpersoneelsnummer[0] == '1':
-                begrootpersoneelsnummer[0] = '8'
-            begrootpersoneelsnummer = ''.join(begrootpersoneelsnummer)
+            #convert 2xx -> 9xxx, 1xxx -> 8xxxx
+            if (10000000 <= begrootpersoneelsnummer < 20000000):
+                begrootpersoneelsnummer = begrootpersoneelsnummer + 70000000
+            elif (20000000 <= begrootpersoneelsnummer < 30000000):
+                begrootpersoneelsnummer = begrootpersoneelsnummer + 70000000
 
-            if long(begrootpersoneelsnummer) in kosten.keys():
-                matchpersoneelsnummers[long(begrootpersoneelsnummer)] = begrootRegelsList
+            if begrootpersoneelsnummer in kosten.keys():
+                matchpersoneelsnummers[begrootpersoneelsnummer] = begrootRegelsList
                 matchfound = True
 
         if not matchfound or not begrootpersoneelsnummer:
@@ -283,60 +278,3 @@ def correlate_personeelsnummers(regelsBegroot, regelsGeboekt):
                     noMatchPerOrder[order].extend(begrootRegelsList)
 
     return matchpersoneelsnummers, noMatchPerOrder
-
-def cmd_output(userID, groepstr, jaar):
-    regelsGeboekt, regelsBegroot = get_begroting_geboekt(jaar)
-    matchpersoneelsnummers, noMatchPerOrder = correlate_personeelsnummers(regelsBegroot, regelsGeboekt)
-
-# dict per order per persnr
-    kostenDict = regelsGeboekt.split_by_regel_attributes(['order', 'personeelsnummer'])
-    totalBegroot = 0
-    totalGeboekt = 0
-    for order in kostenDict.keys():
-        begroot = 0
-        totalOrderGeboekt = 0
-        totalOrderBegroot = 0
-        for personeelsnummer, regelsGeboekt in kostenDict[order].iteritems():
-            naamGeboekt = regelsGeboekt.regels[0].personeelsnaam
-            geboekt = regelsGeboekt.total()
-            totalOrderGeboekt +=  geboekt
-
-            naamBegroot = '' # Reset begroot to not found
-            begroot = 0
-
-            if personeelsnummer in matchpersoneelsnummers:
-                persoonbegroot = matchpersoneelsnummers[personeelsnummer].split_by_regel_attributes(['order'])
-                if order in persoonbegroot:
-                    begroot = persoonbegroot[order].total()
-                    naamBegroot = persoonbegroot[order].regels[0].personeelsnaam
-                    totalOrderBegroot +=  begroot
-
-            print '  order %s - persnr %s - kosten %i - begroot %i (%s - %s)' % (order, personeelsnummer, geboekt, begroot, naamGeboekt, naamBegroot)
-
-        if order in noMatchPerOrder:
-            for regel in noMatchPerOrder[order].regels:
-                print '  order %s - persnr %s - kosten %i - begroot %i (%s - %s)' % (order, regel.personeelsnummer, 0, regel.kosten, '', regel.personeelsnaam)
-                totalOrderBegroot += regel.kosten
-            del noMatchPerOrder[order] #Remove so we end up with a list of remaining begrotingsposten
-
-        print 'Total order %s - geboekt %i begroot %i' % (order, totalOrderGeboekt, totalOrderBegroot)
-        print ''
-        totalBegroot += totalOrderBegroot
-        totalGeboekt += totalOrderGeboekt
-
-    print '--------------'
-    print 'Begroot maar geen kosten gemaakt op order'
-    print ''
-
-    for order, regelList in noMatchPerOrder.iteritems():
-        totalOrderBegroot = 0
-        for regel in regelList.regels:
-            print '  order %s - persnr %s - kosten %i - begroot %i (%s - %s)' % (regel.order, regel.personeelsnummer, 0, regel.kosten, '', regel.personeelsnaam)
-            totalOrderBegroot += regel.kosten
-
-        totalBegroot += totalOrderBegroot
-
-        print 'Total order %s - geboekt %i begroot %i' % (order, totalOrderGeboekt, totalOrderBegroot)
-        print ''
-
-    print 'TOTAL geboekt %i begroot %i' % (totalGeboekt, totalBegroot)
