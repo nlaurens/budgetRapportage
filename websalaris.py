@@ -257,8 +257,8 @@ def correlate_personeelsnummers(regelsBegroot, regelsGeboekt):
     noMatchPerOrder = {} # order : {regelList met regels}
     for begrootpersoneelsnummer, begrootRegelsList in begroot.iteritems():
 
+        matchfound = False
         if begrootpersoneelsnummer:
-            matchfound = False
             #convert 2xx -> 9xxx, 1xxx -> 8xxxx
             if (10000000 <= begrootpersoneelsnummer < 20000000):
                 begrootpersoneelsnummer = begrootpersoneelsnummer + 70000000
