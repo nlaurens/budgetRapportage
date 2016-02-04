@@ -225,7 +225,7 @@ class Admin:
             model.last_update(web.input()['Sapdate'])
             msg.append('DONE')
         if 'Upload data' in web.input():
-            msg = webadmin.parse_form(render, self_uploadform)
+            msg = webadmin.parse_form(render, self.upload_form)
         return render.webadmin_overview(self.upload_form, self.sapdate_form, msg)
 
 
