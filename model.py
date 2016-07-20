@@ -153,6 +153,12 @@ def gen_auth_list(salt):
 
 # Read/write last sap-update date:
 def last_update(newdate=''):
+    if not check_table_exists('config'):
+        sql = "CREATE TABLE `config` ( `key` varchar(255), `value` varchar(255) );"
+        results = db.query(sql)
+        sql = "INSERT INTO `config` ( `key`, `value`) VALUES ( 'sapdate', 'no date set' );"
+        results = db.query(sql)
+
     if newdate == '':
         sqlwhere = "`key` = 'sapdate'"
         results = db.select('config', where=sqlwhere)

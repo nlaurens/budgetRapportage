@@ -12,7 +12,7 @@ import datetime
 
 def checkDB():
     msg = ["Checking tables..."]
-    tables = ['geboekt', 'obligo', 'plan', 'salaris']
+    tables = ['config', 'geboekt', 'obligo', 'plan', 'salaris']
     for table in tables:
         if model.check_table_exists(table):
             msg.append(table + " " + "ok")
