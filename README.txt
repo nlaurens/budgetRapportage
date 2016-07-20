@@ -2,7 +2,7 @@ Installation
 ------------
 
 * Requires 
-  web.py, mysqldb, iptools
+  web.py, mysqldb, iptools, xlsx2csv
 
 * Setup config
   Copy config.py.example to config.py and fill out required fields (mysql)
