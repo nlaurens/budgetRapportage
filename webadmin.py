@@ -93,9 +93,18 @@ def parse_form(render, form):
     # Fill table from CSV
     msg.append('Inserting data into table')
     rows = []
+    rownumber = 1
     for row in reader:
-        rows.append(row)
+        row_empty_replaced = [element or '0' for element in row] 
+        if row_empty_replaced != row:
+            empty_indexes = [i for i, item in enumerate(row) if item == '']
+            print empty_indexes
+            for index in empty_indexes:
+                msg.append('WARNING empty %s in row #(%s)' %(fields[index],rownumber) )
+        rows.append(dict(zip(fields, row_empty_replaced)))
+        rownumber +=1
     f.close()
+
     model.insert_into_table(table, rows)
 
     # clean up

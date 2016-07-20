@@ -509,7 +509,4 @@ def create_table(table, fields):
 
 def insert_into_table(table, rows):
 
-    for row in rows:
-        sqlVars = {}
-        sqlVars['VALUES'] = row
-        result = db.query("INSERT INTO "+table+" VALUES $VALUES;", vars=sqlVars)
+    db.multiple_insert(table, values=rows)
