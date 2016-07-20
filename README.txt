@@ -59,7 +59,6 @@ Export SAP posten
         * (Tip sla layout op als template)
     * Alle kolommen uitrekken totdat gehele header zichtbaar is
     * Exporteer naar Excel XXL-indeling (CTRL+SHFT+F7)
-    * In Excel: Sla op als CSV file
 
 * KOB2 - Afzonderlijke obligo
     * Order-range of -groep selecteren
@@ -78,9 +77,8 @@ Export SAP posten
         * (Tip sla layout op als template)
     * Alle kolommen uitrekken totdat gehele header zichtbaar is
     * Exporteer naar Excel XXL-indeling (CTRL+SHFT+F7)
-    * In Excel: Sla op als CSV file
 
-* KOB1 - Afzonderlijke posten
+* KOB1 - Werkelijke posten
     * Order-range of -groep selecteren
     * Periode invullen
     * Overige Layout instellingen - max.aantal treffers > 1M
@@ -96,42 +94,31 @@ Export SAP posten
         * (Tip sla layout op als template)
     * Alle kolommen uitrekken totdat gehele header zichtbaar is
     * Exporteer naar Excel XXL-indeling (CTRL+SHFT+F7)
-    * In Excel: Sla op als CSV file
 
-* Geboekte Salarislasten
+* Y_DEV_55000165 - Geboekte Salarislasten
     * Bedrijfsnummer invullen
     * Kostenplaats range invullen
     * Begin/einddatum
     * Uitvoeren
     * Layout(CTRL + F8) minimaal (geen agregatie!)
-        * Kostenplaaats
-        * Naam
-        * Bedrag
         * Personeelsnummer
-        * Begin datum afrekenperiode
+        * Naam
+        * Schaal
+        * Trede
+        * Kostenplaaats
+        * Omschrijving kostenplaaats
+        * Kostensoort
+        * Omschrijving kostensoort
+        * Bedrag
+        * Invoerdatum
     * Alle kolommen even breed
     * Exporteer naar Excel: Lijst -> Exporteren -> Spreadsheet -> XXL -> tabel
-    * Excel: sla op als csv
-
-
 
 Import SAP posten in MySQL
 --------------------------
-https://phpmyadmin.vu.nl/
+http://localhost:8081/admin
 
-* Open PHP my admin interface
-* Browse naar de juiste DB (linker tab)
-* Importeren
-    * Selecter CSV bestand
-    * Vink aan: 'De eerste regel van het bestand bevat kolomnamen (..)'
-    * Start
-
-* Hernoem tables naar:
-    * plan
-    * geboekt
-    * obligo
-
-* Verander sap export datum in config.py
+XLSX files uploaden.
     
 kostensoortgroep exporeteren/importeren
 ---------------------------------------
