@@ -1,17 +1,19 @@
 import model
+from RegelList import RegelList
 
+#TODO omschrijven naar nieuwe RegelList ipv eigen verzameling van regels per level.
 
 class GrootBoek():
 
     def __init__(self, name, descr, level, parent):
         self.name = name
         self.descr = descr
-        self.parent = parent
+        self.parent = parent #GrootBoek class
         self.level = level
-        self.kostenSoorten = {}
-        self.children = []
+        self.kostenSoorten = {} # KS die bij deze node horen (uit kostensoortgroep)
+        self.children = [] # list of GrootBoek classes
 
-        self.regels = {}
+        self.regels = {} #['geboekt', 'obligo', 'plan'] = RegelList
 
         self.totaalGeboektNode = {}  # Dict: kostensoort:totaal van de node
         self.totaalObligosNode = {}
@@ -141,31 +143,13 @@ class GrootBoek():
         else:
             return ''
 
-    def assign_regels_recursive(self, regelsGeboekt, regelsObligos, regelsPlan):
+    def assign_regels_recursive(self,regels):
         for child in self.children:
-            child.assign_regels_recursive(regelsGeboekt, regelsObligos, regelsPlan)
+            child.assign_regels_recursive(regels)
 
-        ksGeboekt = set(self.kostenSoorten.keys()) & set(regelsGeboekt.keys())
-        ksObligos = set(self.kostenSoorten.keys()) & set(regelsObligos.keys())
-        ksPlan = set(self.kostenSoorten.keys()) & set(regelsPlan.keys())
-
-        regelsGeboektFiltered = { your_key: regelsGeboekt[your_key] for your_key in ksGeboekt}
-        regelsObligosFiltered = { your_key: regelsObligos[your_key] for your_key in ksObligos}
-        regelsPlanFiltered = { your_key: regelsPlan[your_key] for your_key in ksPlan}
-
-        self.regels = regelsGeboektFiltered
-        for kp, regels in regelsObligosFiltered.iteritems():
-            if kp in self.regels:
-                self.regels[kp].extend(regels)
-            else:
-                self.regels[kp] = regels
-
-        for kp, regels in regelsPlanFiltered.iteritems():
-            if kp in self.regels:
-                self.regels[kp].extend(regels)
-            else:
-                self.regels[kp] = regels
-
+        self.regels['geboekt'] = regels['geboekt'].filter_regels_by_attribute('kostensoort', self.kostenSoorten.keys())
+        self.regels['obligo'] = regels['obligo'].filter_regels_by_attribute('kostensoort', self.kostenSoorten.keys())
+        self.regels['plan'] = regels['plan'].filter_regels_by_attribute('kostensoort', self.kostenSoorten.keys())
 
 
     def set_totals(self, periode=range(0,16)):
@@ -321,14 +305,15 @@ def load_empty(grootboek):
     return root
 
 def load(order, grootboek, jaar, periodes):
-    root = load_raw_sap_export(grootboek)
-
     ksGeboekt, ksObligos, ksPlan = model.get_kosten_soorten(order)
-    regelsGeboekt = model.get_geboekt(jaar, periodes, order, ksGeboekt)
-    regelsObligos = model.get_obligos(jaar, periodes, order, ksObligos)
-    regelsPlan = model.get_plan(jaar, order, ksPlan)
 
-    root.assign_regels_recursive(regelsGeboekt, regelsObligos, regelsPlan)
+    regels = {}
+    regels['geboekt'] = RegelList(model.get_regels('geboekt', jaar, periodes, order, ksGeboekt))
+    regels['obligo'] = RegelList(model.get_regels('obligo', jaar, periodes, order, ksObligos))
+    regels['plan'] = RegelList(model.get_regels('plan', jaar, periodes, order, ksPlan))
+
+    root = load_raw_sap_export(grootboek)
+    root.assign_regels_recursive(regels)
     root.normalize_levels()
     root.set_totals()
 
