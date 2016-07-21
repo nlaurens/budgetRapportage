@@ -68,6 +68,5 @@ class Regel():
 
 
         #Specific rules per tiepe:
-        if tiepe == 'obligo':
+        if tiepe == 'obligo' or 'geboekt':
             self.omschrijving = self.omschrijving.decode('ascii', 'replace').encode('utf-8')
-            self.kosten = float(self.kosten.replace(',',''))

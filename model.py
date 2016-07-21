@@ -5,101 +5,55 @@ import glob
 import csv
 from Regel import Regel
 
-#TODO vervang alle SQL query door de config params ipv de hardcoded kolom namen.
-#TODO vervang alle *_db_2_regel door 1 functie. Met de nieuwe config zou alles te mappen
-#     moeten zijn door 1 functie. Wel zo dat er misschien wat 'if type=salaris: parse datum' etc. erin.
-#     Deze functie geeft een LIJST geen dictionary. Daarna kan je functie aanroepen
-#     die deze lijst in een dict sorteert afhankelijk van welke key je wilt
-#     obligos = get_obligos()
-#     obligos_per_ks = list_2_dict('ks') <-- veel duidelijk
-
 """"
 
 TODO
     * SAP-HR obligo omzetten naar meerdere regels (is er uit gehaald tijdelijk).
       Doe dit niet in model maar op de plek die hier last van heeft! Want het is elke keer anders
-      b.v. voor salaris vervangen we hem door salaris regel!
+      b.v. voor salaris vervangen we hem door salaris regel! Snippet hier beneden:
 
+            #DIRTY HACK for UL.nl SAP inrichting (obligo personeel wordt elke maand aangepast maar altijd op periode 1 gezet)
+            # Hier maken we van die regel aparte regels voor elke resterende maand
+            #for regel in regels:
+            #    if regel.kostensoort == 411101:
+            #        digits = [int(s) for s in regel.omschrijving.split() if s.isdigit()]
+            #        periodeleft = range(digits[-2],digits[-1]+1)
+            #        bedrag = regel.kosten/len(periodeleft)
+            #        omschrijving = regel.omschrijving.decode('ascii', 'replace').encode('utf-8')
+            #        for periode in periodeleft:
+            #            regelNew = regel.copy()
+            #            regelNew.omschrijving = omschrijving + '-per. ' + str(periode)
+            #            regelNew.omschrijving
+            #            regelNew.periode = periode
+            #            regelNew.kosten = bedrag
+            #            if regelNew.kostensoort in obligos:
+            #                obligos[regelNew.kostensoort].append(regelNew)
+            #            else:
+            #                obligos[regelNew.kostensoort] = [regelNew]
+            #    else:
+            #        if regel.kostensoort in obligos:
+            #            obligos[regel.kostensoort].append(regel)
+            #        else:
+            #            obligos[regel.kostensoort] = [regel]
+
+    * Reserves in mysql
+    * Prognose in mysql
+    * Mee/tegenvallers in mysql
+    * Authorisation in mysql
 """
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"], host=config["mysql"]["host"])
 
-###########################################################
-# OLD functions, should be removed later by using the 2db functions
-
-# Returns a list of boekingsRegel from the obligo table
-def get_obligos(jaar, periodes=[], order=0, kostensoorten=[]):
-    sqlwhere = '1'
-    if order > 0:
-        sqlwhere = '`order`=$order'
-
-    if kostensoorten:
-        if sqlwhere == '1':
-            sqlwhere = '`kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
-        else:
-            sqlwhere += ' AND `kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
-
-    if sqlwhere == '1':
-        sqlwhere = ' AND `jaar` = $jaar'
-    else:
-        sqlwhere += ' AND `jaar` = $jaar'
-
-    if periodes:
-        sqlwhere += ' AND `periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
-
-    try:
-        obligodb = db.select('obligo', where=sqlwhere, vars=locals())
-    except IndexError:
-        return None
-
-    return obligo_db_2_regels(obligodb)
-
-# Returns a dict containing a list of regels at key kostensoort
-# ie. obligos['kostensoort'] = [ <regel>, <regel>, .. ]
-def obligo_db_2_regels(obligodb):
-
-    obligos = {}
-    for regelDB in obligodb:
+# Returns a list of regels loaded from the dbSelect
+# Function should by used by any get/load function that
+# wants multiple regels from the mysql db.
+def db_2_regels(dbSelect, tiepe):
+    regels = []
+    for dbRegel in dbSelect:
         regel = Regel()
+        regel.import_from_db_select(dbRegel, tiepe)
+        regels.append(regel)
 
-        regel.tiepe = 'Obligo'
-        regel.order = regelDB['order']
-        regel.kostensoort = regelDB['kostensoort']
-        regel.naamkostensoort = regelDB['kostensoortnaam']
-        regel.kosten = regelDB['kosten']
-        regel.jaar = regelDB['jaar']
-        regel.periode = regelDB['periode']
-        regel.omschrijving = regelDB['omschrijving']
-        regel.documentnummer = regelDB['documentnummer']
-
-#DIRTY HACK for UL.nl SAP inrichting (obligo personeel wordt elke maand aangepast maar altijd op periode 1 gezet)
-        if regel.kostensoort == 411101:
-            digits = [int(s) for s in regel.omschrijving.split() if s.isdigit()]
-            periodeleft = range(digits[-2],digits[-1]+1)
-            bedrag = regel.kosten/len(periodeleft)
-            omschrijving = regel.omschrijving.decode('ascii', 'replace').encode('utf-8')
-            for periode in periodeleft:
-                regelNew = regel.copy()
-                regelNew.omschrijving = omschrijving + '-per. ' + str(periode)
-                regelNew.omschrijving
-                regelNew.periode = periode
-                regelNew.kosten = bedrag
-                if regelNew.kostensoort in obligos:
-                    obligos[regelNew.kostensoort].append(regelNew)
-                else:
-                    obligos[regelNew.kostensoort] = [regelNew]
-        else:
-            if regel.kostensoort in obligos:
-                obligos[regel.kostensoort].append(regel)
-            else:
-                obligos[regel.kostensoort] = [regel]
-
-    return obligos
-
-
-
-
-
-###########################################################
+    return regels
 
 # Gives a list of allowed budgets for that user.
 def get_budgets(verifyHash, salt):
@@ -207,7 +161,7 @@ def get_orders(sqlLike='%'):
 def get_obligos_regels(jaar, periodes=[], orders=[], kostensoorten=[]):
     sqlwhere = '1'
     if orders:
-        sqlwhere = '`'+config["SAPkeys"]["obligo"]["order"]+'` IN (' + ','.join(str(order) for order in orders) + ')'
+        sqlwhere = '`ordernummer` IN (' + ','.join(str(order) for order in orders) + ')'
 
     if kostensoorten:
         if sqlwhere == '1':
@@ -229,62 +183,10 @@ def get_obligos_regels(jaar, periodes=[], orders=[], kostensoorten=[]):
         return None
 
     regels = db_2_regels(obligodb, 'obligo')
-
-    #DIRTY HACK for UL.nl SAP inrichting (obligo personeel wordt elke maand aangepast maar altijd op periode 1 gezet)
-    # Hier maken we van die regel aparte regels voor elke resterende maand
-    #for regel in regels:
-    #    if regel.kostensoort == 411101:
-    #        digits = [int(s) for s in regel.omschrijving.split() if s.isdigit()]
-    #        periodeleft = range(digits[-2],digits[-1]+1)
-    #        bedrag = regel.kosten/len(periodeleft)
-    #        omschrijving = regel.omschrijving.decode('ascii', 'replace').encode('utf-8')
-    #        for periode in periodeleft:
-    #            regelNew = regel.copy()
-    #            regelNew.omschrijving = omschrijving + '-per. ' + str(periode)
-    #            regelNew.omschrijving
-    #            regelNew.periode = periode
-    #            regelNew.kosten = bedrag
-    #            if regelNew.kostensoort in obligos:
-    #                obligos[regelNew.kostensoort].append(regelNew)
-    #            else:
-    #                obligos[regelNew.kostensoort] = [regelNew]
-    #    else:
-    #        if regel.kostensoort in obligos:
-    #            obligos[regel.kostensoort].append(regel)
-    #        else:
-    #            obligos[regel.kostensoort] = [regel]
-
-
     return  regels
-
-# Returns a dict containing a list of regels at key kostensoort
-# ie. obligos['kostensoort'] = [ <regel>, <regel>, .. ]
-def plan_db_2_regels(db):
-
-    plans = {}
-    for regelDB in db:
-        regel = Regel()
-
-        regel.tiepe = 'Plan'
-        regel.periode = 0
-        regel.order = regelDB[config["SAPkeys"]["plan"]["order"]]
-        regel.kostensoort = regelDB[config["SAPkeys"]["plan"]["ks"]]
-        regel.naamkostensoort = regelDB[config["SAPkeys"]["plan"]["ks-naam"]]
-        regel.kosten = float(regelDB[config["SAPkeys"]["plan"]["kosten"]].replace(',',''))
-        regel.jaar = regelDB[config["SAPkeys"]["plan"]["jaar"]]
-        regel.documentnummer = regelDB[config["SAPkeys"]["plan"]["doc.nr."]]
-
-        if regel.kostensoort in plans:
-            plans[regel.kostensoort].append(regel)
-        else:
-            plans[regel.kostensoort] = [regel]
-
-    return plans
-
 
 # Returns a list of planregels from the geboekt table
 def get_plan(jaar, order=0, kostensoorten=[]):
-
     if order > 0:
         sqlwhere = '`order`=$order'
 
@@ -301,7 +203,8 @@ def get_plan(jaar, order=0, kostensoorten=[]):
     except IndexError:
         return None
 
-    return plan_db_2_regels(plandb)
+    regels = db_2_regels(plandb, 'plan')
+    return  regels
 
 
 # Returns a list of boekingsRegel from the geboekt table
@@ -325,31 +228,8 @@ def get_geboekt(jaar, periodes=[], order=0, kostensoorten=[]):
     except IndexError:
         return None
 
-    return geboekt_db_2_regel(geboektdb)
-
-
-# Returns a dictionary that contains a list of regels per key kostensoort
-# ie. geboekt['kostensoort'] = [regels]
-def geboekt_db_2_regel(geboektdb):
-
-    geboekt = {}
-    for regelDB in geboektdb:
-        regel = Regel()
-        regel.tiepe = "Geboekt"
-        regel.order = regelDB['order']
-        regel.kostensoort = regelDB['kostensoort']
-        regel.naamkostensoort = regelDB['kostensoortnaam']
-        regel.kosten = regelDB['kosten']
-        regel.jaar = regelDB['jaar']
-        regel.periode = regelDB['periode']
-        regel.omschrijving = regelDB['omschrijving']
-        regel.documentnummer = regelDB['documentnummer']
-        if regel.kostensoort in geboekt:
-            geboekt[regel.kostensoort].append(regel)
-        else:
-            geboekt[regel.kostensoort] = [regel]
-
-    return geboekt
+    regels = db_2_regels(geboektdb, 'geboekt')
+    return  regels
 
 
 # Returns a tuple of all kostensoorten and their names in order:
@@ -391,16 +271,13 @@ def loadKSgroepen():
     return KSgroepen
 
 
+# TODO remove once everything is up and running
 # Returns all the plan cost for an order:
 def get_plan_totaal(jaar, order):
-    plan = 0
-    sqlwhere = '`order`=$order AND `jaar`=$jaar'
-    plandb = db.select('plan', where=sqlwhere, vars=locals())
-    for regelDB in plandb:
-        plan += float(regelDB[config["SAPkeys"]["plan"]["kosten"]].replace(',',''))
+    sys.exit('model.get_plan_totaal is deprecated. Use model.get_plan() instead')
 
-    return -1*plan
 
+#TODO convert to mysql data not csv import.
 #loads the CSV prognose sheet into regels
 # returns a dictionary of regels, sorted by order#
 def get_prognose_regels(jaar='', order=''):
@@ -423,7 +300,6 @@ def get_prognose_regels(jaar='', order=''):
 
     f.close()
     return prognose
-
 
 
 # Returns a list of geboekte salaris regels 
@@ -461,7 +337,7 @@ def get_salaris_geboekt_regels(jaar, periodes=[], orders=[], kostensoorten=[]):
 def get_salaris_begroot_regels(jaar, orders=[]):
     sqlwhere = '1'
     if orders:
-        sqlwhere = '`'+config["SAPkeys"]["salaris_begroting"]["order"]+'` IN (' + ','.join(str(order) for order in orders) + ')'
+        sqlwhere = '`ordernummer` IN (' + ','.join(str(order) for order in orders) + ')'
 
     try:
         salarisdb = db.select('salaris_begroting', where=sqlwhere, vars=locals())
@@ -473,16 +349,6 @@ def get_salaris_begroot_regels(jaar, orders=[]):
     return regels
 
 
-# Returns a list of regels loaded from the dbSelect
-def db_2_regels(dbSelect, tiepe):
-    regels = []
-    for dbRegel in dbSelect:
-        regel = Regel()
-        regel.import_from_db_select(dbRegel, tiepe)
-        regels.append(regel)
-
-    return regels
-
 # Checks if all tables exist: def check_table_exists(table):
 def check_table_exists(table):
     results = db.query("SHOW TABLES LIKE '"+table+"'")
@@ -490,12 +356,14 @@ def check_table_exists(table):
         return False
     return True
 
+
 def move_table(table, target):
     if not check_table_exists(table):
         return False
 
     results = db.query("RENAME TABLE `sap`.`"+table+"` TO `sap`.`"+target+"`;")
     return True
+
 
 ### SQL INJECTION POSSIBLE.. STRIP/VALUES FOR VALUES!
 def create_table(table, fields):
@@ -507,6 +375,6 @@ def create_table(table, fields):
     sql = "CREATE TABLE " + table + " (" + ', '.join(fieldsAndType) + ");"
     results = db.query(sql)
 
-def insert_into_table(table, rows):
 
+def insert_into_table(table, rows):
     db.multiple_insert(table, values=rows)
