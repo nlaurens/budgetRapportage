@@ -43,10 +43,28 @@ TODO
 """
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"], host=config["mysql"]["host"])
 
-# Returns a list of regels loaded from the dbSelect
-# Function should by used by any get/load function that
-# wants multiple regels from the mysql db.
-def db_2_regels(dbSelect, tiepe):
+# Returns a list of regels loaded from the selected db (tiepe-db)
+def get_regels(tiepe_db, jaar, periodes=[], order=0, kostensoorten=[]):
+    assert tiepe_db != '', "model.get_regels() tiepe_db is empty" 
+
+    if order > 0:
+        sqlwhere = '`ordernummer`=$order'
+
+    if kostensoorten:
+        if sqlwhere == '':
+            sqlwhere = '`kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+        else:
+            sqlwhere += ' AND `kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+
+    sqlwhere += ' AND `jaar` = $jaar'
+    if periodes:
+        sqlwhere += ' AND `periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
+
+    try:
+        dbSelect = db.select(tiepe_db, where=sqlwhere, vars=locals())
+    except IndexError:
+        return None
+
     regels = []
     for dbRegel in dbSelect:
         regel = Regel()
@@ -54,6 +72,7 @@ def db_2_regels(dbSelect, tiepe):
         regels.append(regel)
 
     return regels
+
 
 # Gives a list of allowed budgets for that user.
 def get_budgets(verifyHash, salt):
@@ -157,80 +176,6 @@ def get_orders(sqlLike='%'):
 
     return orders
 
-# Returns a list of boekingsRegel from the obligo table
-def get_obligos_regels(jaar, periodes=[], orders=[], kostensoorten=[]):
-    sqlwhere = '1'
-    if orders:
-        sqlwhere = '`ordernummer` IN (' + ','.join(str(order) for order in orders) + ')'
-
-    if kostensoorten:
-        if sqlwhere == '1':
-            sqlwhere = '`Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
-        else:
-            sqlwhere += ' AND `Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
-
-    if sqlwhere == '1':
-        sqlwhere = ' AND `jaar` = $jaar'
-    else:
-        sqlwhere += ' AND `jaar` = $jaar'
-
-    if periodes:
-        sqlwhere += ' AND `Periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
-
-    try:
-        obligodb = db.select('obligo', where=sqlwhere, vars=locals())
-    except IndexError:
-        return None
-
-    regels = db_2_regels(obligodb, 'obligo')
-    return  regels
-
-# Returns a list of planregels from the geboekt table
-def get_plan(jaar, order=0, kostensoorten=[]):
-    if order > 0:
-        sqlwhere = '`order`=$order'
-
-    if kostensoorten:
-        if sqlwhere == '':
-            sqlwhere = '`Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
-        else:
-            sqlwhere += ' AND `Kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
-
-    sqlwhere += ' AND `jaar` = $jaar'
-
-    try:
-        plandb = db.select('plan', where=sqlwhere, vars=locals())
-    except IndexError:
-        return None
-
-    regels = db_2_regels(plandb, 'plan')
-    return  regels
-
-
-# Returns a list of boekingsRegel from the geboekt table
-def get_geboekt(jaar, periodes=[], order=0, kostensoorten=[]):
-
-    if order > 0:
-        sqlwhere = '`ordernummer`=$order'
-
-    if kostensoorten:
-        if sqlwhere == '':
-            sqlwhere = '`kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
-        else:
-            sqlwhere += ' AND `kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
-
-    sqlwhere += ' AND `jaar` = $jaar'
-    if periodes:
-        sqlwhere += ' AND `periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
-
-    try:
-        geboektdb = db.select('geboekt', where=sqlwhere, vars=locals())
-    except IndexError:
-        return None
-
-    regels = db_2_regels(geboektdb, 'geboekt')
-    return  regels
-
 
 # Returns a tuple of all kostensoorten and their names in order:
 def get_kosten_soorten(order=0):
@@ -300,53 +245,6 @@ def get_prognose_regels(jaar='', order=''):
 
     f.close()
     return prognose
-
-
-# Returns a list of geboekte salaris regels 
-def get_salaris_geboekt_regels(jaar, periodes=[], orders=[], kostensoorten=[]):
-    sqlwhere = '1'
-    if orders:
-        sqlwhere = '`order` IN (' + ','.join(str(order) for order in orders) + ')'
-
-    if kostensoorten:
-        if sqlwhere == '1':
-            sqlwhere = '`kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
-        else:
-            sqlwhere += ' AND `kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
-
-#TODO jaar en periode zitten niet in de db. Wel de datum. Slimme query schrijven die dit oppakt.
-    #if sqlwhere == '1':
-    #    sqlwhere = ' AND `'+config["SAPkeys"]["salaris"]["order"]+'Boekjaar` = $jaar'
-    #else:
-    #    sqlwhere += ' AND `'+config["SAPkeys"]["salaris"]["order"]+'Boekjaar` = $jaar'
-
-    #if periodes:
-    #    sqlwhere += ' AND `'+config["SAPkeys"]["salaris"]["order"]+'Periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
-
-    try:
-        salarisdb = db.select('salaris', where=sqlwhere, vars=locals())
-    except IndexError:
-        return None
-
-    regels = db_2_regels(salarisdb, 'salaris')
-
-    return regels
-
-
-# Returns a list of begroting salaris regels 
-def get_salaris_begroot_regels(jaar, orders=[]):
-    sqlwhere = '1'
-    if orders:
-        sqlwhere = '`ordernummer` IN (' + ','.join(str(order) for order in orders) + ')'
-
-    try:
-        salarisdb = db.select('salaris_begroting', where=sqlwhere, vars=locals())
-    except IndexError:
-        return None
-
-    regels = db_2_regels(salarisdb, 'salaris_begroting')
-
-    return regels
 
 
 # Checks if all tables exist: def check_table_exists(table):
