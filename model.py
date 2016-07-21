@@ -188,15 +188,15 @@ def get_reserves():
 # in both geboekt and obligo
 def get_orders(sqlLike='%'):
 
-    geboekt = db.query("SELECT DISTINCT(`order`) FROM `geboekt` WHERE `order` LIKE '"+sqlLike+"'")
-    obligo = db.query("SELECT DISTINCT(`order`) FROM `obligo` WHERE `order` LIKE '"+sqlLike+"'")
+    geboekt = db.query("SELECT DISTINCT(`ordernummer`) FROM `geboekt` WHERE `ordernummer` LIKE '"+sqlLike+"'")
+    obligo = db.query("SELECT DISTINCT(`ordernummer`) FROM `obligo` WHERE `ordernummer` LIKE '"+sqlLike+"'")
 
     orders = set()
     for regel in geboekt:
-        orders.add(regel.Order)
+        orders.add(regel.ordernummer)
 
     for regel in obligo:
-        orders.add(regel.Order)
+        orders.add(regel.ordernummer)
 
     orders = list(orders)
     orders.sort()
@@ -308,7 +308,7 @@ def get_plan(jaar, order=0, kostensoorten=[]):
 def get_geboekt(jaar, periodes=[], order=0, kostensoorten=[]):
 
     if order > 0:
-        sqlwhere = '`order`=$order'
+        sqlwhere = '`ordernummer`=$order'
 
     if kostensoorten:
         if sqlwhere == '':
@@ -359,9 +359,9 @@ def get_kosten_soorten(order=0):
         obligodb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `obligo`")
         plandb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `plan`")
     else:
-        geboektdb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `geboekt` WHERE `order`=" + str(order))
-        obligodb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `obligo` WHERE `order`=" + str(order))
-        plandb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `plan` WHERE `order`=" + str(order))
+        geboektdb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `geboekt` WHERE `ordernummer`=" + str(order))
+        obligodb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `obligo` WHERE `ordernummer`=" + str(order))
+        plandb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `plan` WHERE `ordernummer`=" + str(order))
 
     geboektks = {}
     for regel in geboektdb:

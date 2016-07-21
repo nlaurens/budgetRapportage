@@ -9,6 +9,7 @@ NOTES
 
 TODO
 
+# Kijken naar de if/else structuur van de argv parser. Als je geen argumenten geeft krijg je fout melding .
 # Afronding: alleen doen bij visualisatie, niet in export naar files en totalen niet optellen uit afgeronde cijfers.
 # Algemeen
     Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
@@ -24,7 +25,7 @@ TODO
 
 """
 import web
-web.config.debug = False #must be done before the rest.
+web.config.debug = True #must be done before the rest.
 
 import model
 import GrootBoek
