@@ -68,3 +68,10 @@ class RegelList():
         for regel in self.regels:
             regel.druk_af()
 
+    def count(self):
+        return len(self.regels)
+
+
+    #Returns a copy of the RegelList for recursion.
+    def copy(self):
+        return RegelList(self.regels)
