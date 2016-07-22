@@ -143,7 +143,9 @@ class GrootBoek():
             child.assign_regels_recursive(regels)
 
         for key in regels.keys():
-            self.regels[key] = regels[key].filter_regels_by_attribute('kostensoort', self.kostenSoorten.keys())
+            filteredRegels = regels[key].copy()
+            filteredRegels.filter_regels_by_attribute('kostensoort', self.kostenSoorten.keys())
+            self.regels[key] = filteredRegels
 
     # Set totals per key [obligo, plan, etc.], and per ks for each node
     def set_totals(self, periode=range(0,16)):
@@ -152,8 +154,9 @@ class GrootBoek():
         self.totaalTree['plan'] = 0
 
         for key in self.regels.keys():
-            for ks, regellist in self.regels[key].split_by_regel_attributes(['kostensoort']).iteritems():
-                for periode_regellist, regellist in regellist.split_by_regel_attributes(['periode']).iteritems():
+            regelsPerKS = self.regels[key].split_by_regel_attributes(['kostensoort', 'periode'])
+            for ks, regelsPerPeriode in regelsPerKS.iteritems():
+                for periode, regellist in regelsPerPeriode.iteritems():
                     if key not in self.totaalNodePerKS:
                         self.totaalNodePerKS[key] = {}
                     if ks not in self.totaalNodePerKS[key]:
@@ -161,8 +164,7 @@ class GrootBoek():
                     self.totaalNodePerKS[key][ks] += regellist.total()
 
                     self.totaalTree[key] += self.totaalNodePerKS[key][ks]
-         
-        
+
         #add childrens totaltree's
         for child in self.children:
             totaalChildTree = child.set_totals(periode=periode)
