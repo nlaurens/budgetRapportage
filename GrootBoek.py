@@ -146,6 +146,8 @@ class GrootBoek():
 
     # Set totals per key [obligo, plan, etc.], and per ks for each node
     def set_totals(self, periode=range(0,16)):
+        self.totaalTree = {}
+        self.totaalNodePerKS = {}
         self.totaalTree['geboekt'] = 0
         self.totaalTree['obligo'] = 0
         self.totaalTree['plan'] = 0

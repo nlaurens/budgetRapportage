@@ -481,8 +481,8 @@ class Graph:
         rootBaten = GrootBoek.load(order, grootboekBaten, jaar, [])
         rootLasten = GrootBoek.load(order, grootboekLasten, jaar, [])
 
-#TODO Clean empty nodes
-# er gaat nu nog iets mis omdat er dan geen baten zijn -> dat fixen ipv geen clean doen!
+        rootBaten.clean_empty_nodes()
+        rootLasten.clean_empty_nodes()
 
         for periode in range(1,13):
             if periode == 1:
@@ -495,7 +495,7 @@ class Graph:
 
             totalTreeBaten  =  rootBaten.set_totals(periode=periode)
             totalTreeLasten = rootLasten.set_totals(periode=periode)
-            
+
             if params['ignore_obligos']:
                 totaal = totalTreeBaten['geboekt'] + totalTreeLasten['geboekt']
             else:
