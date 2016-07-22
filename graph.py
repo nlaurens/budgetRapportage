@@ -375,13 +375,13 @@ class Graph:
 
             if res <= 0 :
                 color_res.append('pink')#pink
-                X_max = max(X_max, (besteed))
+                X_max = float(max(X_max, (besteed)))
             else:
                 color_res.append('lightsage')
-                X_max = max(X_max, (res+besteed))
+                X_max = float(max(X_max, (res+besteed)))
             residu.append(res)
 
-        #Parse all lasten
+        #Parse all baten
         for key, line in baten.iteritems():
             besteed = np.absolute(np.sum(line))
             realisatie.append(besteed)
@@ -389,10 +389,10 @@ class Graph:
 
             if res <= 0 :
                 color_res.append('pink')#pink
-                X_max = max(X_max, (besteed))
+                X_max = float(max(X_max, (besteed)))
             else:
                 color_res.append('lightsage')
-                X_max = max(X_max, (res+besteed))
+                X_max = float(max(X_max, (res+besteed)))
             residu.append(res)
 
         #Parse all begrotingen that have no cost (i.e. no lines)
@@ -406,10 +406,10 @@ class Graph:
 
                 if res <= 0 :
                     color_res.append('pink')#pink
-                    X_max = max(X_max, (besteed))
+                    X_max = float(max(X_max, (besteed)))
                 else:
                     color_res.append('lightsage')
-                    X_max = max(X_max, (res+besteed))
+                    X_max = float(max(X_max, (res+besteed)))
                 residu.append(res)
                 names.append(key) #of gebruik insert(pos, key)
 
@@ -444,10 +444,10 @@ class Graph:
             width = int(rect.get_width())
 
             if color_res[i]=='lightsage':
-                xloc = 0.5*width + realisatie[i]
+                xloc = 0.5*width + float(realisatie[i])
                 rankStr = '+'+str(width)
             else:
-                xloc = -0.4*width + realisatie[i]
+                xloc = -0.4*width + float(realisatie[i])
                 rankStr = '-'+str(width)
 
             xloc = min(xloc, X_max*1.01)
