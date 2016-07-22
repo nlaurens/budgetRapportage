@@ -20,6 +20,7 @@ TODO
 
 # fig2:
     remove_pieces: check of er slechts 1 piece verwijdert wordt. Want dan kan je hem beter laten staan!
+    Als het totaal 0 is moet je toch een pie chart maken met 1 piecie.
 # fig3:
     y-labels kleurtje geven (want als niet begroot is, is ie sowieso rood..)
 
@@ -43,7 +44,7 @@ from matplotlib.patches import Rectangle
 class Graph:
     def __init__(self):
         self.title = ''
-        self.resultaat = np.zeros(12) #totaal resultaat for whole year
+        self.resultaat = None #totaal resultaat for whole year
         self.baten = {} #key = ks, np array for each periode (12)
         self.lasten = {} #key = ks, np array for each periode (12)
         self.begroot = {} #key = ks, 1 value for whole year
@@ -278,9 +279,12 @@ class Graph:
 
     #remove pieces < threshold of the total:
     def remove_small_pieces(self, values, labels):
+        totaal = np.sum(values)
+        if totaal == 0:
+            return values, labels
+
         rest = 0
         th = 0.15
-        totaal = np.sum(values)
         tmpvalues = []
         tmplabels = []
         for i, value in enumerate(values):
@@ -297,6 +301,7 @@ class Graph:
         return tmpvalues, tmplabels
 
     def baten_lasten_pie(self):
+#TODO fix pie charts als ze uit 0 euro bestaan of uit 1 post.
         baten = self.baten.copy()
         lasten = self.lasten.copy()
 
@@ -571,9 +576,10 @@ class Graph:
 
     #Merges two graphs
     def merge(self, graph):
-        print self.resultaat
-        print graph.resultaat
-        self.resultaat += graph.resultaat
+        if self.resultaat is None:
+            self.resultaat = graph.resultaat
+        else:
+            self.resultaat += graph.resultaat
 
         for key, value in graph.begroot.iteritems():
             if key in self.begroot:
