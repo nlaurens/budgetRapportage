@@ -29,10 +29,10 @@ class Regel():
 
 
     def druk_af(self):
+        print '* regel' 
         for attribute, value in vars(self).iteritems():
-            print attribute 
-            print value
-            print ''
+            print '  ' + attribute + ': ' + str(value)
+        print ''
 
 
     def copy(self):
@@ -70,5 +70,6 @@ class Regel():
         #Specific rules per tiepe:
         if tiepe == 'plan':
             self.periode = 1
+            self.omschrijving = 'begroting'
         #if tiepe == 'obligo' or 'geboekt':
             #self.omschrijving = self.omschrijving.decode('ascii', 'replace').encode('utf-8')

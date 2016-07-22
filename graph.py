@@ -480,18 +480,22 @@ class Graph:
         resultaat = []
         rootBaten = GrootBoek.load(order, grootboekBaten, jaar, [])
         rootLasten = GrootBoek.load(order, grootboekLasten, jaar, [])
+
+#TODO Clean empty nodes
+# er gaat nu nog iets mis omdat er dan geen baten zijn -> dat fixen ipv geen clean doen!
+
         for periode in range(1,13):
             if periode == 1:
-                periode = [0,1]
                 begroot['totaal'] = 0
-            elif periode == 12:
+
+            if periode == 12:
                 periode = [12,13,14,15]
             else:
                 periode = [periode]
 
             totalTreeBaten  =  rootBaten.set_totals(periode=periode)
             totalTreeLasten = rootLasten.set_totals(periode=periode)
-
+            
             if params['ignore_obligos']:
                 totaal = totalTreeBaten['geboekt'] + totalTreeLasten['geboekt']
             else:
@@ -499,7 +503,7 @@ class Graph:
                 totaal += totalTreeBaten['obligo'] + totalTreeLasten['obligo']
             resultaat.append(totaal)
 
-            begroot['totaal'] = totalTreeBaten['plan'] + totalTreeLasten['plan']
+            begroot['totaal'] += totalTreeBaten['plan'] + totalTreeLasten['plan']
 
             details = params['detailed']
             baten, begroot = self.parse_node(rootBaten, details, baten, begroot, periode)
@@ -556,7 +560,7 @@ class Graph:
                 totaal = node.totaalTree['geboekt']
             else:
                 totaal = node.totaalTree['geboekt'] + node.totaalTree['obligo']
-            if periode == [0,1]:
+            if periode == [1]:
                 begroot[node.descr] = node.totaalTree['plan']
                 lines[node.descr] = [ totaal ]
             else:

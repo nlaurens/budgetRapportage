@@ -153,14 +153,15 @@ class GrootBoek():
         for key in self.regels.keys():
             regelsPerKS = self.regels[key].split_by_regel_attributes(['kostensoort', 'periode'])
             for ks, regelsPerPeriode in regelsPerKS.iteritems():
-                for periode, regellist in regelsPerPeriode.iteritems():
-                    if key not in self.totaalNodePerKS:
-                        self.totaalNodePerKS[key] = {}
-                    if ks not in self.totaalNodePerKS[key]:
-                        self.totaalNodePerKS[key][ks] = 0
-                    self.totaalNodePerKS[key][ks] += regellist.total()
+                for periodeList, regellist in regelsPerPeriode.iteritems():
+                    if periodeList in periode:
+                        if key not in self.totaalNodePerKS:
+                            self.totaalNodePerKS[key] = {}
+                        if ks not in self.totaalNodePerKS[key]:
+                            self.totaalNodePerKS[key][ks] = 0
+                        self.totaalNodePerKS[key][ks] += regellist.total()
 
-                    self.totaalTree[key] += self.totaalNodePerKS[key][ks]
+                        self.totaalTree[key] += self.totaalNodePerKS[key][ks]
 
         #add childrens totaltree's
         for child in self.children:
@@ -209,7 +210,6 @@ class GrootBoek():
 
 
     def clean_empty_nodes(self):
-
         allchildrenempty = True
 
         emptychild = []
@@ -225,7 +225,12 @@ class GrootBoek():
         if not allchildrenempty:
             return False
         else:
-            if not self.regels:
+            empty = True
+            for key in self.regels.keys():
+                if self.regels[key].count() > 0:
+                    empty = False
+
+            if empty:
                 return True
             else:
                 return False
@@ -291,6 +296,5 @@ def load(order, grootboek, jaar, periodes):
     root = load_raw_sap_export(grootboek)
     root.assign_regels_recursive(regels)
     root.normalize_levels()
-    root.set_totals()
 
     return root
