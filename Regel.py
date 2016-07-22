@@ -68,5 +68,5 @@ class Regel():
 
 
         #Specific rules per tiepe:
-        if tiepe == 'obligo' or 'geboekt':
-            self.omschrijving = self.omschrijving.decode('ascii', 'replace').encode('utf-8')
+        #if tiepe == 'obligo' or 'geboekt':
+            #self.omschrijving = self.omschrijving.decode('ascii', 'replace').encode('utf-8')

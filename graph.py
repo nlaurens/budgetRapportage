@@ -459,26 +459,6 @@ class Graph:
 
         return plt
 
-    def parse_node(self, root, details, lines, begroot, periode):
-        pars = []
-        if details:
-            pars = root.get_end_children(pars)
-        else:
-            pars = root.children
-
-        # parse each node
-        for node in pars:
-            if params['ignore_obligos']:
-                totaal = node.totaalGeboektTree
-            else:
-                totaal = node.totaalGeboektTree + node.totaalObligosTree
-            if periode == [0,1]:
-                begroot[node.descr] = node.totaalPlanTree
-                lines[node.descr] = [ totaal ]
-            else:
-                lines[node.descr].append(totaal)
-
-        return lines, begroot
 
     def to_np_keuro(self, dictionary):
         # Convert to a proper numpy array in keuro.
@@ -509,19 +489,17 @@ class Graph:
             else:
                 periode = [periode]
 
-            rootBaten.set_totals(periode=periode)
-            rootLasten.set_totals(periode=periode)
+            totalTreeBaten  =  rootBaten.set_totals(periode=periode)
+            totalTreeLasten = rootLasten.set_totals(periode=periode)
 
             if params['ignore_obligos']:
-                totaal = rootBaten.totaalGeboektTree 
-                totaal += rootLasten.totaalGeboektTree 
+                totaal = totalTreeBaten['geboekt'] + totalTreeLasten['geboekt']
             else:
-                totaal = rootBaten.totaalGeboektTree + rootBaten.totaalObligosTree
-                totaal += rootLasten.totaalGeboektTree + rootLasten.totaalObligosTree
+                totaal = totalTreeBaten['geboekt'] + totalTreeLasten['geboekt']
+                totaal += totalTreeBaten['obligo'] + totalTreeLasten['obligo']
             resultaat.append(totaal)
 
-            begroot['totaal'] += rootLasten.totaalPlanTree
-            begroot['totaal'] += rootBaten.totaalPlanTree
+            begroot['totaal'] = totalTreeBaten['plan'] + totalTreeLasten['plan']
 
             details = params['detailed']
             baten, begroot = self.parse_node(rootBaten, details, baten, begroot, periode)
@@ -564,6 +542,29 @@ class Graph:
             return False
         return True
 
+
+    def parse_node(self, root, details, lines, begroot, periode):
+        pars = []
+        if details:
+            pars = root.get_end_children(pars)
+        else:
+            pars = root.children
+
+        # parse each node
+        for node in pars:
+            if params['ignore_obligos']:
+                totaal = node.totaalTree['geboekt']
+            else:
+                totaal = node.totaalTree['geboekt'] + node.totaalTree['obligo']
+            if periode == [0,1]:
+                begroot[node.descr] = node.totaalTree['plan']
+                lines[node.descr] = [ totaal ]
+            else:
+                lines[node.descr].append(totaal)
+
+        return lines, begroot
+
+
     #Merges two graphs
     def merge(self, graph):
         self.resultaat += graph.resultaat
@@ -591,6 +592,8 @@ class Graph:
 
     def save_figs(self, name, params):
         path = params['figpath']
+        if not os.path.isdir(path):
+            os.mkdir(path)
         plt = self.realisatie(params, name)
         plt.savefig(path+'1-'+name+'.png', bbox_inches='tight')
         plt.close()
@@ -612,7 +615,7 @@ class Graph:
 
 def og_graphs(root, i, total, jaar):
     merged = Graph()
-# Ook alle childs mergen!
+    # Ook alle childs mergen!
     for child in root.children:
         graph, i = og_graphs(child, i, total, jaar)
         merged.merge(graph)
@@ -657,7 +660,7 @@ if __name__ == "__main__":
     params['detailed'] = True
     params['figpath'] = 'figs/'
     params['ignore_obligos'] = False
-    jaar = 2015
+    jaar = 2016
 
 
     found = False

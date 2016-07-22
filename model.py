@@ -68,7 +68,7 @@ def get_regels(tiepe_db, jaar, periodes=[], order=0, kostensoorten=[]):
     regels = []
     for dbRegel in dbSelect:
         regel = Regel()
-        regel.import_from_db_select(dbRegel, tiepe)
+        regel.import_from_db_select(dbRegel, tiepe_db)
         regels.append(regel)
 
     return regels

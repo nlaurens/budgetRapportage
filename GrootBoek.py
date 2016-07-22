@@ -1,8 +1,6 @@
 import model
 from RegelList import RegelList
 
-#TODO omschrijven naar nieuwe RegelList ipv eigen verzameling van regels per level.
-
 class GrootBoek():
 
     def __init__(self, name, descr, level, parent):
@@ -15,13 +13,10 @@ class GrootBoek():
 
         self.regels = {} #['geboekt', 'obligo', 'plan'] = RegelList
 
-        self.totaalGeboektNode = {}  # Dict: kostensoort:totaal van de node
-        self.totaalObligosNode = {}
-        self.totaalPlanNode = {}
-
-        self.totaalGeboektTree = 0
-        self.totaalObligosTree = 0
-        self.totaalPlanTree = 0
+        # We keep totals per node and tree to prevent running through it multiple
+        # times when we display the tree in output or html.
+        self.totaalNodePerKS = {}  # [geboekt, obligo, plan][<kostensoort] = <total kosten of node of that ks>
+        self.totaalTree = {} # [geboekt, obligo, plan] = <total of current node + children>
 
     def add_kostensoort(self, kostensoort, descr):
         self.kostenSoorten[kostensoort] = descr
@@ -36,8 +31,8 @@ class GrootBoek():
 
     def druk_af(self):
         print 'grootboek ' + self.name + ' (level '+str(self.level)+') - ' + self.descr
-        print 'totaal node: ' + str(self.totaalPlanNode) + str(self.totaalGeboektNode) + ' | ' + str(self.totaalObligosNode)
-        print 'totaal tree: ' + str(self.totaalPlanTree) + str(self.totaalGeboektTree) + ' | ' + str(self.totaalObligosTree)
+        print 'totaal node: ' + str(self.totaalNodePerKS) 
+        print 'totaal tree: ' + str(self.totaalTree) 
 
         if self.parent != '':
             print 'belongs to parent: ' + self.parent.name
@@ -48,9 +43,9 @@ class GrootBoek():
 
         if self.regels:
             print 'contains the following regels:'
-            for ks, regels in self.regels.iteritems():
-                print ks
-                for regel in regels:
+            for tiepe, regellist in self.regels.iteritems():
+                print tiepe
+                for regel in regellist.regels:
                     print '   '+ regel.omschrijving + ' - ' + str(regel.kosten) + ' - ' + regel.tiepe
 
         if self.children:
@@ -147,52 +142,34 @@ class GrootBoek():
         for child in self.children:
             child.assign_regels_recursive(regels)
 
-        self.regels['geboekt'] = regels['geboekt'].filter_regels_by_attribute('kostensoort', self.kostenSoorten.keys())
-        self.regels['obligo'] = regels['obligo'].filter_regels_by_attribute('kostensoort', self.kostenSoorten.keys())
-        self.regels['plan'] = regels['plan'].filter_regels_by_attribute('kostensoort', self.kostenSoorten.keys())
+        for key in regels.keys():
+            self.regels[key] = regels[key].filter_regels_by_attribute('kostensoort', self.kostenSoorten.keys())
 
-
+    # Set totals per key [obligo, plan, etc.], and per ks for each node
     def set_totals(self, periode=range(0,16)):
-        geboekttotaal, obligostotaal, plantotaal = self.__totaal(periode)
+        self.totaalTree['geboekt'] = 0
+        self.totaalTree['obligo'] = 0
+        self.totaalTree['plan'] = 0
 
+        for key in self.regels.keys():
+            for ks, regellist in self.regels[key].split_by_regel_attributes(['kostensoort']).iteritems():
+                for periode_regellist, regellist in regellist.split_by_regel_attributes(['periode']).iteritems():
+                    if key not in self.totaalNodePerKS:
+                        self.totaalNodePerKS[key] = {}
+                    if ks not in self.totaalNodePerKS[key]:
+                        self.totaalNodePerKS[key][ks] = 0
+                    self.totaalNodePerKS[key][ks] += regellist.total()
+
+                    self.totaalTree[key] += self.totaalNodePerKS[key][ks]
+         
+        
+        #add childrens totaltree's
         for child in self.children:
-            geboekt, obligos, plan = child.set_totals(periode=periode)
-            geboekttotaal += geboekt
-            obligostotaal += obligos
-            plantotaal += plan
+            totaalChildTree = child.set_totals(periode=periode)
+            for key in totaalChildTree.keys():
+                self.totaalTree[key] += totaalChildTree[key]
 
-        self.totaalGeboektTree = geboekttotaal
-        self.totaalObligosTree = obligostotaal
-        self.totaalPlanTree = plantotaal
-
-        return geboekttotaal, obligostotaal, plantotaal
-
-    def __totaal(self, periode):
-        geboekt = {}
-        obligos = {}
-        plan = {}
-        for kostenSoort, lijst in self.regels.iteritems():
-            if not kostenSoort in obligos:
-                obligos[kostenSoort] = 0
-            if not kostenSoort in geboekt:
-                geboekt[kostenSoort] = 0
-            if not kostenSoort in plan:
-                plan[kostenSoort] = 0
-
-            for regel in lijst:
-                if regel.periode in periode:
-                    if regel.tiepe == 'Plan':
-                        plan[kostenSoort] = plan[kostenSoort] + regel.kosten
-                    if regel.tiepe == 'Obligo':
-                        obligos[kostenSoort] = obligos[kostenSoort] + regel.kosten
-                    elif regel.tiepe == 'Geboekt':
-                        geboekt[kostenSoort] = geboekt[kostenSoort] + regel.kosten
-
-        self.totaalGeboektNode = geboekt
-        self.totaalObligosNode = obligos
-        self.totaalPlanNode = plan
-
-        return sum(geboekt.itervalues()), sum(obligos.itervalues()), sum(plan.itervalues())
+        return self.totaalTree
 
 
     # Creates a list of all levels in the tree
