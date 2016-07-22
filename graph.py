@@ -25,7 +25,7 @@ TODO
 
 """
 import web
-web.config.debug = True #must be done before the rest.
+web.config.debug = False #must be done before the rest.
 
 import model
 import GrootBoek
@@ -571,6 +571,8 @@ class Graph:
 
     #Merges two graphs
     def merge(self, graph):
+        print self.resultaat
+        print graph.resultaat
         self.resultaat += graph.resultaat
 
         for key, value in graph.begroot.iteritems():
@@ -666,7 +668,6 @@ if __name__ == "__main__":
     params['ignore_obligos'] = False
     jaar = 2016
 
-
     found = False
     if len(sys.argv) <2:
         print 'error no arguments given'
@@ -704,7 +705,7 @@ if __name__ == "__main__":
                 if order == os.path.split(OG)[1]:
                     found = True
                     print 'creating graph of group ' + order
-                    create_ordergroep_graphs(OG, 2015, params)
+                    create_ordergroep_graphs(OG, jaar, params)
 
     if not found:
         print 'ERROR Unkown input ' + order
