@@ -96,15 +96,12 @@ class GrootBoek():
 
         return html
 
+
     def walk_tree(self, maxdepth):
-        output = []
         if self.level <= maxdepth:
-            # Use drukAf() voor debugging.
             self.druk_af()
-            #output.append(self.regel())
             for child in self.children:
                 child.walk_tree(maxdepth)
-                #output.extend(child.walk_tree(maxdepth))
 
 
     def walk_levels(self):
