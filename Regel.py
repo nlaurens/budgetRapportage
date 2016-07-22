@@ -68,5 +68,7 @@ class Regel():
 
 
         #Specific rules per tiepe:
+        if tiepe == 'plan':
+            self.periode = 1
         #if tiepe == 'obligo' or 'geboekt':
             #self.omschrijving = self.omschrijving.decode('ascii', 'replace').encode('utf-8')
