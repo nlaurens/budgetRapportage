@@ -63,3 +63,8 @@ class RegelList():
 
         self.regels = new_regels
         return self
+
+    def druk_af(self):
+        for regel in self.regels:
+            regel.druk_af()
+

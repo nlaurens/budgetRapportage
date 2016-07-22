@@ -28,7 +28,7 @@ class Regel():
         self.documentnummer = None
 
 
-    def drukAf(self):
+    def druk_af(self):
         for attribute, value in vars(self).iteritems():
             print attribute 
             print value
