@@ -71,5 +71,7 @@ class Regel():
         if tiepe == 'plan':
             self.periode = 1
             self.omschrijving = 'begroting'
+        if tiepe == 'obligo':
+            self.druk_af()
         #if tiepe == 'obligo' or 'geboekt':
             #self.omschrijving = self.omschrijving.decode('ascii', 'replace').encode('utf-8')
