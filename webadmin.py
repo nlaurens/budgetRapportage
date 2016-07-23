@@ -23,10 +23,13 @@ def checkDB():
 
 
 def updateGraphs(orderGroep):
-    print orderGroep
-    msg = ['START: updating graphs']
-    msg = ['removing old graphs']
-    msg = ['rebuilding Graphs (will take a while to appear)']
+    if orderGroep not in model.loadOrderGroepen():
+        msg = ['Error ordergroep not found: ' + orderGroep]
+        return msg
+    else:
+        msg = ['Ordergroep found!']
+        msg = ['rebuilding Graphs (will take a while to appear)']
+        os.system("python graph.py " + orderGroep)
     return msg
 
 
