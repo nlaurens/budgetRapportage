@@ -7,7 +7,7 @@ class RegelList():
     '''
     Returns a dictionary of RegelList sorted out by a specific
     attributes in the regel.
-    For example: 
+    For example:
         split_by_regel_attributes(self, ['order', 'kostensoort'])
     will return:
         dict['order1']['kostensoort1'] = RegelList
@@ -18,7 +18,7 @@ class RegelList():
     '''
     def split_by_regel_attributes(self, attributes_to_group):
         regelListDict = self.__split_by_regel_attribute(attributes_to_group.pop(0))
-            
+
         if attributes_to_group:
             for key, regelListDictChild  in regelListDict.iteritems():
                 regelListDict[key] = regelListDictChild.split_by_regel_attributes(list(attributes_to_group)) #list(..) creates a copy for recursion!
@@ -51,8 +51,8 @@ class RegelList():
         return total
 
 
-    def extend(self, regelsToAdd):
-        self.regels = self.regels + regelsToAdd.regels
+    def extend(self, regelListToAdd):
+        self.regels = self.regels + regelListToAdd.regels
 
 
     def filter_regels_by_attribute(self, attribute, list_allowed):

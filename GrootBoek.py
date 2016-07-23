@@ -1,4 +1,5 @@
 import model
+import os
 from RegelList import RegelList
 
 class GrootBoek():
@@ -31,8 +32,8 @@ class GrootBoek():
 
     def druk_af(self):
         print 'grootboek ' + self.name + ' (level '+str(self.level)+') - ' + self.descr
-        print 'totaal node: ' + str(self.totaalNodePerKS) 
-        print 'totaal tree: ' + str(self.totaalTree) 
+        print 'totaal node: ' + str(self.totaalNodePerKS)
+        print 'totaal tree: ' + str(self.totaalTree)
 
         if self.parent != '':
             print 'belongs to parent: ' + self.parent.name
@@ -255,7 +256,10 @@ def first_item_in_list(lst):
 def last_item_in_list(lst):
     return len(lst), lst[-1]
 
-def load_raw_sap_export(path):
+def load(grootboek):
+    KSgroepen = model.loadKSgroepen()
+    path =  KSgroepen[grootboek]
+
     f = open(path, 'r')
     group = ''
     for line in f:
@@ -279,24 +283,5 @@ def load_raw_sap_export(path):
                     group = GrootBoek(item, descr, level, parent)
                     parent.add_child(group)
 
-    return root
-
-def load_empty(grootboek):
-    root = load_raw_sap_export(grootboek)
     root.normalize_levels()
-
-    return root
-
-def load(order, grootboek, jaar, periodes):
-    ksGeboekt, ksObligos, ksPlan = model.get_kosten_soorten(order)
-
-    regels = {}
-    regels['geboekt'] = RegelList(model.get_regels('geboekt', jaar, periodes, order, ksGeboekt))
-    regels['obligo'] = RegelList(model.get_regels('obligo', jaar, periodes, order, ksObligos))
-    regels['plan'] = RegelList(model.get_regels('plan', jaar, periodes, order, ksPlan))
-
-    root = load_raw_sap_export(grootboek)
-    root.assign_regels_recursive(regels)
-    root.normalize_levels()
-
     return root

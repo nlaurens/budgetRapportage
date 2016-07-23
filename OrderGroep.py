@@ -151,32 +151,11 @@ def first_item_in_list(lst):
 def last_item_in_list(lst):
     return len(lst), lst[-1]
 
-def load_raw_sap_export(path):
-    f = open(path, 'r')
-    group = ''
-    for line in f:
-        line = line.replace('|', ' ')
-        line = line.replace('--', '')
-        line = line.split(' ')
-        level, item = first_item_in_list(line)
-        item = item.strip()
-        descr = ' '.join(line[level+1:]).strip()
 
-        if item!='':
-            if item.isdigit():
-                group.add_order(int(item), descr)
-            elif item != '>>> Interval leeg':
-                if group == '':
-                    group = GrootBoekGroep(item, descr, level, '')
-                    root = group
-                else:
-                    parent = group.lower_level_parent(level)
-                    group = GrootBoekGroep(item, descr, level, parent)
-                    parent.add_child(group)
+def load(groep):
+    groepen = model.loadOrderGroepen()
+    path = groepen[groep]
 
-    return root
-
-def load_txt(path):
     f = open(path, 'r')
     group = ''
     for line in f:
@@ -206,9 +185,3 @@ def load_txt(path):
 
     return root
 
-def load(grootboekgroepfile):
-    #root = load_raw_sap_export(grootboekgroepfile)
-    root = load_txt(grootboekgroepfile)
-    #root.normalize_levels()
-
-    return root

@@ -2,40 +2,14 @@ import web
 import hashlib
 from config import config
 import glob
+import os
 import csv
-from Regel import Regel
+from Regel import Regel, specific_rules
+from RegelList import RegelList
 
 """"
 
 TODO
-    * SAP-HR obligo omzetten naar meerdere regels (is er uit gehaald tijdelijk).
-      Doe dit niet in model maar op de plek die hier last van heeft! Want het is elke keer anders
-      b.v. voor salaris vervangen we hem door salaris regel! Snippet hier beneden:
-
-            #DIRTY HACK for UL.nl SAP inrichting (obligo personeel wordt elke maand aangepast maar altijd op periode 1 gezet)
-            # Hier maken we van die regel aparte regels voor elke resterende maand
-            #for regel in regels:
-            #    if regel.kostensoort == 411101:
-            #        digits = [int(s) for s in regel.omschrijving.split() if s.isdigit()]
-            #        periodeleft = range(digits[-2],digits[-1]+1)
-            #        bedrag = regel.kosten/len(periodeleft)
-            #        omschrijving = regel.omschrijving.decode('ascii', 'replace').encode('utf-8')
-            #        for periode in periodeleft:
-            #            regelNew = regel.copy()
-            #            regelNew.omschrijving = omschrijving + '-per. ' + str(periode)
-            #            regelNew.omschrijving
-            #            regelNew.periode = periode
-            #            regelNew.kosten = bedrag
-            #            if regelNew.kostensoort in obligos:
-            #                obligos[regelNew.kostensoort].append(regelNew)
-            #            else:
-            #                obligos[regelNew.kostensoort] = [regelNew]
-            #    else:
-            #        if regel.kostensoort in obligos:
-            #            obligos[regel.kostensoort].append(regel)
-            #        else:
-            #            obligos[regel.kostensoort] = [regel]
-
     * Reserves in mysql
     * Prognose in mysql
     * Mee/tegenvallers in mysql
@@ -43,35 +17,54 @@ TODO
 """
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"], host=config["mysql"]["host"])
 
-# Returns a list of regels loaded from the selected db (tiepe-db)
-def get_regels(tiepe_db, jaar, periodes=[], order=0, kostensoorten=[]):
-    assert tiepe_db != '', "model.get_regels() tiepe_db is empty" 
+# Returns a dictionary of regellists of select tables (or all if emtpy)
+# {'geboekt': RegelList, '..': Regellist}
+def get_regellist_per_table(tableNames=[], jaar=[], periodes=[], orders=[], kostensoorten=[]):
+    if not tableNames:
+        tableNames = config["mysql"]["tables"]["regels"].keys()
+    else:
+        for name in tableNames:
+            assert name in config["mysql"]["tables"]["regels"], "unknown table in model.get_reggellist_per_table: " + name
 
-    if order > 0:
-        sqlwhere = '`ordernummer`=$order'
+    regelsPerTable = {}
+    for tableName in tableNames:
+        query = mysql_regels_query(jaar, periodes, orders, kostensoorten)
+        try:
+            dbSelect = db.select(config["mysql"]["tables"]["regels"][tableName], where=query, vars=locals())
+        except IndexError:
+            return None
+
+        regels = []
+        for dbRegel in dbSelect:
+            regel = Regel()
+            regel.import_from_db_select(dbRegel, tableName)
+            modifiedRegels = specific_rules(regel)
+            for regel in modifiedRegels:
+                regels.append(regel)
+
+            regelsPerTable[tableName] = RegelList(regels)
+
+    return regelsPerTable
+
+
+# Returns a mysql query for getting regels from the db
+def mysql_regels_query(jaar=[], periodes=[], orders=[], kostensoorten=[]):
+    query = '1'
+
+    if orders:
+        query += ' AND  `ordernummer` IN (' + ','.join(str(order) for order in orders) + ')'
 
     if kostensoorten:
-        if sqlwhere == '':
-            sqlwhere = '`kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
-        else:
-            sqlwhere += ' AND `kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
+        query += ' AND `kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten) + ')'
 
-    sqlwhere += ' AND `jaar` = $jaar'
+    if jaar:
+        query += ' AND `jaar` IN (' + ','.join(str(jr) for jr in jaar) + ')'
+
     if periodes:
-        sqlwhere += ' AND `periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
+        query += ' AND `periode` IN (' + ','.join(str(periode) for periode in periodes) + ')'
 
-    try:
-        dbSelect = db.select(tiepe_db, where=sqlwhere, vars=locals())
-    except IndexError:
-        return None
+    return query
 
-    regels = []
-    for dbRegel in dbSelect:
-        regel = Regel()
-        regel.import_from_db_select(dbRegel, tiepe_db)
-        regels.append(regel)
-
-    return regels
 
 
 # Gives a list of allowed budgets for that user.
@@ -202,24 +195,24 @@ def get_kosten_soorten(order=0):
 
     return geboektks, obligoks, planks
 
-# Returns a list of order available
-def loadOrdergroepen():
-    OG = glob.glob("data/grootboekgroep/*")
+# Returns a list of ordergroepen available
+# {name: path}
+def loadOrderGroepen():
+    OrderGroepen = {}
+    for path in glob.glob("data\ordergroep\*"):
+        OrderGroepen[os.path.split(path)[1]] = path
 
-    return OG
+    return OrderGroepen
 
 
-# Returns a list of kostensoort groepen available
+# Returns a dictionary of kostensoort groepen available
+# {name: path}
 def loadKSgroepen():
-    KSgroepen = glob.glob("data/kostensoortgroep/*")
+    KSgroepen = {}
+    for path in glob.glob("data\kostensoortgroep\*"):
+        KSgroepen[os.path.split(path)[1]] = path
 
     return KSgroepen
-
-
-# TODO remove once everything is up and running
-# Returns all the plan cost for an order:
-def get_plan_totaal(jaar, order):
-    sys.exit('model.get_plan_totaal is deprecated. Use model.get_plan() instead')
 
 
 #TODO convert to mysql data not csv import.

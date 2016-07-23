@@ -29,7 +29,7 @@ class Regel():
 
 
     def druk_af(self):
-        print '* regel' 
+        print '* regel'
         for attribute, value in vars(self).iteritems():
             print '  ' + attribute + ': ' + str(value)
         print ''
@@ -67,11 +67,31 @@ class Regel():
             delattr(self, attribute)
 
 
-        #Specific rules per tiepe:
-        if tiepe == 'plan':
-            self.periode = 1
-            self.omschrijving = 'begroting'
-        if tiepe == 'obligo':
-            self.druk_af()
-        #if tiepe == 'obligo' or 'geboekt':
-            #self.omschrijving = self.omschrijving.decode('ascii', 'replace').encode('utf-8')
+# Edit specif rules here. Returns list of regels
+def specific_rules(regel):
+    modifiedRegels = [regel] # one regel can be replaced by multiple hence the list.
+
+    #Specific rules per tiepe
+    if regel.tiepe == 'plan':
+        regel.periode = 1
+        regel.omschrijving = 'begroting'
+
+    if regel.tiepe == 'obligo':
+        # Prognose afschrijvingen omzetten in 1 obligo
+        if regel.kostensoort == 432100:
+            modifiedRegels = [] #Remove old regel from list, we will ad new ones
+            digits = [int(s) for s in regel.omschrijving.split() if s.isdigit()]
+            periodeleft = range(digits[-2],digits[-1]+1)
+            bedrag = regel.kosten/len(periodeleft)
+            omschrijving = regel.omschrijving.decode('ascii', 'replace').encode('utf-8')
+            for periode in periodeleft:
+                regelNew = regel.copy()
+                regelNew.omschrijving = omschrijving + '-per. ' + str(periode)
+                regelNew.periode = periode
+                regelNew.kosten = bedrag
+                modifiedRegels.append(regelNew)
+
+    #if tiepe == 'obligo' or 'geboekt':
+        #self.omschrijving = self.omschrijving.decode('ascii', 'replace').encode('utf-8')
+
+    return modifiedRegels

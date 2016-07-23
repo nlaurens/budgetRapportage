@@ -2,7 +2,7 @@
 Usage
     $ python graph.py <order/group>
     use * for all orders
-    
+
 NOTES
 
     only shows >|500| euro in table
@@ -26,11 +26,11 @@ TODO
 
 """
 import web
-web.config.debug = False #must be done before the rest.
+web.config.debug = True #must be done before the rest.
 
 import model
 import GrootBoek
-import GrootBoekGroep
+import OrderGroep
 import os
 from config import config
 from functions import moneyfmt, IpBlock
@@ -275,7 +275,7 @@ class Graph:
         #Begroting numbers:
         writer = csv.writer(open('figs/1-'+file_name+'-begroot.dat', 'wb'))
         for key, value in self.begroot.items():
-            writer.writerow([key, value]) 
+            writer.writerow([key, value])
 
     #remove pieces < threshold of the total:
     def remove_small_pieces(self, values, labels):
@@ -473,18 +473,19 @@ class Graph:
         return dictionary
 
     def load_order(self, jaar, order, params):
-        KSgroepen = model.loadKSgroepen()
-        grootboekBaten =  [s for s in KSgroepen if "BFRE15BT00" in s][0]  #Use -CODE to include BFR codes
-        grootboekLasten = [s for s in KSgroepen if "BFRE15LT00" in s][0]  # ..
         sapdatum = model.last_update()
 
+        resultaat = []
         begroot = {}
         baten = {}
         lasten = {}
 
-        resultaat = []
-        rootBaten = GrootBoek.load(order, grootboekBaten, jaar, [])
-        rootLasten = GrootBoek.load(order, grootboekLasten, jaar, [])
+        regels = model.get_regellist_per_table(['geboekt', 'obligo', 'plan'], jaar=[jaar], orders=[order])
+        rootBaten = GrootBoek.load("BFRE15BT00")
+        rootLasten = GrootBoek.load("BFRE15LT00")
+
+        rootBaten.assign_regels_recursive(regels)
+        rootLasten.assign_regels_recursive(regels)
 
         rootBaten.clean_empty_nodes()
         rootLasten.clean_empty_nodes()
@@ -648,7 +649,7 @@ def og_graphs(root, i, total, jaar):
     return merged, i
 
 def create_ordergroep_graphs(OG, jaar, params):
-    root = GrootBoekGroep.load(OG)
+    root = OrderGroep.load(OG)
 
     merged = Graph()
     graph = Graph()
@@ -697,7 +698,6 @@ if __name__ == "__main__":
             orderint = int(order)
         except ValueError:
             orderint = 0
-        OGs = model.loadOrdergroepen()
 
         if orderint in orders:
             found = True
@@ -707,11 +707,11 @@ if __name__ == "__main__":
             graph.title = str(order)
             graph.save_figs(str(order), params)
         else:
-            for OG in OGs:
-                if order == os.path.split(OG)[1]:
-                    found = True
-                    print 'creating graph of group ' + order
-                    create_ordergroep_graphs(OG, jaar, params)
+            groepen = model.loadOrderGroepen()
+            if order in groepen:
+                found = True
+                print 'creating graph of group ' + order
+                create_ordergroep_graphs(order, jaar, params)
 
     if not found:
         print 'ERROR Unkown input ' + order
