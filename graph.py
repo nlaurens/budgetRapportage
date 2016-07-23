@@ -9,6 +9,7 @@ NOTES
 
 TODO
 
+# Bij het maken van een enkele graph de naam van de order uit een config tabel halen (bestaat nog niet!)
 # Kijken naar de if/else structuur van de argv parser. Als je geen argumenten geeft krijg je fout melding .
 # Afronding: alleen doen bij visualisatie, niet in export naar files en totalen niet optellen uit afgeronde cijfers.
 # Algemeen
@@ -26,7 +27,7 @@ TODO
 
 """
 import web
-web.config.debug = True #must be done before the rest.
+web.config.debug = False #must be done before the rest.
 
 import model
 import GrootBoek
@@ -687,7 +688,6 @@ if __name__ == "__main__":
     else:
         order = sys.argv[1]
         orders = model.get_orders()
-        print orders
         try:
             orderint = int(order)
         except ValueError:
@@ -698,7 +698,7 @@ if __name__ == "__main__":
             graph = Graph()
             print 'creating graph of order ' + order
             graph.load_order(jaar, order, params)
-            graph.title = str(order)
+            graph.title = str(order) + ' - <UNKNOWN>'
             graph.save_figs(str(order), params)
         else:
             groepen = model.loadOrderGroepen()

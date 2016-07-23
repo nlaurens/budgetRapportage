@@ -78,7 +78,7 @@ def specific_rules(regel):
 
     if regel.tiepe == 'obligo':
         # Prognose afschrijvingen omzetten in 1 obligo
-        if regel.kostensoort == 432100 or 411101:
+        if regel.kostensoort == 432100 or regel.kostensoort == 411101:
             modifiedRegels = [] #Remove old regel from list, we will ad new ones
             digits = [int(s) for s in regel.omschrijving.split() if s.isdigit()]
             periodeleft = range(digits[-2],digits[-1]+1)
