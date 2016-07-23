@@ -56,9 +56,11 @@ def parse_order(order, descr, jaar, render):
     root = GrootBoek.load('BFRE15E01')
     root.assign_regels_recursive(regels)
     root.clean_empty_nodes()
+    root.set_totals()
+
+    root.druk_af()
 
     html_rows = []
-    root.set_totals()
     totals_order = {}
 
 #TODO DUMMY code -> order details.
