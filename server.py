@@ -99,7 +99,7 @@ class View:
         try:
             periode = int(web.input()['periode'])
         except:
-            periode = 0 
+            periode = 0
 
         clean = web.input().has_key('clean')
 
@@ -211,13 +211,17 @@ class Admin:
         web.form.Textbox('Sapdate'),
         web.form.Button('Update'),
         )
+    graphsUpdate_form = web.form.Form(
+        web.form.Textbox('Ordergroep'),
+        web.form.Button('Refresh Graphs'),
+        )
 
     def GET(self):
         msg = webadmin.checkDB()
         msg.append('')
         msg.append('latest sap date: ' + model.last_update())
 
-        return render.webadmin_overview(self.upload_form, self.sapdate_form, msg)
+        return render.webadmin_overview(self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg)
 
     def POST(self):
         if 'Update' in web.input():
@@ -225,8 +229,10 @@ class Admin:
             model.last_update(web.input()['Sapdate'])
             msg.append('DONE')
         if 'Upload data' in web.input():
-            msg = webadmin.parse_form(render, self.upload_form)
-        return render.webadmin_overview(self.upload_form, self.sapdate_form, msg)
+            msg = webadmin.parse_upload_form(render, self.upload_form)
+        if 'Refresh Graphs' in web.input():
+            msg = webadmin.updateGraphs(web.input()['Ordergroep'])
+        return render.webadmin_overview(self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg)
 
 
 class Logout:

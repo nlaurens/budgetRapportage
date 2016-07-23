@@ -1,4 +1,4 @@
-$def with(upload_form, sapupdate_form, msg)
+$def with(upload_form, sapupdate_form, graphsUpdate_form, msg)
 
 <html><head></head><body>
 
@@ -12,5 +12,10 @@ $:upload_form.render()
 <HR>
 <form method="POST" enctype="multipart/form-data" action="">
 $:sapupdate_form.render()
+</form>
+
+<HR>
+<form method="POST" enctype="multipart/form-data" action="">
+$:graphsUpdate_form.render()
 </form>
 </body></html>

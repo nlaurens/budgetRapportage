@@ -22,7 +22,15 @@ def checkDB():
     return msg
 
 
-def parse_form(render, form):
+def updateGraphs(orderGroep):
+    print orderGroep
+    msg = ['START: updating graphs']
+    msg = ['removing old graphs']
+    msg = ['rebuilding Graphs (will take a while to appear)']
+    return msg
+
+
+def parse_upload_form(render, form):
     x = web.input(myfile={})
     allowed = ['.xlsx']
     msg = ["Start upload"]
@@ -95,7 +103,7 @@ def parse_form(render, form):
     rows = []
     rownumber = 1
     for row in reader:
-        row_empty_replaced = [element or '0' for element in row] 
+        row_empty_replaced = [element or '0' for element in row]
         if row_empty_replaced != row:
             empty_indexes = [i for i, item in enumerate(row) if item == '']
             print empty_indexes
