@@ -152,6 +152,8 @@ def get_reserves():
 
 # Returns a sorted list of all orders
 # in both geboekt and obligo
+#TODO GET THIS FROM A CONFIG with names!
+# TODO UPDATE config tables not manually geboekt/obligo
 def get_orders(sqlLike='%'):
 
     geboekt = db.query("SELECT DISTINCT(`ordernummer`) FROM `geboekt` WHERE `ordernummer` LIKE '"+sqlLike+"'")
