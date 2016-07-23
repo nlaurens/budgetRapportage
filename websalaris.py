@@ -7,7 +7,7 @@ TODO
 """
 import web
 from config import config
-import GrootBoekGroep
+import OrderGroep
 import GrootBoek
 import model
 import numpy as np
@@ -176,7 +176,7 @@ def table_html(render, HRregels, matchpersoneelsnummers, noMatchPerOrder):
 
 def settings_html(render, jaar):
     form = 'todo form met optie'
-    lastupdate = model.last_update() 
+    lastupdate = model.last_update()
     return render.salaris_settings(lastupdate, form)
 
 def java_scripts(render, regelsGeboekt, regelsBegroot):

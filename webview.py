@@ -1,5 +1,5 @@
 from config import config
-import GrootBoekGroep
+import OrderGroep
 import GrootBoek
 import model
 import os

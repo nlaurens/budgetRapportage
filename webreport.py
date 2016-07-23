@@ -6,7 +6,7 @@ TODO
 """
 import web
 from config import config
-import GrootBoekGroep
+import OrderGroep
 import GrootBoek
 import model
 import numpy as np
@@ -51,17 +51,15 @@ def groep_regel_to_html(row, render):
 
 def parse_order(order, descr, jaar, render):
     #parse orders in groep:
-    KSgroepen = model.loadKSgroepen()
-    grootboek =  [s for s in KSgroepen if "BFRE15E01" in s][0]
 
-    root = GrootBoek.load(order, grootboek, jaar, [])
-    root.set_totals()
+    regels = model.get_regellist_per_table(jaar=[jaar], orders=[order])
+    root = GrootBoek.load('BFRE15E01')
+    root.assign_regels_recursive(regels)
+    root.clean_empty_nodes()
+
     html_rows = []
+    root.set_totals()
     totals_order = {}
-    totals_order['begroot'] = model.get_plan_totaal(jaar, order)
-    totals_order['realisatie'] = -1*(root.totaalGeboektTree)
-    totals_order['obligo'] = -1*(root.totaalObligosTree)
-    totals_order['resultaat'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) - totals_order['begroot']
 
 #TODO DUMMY code -> order details.
     for i in range(0,1):
@@ -78,23 +76,23 @@ def parse_order(order, descr, jaar, render):
     header['userHash'] = userHash
     header['id'] = order
     header['img'] = ('../static/figs/'+str(jaar)+'-detailed/1-' + str(order) + '.png')
-    header['begroot'] = table_string(totals_order['begroot'])
-    header['realisatie'] =  table_string(totals_order['realisatie'])
-    header['obligo'] = table_string(totals_order['obligo'])
-    header['resultaat'] = table_string(totals_order['resultaat'])
+    header['begroot'] = table_string(root.totaalTree['plan'])
+    header['realisatie'] =  table_string(-1*root.totaalTree['geboekt'])
+    header['obligo'] = table_string(-1*root.totaalTree['obligo'])
+    header['resultaat'] = table_string(-1*(root.totaalTree['geboekt'] + root.totaalTree['obligo']) - root.totaalTree['plan'])
 
     order_table = render.report_table_order(html_rows, header)
-    return order_table, totals_order
+    return order_table, root.totaalTree
 
 def parse_orders_in_groep(root, jaar, render, total_groep):
     order_tables = []
     total_groep['name'] = root.descr
     for order, descr in root.orders.iteritems():
-        order_table,total_order = parse_order(order, descr, jaar, render)
+        order_table, totaalTree = parse_order(order, descr, jaar, render)
         order_tables.append(order_table)
-        total_groep['begroot'] += total_order['begroot']
-        total_groep['realisatie'] += total_order['realisatie']
-        total_groep['resultaat'] += total_order['resultaat']
+        total_groep['begroot'] += totaalTree['plan']
+        total_groep['realisatie'] += totaalTree['geboekt']
+        total_groep['resultaat'] += -1*(totaalTree['geboekt'] + totaalTree['obligo']) - totaalTree['plan']
 
     groep_header = {}
     groep_header['row'] = groep_regel_to_html(total_groep, render)
@@ -187,14 +185,11 @@ def java_scripts(render, root):
 
 
 def groep_report(userID, render, groepstr, jaar):
-    global userHash 
+    global userHash
     userHash = userID
-    grootboekgroepfile = 'data/grootboekgroep/LION'
+    root = OrderGroep.load('LION')
     if groepstr != '':
-        root = GrootBoekGroep.load(grootboekgroepfile)
         root = root.find(groepstr)
-    else: 
-        root = GrootBoekGroep.load(grootboekgroepfile)
 
     body = table_html(root, render, jaar)
     figs = fig_html(root, render, jaar)

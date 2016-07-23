@@ -1,7 +1,7 @@
 import model
 
 
-class GrootBoekGroep():
+class OrderGroep():
 
     def __init__(self, name, descr, level, parent):
         self.name = name
@@ -22,7 +22,7 @@ class GrootBoekGroep():
         print '*' * self.level + ' ' + self.name + ' (' + self.descr + ')'
 
     def druk_af(self):
-        print 'grootboek ' + self.name + ' (level '+str(self.level)+') - ' + self.descr
+        print 'ordergroep ' + self.name + ' (level '+str(self.level)+') - ' + self.descr
 
         if self.parent != '':
             print 'belongs to parent: ' + self.parent.name
@@ -171,11 +171,11 @@ def load(groep):
                 name = line[lvl+1:sp]
                 descr = line[sp+1:]
                 if group == '':
-                    group = GrootBoekGroep(name, descr, lvl, '')
+                    group = OrderGroep(name, descr, lvl, '')
                     root = group
                 else:
                     parent = group.lower_level_parent(lvl)
-                    group = GrootBoekGroep(name, descr, lvl, parent)
+                    group = OrderGroep(name, descr, lvl, parent)
                     parent.add_child(group)
             else:
                 sp = line.index(' ')
