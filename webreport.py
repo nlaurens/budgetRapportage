@@ -52,6 +52,7 @@ def parse_order(order, descr, jaar, render):
     #parse orders in groep:
 
     regels = model.get_regellist_per_table(jaar=[jaar], orders=[order])
+#TODO  In config params!!
     root = GrootBoek.load('BFRE15E01')
     root.assign_regels_recursive(regels)
     root.clean_empty_nodes()
@@ -60,8 +61,6 @@ def parse_order(order, descr, jaar, render):
     html_rows = []
     totals_order = {}
 
-#TODO DUMMY code -> order details.
-    print 'hoi'
     for child in root.children:
         for child in child.children:
             row = {}
@@ -77,9 +76,8 @@ def parse_order(order, descr, jaar, render):
     header['id'] = order
     header['img'] = ('../static/figs/'+str(jaar)+'-detailed/1-' + str(order) + '.png')
     header['begroot'] = table_string(root.totaalTree['plan'])
-    header['realisatie'] =  table_string(-1*root.totaalTree['geboekt'])
-    header['obligo'] = table_string(-1*root.totaalTree['obligo'])
-    header['resultaat'] = table_string(-1*(root.totaalTree['geboekt'] + root.totaalTree['obligo']) - root.totaalTree['plan'])
+    header['realisatie'] =  table_string(root.totaalTree['geboekt'] + root.totaalTree['obligo'])
+    header['resultaat'] = table_string(root.totaalTree['plan'] - root.totaalTree['geboekt'] - root.totaalTree['obligo'])
 
     order_table = render.report_table_order(html_rows, header)
     return order_table, root.totaalTree
