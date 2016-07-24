@@ -20,14 +20,13 @@ def table_string(value):
         return ('%.f' % value)
 
 
-def kostensoort_regel_to_html(row, render):
+def grootboek_regel_to_html(row, render):
     html = row.copy()
-    html['kostensoort'] = row['kostensoort']
-    html['kostensoortnaam'] = row['kostensoortnaam']
+    html['grootboek'] = row['grootboek']
     html['begroot'] = table_string(row['begroot'])
     html['realisatie'] =  table_string(row['realisatie'])
     html['resultaat'] = table_string(row['resultaat'])
-    return render.report_table_kostensoort_regel(html)
+    return render.report_table_grootboek_regel(html)
 
 
 def order_regel_to_html(row, render):
@@ -66,12 +65,11 @@ def parse_order(order, descr, jaar, render):
     for child in root.children:
         for child in child.children:
             row = {}
-            row['kostensoort'] = child.descr
-            row['kostensoortnaam'] = child.name
+            row['grootboek'] = child.descr
             row['begroot'] = child.totaalTree['plan']
             row['realisatie'] = child.totaalTree['geboekt'] + child.totaalTree['obligo']
             row['resultaat'] = child.totaalTree['plan']   - (child.totaalTree['geboekt'] + child.totaalTree['obligo'])
-            html_rows.append(kostensoort_regel_to_html(row, render))
+            html_rows.append(grootboek_regel_to_html(row, render))
 
     header = {}
     header['name'] = descr
