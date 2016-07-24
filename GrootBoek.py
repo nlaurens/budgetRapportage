@@ -145,7 +145,8 @@ class GrootBoek():
             filteredRegels.filter_regels_by_attribute('kostensoort', self.kostenSoorten.keys())
             self.regels[key] = filteredRegels
 
-    # Set totals per key [obligo, plan, etc.], and per ks for each node
+
+  # Set totals per key [obligo, plan, etc.], and per ks for each node
     def set_totals(self, periode=range(0,16)):
         self.totaalTree = {}
         self.totaalNodePerKS = {}
@@ -153,18 +154,24 @@ class GrootBoek():
         self.totaalTree['obligo'] = 0
         self.totaalTree['plan'] = 0
 
+        # For each key [begroot, plan, ] split into ks and periode
         for key in self.regels.keys():
             regelsPerKS = self.regels[key].split_by_regel_attributes(['kostensoort', 'periode'])
+
+            # Walk over all ks, make sure there is a dict item
             for ks, regelsPerPeriode in regelsPerKS.iteritems():
+                if key not in self.totaalNodePerKS:
+                    self.totaalNodePerKS[key] = {}
+
+                # walk over all periodes, make sure there is a dict item only if the period matches
                 for periodeList, regellist in regelsPerPeriode.iteritems():
                     if periodeList in periode:
-                        if key not in self.totaalNodePerKS:
-                            self.totaalNodePerKS[key] = {}
                         if ks not in self.totaalNodePerKS[key]:
                             self.totaalNodePerKS[key][ks] = 0
                         self.totaalNodePerKS[key][ks] += regellist.total()
 
-                        self.totaalTree[key] += self.totaalNodePerKS[key][ks]
+                # add the all the ks for every valid period to the total
+                self.totaalTree[key] += self.totaalNodePerKS[key][ks]
 
         #add childrens totaltree's
         for child in self.children:
