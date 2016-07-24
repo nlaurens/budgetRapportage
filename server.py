@@ -94,7 +94,7 @@ class View:
         try:
             jaar = int(web.input()['jaar'])
         except:
-            jaar = 2016
+            jaar = config["currentYear"]
 
         try:
             periode = int(web.input()['periode'])
@@ -129,7 +129,7 @@ class Report:
         try:
             jaar = int(web.input()['jaar'])
         except:
-            jaar = 2016
+            jaar = config["currentYear"]
 
         try:
             periode = web.input()['periode']
@@ -160,7 +160,7 @@ class Salaris:
         try:
             jaar = int(web.input()['jaar'])
         except:
-            jaar = 2016
+            jaar = config["currentYear"]
 
         try:
             groep = web.input()['groep']

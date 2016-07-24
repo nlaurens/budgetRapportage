@@ -16,7 +16,8 @@ TODO
     Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
     Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar kan zien
     Als ordergroep geen groepen eronder heeft gaat het mis. (dus b.v. 2008A3 zo uitdraaien)
-
+# Allow the script to accept 'year' as an input param so we can build any year as well
+# Store figs in the proper directory 'static/xxx'
 # fig1:
 
 # fig2:
@@ -667,7 +668,7 @@ if __name__ == "__main__":
     params['detailed'] = True
     params['figpath'] = 'figs/'
     params['ignore_obligos'] = False
-    jaar = 2016
+    jaar = config["currentYear"]
 
     found = False
     if len(sys.argv) <2:

@@ -137,6 +137,7 @@ def last_update(newdate=''):
 
 
 # returns the list of all reserves
+# TODO into mysql and use currentYear!
 def get_reserves():
     from decimal import Decimal
     reserves = {}
