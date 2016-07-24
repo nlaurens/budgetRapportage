@@ -20,14 +20,14 @@ def table_string(value):
         return ('%.f' % value)
 
 
-def personeel_regel_to_html(row, render):
+def kostensoort_regel_to_html(row, render):
     html = row.copy()
-    html['personeelsnummer'] = row['personeelsnummer']
-    html['name'] = row['naam']
+    html['kostensoort'] = row['kostensoort']
+    html['kostensoortnaam'] = row['kostensoortnaam']
     html['begroot'] = table_string(row['begroot'])
     html['realisatie'] =  table_string(row['realisatie'])
     html['resultaat'] = table_string(row['resultaat'])
-    return render.report_table_personeel_regel(html)
+    return render.report_table_kostensoort_regel(html)
 
 
 def order_regel_to_html(row, render):
@@ -58,20 +58,20 @@ def parse_order(order, descr, jaar, render):
     root.clean_empty_nodes()
     root.set_totals()
 
-    root.druk_af()
-
     html_rows = []
     totals_order = {}
 
 #TODO DUMMY code -> order details.
-    for i in range(0,1):
-        row = {}
-        row['personeelsnummer'] = 'todo'
-        row['naam'] = 'todo'
-        row['begroot'] = 0
-        row['realisatie'] = 0
-        row['resultaat'] = 0
-        html_rows.append(personeel_regel_to_html(row, render))
+    print 'hoi'
+    for child in root.children:
+        for child in child.children:
+            row = {}
+            row['kostensoort'] = child.descr
+            row['kostensoortnaam'] = child.name
+            row['begroot'] = child.totaalTree['plan']
+            row['realisatie'] = child.totaalTree['geboekt'] + child.totaalTree['obligo']
+            row['resultaat'] = child.totaalTree['plan']   - (child.totaalTree['geboekt'] + child.totaalTree['obligo'])
+            html_rows.append(kostensoort_regel_to_html(row, render))
 
     header = {}
     header['name'] = descr

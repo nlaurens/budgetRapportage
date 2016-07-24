@@ -666,7 +666,7 @@ if __name__ == "__main__":
     params['show_table'] = True
     params['show_table_cumsum'] = False
     params['detailed'] = True
-    params['figpath'] = 'figs/'
+    params['figpath'] = 'static/figs/%s-detailed/' % config['currentYear']
     params['ignore_obligos'] = False
     jaar = config["currentYear"]
 
