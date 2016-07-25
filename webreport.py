@@ -71,7 +71,7 @@ def parse_order(order, descr, jaar, render):
             html_rows.append(grootboek_regel_to_html(row, render))
 
     header = {}
-    header['name'] = descr
+    header['name'] = descr + '(%s)' % order
     header['userHash'] = userHash
     header['id'] = order
     header['img'] = ('../static/figs/'+str(jaar)+'-detailed/1-' + str(order) + '.png')
