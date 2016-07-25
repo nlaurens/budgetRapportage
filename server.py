@@ -35,7 +35,7 @@ Somday/Maybe:
 - http://bl.ocks.org/NPashaP/96447623ef4d342ee09b
 """
 import web
-web.config.debug = False #Set to False for no ouput! Must be done before the rest
+web.config.debug = True #Set to False for no ouput! Must be done before the rest
 import model
 import GrootBoek
 import OrderGroep
@@ -87,9 +87,7 @@ class View:
         try:
             KSgroep = int(web.input()['ksgroep'])
         except:
-            groepen = model.loadKSgroepen()
-            match =  [s for s in groepen if "WNMODEL4" in s][0]
-            KSgroep = groepen.index(match)
+            KSgroep = 0
 
         try:
             jaar = int(web.input()['jaar'])

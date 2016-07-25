@@ -73,11 +73,21 @@ class GrootBoek():
         regelshtml = []
 
         unfolded = False # Never show the details
+#regel iteritems zijn nu plannen geen ks! dus per key
+        for key, regellist in self.regels.iteritems():
+HIER SORTEREN OP KS
+NEEM TOTAAL KS en zet die vast
+            for regel in regellist.regels:
+                print key
+                print regel
+
+-------------------------
         for kostenSoort, regels in self.regels.iteritems():
             plan = 0
-            plan = moneyfmt(self.totaalPlanNode[kostenSoort])
-            totaalGeboekt = moneyfmt(self.totaalGeboektNode[kostenSoort])
-            totaalObligos = moneyfmt(self.totaalObligosNode[kostenSoort])
+            print kostenSoort
+            plan = moneyfmt(self.totaalNodePerKS['plan'][kostenSoort])
+            totaalGeboekt = moneyfmt(self.totaalNodePerKS['geboekt'][kostenSoort])
+            totaalObligos = moneyfmt(self.totaalNodePerKS['obligo'][kostenSoort])
             for regel in regels:
                 regel.kosten = moneyfmt(regel.kosten, places=2, dp='.')
 

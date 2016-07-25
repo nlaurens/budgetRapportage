@@ -24,15 +24,18 @@ def view(settings, render, form, order):
     fill_dropdowns(form, settings, KSgroepen)
 
     order = int(order)
-    grootboek = KSgroepen[settings["KSgroep"]]
     sapdatum = model.last_update()
 
-    root = GrootBoek.load(order, grootboek, settings["jaar"], settings["periode"])
+    #root = GrootBoek.load(order, grootboek, settings["jaar"], settings["periode"])
+    regels = model.get_regellist_per_table(jaar=[settings["jaar"]], orders=[order])
+#TODO replace with param
+    root = GrootBoek.load('WNMODEL4')
+    root.assign_regels_recursive(regels)
     if settings["clean"]:
         root.clean_empty_nodes()
 
-#TODO Begroting uit sap 'plan' halen!
-    #begroting = model.get_begroting() # dit is de oude functie van VU
+    root.set_totals()
+
     totaal = {}
     htmlgrootboek = []
 
@@ -41,6 +44,7 @@ def view(settings, render, form, order):
     totaal['lasten'] = 0
     totaal['ruimte'] = 0
 
+#TODO reserves toevoegen
     reserves = model.get_reserves()
     try:
         totaal['reserve'] = reserves[str(order)]
@@ -48,20 +52,16 @@ def view(settings, render, form, order):
         totaal['reserve'] = 0
 
 
+# TODO LOAD BGROTING
     totaal['begroting'] = 0
 
     if totaal['reserve'] < 0:
-        totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['begroting'] + totaal['reserve']
+        totaal['ruimte'] = -1*(root.totaalTree['geboekt'] + root.totaalTree['obligo']) + totaal['begroting'] + totaal['reserve']
     else:
-        totaal['ruimte'] = -1*(root.totaalGeboektTree + root.totaalObligosTree) + totaal['begroting']
+        totaal['ruimte'] = -1*(root.totaalTree['geboekt'] + root.totaalTree['obligo']) + totaal['begroting']
 
     for child in root.children:
         htmlgrootboek.append(child.html_tree(render, settings["maxdepth"], 0))
-# TODO: DIT IS SPECIFIEK VOOR 29FALW2
-        if child.name == 'BATEN-2900':
-            totaal['baten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
-        elif child.name == 'LASTEN2900':
-            totaal['lasten'] = (-1*(child.totaalGeboektTree + child.totaalObligosTree))
 
     totaal['reserve'] = moneyfmt(totaal['reserve'])
     totaal['ruimte'] = moneyfmt(totaal['ruimte'])
