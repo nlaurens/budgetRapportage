@@ -1,13 +1,13 @@
-$def with (name, descr, groups, regels, startOpen, werkelijkT, obligoT, planT, depth)
+$def with (name, descr, groups, regels, startOpen, totals, depth)
 <div class="panel-group panel-depth$depth" id="accordion-$name">
     <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title">
                 <a data-toggle="collapse" data-parent="#accordion-$name" href="#collapse-$name">
                     $descr
-                    <span class="badge pull-right">Kosten: &euro;$werkelijkT</span>
-                    <span class="badge pull-right">Gereserveerd: &euro;$obligoT</span>
-                    <span class="badge pull-right">Begroot: &euro;$planT</span>
+                    <span class="badge pull-right">Kosten: &euro;$totals['geboekt']</span>
+                    <span class="badge pull-right">Gereserveerd: &euro;$totals['obligo']</span>
+                    <span class="badge pull-right">Begroot: &euro;$totals['plan']</span>
                 </a>
             </h4>
         </div>

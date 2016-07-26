@@ -1,7 +1,8 @@
 class RegelList():
 
+    regels = [] #List of regels
 
-    def __init__(self, regels):
+    def __init__(self, regels=[]):
         self.regels = regels
 
     '''

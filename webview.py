@@ -75,5 +75,4 @@ def view(settings, render, form, order):
 
     #print '----------------'
     #root.walk_tree(9999)
-    return render.webvieworder(form, grootboek, sapdatum, htmlgrootboek, totaal)
-
+    return render.webvieworder(form, sapdatum, htmlgrootboek, totaal)

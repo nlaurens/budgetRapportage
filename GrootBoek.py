@@ -74,36 +74,39 @@ class GrootBoek():
 
         unfolded = False # Never show the details
 #regel iteritems zijn nu plannen geen ks! dus per key
+
+        regelsPerKSPerTiepe = RegelList()
         for key, regellist in self.regels.iteritems():
-HIER SORTEREN OP KS
-NEEM TOTAAL KS en zet die vast
-            for regel in regellist.regels:
-                print key
-                print regel
+            regelsPerKSPerTiepe.extend(regellist)
 
--------------------------
-        for kostenSoort, regels in self.regels.iteritems():
-            plan = 0
-            print kostenSoort
-            plan = moneyfmt(self.totaalNodePerKS['plan'][kostenSoort])
-            totaalGeboekt = moneyfmt(self.totaalNodePerKS['geboekt'][kostenSoort])
-            totaalObligos = moneyfmt(self.totaalNodePerKS['obligo'][kostenSoort])
-            for regel in regels:
-                regel.kosten = moneyfmt(regel.kosten, places=2, dp='.')
+        regelsPerKSPerTiepe = regelsPerKSPerTiepe.split_by_regel_attributes(['kostensoort', 'tiepe'])
 
-            KSname = self.kostenSoorten[kostenSoort]
-            KSname = str(kostenSoort) +' - ' + KSname.decode('ascii', 'replace').encode('utf-8')
-            regelshtml.append(render.regels(self.name, kostenSoort, KSname, totaalGeboekt, totaalObligos, plan, regels, unfolded))
+        totals = {}
+        totals['geboekt'] = 0
+        totals['obligo'] = 0
+        totals['plan'] = 0
+        for kostenSoort, regelsPerTiepe in regelsPerKSPerTiepe.iteritems():
+            totalsKS = {}
+            totalsKS['geboekt'] = 0
+            totalsKS['obligo'] = 0
+            totalsKS['plan'] = 0
+            for tiepe, regellist in regelsPerTiepe.iteritems():
+                totalsKS[tiepe] = regellist.total()
+                totals[tiepe] += regellist.total()
+
+                for regel in regellist.regels:
+                    regel.kosten = moneyfmt(regel.kosten, places=2, dp='.')
+
+                KSname = self.kostenSoorten[kostenSoort]
+                KSname = str(kostenSoort) +' - ' + KSname.decode('ascii', 'replace').encode('utf-8')
+                regelshtml.append(render.regels(self.name, kostenSoort, KSname, totalsKS, regellist.regels, unfolded))
 
         if depth <= maxdepth:
             unfolded = True
         else:
             unfolded = False
 
-        totaalPlan = moneyfmt(self.totaalPlanTree)
-        totaalGeboekt = moneyfmt(self.totaalGeboektTree)
-        totaalObligos = moneyfmt(self.totaalObligosTree)
-        html = render.grootboekgroep(self.name, self.descr, groups, regelshtml, unfolded, totaalGeboekt, totaalObligos, totaalPlan, depth)
+        html = render.grootboekgroep(self.name, self.descr, groups, regelshtml, unfolded, totals, depth)
 
         return html
 

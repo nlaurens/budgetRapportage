@@ -1,12 +1,12 @@
-$def with(name, kostenSoort, kostenSoortName, geboektT, obligosT, plan, regels, startOpen)
+$def with(name, kostenSoort, kostenSoortName, totalsPerTiepe, regels, startOpen)
 <div class="accordion" id="accordion-$name-$kostenSoort">
     <div class="accordion-group">
         <div class="accordion-heading">
             <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-$name-$kostenSoort" href="#collapse-$name-$kostenSoort">
                 $kostenSoortName
-                <span class="badge pull-right">Kosten: &euro;$geboektT</span>
-                <span class="badge pull-right">Gereserveerd: &euro;$obligosT</span>
-                <span class="badge pull-right">Begroot: &euro;$plan</span>
+                <span class="badge pull-right">Kosten: &euro;$totalsPerTiepe['geboekt']</span>
+                <span class="badge pull-right">Gereserveerd: &euro;$totalsPerTiepe['obligo']</span>
+                <span class="badge pull-right">Begroot: &euro;$totalsPerTiepe['plan']</span>
             </a>
 
         </div>
