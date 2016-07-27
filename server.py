@@ -5,6 +5,7 @@ BUGS
   - SQL inject in model bekijken
 
 TODO
+- webaccess only checks IP access not if the budget# is allowed for that user
 
 - 'prognose' posten toevoegen.
 - verplaats alle decode/encode naar model (db_2_regel)
@@ -35,7 +36,7 @@ Somday/Maybe:
 - http://bl.ocks.org/NPashaP/96447623ef4d342ee09b
 """
 import web
-web.config.debug = False #Set to False for no ouput! Must be done before the rest
+web.config.debug = True #Set to False for no ouput! Must be done before the rest
 import model
 import GrootBoek
 import OrderGroep
@@ -242,15 +243,35 @@ class Logout:
         return render.logout()
 
 
+
+class Figures:
+    def GET(self,userHash, jaar, tiepe, order):
+        if not webaccess.check_auth(session, userHash):
+            return web.notfound("Sorry the page you were looking for was not found.")
+
+
+        #TODO CHECK IF ORDER EXIST AND IS ACCESSIBLE FOR USER
+        orderAllowed = True
+        figurePath = '/figures/%s/%s/%s.png' % (jaar, tiepe, order)
+        print figurePath
+
+        if int(jaar) in range(2000, 2100) and orderAllowed: #security
+            if os.path.isfile(figurePath):
+                web.header("Content-Type", "images/png") # Set the Header
+                return open(figurePath,"rb").read()
+
+        raise web.notfound()
+
 ### Url mappings
 urls = (
     '/', 'Index',
     '/view/(.+)/(\d+)', 'View',
-    '/login(.+)', 'Login',
-    '/logout', 'Logout',
+    '/login/(.+)', 'Login',
+    '/logout/', 'Logout',
     '/report/(.+)', 'Report',
     '/salaris/(.+)', 'Salaris',
-    '/admin', 'Admin',
+    '/admin/(.+)', 'Admin',
+    '/figures/(.+)/(\d+)/(.*)/(\d+)', 'Figures',
 )
 
 ### Templates
