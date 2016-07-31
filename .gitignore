@@ -3,7 +3,7 @@
 
 #output graphs and static files
 static/*
-figs/*
+graphs/*
 
 # test and config scripts
 test.py

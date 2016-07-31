@@ -257,18 +257,22 @@ class Graph:
 
     # Saves the table from exploitatie overview to a text file
     def save_to_file(self, number_descr, numbers, file_name, header_rows):
+        datPath = config['graphPath'] + '%s/%s/' % (params['jaar'], 'realisatie')
+        if not os.path.isdir(datPath):
+            os.makedirs(datPath)
+
         #table numbers
         header_rows = ','.join(header_rows)
-        np.savetxt('figs/1-' + file_name+ '-num.dat', numbers, fmt='%f', header=header_rows)
+        np.savetxt(datPath + file_name+ '-num.dat', numbers, fmt='%f', header=header_rows)
         #Table hedaers
         import csv
-        myfile = open('figs/1-'+file_name+'-descr.dat', 'wb')
+        myfile = open(datPath + file_name+'-descr.dat', 'wb')
         wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
         for descr in enumerate(number_descr):
             wr.writerow(descr)
 
         #Begroting numbers:
-        writer = csv.writer(open('figs/1-'+file_name+'-begroot.dat', 'wb'))
+        writer = csv.writer(open(datPath+file_name+'-begroot.dat', 'wb'))
         for key, value in self.begroot.items():
             writer.writerow([key, value])
 
@@ -467,7 +471,7 @@ class Graph:
 
         return dictionary
 
-    def load_order(self, jaar, order, params):
+    def load_order(self, order, params):
         sapdatum = model.last_update()
 
         resultaat = []
@@ -475,7 +479,7 @@ class Graph:
         baten = {}
         lasten = {}
 
-        regels = model.get_regellist_per_table(['geboekt', 'obligo', 'plan'], jaar=[jaar], orders=[order])
+        regels = model.get_regellist_per_table(['geboekt', 'obligo', 'plan'], jaar=[params['jaar']], orders=[order])
         rootBaten = GrootBoek.load("BFRE15BT00")
         rootLasten = GrootBoek.load("BFRE15LT00")
 
@@ -494,8 +498,8 @@ class Graph:
             else:
                 periode = [periode]
 
-            totalTreeBaten  =  rootBaten.set_totals(periode=periode)
-            totalTreeLasten = rootLasten.set_totals(periode=periode)
+            totalTreeBaten  =  rootBaten.set_totals(periodeRequested=periode)
+            totalTreeLasten = rootLasten.set_totals(periodeRequested=periode)
 
             if params['ignore_obligos']:
                 totaal = totalTreeBaten['geboekt'] + totalTreeLasten['geboekt']
@@ -598,28 +602,27 @@ class Graph:
     def bfr(self):
         return plt_baten, plt_lasten_pl, plt_lasten_ml
 
-    def save_figs(self, name, params):
-        path = params['figpath']
-        if not os.path.isdir(path):
-            os.mkdir(path)
+    
+    def save_fig(self, plt, params, tiepe, name):
+        graphPath = config['graphPath'] + '%s/%s/' % (params['jaar'], tiepe)
+        if not os.path.isdir(graphPath):
+            os.makedirs(graphPath)
+        plt.savefig(graphPath + '%s.png' % str(name), bbox_inches='tight')
+
+
+    def create_figs(self, name, params):
         plt = self.realisatie(params, name)
-        plt.savefig(path+'1-'+name+'.png', bbox_inches='tight')
+        self.save_fig(plt, params, 'realisatie', name)
         plt.close()
 
         plt = self.baten_lasten_pie()
-        plt.savefig(path+'2-'+name+'.png', bbox_inches='tight')
+        self.save_fig(plt, params, 'pie', name)
         plt.close()
 
         plt = self.besteed_begroot()
-        plt.savefig(path+'3-'+name+'.png', bbox_inches='tight')
+        self.save_fig(plt, params, 'bars', name)
         plt.close()
 
-#TODO IMPLEMENT
-        #plt_baten, plt_lasten_pl, plt_lasten_ml = self.bfr()
-        #plt_baten.savefig(path+'3-baten-'+name+'.png', bbox_inches='tight')
-        #plt_lasten_pl.savefig(path+'3-lasten-pl-'+name+'.png', bbox_inches='tight')
-        #plt_lasten_ml.savefig(path+'3-lasten-ml-'+name+'.png', bbox_inches='tight')
-        #plt.close()
 
 def og_graphs(root, i, total, jaar):
     merged = Graph()
@@ -631,19 +634,19 @@ def og_graphs(root, i, total, jaar):
     graph = Graph()
     for order, descr in root.orders.iteritems():
         print '%i (%i out of %i - %i perc.)' % (order, i+1, total, (float(i+1)/total)*100)
-        graph.load_order(jaar, order, params)
+        graph.load_order(order, params)
         graph.title = str(order) + ' - ' + descr
-        graph.save_figs(str(order), params)
+        graph.create_figs(str(order), params)
         merged.merge(graph)
         i += 1
 
 
     merged.title = root.name + ' - ' + root.descr
-    merged.save_figs(root.name, params)
+    merged.create_figs(root.name, params)
 
     return merged, i
 
-def create_ordergroep_graphs(OG, jaar, params):
+def create_ordergroep_graphs(OG, params):
     root = OrderGroep.load(OG)
 
     merged = Graph()
@@ -651,11 +654,11 @@ def create_ordergroep_graphs(OG, jaar, params):
     i = 0
     total = len(root.list_orders_recursive())
     for child in root.children:
-        graph, i = og_graphs(child, i, total, jaar)
+        graph, i = og_graphs(child, i, total, params['jaar'])
         merged.merge(graph)
 
     merged.title = root.name + ' - ' + root.descr
-    merged.save_figs(root.name, params)
+    merged.create_figs(root.name, params)
 
 if __name__ == "__main__":
     params = {}
@@ -666,9 +669,8 @@ if __name__ == "__main__":
     params['show_table'] = True
     params['show_table_cumsum'] = False
     params['detailed'] = True
-    params['figpath'] = 'static/figs/%s-detailed/' % config['currentYear']
     params['ignore_obligos'] = False
-    jaar = config["currentYear"]
+    params['jaar'] = config["currentYear"]
 
     found = False
     if len(sys.argv) <2:
@@ -683,9 +685,9 @@ if __name__ == "__main__":
         graph = Graph()
         for i, order in enumerate(orders):
             print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
-            graph.load_order(jaar, order, params)
+            graph.load_order(order, params)
             graph.title = str(order)
-            graph.save_figs(str(order), params)
+            graph.create_figs(str(order), params)
     else:
         order = sys.argv[1]
         orders = model.get_orders()
@@ -698,15 +700,15 @@ if __name__ == "__main__":
             found = True
             graph = Graph()
             print 'creating graph of order ' + order
-            graph.load_order(jaar, order, params)
+            graph.load_order(order, params)
             graph.title = str(order) + ' - <UNKNOWN>'
-            graph.save_figs(str(order), params)
+            graph.create_figs(str(order), params)
         else:
             groepen = model.loadOrderGroepen()
             if order in groepen:
                 found = True
                 print 'creating graph of group ' + order
-                create_ordergroep_graphs(order, jaar, params)
+                create_ordergroep_graphs(order, params)
 
     if not found:
         print 'ERROR Unkown input ' + order

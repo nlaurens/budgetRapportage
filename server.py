@@ -250,8 +250,8 @@ class Logout:
 
 
 
-# usage:
-class Figures:
+# tiepe: realisatie, pie, bars
+class Graph:
     def GET(self,userHash, jaar, tiepe, order):
         if not webaccess.check_auth(session, userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
@@ -259,13 +259,12 @@ class Figures:
 
         #TODO CHECK IF ORDER EXIST AND IS ACCESSIBLE FOR USER
         orderAllowed = True
-        figurePath = '/figures/%s/%s/%s.png' % (jaar, tiepe, order)
-        print figurePath
+        graphPath = config['graphPath'] +'%s/%s/%s.png' % (jaar, tiepe, order)
 
-        if int(jaar) in range(2000, 2100) and orderAllowed: #security
-            if os.path.isfile(figurePath):
+        if int(jaar) in range(1000, 9999) and orderAllowed: #security
+            if os.path.isfile(graphPath):
                 web.header("Content-Type", "images/png") # Set the Header
-                return open(figurePath,"rb").read()
+                return open(graphPath,"rb").read()
 
         raise web.notfound()
 
@@ -278,7 +277,7 @@ urls = (
     '/report/(.+)', 'Report',
     '/salaris/(.+)', 'Salaris',
     '/admin/(.+)', 'Admin',
-    '/figures/(.+)/(\d+)/(.*)/(\d+)', 'Figures',
+    '/graph/(.+)/(\d+)/(.*)/(\d+)', 'Graph',
 )
 
 ### Templates
