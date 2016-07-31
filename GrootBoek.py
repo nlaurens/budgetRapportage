@@ -160,7 +160,7 @@ class GrootBoek():
 
 
   # Set totals per key [obligo, plan, etc.], and per ks for each node
-    def set_totals(self, periode=range(0,16)):
+    def set_totals(self, periodeRequested=range(0,16)):
         self.totaalTree = {}
         self.totaalNodePerKS = {}
         self.totaalTree['geboekt'] = 0
@@ -177,18 +177,18 @@ class GrootBoek():
                     self.totaalNodePerKS[key] = {}
 
                 # walk over all periodes, make sure there is a dict item only if the period matches
-                for periodeList, regellist in regelsPerPeriode.iteritems():
-                    if periodeList in periode:
+                for periode, regellist in regelsPerPeriode.iteritems():
+                    if periode in periodeRequested:
                         if ks not in self.totaalNodePerKS[key]:
                             self.totaalNodePerKS[key][ks] = 0
                         self.totaalNodePerKS[key][ks] += regellist.total()
 
-                # add the all the ks for every valid period to the total
-                self.totaalTree[key] += self.totaalNodePerKS[key][ks]
+                        # add the all the ks for every valid period to the total
+                        self.totaalTree[key] += self.totaalNodePerKS[key][ks]
 
         #add childrens totaltree's
         for child in self.children:
-            totaalChildTree = child.set_totals(periode=periode)
+            totaalChildTree = child.set_totals(periodeRequested=periodeRequested)
             for key in totaalChildTree.keys():
                 self.totaalTree[key] += totaalChildTree[key]
 
