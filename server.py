@@ -36,7 +36,7 @@ Somday/Maybe:
 - http://bl.ocks.org/NPashaP/96447623ef4d342ee09b
 """
 import web
-web.config.debug = True #Set to False for no ouput! Must be done before the rest
+web.config.debug = False #Set to False for no ouput! Must be done before the rest
 import model
 import GrootBoek
 import OrderGroep
@@ -215,14 +215,20 @@ class Admin:
         web.form.Button('Refresh Graphs'),
         )
 
-    def GET(self):
+    def GET(self, userHash):
+        if not webaccess.check_auth(session, userHash):
+            return web.notfound("Sorry the page you were looking for was not found.")
+
         msg = webadmin.checkDB()
         msg.append('')
         msg.append('latest sap date: ' + model.last_update())
 
         return render.webadmin_overview(self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg)
 
-    def POST(self):
+    def POST(self, userHash):
+        if not webaccess.check_auth(session, userHash):
+            return web.notfound("Sorry the page you were looking for was not found.")
+
         if 'Update' in web.input():
             msg = ['Updating last sap update date']
             model.last_update(web.input()['Sapdate'])
@@ -244,6 +250,7 @@ class Logout:
 
 
 
+# usage:
 class Figures:
     def GET(self,userHash, jaar, tiepe, order):
         if not webaccess.check_auth(session, userHash):
