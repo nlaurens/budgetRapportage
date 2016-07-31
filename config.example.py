@@ -3,6 +3,7 @@ config = {
     "globalPW": '<INSERT>',
     "salt": '<INSERT>',
     "currentYear": 2016,
+    "graphPath": "graphs/",
     "mysql": {
         "user": "<INSERT>",
         "pass": "<INSERT>",
