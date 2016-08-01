@@ -43,6 +43,13 @@ import pylab as pylab
 import sys
 from matplotlib.patches import Rectangle
 
+# Creates url to graph
+# tiepes: realisatie, bars, pie
+# names: anything from group orders to order numbers.
+def graph_url(userHash, jaar, tiepe, name):
+    return ('graph/%s/%s/%s/%s' % (userHash, jaar, tiepe, name))
+
+
 class Graph:
     def __init__(self):
         self.title = ''
@@ -602,7 +609,7 @@ class Graph:
     def bfr(self):
         return plt_baten, plt_lasten_pl, plt_lasten_ml
 
-    
+
     def save_fig(self, plt, params, tiepe, name):
         graphPath = config['graphPath'] + '%s/%s/' % (params['jaar'], tiepe)
         if not os.path.isdir(graphPath):
