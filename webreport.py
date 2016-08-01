@@ -10,6 +10,7 @@ import OrderGroep
 import GrootBoek
 import model
 import numpy as np
+from graph import graph_url
 
 
 def table_string(value):
@@ -74,7 +75,7 @@ def parse_order(order, descr, jaar, render):
     header['name'] = descr + '(%s)' % order
     header['userHash'] = userHash
     header['id'] = order
-    header['img'] = ('../static/figs/'+str(jaar)+'-detailed/1-' + str(order) + '.png')
+    header['img'] = graph_url(userHash, jaar, 'realisatie', order)
     header['begroot'] = table_string(root.totaalTree['plan'])
     header['realisatie'] =  table_string(root.totaalTree['geboekt'] + root.totaalTree['obligo'])
     header['resultaat'] = table_string(root.totaalTree['plan'] - root.totaalTree['geboekt'] - root.totaalTree['obligo'])
@@ -95,7 +96,7 @@ def parse_orders_in_groep(root, jaar, render, total_groep):
     groep_header = {}
     groep_header['row'] = groep_regel_to_html(total_groep, render)
     groep_header['id'] = root.name
-    groep_header['img'] = "../static/figs/"+str(jaar)+"-detailed/1-"+root.name+".png"
+    groep_header['img'] = graph_url(userHash, jaar, 'realisatie', root.name)
 
     return order_tables, groep_header, total_groep
 
@@ -127,7 +128,7 @@ def fig_html(root, render, jaar):
         for order, descr in root.orders.iteritems():
             graph = {}
             graph['link'] = ('../view/' + userHash + '/' + str(order))
-            graph['png'] = ('../static/figs/'+str(jaar)+'-detailed/1-' + str(order) + '.png')
+            graph['png'] = graph_url(userHash, jaar, 'realisatie', order)
             #if i%2:
             #    graph['spacer'] = '</tr><tr>'
             #else:
@@ -198,7 +199,8 @@ def groep_report(userID, render, groepstr, jaar):
     report = {}
     report['settings'] = settings
     report['figpage'] = figs
-    report['summary'] = "<a href='../static/figs/"+str(jaar)+"-detailed/1-" + groepstr + ".png' target='_blank'><img class='img-responsive' src='../static/figs/"+str(jaar)+"-detailed/1-"+groepstr+".png'></a>"
+    url = graph_url(userHash, jaar, 'realisatie', groepstr)
+    report['summary'] = "<a href='"+url+"' target='_blank'><img class='img-responsive' src='"+url+"'></a>"
     report['body'] = body
     report['javaScripts'] = javaScripts
     return report
