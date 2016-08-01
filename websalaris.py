@@ -53,7 +53,7 @@ def parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, n
         naamBegroot = '' # Reset begroot to not found
         begroot = 0
         if personeelsnummer in matchpersoneelsnummers:
-            persoonbegroot = matchpersoneelsnummers[personeelsnummer].split_by_regel_attributes(['order'])
+            persoonbegroot = matchpersoneelsnummers[personeelsnummer].split_by_regel_attributes(['ordernummer'])
             if order in persoonbegroot:
                 begroot = persoonbegroot[order].total()
                 naamBegroot = persoonbegroot[order].regels[0].personeelsnaam
@@ -96,7 +96,8 @@ def parse_order(render, order, kostenDict, obligoDict, matchpersoneelsnummers, n
             if regel.kosten > 0:
                 row = {}
                 row['personeelsnummer'] = 'Obligos'
-                row['naam'] = regel.omschrijving
+#TODO omschrijving obligo invullen
+                row['naam'] = 'TODO'
                 row['begroot'] = 0
                 row['geboekt'] = regel.kosten
                 row['resultaat'] = - regel.kosten
@@ -149,10 +150,10 @@ def parse_empty_order(render, order, regelList):
     return html_table, totalOrderBegroot
 
 
-def table_html(render, HRregels, matchpersoneelsnummers, noMatchPerOrder):
+def table_html(render, regels, matchpersoneelsnummers, noMatchPerOrder):
     # Parse all orders & begrote kosten:
-    kostenDict = HRregels['geboekt'].split_by_regel_attributes(['order', 'personeelsnummer'])
-    obligoDict = HRregels['obligos'].split_by_regel_attributes(['order'])
+    kostenDict = regels['salaris_geboekt'].split_by_regel_attributes(['ordernummer', 'personeelsnummer'])
+    obligoDict = regels['salaris_plan'].split_by_regel_attributes(['ordernummer'])
     total = {}
     total['begroot'] = 0
     total['geboekt'] = 0
@@ -180,8 +181,8 @@ def settings_html(render, jaar):
     return render.salaris_settings(lastupdate, form)
 
 def java_scripts(render, regelsGeboekt, regelsBegroot):
-    ordersGeboekt = regelsGeboekt.split_by_regel_attributes(['order']).keys()
-    ordersBegroot = regelsBegroot.split_by_regel_attributes(['order']).keys()
+    ordersGeboekt = regelsGeboekt.split_by_regel_attributes(['ordernummer']).keys()
+    ordersBegroot = regelsBegroot.split_by_regel_attributes(['ordernummer']).keys()
     orders = set(ordersGeboekt + ordersBegroot)
 
     return render.salaris_javascripts(orders)
@@ -206,13 +207,13 @@ def groep_report(userID, render, groepstr, jaar):
     userHash = userID
 
     orders_allowed = orders_in_grootboekgroep(groepstr)
-    HRregels = get_HR_regels(jaar, orders_allowed)
+    regels = get_HR_regels(jaar, orders_allowed)
 
-    matchpersoneelsnummers, noMatchPerOrder = correlate_personeelsnummers(HRregels['begroot'], HRregels['geboekt'])
+    matchpersoneelsnummers, noMatchPerOrder = correlate_personeelsnummers(regels['salaris_plan'], regels['salaris_geboekt'])
 
-    body, totals = table_html(render, HRregels, matchpersoneelsnummers, noMatchPerOrder)
+    body, totals = table_html(render, regels, matchpersoneelsnummers, noMatchPerOrder)
     settings = settings_html(render, jaar)
-    javaScripts = java_scripts(render, HRregels['geboekt'], HRregels['begroot'])
+    javaScripts = java_scripts(render, regels['salaris_geboekt'], regels['salaris_plan'])
     summary = get_summary(render, totals)
 
     report = {}
@@ -224,29 +225,23 @@ def groep_report(userID, render, groepstr, jaar):
 
 
 def orders_in_grootboekgroep(groepstr):
-    grootboekgroepfile = 'data/grootboekgroep/LION'
+#TODO in variable voor andere ordergroepen
     if groepstr != '':
-        root = GrootBoekGroep.load(grootboekgroepfile)
+        root = OrderGroep.load('LION')
         root = root.find(groepstr)
     else:
-        root = GrootBoekGroep.load(grootboekgroepfile)
+        root = OrderGroep.load('LION')
 
     orders_allowed = root.list_orders_recursive()
 
     return orders_allowed
 
 def get_HR_regels(jaar, orders):
-    HRregels = {}
+#TODO selecteren op jaar. maar db heeft nu nog geen jaar. moet tijdens importeren aangepast worden.
+    tableNames = ['salaris_geboekt', 'salaris_plan', 'salaris_plan']
+    regels = model.get_regellist_per_table(tableNames, orders=orders)
 
-    regels = model.get_salaris_geboekt_regels(jaar, orders=orders)
-    HRregels['geboekt'] = RegelList(regels)
-
-    regels = model.get_salaris_begroot_regels(jaar, orders=orders)
-    HRregels['begroot'] = RegelList(regels)
-
-    regels = model.get_obligos_regels(jaar, orders=orders, kostensoorten=[411101])
-    HRregels['obligos'] = RegelList(regels)
-    return HRregels
+    return regels
 
 def correlate_personeelsnummers(regelsBegroot, regelsGeboekt):
 # Cross personeelsnummers begroting -> boekingsnummers
@@ -270,7 +265,7 @@ def correlate_personeelsnummers(regelsBegroot, regelsGeboekt):
                 matchfound = True
 
         if not matchfound or not begrootpersoneelsnummer:
-            begrootRegelsDictPerOrder = begrootRegelsList.split_by_regel_attributes(['order'])
+            begrootRegelsDictPerOrder = begrootRegelsList.split_by_regel_attributes(['ordernummer'])
             for order, begrootRegelsList in begrootRegelsDictPerOrder.iteritems():
                 if order not in noMatchPerOrder:
                     noMatchPerOrder[order] = begrootRegelsList
