@@ -9,7 +9,7 @@ class Regel():
     def __init__(self):
         # general attributes that should exist in all tiepes (SAPkeys in config)
         self.tiepe = None
-        self.order = None
+        self.ordernummer = None
         self.ordernaam = None
         self.kostensoort = None
         self.kostensoortnaam = None
