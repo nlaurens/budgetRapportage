@@ -36,7 +36,7 @@ Somday/Maybe:
 - http://bl.ocks.org/NPashaP/96447623ef4d342ee09b
 """
 import web
-web.config.debug = True #Set to False for no ouput! Must be done before the rest
+web.config.debug = False #Set to False for no ouput! Must be done before the rest
 import model
 import GrootBoek
 import OrderGroep
@@ -201,11 +201,7 @@ class Login:
         return render.login(form, 'Wrong Password')
 
 class Admin:
-    upload_form = web.form.Form(
-        web.form.File('myfile'),
-        web.form.Dropdown('Type', [('', ''),('geboekt','Realisatie'), ('obligo','Obligo'), ('plan', 'Begroting Orders'), ('salaris', 'Salarissen'), ('salaris_begroting', 'Begroting Salarissen')]),
-        web.form.Button('Upload data'),
-        )
+    upload_form = web.form.Form() # is def in __init__ method
     sapdate_form = web.form.Form(
         web.form.Textbox('Sapdate'),
         web.form.Button('Update'),
@@ -214,6 +210,24 @@ class Admin:
         web.form.Textbox('Ordergroep'),
         web.form.Button('Refresh Graphs'),
         )
+
+    def __init__(self):
+        types_allowed = [ ('','') ]
+        types_allowed += config['mysql']['tables']['regels'].items()
+
+        self.upload_form = web.form.Form(
+            web.form.File('myfile1'),
+            web.form.Dropdown('Type1', types_allowed),
+            web.form.File('myfile2'),
+            web.form.Dropdown('Type2', types_allowed),
+            web.form.File('myfile3'),
+            web.form.Dropdown('Type3', types_allowed),
+            web.form.File('myfile4'),
+            web.form.Dropdown('Type4', types_allowed),
+            web.form.File('myfile5'),
+            web.form.Dropdown('Type5', types_allowed),
+            web.form.Button('Upload data'),
+            )
 
     def GET(self, userHash):
         if not webaccess.check_auth(session, userHash):
@@ -234,7 +248,7 @@ class Admin:
             model.last_update(web.input()['Sapdate'])
             msg.append('DONE')
         if 'Upload data' in web.input():
-            msg = webadmin.parse_upload_form(render, self.upload_form)
+            msg = webadmin.parse_upload_form()
         if 'Refresh Graphs' in web.input():
             msg = webadmin.updateGraphs(web.input()['Ordergroep'])
         return render.webadmin_overview(self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg)

@@ -1,5 +1,6 @@
 """
 TODO
+
 """
 import web
 from config import config
@@ -33,30 +34,51 @@ def updateGraphs(orderGroep):
     return msg
 
 
-def parse_upload_form(render, form):
-    x = web.input(myfile={})
-    allowed = ['.xlsx']
-    msg = ["Start upload"]
+def parse_upload_form():
+    msg = ['Start parsing of upload form']
+    # try each upload
+#TODO make this iterable.. web.input(myfile1).myfile1 is the problem.
+    fileHandle = web.input(myfile1={}).myfile1
+    table = web.input()['Type1']
+    msg = upload_and_process_file('myfile1', table, fileHandle, msg)
 
-    table = web.input()['Type']
+    fileHandle = web.input(myfile2={}).myfile2
+    table = web.input()['Type2']
+    msg = upload_and_process_file('myfile2', table, fileHandle, msg)
+
+    fileHandle = web.input(myfile3={}).myfile3
+    table = web.input()['Type3']
+    msg = upload_and_process_file('myfile3', table, fileHandle, msg)
+
+    fileHandle = web.input(myfile4={}).myfile4
+    table = web.input()['Type4']
+    msg = upload_and_process_file('myfile4', table, fileHandle, msg)
+
+    fileHandle = web.input(myfile5={}).myfile5
+    table = web.input()['Type5']
+    msg = upload_and_process_file('myfile5', table, fileHandle, msg)
+
+    return msg
+
+def upload_and_process_file(fileHandleName, table, fileHandle, msg):
     table_allowed = False
-    if table in ['geboekt', 'obligo', 'plan', 'salaris', 'salaris_begroting']:
+    if table in config['mysql']['tables']['regels'].values():
         table_allowed = True
 
     if not table_allowed:
         msg.append('Type not selected!')
         return msg
 
+    allowed = ['.xlsx']
     msg.append('Uploading file.')
     succes_upload = False
-    if 'myfile' in x:
-        pwd, filenamefull = os.path.split(x.myfile.filename)
-        filename, extension = os.path.splitext(filenamefull)
-        if extension in allowed:
-            fout = open(table+'.xlsx','wb')
-            fout.write(x.myfile.file.read())
-            fout.close()
-            succes_upload = True
+    pwd, filenamefull = os.path.split(fileHandle.filename)
+    filename, extension = os.path.splitext(filenamefull)
+    if extension in allowed:
+        fout = open(table+'.xlsx','wb')
+        fout.write(fileHandle.file.read())
+        fout.close()
+        succes_upload = True
 
     if not succes_upload:
         msg.append('upload failed!')
@@ -109,7 +131,6 @@ def parse_upload_form(render, form):
         row_empty_replaced = [element or '0' for element in row]
         if row_empty_replaced != row:
             empty_indexes = [i for i, item in enumerate(row) if item == '']
-            print empty_indexes
             for index in empty_indexes:
                 msg.append('WARNING empty %s in row #(%s)' %(fields[index],rownumber) )
         rows.append(dict(zip(fields, row_empty_replaced)))
@@ -122,6 +143,7 @@ def parse_upload_form(render, form):
     msg.append('Cleaning up files')
     #os.remove(table+'.xlsx') # BUG.. xlsx2csv seems to block the file handle.
     os.remove(table+'.csv')
+    msg.append('')
 
     return msg
 

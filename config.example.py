@@ -17,7 +17,6 @@ config = {
                 "plan": "plan",
                 "salaris_geboekt": "salaris_geboekt",
                 "salaris_plan": "salaris_plan",
-                "salaris_obligo": "salaris_obligo",
             },
         },
     },
@@ -67,7 +66,7 @@ config = {
             "documentnummer": "Documentnummer",
             "kosten": "Totaalwrd./vslg.val.",
         },
-        "salaris":{
+        "salaris_geboekt":{
             "personeelsnummer": "PersNr",
             "personeelsnaam": "Naam",
             "schaal": "Schaal",
@@ -79,7 +78,7 @@ config = {
             "kosten": "Bedrag",
             "invoerdatum": "Begda afr.",
         },
-        "salaris_begroting":{
+        "salaris_plan":{
             "personeelsnummer": "Personeelsnummer",
             "personeelsnaam": "Naam",
             "trede": "Trede",
