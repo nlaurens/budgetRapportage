@@ -20,6 +20,7 @@ db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["u
 # Returns a dictionary of regellists of select tables (or all if emtpy)
 # {'geboekt': RegelList, '..': Regellist}
 def get_regellist_per_table(tableNames=[], jaar=[], periodes=[], orders=[], kostensoorten=[]):
+#TODO dit stukje naar een aparte 'privagte' functie van model (is nu dubbele code in functies)
     if not tableNames:
         tableNames = config["mysql"]["tables"]["regels"].keys()
     else:
@@ -65,6 +66,26 @@ def mysql_regels_query(jaar=[], periodes=[], orders=[], kostensoorten=[]):
 
     return query
 
+
+# gives possible years available
+def get_years_available(tableNames=[]):
+    jaren = set()
+    if not tableNames:
+        tableNames = config["mysql"]["tables"]["regels"].keys()
+    else:
+        for name in tableNames:
+            assert name in config["mysql"]["tables"]["regels"], "unknown table in model.get_reggellist_per_table: " + name
+
+    for table in tableNames:
+        try: 
+            jarenTable = db.query("SELECT DISTINCT(`jaar`) FROM `%s`" % (table) )
+        except:
+            jarenTable = []
+
+        for dbRow in jarenTable:
+            jaren.add(dbRow.jaar)
+
+    return jaren
 
 
 # Gives a list of allowed budgets for that user.

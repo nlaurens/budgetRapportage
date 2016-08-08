@@ -230,10 +230,8 @@ class Admin:
             )
 
         jaren = [ ('','') ] 
-#TODO uit DB lezen welke jaren beschikbaar zijn!
-        startJaar = config["currentYear"] - 5
-        stopJaar = config["currentYear"] + 5
-        jaren += zip(range(startJaar, stopJaar), range(startJaar, stopJaar))
+        jarenDB = model.get_years_available()
+        jaren += zip(jarenDB, jarenDB)
         self.purgeRegelsForm = web.form.Form(
             web.form.Dropdown('Year', jaren),
             web.form.Button('Purge year from regels')
