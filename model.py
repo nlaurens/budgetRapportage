@@ -88,6 +88,24 @@ def get_years_available(tableNames=[]):
     return jaren
 
 
+def delete_regels(jaar, tableNames=[]):
+    if not tableNames:
+        tableNames = config["mysql"]["tables"]["regels"].keys()
+    else:
+        for name in tableNames:
+            assert name in config["mysql"]["tables"]["regels"], "unknown table in model.get_reggellist_per_table: " + name
+
+    deletedTotal = 0
+    for table in tableNames:
+        try: 
+            deleted = db.delete(table, where="jaar=$jaar", vars=locals())
+        except:
+            deleted = 0
+        deletedTotal += deleted
+        
+    return deletedTotal
+
+
 # Gives a list of allowed budgets for that user.
 def get_budgets(verifyHash, salt):
     authorisation = load_auth_list()

@@ -25,6 +25,15 @@ def checkDB():
 
 def parse_purgeRegelsForm():
     msg = ["Purging year from regels..."]
+    try:
+        jaar = int(web.input()['Year'])
+    except:
+        msg.append("No valid year selected")
+        return msg
+
+    msg.append("Purging year %s" % jaar)
+    aantalWeg = model.delete_regels(jaar)
+    msg.append("Deleted %s rows" % aantalWeg)
     return msg
 
 
@@ -99,7 +108,7 @@ def upload_and_process_file(fileHandleName, table, fileHandle, msg):
     msg.append('xlsx to csv convertion succes')
 
     if model.check_table_exists(table):
-        table_backup = table + datetime.datetime.now().strftime("%Y%m%d%H%M")
+        table_backup = table + datetime.datetime.now().strftime("%Y%m%d%H%M-%f")
         msg.append('Rename '+table+' to ' + table_backup)
         if not model.move_table(table, table_backup):
             msg.append('Renaming table failed!')
