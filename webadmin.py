@@ -23,6 +23,11 @@ def checkDB():
     return msg
 
 
+def parse_purgeRegelsForm():
+    msg = ["Purging year from regels..."]
+    return msg
+
+
 def updateGraphs(orderGroep):
     if orderGroep not in model.loadOrderGroepen():
         msg = ['Error ordergroep not found: ' + orderGroep]

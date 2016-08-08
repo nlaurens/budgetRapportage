@@ -229,6 +229,16 @@ class Admin:
             web.form.Button('Upload data'),
             )
 
+        jaren = [ ('','') ] 
+#TODO uit DB lezen welke jaren beschikbaar zijn!
+        startJaar = config["currentYear"] - 5
+        stopJaar = config["currentYear"] + 5
+        jaren += zip(range(startJaar, stopJaar), range(startJaar, stopJaar))
+        self.purgeRegelsForm = web.form.Form(
+            web.form.Dropdown('Year', jaren),
+            web.form.Button('Purge year from regels')
+            )
+
     def GET(self, userHash):
         if not webaccess.check_auth(session, userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
@@ -237,7 +247,7 @@ class Admin:
         msg.append('')
         msg.append('latest sap date: ' + model.last_update())
 
-        return render.webadmin_overview(self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg)
+        return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg)
 
     def POST(self, userHash):
         if not webaccess.check_auth(session, userHash):
@@ -251,7 +261,10 @@ class Admin:
             msg = webadmin.parse_upload_form()
         if 'Refresh Graphs' in web.input():
             msg = webadmin.updateGraphs(web.input()['Ordergroep'])
-        return render.webadmin_overview(self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg)
+        if 'Purge year from regels' in web.input():
+            msg = webadmin.parse_purgeRegelsForm()
+
+        return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg)
 
 
 class Logout:

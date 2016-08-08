@@ -1,21 +1,32 @@
-$def with(upload_form, sapupdate_form, graphsUpdate_form, msg)
+$def with(purgeForm, upload_form, sapupdate_form, graphsUpdate_form, msg)
 
 <html><head></head><body>
 
 $for line in msg:
     $line<BR>
+
 <HR>
+
+<form method="POST" enctype="multipart/form-data" action="">
+$:purgeForm.render()
+</form>
+
+<HR>
+
 <form method="POST" enctype="multipart/form-data" action="">
 $:upload_form.render()
 </form>
 
 <HR>
+
 <form method="POST" enctype="multipart/form-data" action="">
 $:sapupdate_form.render()
 </form>
 
 <HR>
+
 <form method="POST" enctype="multipart/form-data" action="">
 $:graphsUpdate_form.render()
 </form>
+
 </body></html>
