@@ -47,7 +47,7 @@ from matplotlib.patches import Rectangle
 # tiepes: realisatie, bars, pie
 # names: anything from group orders to order numbers.
 def graph_url(userHash, jaar, tiepe, name):
-    return ('/graph/%s/%s/%s/%s' % (userHash, jaar, tiepe, name))
+    return ('/graph/%s/%s/%s/%s.png' % (userHash, jaar, tiepe, name))
 
 
 class Graph:

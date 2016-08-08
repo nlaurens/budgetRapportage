@@ -36,7 +36,7 @@ Somday/Maybe:
 - http://bl.ocks.org/NPashaP/96447623ef4d342ee09b
 """
 import web
-web.config.debug = True #Set to False for no ouput! Must be done before the rest
+web.config.debug = False #Set to False for no ouput! Must be done before the rest
 import model
 import GrootBoek
 import OrderGroep
@@ -232,7 +232,7 @@ class Admin:
             web.form.Button('Upload data'),
             )
 
-        jaren = [ ('','') ] 
+        jaren = [ ('','') ]
         jarenDB = model.get_years_available()
         jaren += zip(jarenDB, jarenDB)
         self.purgeRegelsForm = web.form.Form(
@@ -307,7 +307,7 @@ urls = (
     '/report/(.+)', 'Report',
     '/salaris/(.+)', 'Salaris',
     '/admin/(.+)', 'Admin',
-    '/graph/(.+)/(\d+)/(.*)/(.*)', 'Graph',
+    '/graph/(.+)/(\d+)/(.*)/(.*).png', 'Graph',
 )
 
 ### Templates
