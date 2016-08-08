@@ -36,7 +36,7 @@ Somday/Maybe:
 - http://bl.ocks.org/NPashaP/96447623ef4d342ee09b
 """
 import web
-web.config.debug = True #Set to False for no ouput! Must be done before the rest
+web.config.debug = False #Set to False for no ouput! Must be done before the rest
 import model
 import GrootBoek
 import OrderGroep
@@ -212,6 +212,9 @@ class Admin:
         )
 
     def __init__(self):
+        self.fill_forms()
+
+    def fill_forms(self):
         types_allowed = [ ('','') ]
         types_allowed += config['mysql']['tables']['regels'].items()
 
@@ -245,6 +248,7 @@ class Admin:
         msg.append('')
         msg.append('latest sap date: ' + model.last_update())
 
+        self.fill_forms()
         return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg)
 
     def POST(self, userHash):
@@ -262,6 +266,7 @@ class Admin:
         if 'Purge year from regels' in web.input():
             msg = webadmin.parse_purgeRegelsForm()
 
+        self.fill_forms()
         return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg)
 
 

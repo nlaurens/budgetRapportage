@@ -109,11 +109,11 @@ def upload_and_process_file(fileHandleName, table, fileHandle, msg):
 
     if model.check_table_exists(table):
         table_backup = table + datetime.datetime.now().strftime("%Y%m%d%H%M-%f")
-        msg.append('Rename '+table+' to ' + table_backup)
-        if not model.move_table(table, table_backup):
-            msg.append('Renaming table failed!')
+        msg.append('Copying '+table+' to ' + table_backup)
+        if not model.copy_table(table, table_backup):
+            msg.append('Copying table failed!')
             return msg
-        msg.append('Renaming table succes')
+        msg.append('Copying table succes')
 
     msg.append('Reading headers from CSV')
     f = open(table+'.csv', 'rb')
@@ -134,8 +134,12 @@ def upload_and_process_file(fileHandleName, table, fileHandle, msg):
             msg.append('Required field not in excel: ' + attribute)
             return msg
 
-    msg.append('Creating new table using headers')
-    model.create_table(table, fields)
+    if not model.check_table_exists(table):
+        msg.append('Creating new table using headers')
+        model.create_table(table, fields)
+    else: 
+        msg.append('Table already exists, add regels to it.')
+
 
     # Fill table from CSV
     msg.append('Inserting data into table')
