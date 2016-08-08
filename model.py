@@ -319,5 +319,17 @@ def create_table(table, fields):
     results = db.query(sql)
 
 
+# inserts multiple rows into the db. 
+# Splits up the rows in bunches of 10k to prevent
+# timeout of the mysqldb
 def insert_into_table(table, rows):
-    db.multiple_insert(table, values=rows)
+# used for debugging when a row makes the mysql db crash
+    rowChunks = chunk_rows(rows, 10000)
+    for rows in rowChunks:
+        db.multiple_insert(table, values=rows)
+
+
+# Cuts op the row list in multiple rows
+def chunk_rows(rows, chunkSize):
+    for i in xrange(0, len(rows), chunkSize):
+        yield rows[i:i+chunkSize]
