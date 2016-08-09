@@ -81,31 +81,37 @@ def html_tree(root, render, maxdepth, depth):
 
     regelshtml = []
     totalsNode = {} #Always initialize all to 0 to prevent render problems
-    totalsNode['geboekt'] = 0
-    totalsNode['obligo'] = 0
-    totalsNode['plan'] = 0
-    for tiepe, regelsPerTiepe in root.regels.iteritems():
-        totalsKS = {} #Always initialize all to 0 to prevent render problems
+    totalsNode['geboekt'] = root.totaalTree['geboekt']
+    totalsNode['obligo'] = root.totaalTree['obligo']
+    totalsNode['plan'] = root.totaalTree['plan']
+
+    regelsPerKSPerTiepe = RegelList() # Create 1 regellist and not a dict per type
+    for key, regelsPerTiepe in root.regels.iteritems():
+        regelsPerKSPerTiepe.extend(regelsPerTiepe)
+
+    regelsPerKSPerTiepe = regelsPerKSPerTiepe.split_by_regel_attributes(['kostensoort','tiepe'])
+    for kostenSoort, regelsPerTiepe in regelsPerKSPerTiepe.iteritems():
+        totalsKS = {}
         totalsKS['geboekt'] = 0
         totalsKS['obligo'] = 0
         totalsKS['plan'] = 0
-        for ks, regelsPerKS in regelsPerTiepe.split_by_regel_attributes(['kostensoort']).iteritems():
-            totalsKS[tiepe] = regelsPerKS.total()
-            if tiepe not in totalsNode:
-                totalsNode[tiepe] = regelsPerKS.total()
-            else:
-                totalsNode[tiepe] += regelsPerKS.total()
-            for regel in regelsPerKS.regels:
+        for tiepe, regellist in regelsPerTiepe.iteritems():
+            totalsKS[tiepe] = regellist.total()
+
+            for regel in regellist.regels:
                 regel.kosten = moneyfmt(regel.kosten, places=2, dp='.')
 
-                KSname = root.kostenSoorten[ks]
-                KSname = str(ks) +' - ' + KSname.decode('ascii', 'replace').encode('utf-8')
-                regelshtml.append(render.regels(root.name, ks, KSname, totalsKS, regelsPerKS.regels, unfolded))
+            KSname = root.kostenSoorten[kostenSoort]
+            KSname = str(kostenSoort) +' - ' + KSname.decode('ascii', 'replace').encode('utf-8')
+            regelshtml.append(render.regels(root.name, kostenSoort, KSname, totalsKS, regellist.regels, unfolded))
 
     if depth <= maxdepth:
         unfolded = True
     else:
         unfolded = False
+
+    for key, amount in totalsNode.iteritems():
+        totalsNode[key] = moneyfmt(amount, places=2, dp='.')
 
     html = render.grootboekgroep(root.name, root.descr, groups, regelshtml, unfolded, totalsNode, depth)
 
