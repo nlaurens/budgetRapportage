@@ -77,7 +77,7 @@ def get_years_available(tableNames=[]):
             assert name in config["mysql"]["tables"]["regels"], "unknown table in model.get_reggellist_per_table: " + name
 
     for table in tableNames:
-        try: 
+        try:
             jarenTable = db.query("SELECT DISTINCT(`jaar`) FROM `%s`" % (table) )
         except:
             jarenTable = []
@@ -97,12 +97,12 @@ def delete_regels(jaar, tableNames=[]):
 
     deletedTotal = 0
     for table in tableNames:
-        try: 
+        try:
             deleted = db.delete(table, where="jaar=$jaar", vars=locals())
         except:
             deleted = 0
         deletedTotal += deleted
-        
+
     return deletedTotal
 
 
@@ -144,16 +144,16 @@ def load_auth_list():
     return authorisation
 
 
-# Prints all the users and their hash so that
+# returns a list of dict with:
+# [username, <orders he can access>, hash]
 # you can access the correct pages using the hashes.
-def gen_auth_list(salt):
+def get_auth_list(salt):
+    userList = []
     authorisations = load_auth_list()
     for user, orders in authorisations.iteritems():
-        userHash = hashlib.sha224(user+salt).hexdigest()
-        print user + ' - ' + userHash
-        print 'has access to:'
-        print orders
-        print ''
+        userList.append([user, orders, hashlib.sha224(user+salt).hexdigest()])
+
+    return userList
 
 
 # Read/write last sap-update date:
@@ -319,7 +319,7 @@ def create_table(table, fields):
     results = db.query(sql)
 
 
-# inserts multiple rows into the db. 
+# inserts multiple rows into the db.
 # Splits up the rows in bunches of 10k to prevent
 # timeout of the mysqldb
 def insert_into_table(table, rows):

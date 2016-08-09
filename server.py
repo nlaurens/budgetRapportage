@@ -5,6 +5,8 @@ BUGS
   - SQL inject in model bekijken
 
 TODO
+- add checking if user is allowed for the order he is viewing. Right now we don't use thge auth file other to see if you can login or not.
+
 - redirect to requrested page after login
 
 - webaccess only checks IP access not if the budget# is allowed for that user
@@ -250,8 +252,11 @@ class Admin:
         msg.append('')
         msg.append('latest sap date: ' + model.last_update())
 
+        userAccess = model.get_auth_list(config['salt'])
+        print userAccess
+
         self.fill_forms()
-        return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg)
+        return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg, userAccess)
 
     def POST(self, userHash):
         if not webaccess.check_auth(session, userHash):
@@ -325,5 +330,4 @@ else:
     session = web.config._session
 
 if __name__ == "__main__":
-    model.gen_auth_list(config['salt'])
     app.run()

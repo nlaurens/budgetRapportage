@@ -1,32 +1,116 @@
-$def with(purgeForm, upload_form, sapupdate_form, graphsUpdate_form, msg)
+$def with(purgeForm, upload_form, sapupdate_form, graphsUpdate_form, msg, userAccess)
 
-<html><head></head><body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/report.css">
 
-$for line in msg:
-    $line<BR>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="/static/js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/static/js/bootstrap.min.js"></script>
 
-<HR>
+    <style>/#
+      @import url(http://fonts.googleapis.com/css?family=Bree+Serif);
+      body, h1, h2, h3, h4, h5, h6{
+      font-family: 'Bree Serif', serif;
+      }
 
-<form method="POST" enctype="multipart/form-data" action="">
-$:purgeForm.render()
-</form>
+    </style>
+  </head>
 
-<HR>
+  <body>
 
-<form method="POST" enctype="multipart/form-data" action="">
-$:upload_form.render()
-</form>
+<div class="jumbotron text-center">
+  <h1>Admin panel</h1>
+  <p>Hint, if you don't know what this is... don't click anything</p>
+</div>
+  <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4>Command output</h4>
+            </div>
+            <div class="panel-body">
+            $for line in msg:
+                $line<BR>
+            </div>
+        </div>
 
-<HR>
 
-<form method="POST" enctype="multipart/form-data" action="">
-$:sapupdate_form.render()
-</form>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4>Remove regels from db</h4>
+            </div>
+            <div class="panel-body">
+                <form method="POST" enctype="multipart/form-data" action="">
+                $:purgeForm.render()
+                </form>
+            </div>
+        </div>
 
-<HR>
 
-<form method="POST" enctype="multipart/form-data" action="">
-$:graphsUpdate_form.render()
-</form>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4>Upload regels into the DB</h4>
+            </div>
+            <div class="panel-body">
+                <form method="POST" enctype="multipart/form-data" action="">
+                $:upload_form.render()
+                </form>
+            </div>
+        </div>
 
-</body></html>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4>Set latest sap update field (date)</h4>
+            </div>
+            <div class="panel-body">
+                <form method="POST" enctype="multipart/form-data" action="">
+                $:sapupdate_form.render()
+                </form>
+            </div>
+        </div>
+
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4>Rebuild graphs</h4>
+            </div>
+            <div class="panel-body">
+                <form method="POST" enctype="multipart/form-data" action="">
+                $:graphsUpdate_form.render()
+                </form>
+            </div>
+        </divL
+
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4>User access</h4>
+            </div>
+            <div class="panel-body">
+                <table class="table table-condensed" style="border-collapse:collapse;">
+                    <thead>
+                        <tr><th>&nbsp;</th>
+                            <th class="text-right">Username</th>
+                            <th class="text-right">Access</th>
+                            <th class="text-right">Userhash</th>
+                        </tr>                          
+                    </thead>
+                    <tbody>
+                    $for line in userAccess:
+                        <td class="text-right">$:line[0]</td>
+                        <td class="text-right">$:line[1]</td>
+                        <td class="text-right">$:line[2]</td>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    </body>
+</html>
