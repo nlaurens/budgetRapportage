@@ -30,19 +30,20 @@ def view(settings, render, form, order):
     regels = model.get_regellist_per_table(jaar=[settings["jaar"]], orders=[order])
 #TODO replace with param
     root = GrootBoek.load('WNMODEL4')
+
     root.assign_regels_recursive(regels)
     if settings["clean"]:
         root.clean_empty_nodes()
 
     root.set_totals()
-
-    htmlgrootboek = []
+    rootBaten = root.find('WNTBA')
+    rootLasten = root.find('WNTL')
 
     totaal = {}
     totaal['order'] = order
-    totaal['baten'] = 0
-    totaal['lasten'] = 0
-    totaal['ruimte'] = 0
+    totaal['begroting'] = root.totaalTree['plan']
+    totaal['baten'] = rootBaten.totaalTree['geboekt'] + rootBaten.totaalTree['obligo']
+    totaal['lasten'] = rootLasten.totaalTree['geboekt'] + rootLasten.totaalTree['obligo']
 
     reserves = model.get_reserves()
     try:
@@ -50,16 +51,11 @@ def view(settings, render, form, order):
     except:
         totaal['reserve'] = 0
 
-# TODO LOAD BGROTING
-    totaal['begroting'] = 0
-
     if totaal['reserve'] < 0:
         totaal['ruimte'] = -1*(root.totaalTree['geboekt'] + root.totaalTree['obligo']) + totaal['begroting'] + totaal['reserve']
     else:
         totaal['ruimte'] = -1*(root.totaalTree['geboekt'] + root.totaalTree['obligo']) + totaal['begroting']
 
-    for child in root.children:
-        htmlgrootboek.append(html_tree(child, render, settings["maxdepth"], 0))
 
     totaal['reserve'] = moneyfmt(totaal['reserve'])
     totaal['ruimte'] = moneyfmt(totaal['ruimte'])
@@ -73,6 +69,10 @@ def view(settings, render, form, order):
 
     #print '----------------'
     #root.walk_tree(9999)
+    htmlgrootboek = []
+    for child in root.children:
+        htmlgrootboek.append(html_tree(child, render, settings["maxdepth"], 0))
+
     return render.webvieworder(form, sapdatum, htmlgrootboek, totaal)
 
 
