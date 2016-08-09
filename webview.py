@@ -5,6 +5,7 @@ import model
 import os
 import numpy as np
 from functions import moneyfmt
+from RegelList import RegelList
 
 def fill_dropdowns(form, settings, KSgroepen):
     dropdownlist = []
@@ -26,7 +27,6 @@ def view(settings, render, form, order):
     order = int(order)
     sapdatum = model.last_update()
 
-    #root = GrootBoek.load(order, grootboek, settings["jaar"], settings["periode"])
     regels = model.get_regellist_per_table(jaar=[settings["jaar"]], orders=[order])
 #TODO replace with param
     root = GrootBoek.load('WNMODEL4')
@@ -36,21 +36,19 @@ def view(settings, render, form, order):
 
     root.set_totals()
 
-    totaal = {}
     htmlgrootboek = []
 
+    totaal = {}
     totaal['order'] = order
     totaal['baten'] = 0
     totaal['lasten'] = 0
     totaal['ruimte'] = 0
 
-#TODO reserves toevoegen
     reserves = model.get_reserves()
     try:
         totaal['reserve'] = reserves[str(order)]
     except:
         totaal['reserve'] = 0
-
 
 # TODO LOAD BGROTING
     totaal['begroting'] = 0
@@ -61,7 +59,7 @@ def view(settings, render, form, order):
         totaal['ruimte'] = -1*(root.totaalTree['geboekt'] + root.totaalTree['obligo']) + totaal['begroting']
 
     for child in root.children:
-        htmlgrootboek.append(child.html_tree(render, settings["maxdepth"], 0))
+        htmlgrootboek.append(html_tree(child, render, settings["maxdepth"], 0))
 
     totaal['reserve'] = moneyfmt(totaal['reserve'])
     totaal['ruimte'] = moneyfmt(totaal['ruimte'])
@@ -76,3 +74,51 @@ def view(settings, render, form, order):
     #print '----------------'
     #root.walk_tree(9999)
     return render.webvieworder(form, sapdatum, htmlgrootboek, totaal)
+
+
+def html_tree(root, render, maxdepth, depth):
+    depth += 1
+
+    groups = []
+    for child in root.children:
+        groups.append(html_tree(child, render, maxdepth, depth))
+
+    regelshtml = []
+
+    unfolded = False # Never show the details
+#regel iteritems zijn nu plannen geen ks! dus per key
+
+    regelsPerKSPerTiepe = RegelList()
+    for key, regellist in root.regels.iteritems():
+        regelsPerKSPerTiepe.extend(regellist)
+
+    regelsPerKSPerTiepe = regelsPerKSPerTiepe.split_by_regel_attributes(['kostensoort', 'tiepe'])
+
+    totals = {}
+    totals['geboekt'] = 0
+    totals['obligo'] = 0
+    totals['plan'] = 0
+    for kostenSoort, regelsPerTiepe in regelsPerKSPerTiepe.iteritems():
+        totalsKS = {}
+        totalsKS['geboekt'] = 0
+        totalsKS['obligo'] = 0
+        totalsKS['plan'] = 0
+        for tiepe, regellist in regelsPerTiepe.iteritems():
+            totalsKS[tiepe] = regellist.total()
+            totals[tiepe] += regellist.total()
+
+            for regel in regellist.regels:
+                regel.kosten = moneyfmt(regel.kosten, places=2, dp='.')
+
+            KSname = root.kostenSoorten[kostenSoort]
+            KSname = str(kostenSoort) +' - ' + KSname.decode('ascii', 'replace').encode('utf-8')
+            regelshtml.append(render.regels(root.name, kostenSoort, KSname, totalsKS, regellist.regels, unfolded))
+
+    if depth <= maxdepth:
+        unfolded = True
+    else:
+        unfolded = False
+
+    html = render.grootboekgroep(root.name, root.descr, groups, regelshtml, unfolded, totals, depth)
+
+    return html

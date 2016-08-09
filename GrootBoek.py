@@ -62,54 +62,6 @@ class GrootBoek():
         else:
             return self.parent.lower_level_parent(level)
 
-    def html_tree(self, render, maxdepth, depth):
-        from functions import moneyfmt
-        depth += 1
-
-        groups = []
-        for child in self.children:
-            groups.append(child.html_tree(render, maxdepth, depth))
-
-        regelshtml = []
-
-        unfolded = False # Never show the details
-#regel iteritems zijn nu plannen geen ks! dus per key
-
-        regelsPerKSPerTiepe = RegelList()
-        for key, regellist in self.regels.iteritems():
-            regelsPerKSPerTiepe.extend(regellist)
-
-        regelsPerKSPerTiepe = regelsPerKSPerTiepe.split_by_regel_attributes(['kostensoort', 'tiepe'])
-
-        totals = {}
-        totals['geboekt'] = 0
-        totals['obligo'] = 0
-        totals['plan'] = 0
-        for kostenSoort, regelsPerTiepe in regelsPerKSPerTiepe.iteritems():
-            totalsKS = {}
-            totalsKS['geboekt'] = 0
-            totalsKS['obligo'] = 0
-            totalsKS['plan'] = 0
-            for tiepe, regellist in regelsPerTiepe.iteritems():
-                totalsKS[tiepe] = regellist.total()
-                totals[tiepe] += regellist.total()
-
-                for regel in regellist.regels:
-                    regel.kosten = moneyfmt(regel.kosten, places=2, dp='.')
-
-                KSname = self.kostenSoorten[kostenSoort]
-                KSname = str(kostenSoort) +' - ' + KSname.decode('ascii', 'replace').encode('utf-8')
-                regelshtml.append(render.regels(self.name, kostenSoort, KSname, totalsKS, regellist.regels, unfolded))
-
-        if depth <= maxdepth:
-            unfolded = True
-        else:
-            unfolded = False
-
-        html = render.grootboekgroep(self.name, self.descr, groups, regelshtml, unfolded, totals, depth)
-
-        return html
-
 
     def walk_tree(self, maxdepth):
         if self.level <= maxdepth:
