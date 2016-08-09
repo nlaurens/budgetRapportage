@@ -182,9 +182,7 @@ class GrootBoek():
                         if ks not in self.totaalNodePerKS[key]:
                             self.totaalNodePerKS[key][ks] = 0
                         self.totaalNodePerKS[key][ks] += regellist.total()
-
-                        # add the all the ks for every valid period to the total
-                        self.totaalTree[key] += self.totaalNodePerKS[key][ks]
+                        self.totaalTree[key] += regellist.total()
 
         #add childrens totaltree's
         for child in self.children:
