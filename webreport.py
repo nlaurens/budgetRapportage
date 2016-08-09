@@ -90,8 +90,8 @@ def parse_orders_in_groep(root, jaar, render, total_groep):
         order_table, totaalTree = parse_order(order, descr, jaar, render)
         order_tables.append(order_table)
         total_groep['begroot'] += totaalTree['plan']
-        total_groep['realisatie'] += totaalTree['geboekt']
-        total_groep['resultaat'] += -1*(totaalTree['geboekt'] + totaalTree['obligo']) - totaalTree['plan']
+        total_groep['realisatie'] += totaalTree['geboekt'] + totaalTree['obligo']
+        total_groep['resultaat'] += totaalTree['plan'] - totaalTree['geboekt'] - totaalTree['obligo']
 
     groep_header = {}
     groep_header['row'] = groep_regel_to_html(total_groep, render)
