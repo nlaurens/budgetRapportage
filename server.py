@@ -48,11 +48,6 @@ from config import config
 # web-pages
 import webpage #mother class
 import webaccess
-import webreport
-import websalaris
-import webadmin
-import webview
-import webgraph
 
 
 class Index:
@@ -219,34 +214,21 @@ class Admin:
 
 
 class Login:
-
     def GET(self, userHash, caller):
-        from webaccess import Webaccess
-        page = Webaccess(webrender, userHash, caller, 'login')
-        page.mauw()
-        page.render()
-        #rendered = page.render()
-        return rendered
+        page = webaccess.Login(userHash, caller)
+        return page.render()
 
     def POST(self, userHash, caller):
-        form = self.login_form(caller)
-        if not form.validates():
-            return render.login(form)
-
-        if form['password'].value == config["globalPW"]:
-            session.logged_in = True
-            raise web.seeother('/' + caller + '/'+userHash)
-
-        return render.login(form, 'Wrong Password')
+        page = webaccess.Login(userHash, caller)
+        page.parse_form(session) #will redirect on success
+        return page.render()
 
 
 class Logout:
-    def __init__(self):
-        pass
-
     def GET(self):
         session.logged_in = False
-        return render.logout()
+        page = webpage.Simple('Logout', 'You have been logged out')
+        return page.render()
 
 
 class Graph:

@@ -3,7 +3,6 @@
 """
 import web
 import model
-import GrootBoekGroep
 import GrootBoek
 from config import config
 from functions import moneyfmt, IpBlock

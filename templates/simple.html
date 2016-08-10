@@ -1,17 +1,17 @@
-$def with (form, msg)
+$def with (title, msg, form)
       <div class="container">
           <div class="panel panel-default">
                 <div class="panel-heading">
                   <h4>
-                      Login
+                      $:title
                   </h4>
                 </div>
                 <div class="panel-body">
-                    <b>$msg</b><br>
-                    <form name="main" method="post"> 
-                        $:form.render()
-                    </form>
+                    $:msg
                 </div>
+                $if form != '':
+                    <div class="panel-body">
+                        $:msg
+                    </div>
             </div>
       </div>
-
