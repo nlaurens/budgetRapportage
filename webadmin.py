@@ -38,7 +38,7 @@ def render_db_status(render):
     for year in sorted(list(yearsFound)):
         regelsTotal.append(totalCount[year])
 
-    return render.webadmin_db_status(regelsHeaders, regelsBody, regelsTotal)
+    return render.admin_db_status(regelsHeaders, regelsBody, regelsTotal)
 
 
 def count_regels_tables():

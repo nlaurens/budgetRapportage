@@ -262,7 +262,7 @@ class Admin:
 
         dbStatus = webadmin.render_db_status(render)
 #TODO move all to: webadmin.render(xxx)
-        return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg, userAccess, unicode(dbStatus))
+        return render.admin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg, userAccess, unicode(dbStatus))
 
     def POST(self, userHash):
         if not webaccess.check_auth(session, userHash):
