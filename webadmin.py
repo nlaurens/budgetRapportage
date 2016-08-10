@@ -16,9 +16,13 @@ def checkDB():
     tables = ['config', 'geboekt', 'obligo', 'plan', 'salaris']
     for table in tables:
         if model.check_table_exists(table):
-            msg.append(table + " " + "ok")
+            years = sorted(list(model.get_years_available()))
+            yearsStr = ', '.join(str(year) for year in years)
+            msg.append(table + " " + " has years %s" % yearsStr)
+
         else:
             msg.append(table + " " + "FAIL")
+
 
     return msg
 
