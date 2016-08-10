@@ -204,70 +204,21 @@ class Login:
 
         return render.login(form, 'Wrong Password')
 
+
 class Admin:
-    upload_form = web.form.Form() # is def in __init__ method
-    sapdate_form = web.form.Form(
-        web.form.Textbox('Sapdate'),
-        web.form.Button('Update'),
-        )
-
-    def __init__(self):
-        self.fill_forms()
-
-    def fill_forms(self):
-        types_allowed = [ ('','') ]
-        types_allowed += config['mysql']['tables']['regels'].items()
-        tables = types_allowed + [ ('*','! ALL !') ]
-
-        jaren = [ ('','') ]
-        jarenDB = model.get_years_available()
-        jaren += zip(jarenDB, jarenDB)
-        jaren += [ ('%','! ALL !') ]
-
-        self.graphsUpdate_form = web.form.Form(
-            web.form.Textbox('Ordergroep'),
-            web.form.Dropdown('Year', jaren),
-            web.form.Button('Refresh Graphs'),
-            )
-
-        self.upload_form = web.form.Form(
-            web.form.File('myfile1'),
-            web.form.Dropdown('Type1', types_allowed),
-            web.form.File('myfile2'),
-            web.form.Dropdown('Type2', types_allowed),
-            web.form.File('myfile3'),
-            web.form.Dropdown('Type3', types_allowed),
-            web.form.File('myfile4'),
-            web.form.Dropdown('Type4', types_allowed),
-            web.form.File('myfile5'),
-            web.form.Dropdown('Type5', types_allowed),
-            web.form.Button('Upload data'),
-            )
-
-        self.purgeRegelsForm = web.form.Form(
-            web.form.Dropdown('Year', jaren),
-            web.form.Dropdown('Table', tables),
-            web.form.Button('Purge year from regels')
-            )
-#TODO split all admin divs in seperate renders. webadmin.render_blabla -> geeft rendered object terug
-#TODO latest_sap update field -> ook laatste string in config laten zien!
     def GET(self, userHash):
+        msg = ['Welcome to the admin panel']
         if not webaccess.check_auth(session, userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
 
-        msg = ['Welkom to the admin panel']
-        msg.extend( webadmin.run_tests() )
-        userAccess = model.get_auth_list(config['salt'])
-        self.fill_forms()
-
-        dbStatus = webadmin.render_db_status(render)
-#TODO move all to: webadmin.render(xxx)
-        return render.admin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg, userAccess, unicode(dbStatus))
+        return webadmin.render_overview(render, msg)
 
     def POST(self, userHash):
         if not webaccess.check_auth(session, userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
 
+        #handling of the post action:
+        msg = ['Welcome to the admin panel']
         if 'Update' in web.input():
             msg = ['Updating last sap update date']
             model.last_update(web.input()['Sapdate'])
@@ -279,10 +230,7 @@ class Admin:
         if 'Purge year from regels' in web.input():
             msg = webadmin.parse_purgeRegelsForm()
 
-        self.fill_forms()
-        userAccess = model.get_auth_list(config['salt'])
-        dbStatus = webadmin.render_db_status(render)
-        return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg, userAccess, dbStatus)
+        return webadmin.render_overview(render, msg)
 
 
 class Logout:
@@ -294,13 +242,11 @@ class Logout:
         return render.logout()
 
 
-
 # tiepe: realisatie, pie, bars
 class Graph:
     def GET(self,userHash, jaar, tiepe, order):
         if not webaccess.check_auth(session, userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
-
 
         #TODO CHECK IF ORDER EXIST AND IS ACCESSIBLE FOR USER
         orderAllowed = True

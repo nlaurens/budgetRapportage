@@ -101,6 +101,7 @@ class GrootBoek():
                     return result
         else:
             return ''
+        
 
     # Assings regellist to all the children
     def assign_regels_recursive(self,regels):

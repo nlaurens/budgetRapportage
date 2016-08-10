@@ -30,15 +30,15 @@ def view(settings, render, form, order):
     regels = model.get_regellist_per_table(jaar=[settings["jaar"]], orders=[order])
 #TODO replace with param
     root = GrootBoek.load('WNMODEL4')
-
     root.assign_regels_recursive(regels)
-    if settings["clean"]:
-        root.clean_empty_nodes()
-
     root.set_totals()
 #TODO replace with param
     rootBaten = root.find('WNTBA')
     rootLasten = root.find('WNTL')
+
+    if settings["clean"]:
+        rootBaten.clean_empty_nodes()
+        rootLasten.clean_empty_nodes()
 
     totaal = {}
     totaal['order'] = order

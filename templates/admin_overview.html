@@ -1,4 +1,4 @@
-$def with(purgeForm, upload_form, sapupdate_form, graphsUpdate_form, msg, userAccess, dbStatus)
+$def with(msg, removeRegels, uploadRegels, sapUpdate, graphsUpdate, userAccess, dbStatus)
 
 <!doctype html>
 <html lang="en">
@@ -45,9 +45,7 @@ $def with(purgeForm, upload_form, sapupdate_form, graphsUpdate_form, msg, userAc
                 <h4>Remove regels from db</h4>
             </div>
             <div class="panel-body">
-                <form method="POST" enctype="multipart/form-data" action="">
-                $:purgeForm.render()
-                </form>
+                $:removeRegels
             </div>
         </div>
 
@@ -57,9 +55,7 @@ $def with(purgeForm, upload_form, sapupdate_form, graphsUpdate_form, msg, userAc
                 <h4>Upload regels into the DB</h4>
             </div>
             <div class="panel-body">
-                <form method="POST" enctype="multipart/form-data" action="">
-                $:upload_form.render()
-                </form>
+                $:uploadRegels
             </div>
         </div>
 
@@ -70,7 +66,7 @@ $def with(purgeForm, upload_form, sapupdate_form, graphsUpdate_form, msg, userAc
             </div>
             <div class="panel-body">
                 <form method="POST" enctype="multipart/form-data" action="">
-                $:sapupdate_form.render()
+                $:sapUpdate
                 </form>
             </div>
         </div>
@@ -81,9 +77,7 @@ $def with(purgeForm, upload_form, sapupdate_form, graphsUpdate_form, msg, userAc
                 <h4>Rebuild graphs</h4>
             </div>
             <div class="panel-body">
-                <form method="POST" enctype="multipart/form-data" action="">
-                $:graphsUpdate_form.render()
-                </form>
+                $:graphsUpdate
             </div>
         </div>
 
@@ -102,21 +96,7 @@ $def with(purgeForm, upload_form, sapupdate_form, graphsUpdate_form, msg, userAc
                 <h4>User access</h4>
             </div>
             <div class="panel-body">
-                <table class="table table-condensed" style="border-collapse:collapse;">
-                    <thead>
-                        <tr>
-                            <th class="text-right">Username</th>
-                            <th class="text-right">Access</th>
-                            <th class="text-right">Userhash</th>
-                        </tr>                          
-                    </thead>
-                    <tbody>
-                    $for line in userAccess:
-                        <td class="text-right">$:line[0]</td>
-                        <td class="text-right">$:line[1]</td>
-                        <td class="text-right">$:line[2]</td>
-                    </tbody>
-                </table>
+                $:userAccess
             </div>
         </div>
 

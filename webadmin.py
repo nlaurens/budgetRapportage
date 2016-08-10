@@ -10,13 +10,69 @@ from xlsx2csv import Xlsx2csv
 import csv
 import datetime
 import tests
+import functions
 
-# Runs selected test in model.test
-def run_tests():
-    msg = ['Running tests']
-    msg.append('Testing for ks that are not included in kostensoortgroepen')
-    msg.extend(tests.ks_missing_in_report())
-    return msg
+
+def render_overview(render, msg):
+    dd = functions.get_dropdown_options() #dict with options for web.form.dropdown values
+
+    msg.extend( render_run_tests(render) )
+
+    removeRegels = render_remove_regels(render, dd['empty_years_all'], dd['empty_tables_all'])
+    uploadRegels = render_upload_regels(render, dd['empty_tables'])
+    sapUpdate = render_update_sap_date(render, model.last_update())
+    graphsUpdate = render_rebuild_graphs(render, dd['empty_years_all'])
+    userAccess = render.admin_user_access( model.get_auth_list(config['salt']) )
+    dbStatus = render_db_status(render)
+
+    return render.admin_overview(msg, removeRegels, uploadRegels, sapUpdate, graphsUpdate, userAccess, dbStatus)
+
+
+def render_remove_regels(render, jaren, tables):
+    form = web.form.Form(
+        web.form.Dropdown('Year', jaren),
+        web.form.Dropdown('Table', tables),
+        web.form.Button('Purge year from regels')
+        )
+
+    return render.admin_remove_regels(form)
+
+
+def render_upload_regels(render, tableNames):
+    form = web.form.Form(
+        web.form.File('myfile1'),
+        web.form.Dropdown('Type1', tableNames),
+        web.form.File('myfile2'),
+        web.form.Dropdown('Type2', tableNames),
+        web.form.File('myfile3'),
+        web.form.Dropdown('Type3', tableNames),
+        web.form.File('myfile4'),
+        web.form.Dropdown('Type4', tableNames),
+        web.form.File('myfile5'),
+        web.form.Dropdown('Type5', tableNames),
+        web.form.Button('Upload data'),
+    )
+
+    return render.admin_upload_regels(form)
+
+
+def render_update_sap_date(render, sapUpdate):
+    form = web.form.Form(
+        web.form.Textbox('Sapdate:', value=sapUpdate),
+        web.form.Button('Update'),
+    )
+
+    return render.admin_update_sap_date(form)
+
+
+def render_rebuild_graphs(render, years):
+    form = web.form.Form(
+        web.form.Textbox('target', description='Order/groep/*'),
+        web.form.Dropdown('Year', years),
+        web.form.Button('Refresh Graphs'),
+    )
+
+    return render.admin_rebuild_graphs(form)
 
 
 def render_db_status(render):
@@ -39,6 +95,18 @@ def render_db_status(render):
         regelsTotal.append(totalCount[year])
 
     return render.admin_db_status(regelsHeaders, regelsBody, regelsTotal)
+
+
+# Runs selected test in model.test
+def render_run_tests(render):
+    msg = ['Running tests']
+    success, testMsg = tests.ks_missing_in_report()
+    if success:
+        msg.append('* ks-test: Pass')
+    else:
+        msg.append('WARNING KS THAT ARE NOT IN REPORTS FOUND IN DB!')
+        msg.extend(testMsg)
+    return msg
 
 
 def count_regels_tables():
@@ -70,7 +138,9 @@ def count_regels_tables():
 def parse_purgeRegelsForm():
     msg = ["Purging year from regels..."]
     jaar = web.input()['Year']
-    if web.input()['Year'] != '%':
+    if web.input()['Year'] == '*':
+        jaar = '%' 
+    else:
         try:
             jaar = int(jaar)
         except:
@@ -96,7 +166,7 @@ def parse_purgeRegelsForm():
 def parse_updateGraphs():
     msg = ['Parsing rebuild graph']
 
-    orderGroep = web.input()['Ordergroep']
+    target = web.input()['target']
     jaar = web.input()['Year']
 #TODO duplicate code below. perhaps make a 'year' checker?
     if web.input()['Year'] == '%':
@@ -108,15 +178,9 @@ def parse_updateGraphs():
             msg.append("No valid year selected")
             return msg
 
-    if orderGroep not in model.loadOrderGroepen():
-        msg.append('Error ordergroep not found: %s' % orderGroep)
-        return msg
-
-    msg = ['Ordergroep found!']
-    msg = ['rebuilding Graphs (will take a while to appear)']
-    msg.append("running: $python graph.py %s %s" % (orderGroep, jaar))
+    msg.append("running: $python graph.py %s %s" % (target, jaar))
 #TODO SOMEDAY fire proccess in sep. thread, graph.py write a log (clean everytime it starts), and webadmin poll if there is such a log running (report using msg)
-    os.system("python graph.py %s %s" % (orderGroep, jaar))
+    os.system("python graph.py %s %s" % (target, jaar))
     return msg
 
 
