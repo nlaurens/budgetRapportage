@@ -585,6 +585,8 @@ class Graph:
     def merge(self, graph):
         if self.resultaat is None:
             self.resultaat = graph.resultaat
+        elif sum(self.resultaat) == 0 :
+            self.resultaat = graph.resultaat
         else:
             self.resultaat += graph.resultaat
 
