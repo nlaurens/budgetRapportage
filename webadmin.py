@@ -58,11 +58,13 @@ def count_regels_tables():
 
 def parse_purgeRegelsForm():
     msg = ["Purging year from regels..."]
-    try:
-        jaar = int(web.input()['Year'])
-    except:
-        msg.append("No valid year selected")
-        return msg
+    jaar = web.input()['Year']
+    if web.input()['Year'] != '%':
+        try:
+            jaar = int(jaar)
+        except:
+            msg.append("No valid year selected")
+            return msg
 
     table = web.input()['Table']
     if table == '':

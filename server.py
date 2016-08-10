@@ -239,7 +239,8 @@ class Admin:
         jaren = [ ('','') ]
         jarenDB = model.get_years_available()
         jaren += zip(jarenDB, jarenDB)
-        tables = types_allowed + [ ('*','*') ]
+        jaren += [ ('%','! ALL !') ]
+        tables = types_allowed + [ ('*','! ALL !') ]
         self.purgeRegelsForm = web.form.Form(
             web.form.Dropdown('Year', jaren),
             web.form.Dropdown('Table', tables),
@@ -276,7 +277,8 @@ class Admin:
 
         self.fill_forms()
         userAccess = model.get_auth_list(config['salt'])
-        return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg, userAccess)
+        dbStatus = webadmin.render_db_status(render)
+        return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg, userAccess, dbStatus)
 
 
 class Logout:

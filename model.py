@@ -105,10 +105,14 @@ def delete_regels(jaar, tableNames=[]):
         for name in tableNames:
             assert name in config["mysql"]["tables"]["regels"], "unknown table in model.get_reggellist_per_table: " + name
 
+    sqlWhere = '1'
+    if jaar != '%':
+        sqlWhere = "`jaar` = '%s'" % jaar
+
     deletedTotal = 0
     for table in tableNames:
         try:
-            deleted = db.delete(table, where="jaar=$jaar", vars=locals())
+            deleted = db.delete(table, where=sqlWhere)
         except:
             deleted = 0
         deletedTotal += deleted
