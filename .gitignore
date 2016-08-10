@@ -69,3 +69,7 @@ target/
 
 #Session cookies
 sessions/
+
+#Excel files
+*.xlsx
+*.xls
