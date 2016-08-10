@@ -51,6 +51,7 @@ import webreport
 import websalaris
 import webadmin
 import webview
+import webgraph
 
 
 class Index:
@@ -240,22 +241,12 @@ class Logout:
         return render.logout()
 
 
-# tiepe: realisatie, pie, bars
 class Graph:
     def GET(self,userHash, jaar, tiepe, order):
         if not webaccess.check_auth(session, userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
 
-        #TODO CHECK IF ORDER EXIST AND IS ACCESSIBLE FOR USER
-        orderAllowed = True
-        graphPath = config['graphPath'] +'%s/%s/%s.png' % (jaar, tiepe, order)
-
-        if int(jaar) in range(1000, 9999) and orderAllowed: #security
-            if os.path.isfile(graphPath):
-                web.header("Content-Type", "images/png") # Set the Header
-                return open(graphPath,"rb").read()
-
-        raise web.notfound()
+        return webgraph.return_graph(jaar, tiepe, order)
 
 ### Url mappings
 urls = (
