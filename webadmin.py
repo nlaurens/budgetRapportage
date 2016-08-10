@@ -26,7 +26,7 @@ def render_db_status(render):
             regel.append(regelCount[table][year])
         regelsBody.append(regel)
 
-    regelsTotal = ['Total', '']
+    regelsTotal = ['Total', totalCount['total']]
     for year in sorted(list(yearsFound)):
         regelsTotal.append(totalCount[year])
 
@@ -37,6 +37,7 @@ def count_regels_tables():
     yearsFound = set()
     regelCount = {}
     totals = {}
+    totals['total'] = 0
 
     for table in config["mysql"]["tables"]["regels"]:
         regelCount[table] = {}
@@ -48,8 +49,10 @@ def count_regels_tables():
                 regelCount[table][year] = model.count_regels(int(year), table)
                 if year not in totals:
                     totals[year] = regelCount[table][year]
+                    totals['total'] += regelCount[table][year]
                 else:
                     totals[year] += regelCount[table][year]
+                    totals['total'] += regelCount[table][year]
         else:
             regelCount[table][0] = "Not found" 
 
