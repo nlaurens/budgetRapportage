@@ -488,12 +488,11 @@ class Graph:
 
         regels = model.get_regellist_per_table(['geboekt', 'obligo', 'plan'], jaar=[params['jaar']], orders=[order])
         root = GrootBoek.load('BFRE15')
+        root.assign_regels_recursive(regels)
+        root.set_totals()
+
         rootBaten = root.find("BFRE15BT00")
-        rootLasten = root.find("BFRE15LT00")
-
-        rootBaten.assign_regels_recursive(regels)
-        rootLasten.assign_regels_recursive(regels)
-
+        rootLasten = root.find("BFRE15BT00")
         rootBaten.clean_empty_nodes()
         rootLasten.clean_empty_nodes()
 

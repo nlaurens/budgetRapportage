@@ -100,7 +100,8 @@ class GrootBoek():
                 if result != '':
                     return result
         else:
-            return ''
+            exit('FAIL in GrootBoek.find node %s not found' %name)
+        
 
     # Assings regellist to all the children
     def assign_regels_recursive(self,regels):

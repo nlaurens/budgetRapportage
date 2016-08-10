@@ -67,7 +67,7 @@ def render_update_sap_date(render, sapUpdate):
 
 def render_rebuild_graphs(render, years):
     form = web.form.Form(
-        web.form.Textbox('Order/Ordergroep/* '),
+        web.form.Textbox('target', description='Order/groep/*'),
         web.form.Dropdown('Year', years),
         web.form.Button('Refresh Graphs'),
     )
@@ -166,7 +166,7 @@ def parse_purgeRegelsForm():
 def parse_updateGraphs():
     msg = ['Parsing rebuild graph']
 
-    orderGroep = web.input()['Ordergroep']
+    target = web.input()['target']
     jaar = web.input()['Year']
 #TODO duplicate code below. perhaps make a 'year' checker?
     if web.input()['Year'] == '%':
@@ -178,15 +178,9 @@ def parse_updateGraphs():
             msg.append("No valid year selected")
             return msg
 
-    if orderGroep not in model.loadOrderGroepen():
-        msg.append('Error ordergroep not found: %s' % orderGroep)
-        return msg
-
-    msg = ['Ordergroep found!']
-    msg = ['rebuilding Graphs (will take a while to appear)']
-    msg.append("running: $python graph.py %s %s" % (orderGroep, jaar))
+    msg.append("running: $python graph.py %s %s" % (target, jaar))
 #TODO SOMEDAY fire proccess in sep. thread, graph.py write a log (clean everytime it starts), and webadmin poll if there is such a log running (report using msg)
-    os.system("python graph.py %s %s" % (orderGroep, jaar))
+    os.system("python graph.py %s %s" % (target, jaar))
     return msg
 
 
