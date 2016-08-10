@@ -36,16 +36,3 @@ class Login(Webpage):
                 self.msg = 'Wrong password'
         else:
             self.msg = 'Please enter a password'
-
-
-class Logout(Webpage):
-    def __init__(self):
-        Webpage.__init__(self)
-
-        #subclass specific
-        self.webrender = web.template.render('templates/access/')
-        self.title = 'Logout'
-
-
-    def render_body(self):
-        self.body = self.webrender.logout()
