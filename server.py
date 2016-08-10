@@ -37,6 +37,7 @@ Somday/Maybe:
 #cool d3 ding:
 - http://bl.ocks.org/NPashaP/96447623ef4d342ee09b
 """
+# TIP: render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh
 import web
 web.config.debug = True #Set to False for no ouput! Must be done before the rest
 import model
@@ -250,7 +251,6 @@ urls = (
     '/graph/(.+)/(\d+)/(.*)/(.*).png', 'Graph',
 )
 
-### Templates
 t_globals = {
     'datestr': web.datestr
 }
