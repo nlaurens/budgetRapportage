@@ -1,22 +1,33 @@
-import web
-from config import config
-from functions import IpBlock
+from webpage import Webpage
 
-#AUTH
-def check_auth(session, userHash, caller):
-    if not session.get('logged_in', False):
-        raise web.seeother('/login/%s/%s' %(userHash, caller)  )
+class Webaccess(Webpage):
+    def __init__(self, userHash, caller, subpage):
+        Webpage.__init__(self)
 
-    IPAllowed= IpBlock(web.ctx['ip'], config['IpRanges'])
-    if userHash == '' or not IPAllowed:
-        return False
-    return True
+        #subclass specific
+        self.userHash = userHash
+        self.caller = caller
+        self.subpage = subpage
 
-#LOGIN form
-def loginform(url):
-    login_form = web.form.Form(
-        web.form.Password('password', web.form.notnull),
-        web.form.Hidden('redirect', value=url),
-        web.form.Button('Login'),
-    )
-    return login_form
+
+    def render_body(self):
+        if self.subpage == 'login':
+            self.body = self.webrender.login(self.form_login())
+
+#TODO implement logout and the 404!
+        elif self.supage == 'logout':
+            self.body = 'logout'
+        else:
+            self.body = '404'
+
+ 
+    def form_login(self):
+        form = web.form.Form(
+            web.form.Password('password', web.form.notnull, value=''),
+            web.form.Button('Login'),
+        )
+
+        return form
+
+    def blaf(self):
+        print 'woef woef '

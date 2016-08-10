@@ -220,17 +220,13 @@ class Admin:
 
 class Login:
 
-    def login_form(self, caller):
-        form = web.form.Form(
-            web.form.Password('password', web.form.notnull, value=''),
-            web.form.Button('Login'),
-        )
-        return form
-
-
     def GET(self, userHash, caller):
-        form = self.login_form(caller)
-        return render.login(form, msg='')
+        from webaccess import Webaccess
+        page = Webaccess(webrender, userHash, caller, 'login')
+        page.mauw()
+        page.render()
+        #rendered = page.render()
+        return rendered
 
     def POST(self, userHash, caller):
         form = self.login_form(caller)
@@ -276,7 +272,6 @@ urls = (
 t_globals = {
     'datestr': web.datestr
 }
-render = web.template.render('templates/')
 app = web.application(urls, globals())
 if web.config.get('_session') is None:
     session = web.session.Session(app, web.session.DiskStore('sessions'), {'count': 0})

@@ -88,3 +88,14 @@ def get_dropdown_options():
 
     return options
 
+
+#TODO SPLITS IN 'ben je ingelogd?' en ben je 'bevoegd
+#AUTH
+def check_auth(session, userHash, caller):
+    if not session.get('logged_in', False):
+        raise web.seeother('/login/%s/%s' %(userHash, caller)  )
+
+    IPAllowed= IpBlock(web.ctx['ip'], config['IpRanges'])
+    if userHash == '' or not IPAllowed:
+        return False
+    return True
