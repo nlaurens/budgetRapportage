@@ -3,9 +3,9 @@ from config import config
 from functions import IpBlock
 
 #AUTH
-def check_auth(session, userHash):
+def check_auth(session, userHash, caller):
     if not session.get('logged_in', False):
-        raise web.seeother('/login/' + userHash)
+        raise web.seeother('/login/%s/%s' %(userHash, caller)  )
 
     IPAllowed= IpBlock(web.ctx['ip'], config['IpRanges'])
     if userHash == '' or not IPAllowed:

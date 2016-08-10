@@ -109,7 +109,7 @@ class View:
 
     def POST(self, userHash, order):
         form = self.settings_simple_form
-        if not webaccess.check_auth(session, userHash):
+        if not webaccess.check_auth(session, userHash, 'view'):
             return web.notfound("Sorry the page you were looking for was not found.")
 
         settings = self.get_post_params(form)
@@ -117,7 +117,7 @@ class View:
 
     def GET(self, userHash, order):
         form = self.settings_simple_form
-        if not webaccess.check_auth(session, userHash):
+        if not webaccess.check_auth(session, userHash, 'view'):
             return web.notfound("Sorry the page you were looking for was not found.")
 
         settings = self.get_post_params(form)
@@ -149,7 +149,7 @@ class Report:
         return None
 
     def GET(self, userHash):
-        if not webaccess.check_auth(session, userHash):
+        if not webaccess.check_auth(session, userHash, 'report'):
             return web.notfound("Sorry the page you were looking for was not found.")
         jaar, periode, groep = self.get_params()
         report = webreport.groep_report(userHash, render, groep, jaar)
@@ -175,45 +175,24 @@ class Salaris:
         return None
 
     def GET(self, userHash):
-        if not webaccess.check_auth(session, userHash):
+        if not webaccess.check_auth(session, userHash, 'salaris'):
             return web.notfound("Sorry the page you were looking for was not found.")
         jaar, groep = self.get_params()
         salaris = websalaris.groep_report(userHash, render, groep, jaar)
         return render.salaris(salaris)
 
 
-class Login:
-    login_form = web.form.Form(
-        web.form.Password('password', web.form.notnull),
-        web.form.Button('Login'),
-        )
-
-    def GET(self, userHash):
-        form = self.login_form()
-        return render.login(form, msg='')
-
-    def POST(self, userHash):
-        form = self.login_form()
-        if not form.validates():
-            return render.login(form)
-
-        if form['password'].value == config["globalPW"]:
-            session.logged_in = True
-            raise web.seeother('/report/'+userHash)
-
-        return render.login(form, 'Wrong Password')
-
 
 class Admin:
     def GET(self, userHash):
         msg = ['Welcome to the admin panel']
-        if not webaccess.check_auth(session, userHash):
+        if not webaccess.check_auth(session, userHash, 'admin'):
             return web.notfound("Sorry the page you were looking for was not found.")
 
         return webadmin.render(render, msg)
 
     def POST(self, userHash):
-        if not webaccess.check_auth(session, userHash):
+        if not webaccess.check_auth(session, userHash, 'admin'):
             return web.notfound("Sorry the page you were looking for was not found.")
 
         #handling of the post action:
@@ -232,6 +211,32 @@ class Admin:
         return webadmin.render(render, msg)
 
 
+class Login:
+
+    def login_form(self, caller):
+        form = web.form.Form(
+            web.form.Password('password', web.form.notnull, value=''),
+            web.form.Button('Login'),
+        )
+        return form
+
+
+    def GET(self, userHash, caller):
+        form = self.login_form(caller)
+        return render.login(form, msg='')
+
+    def POST(self, userHash, caller):
+        form = self.login_form(caller)
+        if not form.validates():
+            return render.login(form)
+
+        if form['password'].value == config["globalPW"]:
+            session.logged_in = True
+            raise web.seeother('/' + caller + '/'+userHash)
+
+        return render.login(form, 'Wrong Password')
+
+
 class Logout:
     def __init__(self):
         pass
@@ -243,7 +248,7 @@ class Logout:
 
 class Graph:
     def GET(self,userHash, jaar, tiepe, order):
-        if not webaccess.check_auth(session, userHash):
+        if not webaccess.check_auth(session, userHash, 'graph'):
             return web.notfound("Sorry the page you were looking for was not found.")
 
         return webgraph.return_graph(jaar, tiepe, order)
@@ -252,8 +257,8 @@ class Graph:
 urls = (
     '/', 'Index',
     '/view/(.+)/(\d+)', 'View',
-    '/login/(.+)', 'Login',
-    '/logout/', 'Logout',
+    '/login/(.+)/(.+)', 'Login',
+    '/logout', 'Logout',
     '/report/(.+)', 'Report',
     '/salaris/(.+)', 'Salaris',
     '/admin/(.+)', 'Admin',
