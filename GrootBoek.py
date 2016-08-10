@@ -100,7 +100,7 @@ class GrootBoek():
                 if result != '':
                     return result
         else:
-            exit('FAIL in GrootBoek.find node %s not found' %name)
+            return ''
         
 
     # Assings regellist to all the children
