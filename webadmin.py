@@ -12,7 +12,7 @@ import datetime
 
 
 def render_db_status(render):
-    regelCount, yearsFound = count_regels_tables()
+    regelCount, yearsFound, totalCount = count_regels_tables()
     tableNames = regelCount.keys()
 
     regelsHeaders= ['table', 'status' ]
@@ -24,14 +24,20 @@ def render_db_status(render):
         regel = [table, regelCount[table][0]]
         for year in sorted(list(yearsFound)):
             regel.append(regelCount[table][year])
-
         regelsBody.append(regel)
-        
-    return render.webadmin_db_status(regelsHeaders, regelsBody)
+
+    regelsTotal = ['Total', '']
+    for year in sorted(list(yearsFound)):
+        regelsTotal.append(totalCount[year])
+
+    return render.webadmin_db_status(regelsHeaders, regelsBody, regelsTotal)
+
 
 def count_regels_tables():
-    regelCount = {}
     yearsFound = set()
+    regelCount = {}
+    totals = {}
+
     for table in config["mysql"]["tables"]["regels"]:
         regelCount[table] = {}
         if model.check_table_exists(table):
@@ -40,12 +46,14 @@ def count_regels_tables():
             yearsFound = yearsFound.union(years)
             for year in sorted(list(years)):
                 regelCount[table][year] = model.count_regels(int(year), table)
-
-            yearsStr = ', '.join(str(year) for year in years)
+                if year not in totals:
+                    totals[year] = regelCount[table][year]
+                else:
+                    totals[year] += regelCount[table][year]
         else:
             regelCount[table][0] = "Not found" 
 
-    return (regelCount, yearsFound)
+    return (regelCount, yearsFound, totals)
 
 
 def parse_purgeRegelsForm():
