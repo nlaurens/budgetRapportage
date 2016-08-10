@@ -677,47 +677,87 @@ if __name__ == "__main__":
     params['show_table_cumsum'] = False
     params['detailed'] = True
     params['ignore_obligos'] = False
-    params['jaar'] = config["currentYear"]
 
     found = False
     if len(sys.argv) <2:
         print 'error no arguments given'
-        print 'use graph.py <order/group>'
+        print 'use graph.py <order/group> <jaar>'
         print '* for all orders'
 
-    elif sys.argv[1] == '*':
+    try:
+        target  = sys.argv[1]
+    except:
+        pass
+
+    year = config["currentYear"] 
+    try:
+        year = sys.argv[2]
+    except:
+        pass
+
+    orders_available = model.get_orders()
+    years = model.get_years_available()
+    if target == '*':
         found = True
         print 'creating graphs of all orders'
         orders = model.get_orders()
         graph = Graph()
-        for i, order in enumerate(orders):
-            print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
-            graph.load_order(order, params)
-            graph.title = str(order)
-            graph.create_figs(str(order), params)
-    else:
-        order = sys.argv[1]
-        orders = model.get_orders()
-        try:
-            orderint = int(order)
-        except ValueError:
-            orderint = 0
-
-        if orderint in orders:
+        if year == '*':
+            for year in years:
+                print 'building year %s' % year
+                params['jaar'] =year
+                for i, order in enumerate(orders):
+                    print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
+                    graph.load_order(order, params)
+                    graph.title = str(order)
+                    graph.create_figs(str(order), params)
+        else:
+            params['jaar'] = year
+            print 'building year %s' % year
+            for i, order in enumerate(orders):
+                print '%i (%i out of %i - %i perc.)' % (order, i+1, len(orders), (float(i+1)/len(orders))*100)
+                graph.load_order(order, params)
+                graph.title = str(order)
+                graph.create_figs(str(order), params)
+    try:
+        targetInt = int(target)
+    except:
+        targetInt = 0
+        pass
+    if targetInt in orders_available:
+        if year == '*':
+            for year in years:
+                params['jaar'] = year
+                found = True
+                graph = Graph()
+                print 'creating graph of order %s in year %s' %(targetInt, year)
+                graph.load_order(targetInt, params)
+                graph.title = str(targetInt) + ' - <UNKNOWN>'
+                graph.create_figs(str(targetInt), params)
+        else:
+            params['jaar'] = year
             found = True
             graph = Graph()
-            print 'creating graph of order ' + order
-            graph.load_order(order, params)
-            graph.title = str(order) + ' - <UNKNOWN>'
-            graph.create_figs(str(order), params)
-        else:
-            groepen = model.loadOrderGroepen()
-            if order in groepen:
+            print 'creating graph of order %s in year %s' %(targetInt, year)
+            graph.load_order(targetInt, params)
+            graph.title = str(targetInt) + ' - <UNKNOWN>'
+            graph.create_figs(str(targetInt), params)
+    else:
+        groepen = model.loadOrderGroepen()
+        if target in groepen:
+            if year == '*':
+                for year in years:
+                    params['jaar'] = year
+                    found = True
+                    print 'creating graph of group %s in year %s' % (target, year)
+                    create_ordergroep_graphs(target, params)
+            else:
+                params['jaar'] = year
                 found = True
-                print 'creating graph of group ' + order
-                create_ordergroep_graphs(order, params)
+                print 'creating graph of group %s in year %s' % (target, year)
+                create_ordergroep_graphs(target, params)
 
     if not found:
-        print 'ERROR Unkown input ' + order
+        print 'ERROR Unkown input ' + target
     else:
         print 'great succes!'
