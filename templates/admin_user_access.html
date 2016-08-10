@@ -1,0 +1,16 @@
+$def with(userAccess)
+                <table class="table table-condensed" style="border-collapse:collapse;">
+                    <thead>
+                        <tr>
+                            <th class="text-right">Username</th>
+                            <th class="text-right">Access</th>
+                            <th class="text-right">Userhash</th>
+                        </tr>                          
+                    </thead>
+                    <tbody>
+                    $for line in userAccess:
+                        <td class="text-right">$:line[0]</td>
+                        <td class="text-right">$:line[1]</td>
+                        <td class="text-right">$:line[2]</td>
+                    </tbody>
+                </table>
