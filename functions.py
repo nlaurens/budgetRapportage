@@ -82,6 +82,8 @@ def get_dropdown_options():
     options['tables'] = config['mysql']['tables']['regels'].items()
 
     options['empty_years_all'] = options['empty'] + options['years'] + options['all']
+
+    options['empty_tables'] = options['empty'] + options['tables'] 
     options['empty_tables_all'] = options['empty'] + options['tables'] + options['all']
 
     return options
