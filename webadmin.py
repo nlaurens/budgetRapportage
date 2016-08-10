@@ -91,7 +91,9 @@ def parse_updateGraphs():
     orderGroep = web.input()['Ordergroep']
     jaar = web.input()['Year']
 #TODO duplicate code below. perhaps make a 'year' checker?
-    if web.input()['Year'] != '%':
+    if web.input()['Year'] == '%':
+        jaar = '*'
+    else:
         try:
             jaar = int(jaar)
         except:
@@ -104,8 +106,9 @@ def parse_updateGraphs():
 
     msg = ['Ordergroep found!']
     msg = ['rebuilding Graphs (will take a while to appear)']
-    msg.append("python graph.py %s %s" % (orderGroep, jaar))
-    #os.system("python graph.py %s %s" % (orderGroep, jaar))
+    msg.append("running: $python graph.py %s %s" % (orderGroep, jaar))
+#TODO SOMEDAY fire proccess in sep. thread, graph.py write a log (clean everytime it starts), and webadmin poll if there is such a log running (report using msg)
+    os.system("python graph.py %s %s" % (orderGroep, jaar))
     return msg
 
 
