@@ -239,8 +239,10 @@ class Admin:
         jaren = [ ('','') ]
         jarenDB = model.get_years_available()
         jaren += zip(jarenDB, jarenDB)
+        tables = types_allowed + [ ('*','*') ]
         self.purgeRegelsForm = web.form.Form(
             web.form.Dropdown('Year', jaren),
+            web.form.Dropdown('Table', tables),
             web.form.Button('Purge year from regels')
             )
 
@@ -253,8 +255,6 @@ class Admin:
         msg.append('latest sap date: ' + model.last_update())
 
         userAccess = model.get_auth_list(config['salt'])
-        print userAccess
-
         self.fill_forms()
         return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg, userAccess)
 
@@ -274,7 +274,8 @@ class Admin:
             msg = webadmin.parse_purgeRegelsForm()
 
         self.fill_forms()
-        return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg)
+        userAccess = model.get_auth_list(config['salt'])
+        return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg, userAccess)
 
 
 class Logout:

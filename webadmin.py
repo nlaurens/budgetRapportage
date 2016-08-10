@@ -31,8 +31,18 @@ def parse_purgeRegelsForm():
         msg.append("No valid year selected")
         return msg
 
+    table = web.input()['Table']
+    if table == '':
+        msg.append("No valid table selected")
+        return msg
+
+
+    msg.append("From table  %s" % table)
     msg.append("Purging year %s" % jaar)
-    aantalWeg = model.delete_regels(jaar)
+    if table == '*':
+        aantalWeg = model.delete_regels(jaar)
+    else:
+        aantalWeg = model.delete_regels(jaar, tableNames=[table])
     msg.append("Deleted %s rows" % aantalWeg)
     return msg
 
@@ -137,7 +147,7 @@ def upload_and_process_file(fileHandleName, table, fileHandle, msg):
     if not model.check_table_exists(table):
         msg.append('Creating new table using headers')
         model.create_table(table, fields)
-    else: 
+    else:
         msg.append('Table already exists, add regels to it.')
 
 
