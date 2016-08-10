@@ -51,26 +51,26 @@ def render_upload_regels(render, tableNames):
         web.form.File('myfile5'),
         web.form.Dropdown('Type5', tableNames),
         web.form.Button('Upload data'),
-        )
+    )
 
     return render.admin_upload_regels(form)
 
 
 def render_update_sap_date(render, sapUpdate):
     form = web.form.Form(
-        web.form.Textbox('Sapdate', value=sapUpdate),
+        web.form.Textbox('Sapdate:', value=sapUpdate),
         web.form.Button('Update'),
-        )
+    )
 
     return render.admin_update_sap_date(form)
 
 
 def render_rebuild_graphs(render, years):
     form = web.form.Form(
-        web.form.Textbox('Ordergroep'),
+        web.form.Textbox('Order/Ordergroep/* '),
         web.form.Dropdown('Year', years),
         web.form.Button('Refresh Graphs'),
-        )
+    )
 
     return render.admin_rebuild_graphs(form)
 
@@ -100,8 +100,12 @@ def render_db_status(render):
 # Runs selected test in model.test
 def render_run_tests(render):
     msg = ['Running tests']
-    msg.append('Testing for ks that are not included in kostensoortgroepen')
-    msg.extend(tests.ks_missing_in_report())
+    success, testMsg = tests.ks_missing_in_report()
+    if success:
+        msg.append('* ks-test: Pass')
+    else:
+        msg.append('WARNING KS THAT ARE NOT IN REPORTS FOUND IN DB!')
+        msg.extend(testMsg)
     return msg
 
 
@@ -134,7 +138,9 @@ def count_regels_tables():
 def parse_purgeRegelsForm():
     msg = ["Purging year from regels..."]
     jaar = web.input()['Year']
-    if web.input()['Year'] != '%':
+    if web.input()['Year'] == '*':
+        jaar = '%' 
+    else:
         try:
             jaar = int(jaar)
         except:
