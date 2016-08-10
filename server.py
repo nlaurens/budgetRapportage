@@ -46,6 +46,7 @@ import os
 from config import config
 
 # web-pages
+import webpage #mother class
 import webaccess
 import webreport
 import websalaris
@@ -189,7 +190,10 @@ class Admin:
         if not webaccess.check_auth(session, userHash, 'admin'):
             return web.notfound("Sorry the page you were looking for was not found.")
 
-        return webadmin.render(render, msg)
+        rendered = {}
+        rendered['title'] = 'Admin Panel'
+        rendered['body'] = webadmin.render(render, msg)
+        return render.page(rendered['title'], rendered['body'])
 
     def POST(self, userHash):
         if not webaccess.check_auth(session, userHash, 'admin'):
@@ -208,7 +212,10 @@ class Admin:
         if 'Purge year from regels' in web.input():
             msg = webadmin.parse_purgeRegelsForm()
 
-        return webadmin.render(render, msg)
+        rendered = {}
+        rendered['title'] = 'Admin Panel'
+        rendered['page'] = webadmin.render(render, msg)
+        return render.page(rendered)
 
 
 class Login:
