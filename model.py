@@ -228,28 +228,17 @@ def get_orders(sqlLike='%'):
 
 # Returns a tuple of all kostensoorten and their names in order:
 def get_kosten_soorten(order=0):
-    if order == 0:
-        geboektdb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `geboekt`")
-        obligodb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `obligo`")
-        plandb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `plan`")
-    else:
-        geboektdb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `geboekt` WHERE `ordernummer`=" + str(order))
-        obligodb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `obligo` WHERE `ordernummer`=" + str(order))
-        plandb = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `plan` WHERE `ordernummer`=" + str(order))
+    ksDict = {}
+    for table in config["mysql"]["tables"]["regels"]:
+        if order == 0:
+            KSregels = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `%s`" % table)
+        else:
+            KSregels = db.query("SELECT DISTINCT(`kostensoort`), `kostensoortnaam` FROM `%s` WHERE `ordernummer`=%s" % (table, order) )
 
-    geboektks = {}
-    for regel in geboektdb:
-        geboektks[regel['kostensoort']] = regel['kostensoortnaam']
+        for regel in KSregels:
+            ksDict[regel['kostensoort']] = regel['kostensoortnaam']
 
-    obligoks = {}
-    for regel in obligodb:
-        obligoks[regel['kostensoort']] = regel['kostensoortnaam']
-
-    planks = {}
-    for regel in plandb:
-        planks[regel['kostensoort']] = regel['kostensoortnaam']
-
-    return geboektks, obligoks, planks
+    return ksDict
 
 # Returns a list of ordergroepen available
 # {name: path}

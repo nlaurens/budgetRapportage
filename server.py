@@ -256,6 +256,7 @@ class Admin:
             return web.notfound("Sorry the page you were looking for was not found.")
 
         msg = ['Welkom to the admin panel']
+        msg.extend( webadmin.run_tests() )
         userAccess = model.get_auth_list(config['salt'])
         self.fill_forms()
 

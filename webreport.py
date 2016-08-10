@@ -54,7 +54,8 @@ def parse_order(order, descr, jaar, render):
 
     regels = model.get_regellist_per_table(jaar=[jaar], orders=[order])
 #TODO  In config params!!
-    root = GrootBoek.load('BFRE15E01')
+    root = GrootBoek.load('BFRE15')
+    root = root.find('BFRE15E01')
     root.assign_regels_recursive(regels)
     root.clean_empty_nodes()
     root.set_totals()

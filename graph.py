@@ -487,8 +487,9 @@ class Graph:
         lasten = {}
 
         regels = model.get_regellist_per_table(['geboekt', 'obligo', 'plan'], jaar=[params['jaar']], orders=[order])
-        rootBaten = GrootBoek.load("BFRE15BT00")
-        rootLasten = GrootBoek.load("BFRE15LT00")
+        root = GrootBoek.load('BFRE15')
+        rootBaten = root.find("BFRE15BT00")
+        rootLasten = root.find("BFRE15LT00")
 
         rootBaten.assign_regels_recursive(regels)
         rootLasten.assign_regels_recursive(regels)

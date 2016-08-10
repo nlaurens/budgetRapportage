@@ -90,6 +90,7 @@ class GrootBoek():
 
         return levels
 
+    # Finds a child and returns that child
     def find(self, name):
         if self.name == name:
             return self
@@ -101,6 +102,7 @@ class GrootBoek():
         else:
             return ''
 
+    # Assings regellist to all the children
     def assign_regels_recursive(self,regels):
         for child in self.children:
             child.assign_regels_recursive(regels)
@@ -111,7 +113,7 @@ class GrootBoek():
             self.regels[key] = filteredRegels
 
 
-  # Set totals per key [obligo, plan, etc.], and per ks for each node
+    # Set totals per key [obligo, plan, etc.], and per ks for each node
     def set_totals(self, periodeRequested=range(0,16)):
         self.totaalTree = {}
         self.totaalNodePerKS = {}
@@ -166,7 +168,6 @@ class GrootBoek():
 
         return
 
-
     # normalizes the depth of levels to 1,2,3,..
     def normalize_levels(self):
         levels = sorted(self.list_levels([]))
@@ -217,6 +218,16 @@ class GrootBoek():
             return [self]
 
         return children
+
+    # Returns a dictionary of all ks from the whole tree
+    def get_ks_recursive(self):
+        ks = {}
+        for child in self.children:
+            ks.update(child.get_ks_recursive())
+
+        ks.update(self.kostenSoorten)
+        return ks
+
 
 def first_item_in_list(lst):
     i = next(i for i, j in enumerate(lst) if j)

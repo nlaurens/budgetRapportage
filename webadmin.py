@@ -9,6 +9,14 @@ import os
 from xlsx2csv import Xlsx2csv
 import csv
 import datetime
+import tests
+
+# Runs selected test in model.test
+def run_tests():
+    msg = ['Running tests']
+    msg.append('Testing for ks that are not included in kostensoortgroepen')
+    msg.extend(tests.ks_missing_in_report())
+    return msg
 
 
 def render_db_status(render):
