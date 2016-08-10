@@ -245,18 +245,19 @@ class Admin:
             web.form.Dropdown('Table', tables),
             web.form.Button('Purge year from regels')
             )
-
+#TODO split all admin divs in seperate renders. webadmin.render_blabla -> geeft rendered object terug
+#TODO latest_sap update field -> ook laatste string in config laten zien!
     def GET(self, userHash):
         if not webaccess.check_auth(session, userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
 
-        msg = webadmin.checkDB()
-        msg.append('')
-        msg.append('latest sap date: ' + model.last_update())
-
+        msg = ['Welkom to the admin panel']
         userAccess = model.get_auth_list(config['salt'])
         self.fill_forms()
-        return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg, userAccess)
+
+        dbStatus = webadmin.render_db_status(render)
+#TODO move all to: webadmin.render(xxx)
+        return render.webadmin_overview(self.purgeRegelsForm, self.upload_form, self.sapdate_form, self.graphsUpdate_form, msg, userAccess, unicode(dbStatus))
 
     def POST(self, userHash):
         if not webaccess.check_auth(session, userHash):

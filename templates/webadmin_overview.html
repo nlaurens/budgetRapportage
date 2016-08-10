@@ -1,4 +1,4 @@
-$def with(purgeForm, upload_form, sapupdate_form, graphsUpdate_form, msg, userAccess)
+$def with(purgeForm, upload_form, sapupdate_form, graphsUpdate_form, msg, userAccess, dbStatus)
 
 <!doctype html>
 <html lang="en">
@@ -85,7 +85,16 @@ $def with(purgeForm, upload_form, sapupdate_form, graphsUpdate_form, msg, userAc
                 $:graphsUpdate_form.render()
                 </form>
             </div>
-        </divL
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4>Database status</h4>
+            </div>
+            <div class="panel-body">
+                $:dbStatus
+            </div>
+        </div>
 
 
         <div class="panel panel-default">

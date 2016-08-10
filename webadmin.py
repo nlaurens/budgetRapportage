@@ -11,20 +11,29 @@ import csv
 import datetime
 
 
-def checkDB():
-    msg = ["Checking tables..."]
-    tables = ['config', 'geboekt', 'obligo', 'plan', 'salaris']
-    for table in tables:
+def render_db_status(render):
+    regelsHeaders = ['a', 'b']
+    regelsBody = [ ['1','2'], ['3','4'] ]
+
+    return render.webadmin_db_status(regelsHeaders, regelsBody)
+
+def count_regels_tables():
+    regelCount = {}
+    yearsFound = set()
+    for table in config["mysql"]["tables"]["regels"]:
+        regelCount[table] = {}
         if model.check_table_exists(table):
-            years = sorted(list(model.get_years_available()))
+            regelCount[table][0] = "" 
+            years = model.get_years_available()
+            yearsFound = yearsFound.union(years)
+            for year in sorted(list(years)):
+                regelCount[table][year] = model.count_regels(int(year), table)
+
             yearsStr = ', '.join(str(year) for year in years)
-            msg.append(table + " " + " has years %s" % yearsStr)
-
         else:
-            msg.append(table + " " + "FAIL")
+            regelCount[table][0] = "Not found" 
 
-
-    return msg
+    return (regelCount, yearsFound)
 
 
 def parse_purgeRegelsForm():

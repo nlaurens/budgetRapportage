@@ -67,6 +67,16 @@ def mysql_regels_query(jaar=[], periodes=[], orders=[], kostensoorten=[]):
     return query
 
 
+# Returns the number of rows in a given table using a dict
+def count_regels(year, tableName):
+    assert tableName in config["mysql"]["tables"]["regels"], "unknown table in model.get_reggellist_per_table: " + tableName
+    assert type(year) is int, "Year is expected to be an integer"
+
+    results = db.query("SELECT COUNT(*) AS total_regels FROM %s WHERE `jaar`=%s " % (tableName, year) )
+    count = results[0].total_regels
+    return count
+
+
 # gives possible years available
 def get_years_available(tableNames=[]):
     jaren = set()
