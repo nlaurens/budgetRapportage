@@ -1,4 +1,4 @@
-$def with(msg, removeRegels, uploadRegels, sapUpdate, graphsUpdate, userAccess, dbStatus)
+$def with(msg, rendered)
 
 <!doctype html>
 <html lang="en">
@@ -45,7 +45,7 @@ $def with(msg, removeRegels, uploadRegels, sapUpdate, graphsUpdate, userAccess, 
                 <h4>Remove regels from db</h4>
             </div>
             <div class="panel-body">
-                $:removeRegels
+                $:rendered['removeRegels']
             </div>
         </div>
 
@@ -55,7 +55,7 @@ $def with(msg, removeRegels, uploadRegels, sapUpdate, graphsUpdate, userAccess, 
                 <h4>Upload regels into the DB</h4>
             </div>
             <div class="panel-body">
-                $:uploadRegels
+                $:rendered['uploadRegels']
             </div>
         </div>
 
@@ -66,7 +66,7 @@ $def with(msg, removeRegels, uploadRegels, sapUpdate, graphsUpdate, userAccess, 
             </div>
             <div class="panel-body">
                 <form method="POST" enctype="multipart/form-data" action="">
-                $:sapUpdate
+                $:rendered['sapUpdate']
                 </form>
             </div>
         </div>
@@ -77,7 +77,7 @@ $def with(msg, removeRegels, uploadRegels, sapUpdate, graphsUpdate, userAccess, 
                 <h4>Rebuild graphs</h4>
             </div>
             <div class="panel-body">
-                $:graphsUpdate
+                $:rendered['graphsUpdate']
             </div>
         </div>
 
@@ -86,7 +86,7 @@ $def with(msg, removeRegels, uploadRegels, sapUpdate, graphsUpdate, userAccess, 
                 <h4>Database status</h4>
             </div>
             <div class="panel-body">
-                $:dbStatus
+                $:rendered['dbStatus']
             </div>
         </div>
 
@@ -96,7 +96,7 @@ $def with(msg, removeRegels, uploadRegels, sapUpdate, graphsUpdate, userAccess, 
                 <h4>User access</h4>
             </div>
             <div class="panel-body">
-                $:userAccess
+                $:rendered['userAccess']
             </div>
         </div>
 

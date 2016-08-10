@@ -13,19 +13,20 @@ import tests
 import functions
 
 
-def render_overview(render, msg):
+def render(render, msg):
     dd = functions.get_dropdown_options() #dict with options for web.form.dropdown values
 
     msg.extend( render_run_tests(render) )
 
-    removeRegels = render_remove_regels(render, dd['empty_years_all'], dd['empty_tables_all'])
-    uploadRegels = render_upload_regels(render, dd['empty_tables'])
-    sapUpdate = render_update_sap_date(render, model.last_update())
-    graphsUpdate = render_rebuild_graphs(render, dd['empty_years_all'])
-    userAccess = render.admin_user_access( model.get_auth_list(config['salt']) )
-    dbStatus = render_db_status(render)
+    rendered = {}
+    rendered['removeRegels'] = render_remove_regels(render, dd['empty_years_all'], dd['empty_tables_all'])
+    rendered['uploadRegels'] = render_upload_regels(render, dd['empty_tables'])
+    rendered['sapUpdate'] = render_update_sap_date(render, model.last_update())
+    rendered['graphsUpdate'] = render_rebuild_graphs(render, dd['empty_years_all'])
+    rendered['userAccess'] = render.admin_user_access( model.get_auth_list(config['salt']) )
+    rendered['dbStatus'] = render_db_status(render)
 
-    return render.admin_overview(msg, removeRegels, uploadRegels, sapUpdate, graphsUpdate, userAccess, dbStatus)
+    return render.admin(msg, rendered)
 
 
 def render_remove_regels(render, jaren, tables):

@@ -26,8 +26,6 @@ TODO
 
 - Show negative bestedingsruimte in red and bold.
 
-- Merge overview en view class (lots of double code)
-
  - ik bedacht me later dat het misschien een goed idee is om boven alle tabbladen de boodschap te zetten in boldface:
 Notice that these records show only transactions up to (datum van laatste update)
 
@@ -211,7 +209,7 @@ class Admin:
         if not webaccess.check_auth(session, userHash):
             return web.notfound("Sorry the page you were looking for was not found.")
 
-        return webadmin.render_overview(render, msg)
+        return webadmin.render(render, msg)
 
     def POST(self, userHash):
         if not webaccess.check_auth(session, userHash):
@@ -230,7 +228,7 @@ class Admin:
         if 'Purge year from regels' in web.input():
             msg = webadmin.parse_purgeRegelsForm()
 
-        return webadmin.render_overview(render, msg)
+        return webadmin.render(render, msg)
 
 
 class Logout:
