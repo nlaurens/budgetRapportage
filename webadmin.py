@@ -85,14 +85,27 @@ def parse_purgeRegelsForm():
     return msg
 
 
-def updateGraphs(orderGroep):
+def parse_updateGraphs():
+    msg = ['Parsing rebuild graph']
+
+    orderGroep = web.input()['Ordergroep']
+    jaar = web.input()['Year']
+#TODO duplicate code below. perhaps make a 'year' checker?
+    if web.input()['Year'] != '%':
+        try:
+            jaar = int(jaar)
+        except:
+            msg.append("No valid year selected")
+            return msg
+
     if orderGroep not in model.loadOrderGroepen():
-        msg = ['Error ordergroep not found: ' + orderGroep]
+        msg.append('Error ordergroep not found: %s' % orderGroep)
         return msg
-    else:
-        msg = ['Ordergroep found!']
-        msg = ['rebuilding Graphs (will take a while to appear)']
-        os.system("python graph.py " + orderGroep)
+
+    msg = ['Ordergroep found!']
+    msg = ['rebuilding Graphs (will take a while to appear)']
+    msg.append("python graph.py %s %s" % (orderGroep, jaar))
+    #os.system("python graph.py %s %s" % (orderGroep, jaar))
     return msg
 
 

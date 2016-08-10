@@ -210,10 +210,6 @@ class Admin:
         web.form.Textbox('Sapdate'),
         web.form.Button('Update'),
         )
-    graphsUpdate_form = web.form.Form(
-        web.form.Textbox('Ordergroep'),
-        web.form.Button('Refresh Graphs'),
-        )
 
     def __init__(self):
         self.fill_forms()
@@ -221,6 +217,18 @@ class Admin:
     def fill_forms(self):
         types_allowed = [ ('','') ]
         types_allowed += config['mysql']['tables']['regels'].items()
+        tables = types_allowed + [ ('*','! ALL !') ]
+
+        jaren = [ ('','') ]
+        jarenDB = model.get_years_available()
+        jaren += zip(jarenDB, jarenDB)
+        jaren += [ ('%','! ALL !') ]
+
+        self.graphsUpdate_form = web.form.Form(
+            web.form.Textbox('Ordergroep'),
+            web.form.Dropdown('Year', jaren),
+            web.form.Button('Refresh Graphs'),
+            )
 
         self.upload_form = web.form.Form(
             web.form.File('myfile1'),
@@ -236,11 +244,6 @@ class Admin:
             web.form.Button('Upload data'),
             )
 
-        jaren = [ ('','') ]
-        jarenDB = model.get_years_available()
-        jaren += zip(jarenDB, jarenDB)
-        jaren += [ ('%','! ALL !') ]
-        tables = types_allowed + [ ('*','! ALL !') ]
         self.purgeRegelsForm = web.form.Form(
             web.form.Dropdown('Year', jaren),
             web.form.Dropdown('Table', tables),
@@ -271,7 +274,7 @@ class Admin:
         if 'Upload data' in web.input():
             msg = webadmin.parse_upload_form()
         if 'Refresh Graphs' in web.input():
-            msg = webadmin.updateGraphs(web.input()['Ordergroep'])
+            msg = webadmin.parse_updateGraphs()
         if 'Purge year from regels' in web.input():
             msg = webadmin.parse_purgeRegelsForm()
 
