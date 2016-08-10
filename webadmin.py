@@ -12,9 +12,21 @@ import datetime
 
 
 def render_db_status(render):
-    regelsHeaders = ['a', 'b']
-    regelsBody = [ ['1','2'], ['3','4'] ]
+    regelCount, yearsFound = count_regels_tables()
+    tableNames = regelCount.keys()
 
+    regelsHeaders= ['table', 'status' ]
+    for year in sorted(list(yearsFound)):
+        regelsHeaders.append(str(year))
+
+    regelsBody = []
+    for table in tableNames:
+        regel = [table, regelCount[table][0]]
+        for year in sorted(list(yearsFound)):
+            regel.append(regelCount[table][year])
+
+        regelsBody.append(regel)
+        
     return render.webadmin_db_status(regelsHeaders, regelsBody)
 
 def count_regels_tables():
@@ -23,7 +35,7 @@ def count_regels_tables():
     for table in config["mysql"]["tables"]["regels"]:
         regelCount[table] = {}
         if model.check_table_exists(table):
-            regelCount[table][0] = "" 
+            regelCount[table][0] = "OK" 
             years = model.get_years_available()
             yearsFound = yearsFound.union(years)
             for year in sorted(list(years)):
