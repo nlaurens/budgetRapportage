@@ -4,6 +4,9 @@ BUGS
   - Baten verdwijnen
   - SQL inject in model bekijken
 
+        REINTRODUCE SECURITY:
+        if not webaccess.check_auth(session, userHash, 'graph'):
+            return web.notfound("Sorry the page you were looking for was not found.")
 TODO
 - add checking if user is allowed for the order he is viewing. Right now we don't use thge auth file other to see if you can login or not.
 
@@ -50,6 +53,9 @@ from config import config
 import webpage #mother class and simple page
 import webindex
 import webaccess
+
+#web utilies
+import webgraph
 
 
 class Index:
@@ -215,11 +221,13 @@ class Admin:
 
 class Login:
     def GET(self, userHash):
+#TODO SECURITY
         params = web.input(caller="/")
         page = webaccess.Login(userHash, params)
         return page.render()
 
     def POST(self, userHash):
+#TODO SECURITY
         params = web.input(caller="/")
         page = webaccess.Login(userHash, params)
         page.parse_form(session) #will redirect on success
@@ -228,16 +236,15 @@ class Login:
 
 class Logout:
     def GET(self):
+#TODO SECURITY
         session.logged_in = False
         page = webpage.Simple('', 'Logout', 'You have been logged out')
         return page.render()
 
 
 class Graph:
-    def GET(self,userHash, jaar, tiepe, order):
-        if not webaccess.check_auth(session, userHash, 'graph'):
-            return web.notfound("Sorry the page you were looking for was not found.")
-
+    def GET(self, userHash, jaar, tiepe, order):
+#TODO SECURITY
         return webgraph.return_graph(jaar, tiepe, order)
 
 ### Url mappings

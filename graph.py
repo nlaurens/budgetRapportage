@@ -43,11 +43,6 @@ import pylab as pylab
 import sys
 from matplotlib.patches import Rectangle
 
-# Creates url to graph
-# tiepes: realisatie, bars, pie
-# names: anything from group orders to order numbers.
-def graph_url(userHash, jaar, tiepe, name):
-    return ('/graph/%s/%s/%s/%s.png' % (userHash, jaar, tiepe, name))
 
 
 class Graph:
