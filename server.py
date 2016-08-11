@@ -192,21 +192,13 @@ class Admin:
         page = webadmin.Admin(userHash, params)
         return page.render()
 
-        msg = ['Welcome to the admin panel']
-        if not webaccess.check_auth(session, userHash, 'admin'):
-            return web.notfound("Sorry the page you were looking for was not found.")
-
-        rendered = {}
-        rendered['title'] = 'Admin Panel'
-        rendered['body'] = webadmin.render(render, msg)
-        return render.page(rendered['title'], rendered['body'])
 
     def POST(self, userHash):
-        if not webaccess.check_auth(session, userHash, 'admin'):
-            return web.notfound("Sorry the page you were looking for was not found.")
+        params = web.input()
+        page = webadmin.Admin(userHash, params)
+        return page.render()
 
         #handling of the post action:
-        msg = ['Welcome to the admin panel']
         if 'Update' in web.input():
             msg = ['Updating last sap update date']
             model.last_update(web.input()['Sapdate'])
@@ -218,10 +210,6 @@ class Admin:
         if 'Purge year from regels' in web.input():
             msg = webadmin.parse_purgeRegelsForm()
 
-        rendered = {}
-        rendered['title'] = 'Admin Panel'
-        rendered['page'] = webadmin.render(render, msg)
-        return render.page(rendered)
 
 
 class Login:

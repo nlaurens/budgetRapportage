@@ -14,6 +14,8 @@ import functions
 
 from webpage import Webpage
 
+#TODO get all from params not web.input
+
 class Admin(Webpage):
     def __init__(self, userHash, params):
         Webpage.__init__(self, userHash, params)
@@ -28,34 +30,33 @@ class Admin(Webpage):
 
 
     def render_body(self):
-        dd = self.dropDownOptions # Alias
-
 #TODO IMPLEMENT TEST
-        testResults = 'dummy test' #render_run_tests(render)
+        testResults = self.run_tests()
         self.msg.extend(testResults)
 
         rendered = {}
-        rendered['removeRegels'] = 'dummy' #render_remove_regels(render, dd['empty_years_all'], dd['empty_tables_all'])
-        rendered['uploadRegels'] = 'dummy' #render_upload_regels(render, dd['empty_tables'])
-        rendered['sapUpdate'] = 'dummy' #render_update_sap_date(render, model.last_update())
-        rendered['graphsUpdate'] = 'dummy' #render_rebuild_graphs(render, dd['empty_years_all'])
-        rendered['userAccess'] = 'dummy' #render.admin_user_access( model.get_auth_list(config['salt']) )
-        rendered['dbStatus'] = 'dummy' #render_db_status(render)
+        rendered['removeRegels'] = self.render_remove_regels()
+        rendered['uploadRegels'] = self.render_upload_regels()
+        rendered['sapUpdate'] = self.render_update_sap_date()
+        rendered['graphsUpdate'] = self.render_rebuild_graphs()
+        rendered['userAccess'] = self.webrender.user_access(model.get_auth_list(config['salt']) )
+        rendered['dbStatus'] = self.render_db_status()
 
         self.body = self.webrender.admin(self.msg, rendered)
 
 
-    def render_remove_regels(self, render, jaren, tables):
+    def render_remove_regels(self):
         form = web.form.Form(
-            web.form.Dropdown('Year', jaren),
-            web.form.Dropdown('Table', tables),
+            web.form.Dropdown('Year', self.dropDownOptions['empty_years_all']),
+            web.form.Dropdown('Table', self.dropDownOptions['empty_tables_all']),
             web.form.Button('Purge year from regels')
-            )
+        )
 
-        return render.admin_remove_regels(self, form)
+        return self.webrender.remove_regels(form)
 
 
-    def render_upload_regels(self, render, tableNames):
+    def render_upload_regels(self):
+        tableNames = self.dropDownOptions['empty_tables']
         form = web.form.Form(
             web.form.File('myfile1'),
             web.form.Dropdown('Type1', tableNames),
@@ -70,63 +71,30 @@ class Admin(Webpage):
             web.form.Button('Upload data'),
         )
 
-        return render.admin_upload_regels(form)
+        return self.webrender.upload_regels(form)
 
 
-    def render_update_sap_date(self, render, sapUpdate):
+    def render_update_sap_date(self):
         form = web.form.Form(
-            web.form.Textbox('Sapdate:', value=sapUpdate),
+            web.form.Textbox('Sapdate:', value=model.last_update()),
             web.form.Button('Update'),
         )
 
-        return render.admin_update_sap_date(form)
+        return self.webrender.update_sap_date(form)
 
 
-    def render_rebuild_graphs(self, render, years):
+    def render_rebuild_graphs(self):
         form = web.form.Form(
             web.form.Textbox('target', description='Order/groep/*'),
-            web.form.Dropdown('Year', years),
+            web.form.Dropdown('Year', self.dropDownOptions['empty_years_all']),
             web.form.Button('Refresh Graphs'),
         )
 
-        return render.admin_rebuild_graphs(form)
+        return self.webrender.rebuild_graphs(form)
 
 
-    def render_db_status(self, render):
-        regelCount, yearsFound, totalCount = count_regels_tables()
-        tableNames = regelCount.keys()
-
-        regelsHeaders= ['table', 'status' ]
-        for year in sorted(list(yearsFound)):
-            regelsHeaders.append(str(year))
-
-        regelsBody = []
-        for table in tableNames:
-            regel = [table, regelCount[table][0]]
-            for year in sorted(list(yearsFound)):
-                regel.append(regelCount[table][year])
-            regelsBody.append(regel)
-
-        regelsTotal = ['Total', totalCount['total']]
-        for year in sorted(list(yearsFound)):
-            regelsTotal.append(totalCount[year])
-
-        return render.admin_db_status(regelsHeaders, regelsBody, regelsTotal)
-
-
-# Runs selected test in model.test
-    def render_run_tests(self, render):
-        msg = ['Running tests']
-        success, testMsg = tests.ks_missing_in_report()
-        if success:
-            msg.append('* ks-test: Pass')
-        else:
-            msg.append('WARNING KS THAT ARE NOT IN REPORTS FOUND IN DB!')
-            msg.extend(testMsg)
-        return msg
-
-
-    def count_regels_tables():
+    def render_db_status(self):
+        #construct dict with total regels per table
         yearsFound = set()
         regelCount = {}
         totals = {}
@@ -149,7 +117,35 @@ class Admin(Webpage):
             else:
                 regelCount[table][0] = "Not found" 
 
-        return (regelCount, yearsFound, totals)
+        # create vars for render
+        tableNames = regelCount.keys()
+        regelsHeaders= ['table', 'status' ]
+        for year in sorted(list(yearsFound)):
+            regelsHeaders.append(str(year))
+
+        regelsBody = []
+        for table in tableNames:
+            regel = [table, regelCount[table][0]]
+            for year in sorted(list(yearsFound)):
+                regel.append(regelCount[table][year])
+            regelsBody.append(regel)
+
+        regelsTotal = ['Total', totals['total']]
+        for year in sorted(list(yearsFound)):
+            regelsTotal.append(totals[year])
+
+        return self.webrender.db_status(regelsHeaders, regelsBody, regelsTotal)
+
+
+    def run_tests(self):
+        msg = ['Running tests']
+        success, testMsg = tests.ks_missing_in_report()
+        if success:
+            msg.append('* ks-test: Pass')
+        else:
+            msg.append('WARNING KS THAT ARE NOT IN REPORTS FOUND IN DB!')
+            msg.extend(testMsg)
+        return msg
 
 
     def parse_purgeRegelsForm(self):
