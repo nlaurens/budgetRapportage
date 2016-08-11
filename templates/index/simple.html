@@ -1,4 +1,4 @@
-$def with (title, msg, form)
+$def with (title)
       <div class="container">
           <div class="panel panel-default">
                 <div class="panel-heading">
@@ -7,11 +7,7 @@ $def with (title, msg, form)
                   </h4>
                 </div>
                 <div class="panel-body">
-                    $:msg
+                    MENU MET OPTIES ENZO
                 </div>
-                $if form != '':
-                    <div class="panel-body">
-                        $:form.render()
-                    </div>
             </div>
       </div>

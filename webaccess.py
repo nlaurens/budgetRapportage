@@ -4,12 +4,11 @@ from webpage import Webpage
 
 class Login(Webpage):
     def __init__(self, userHash, caller):
-        Webpage.__init__(self)
+        Webpage.__init__(self, userHash)
 
         #subclass specific
         self.webrender = web.template.render('templates/access/')
         self.title = 'Login'
-        self.userHash = userHash
         self.caller = caller
         self.msg = ''
 

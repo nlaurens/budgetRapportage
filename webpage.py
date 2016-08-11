@@ -1,9 +1,10 @@
 import web
 # Mother class for all webpages
 class Webpage(object):
-    def __init__(self, static=False):
+    def __init__(self, userHash, static=False):
         self.mainRender = web.template.render('templates/')
         self.static = static
+        self.userHash = userHash
         self.title = 'subclass did not set title'
         self.body = 'subclass did not set body'
 
@@ -16,9 +17,10 @@ class Webpage(object):
     def render_body(self):
         raise NotImplementedError
 
+# Simple webpage for messages/forms
 class Simple(Webpage):
-    def __init__(self, title, msg, form=''):
-        Webpage.__init__(self)
+    def __init__(self, userHash, title, msg, form=''):
+        Webpage.__init__(self, userHash)
 
         #subclass specific
         self.title = title

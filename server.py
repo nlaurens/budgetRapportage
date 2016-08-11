@@ -47,16 +47,19 @@ import os
 from config import config
 
 # web-pages
-import webpage #mother class
+import webpage #mother class and simple page
+import webindex
 import webaccess
 
 
 class Index:
-    def __init__(self):
-        pass
+    def GET(self, userHash):
+        page = webaccess.Index(userHash)
+        return page.render()
 
-    def GET(self):
-        return render.index()
+    def POST(self, userHash):
+        page = webaccess.Login(userHash)
+        return page.render()
 
 class View:
     settings_simple_form = web.form.Form(
@@ -228,7 +231,7 @@ class Login:
 class Logout:
     def GET(self):
         session.logged_in = False
-        page = webpage.Simple('Logout', 'You have been logged out')
+        page = webpage.Simple(userHash, 'Logout', 'You have been logged out')
         return page.render()
 
 
