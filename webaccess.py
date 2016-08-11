@@ -12,7 +12,6 @@ class Login(Webpage):
         self.webrender = web.template.render('templates/access/')
 
         #login specific
-#TODO get target from params
         self.redirect = params.caller
         self.msg = ''
 

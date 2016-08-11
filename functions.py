@@ -71,23 +71,6 @@ def IpBlock(ip, ipRanges):
             return True
     return False
 
-# Returns possible dropdown fills for web.py forms:
-def get_dropdown_options():
-    jarenDB = model.get_years_available()
-
-    options = {}
-    options['empty'] = [ ('', '')]
-    options['all'] = [ ('*','! ALL !') ]
-    options['years'] = zip(jarenDB, jarenDB)
-    options['tables'] = config['mysql']['tables']['regels'].items()
-
-    options['empty_years_all'] = options['empty'] + options['years'] + options['all']
-
-    options['empty_tables'] = options['empty'] + options['tables'] 
-    options['empty_tables_all'] = options['empty'] + options['tables'] + options['all']
-
-    return options
-
 
 #TODO SPLITS IN 'ben je ingelogd?' en ben je 'bevoegd
 #AUTH

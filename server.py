@@ -53,6 +53,7 @@ from config import config
 import webpage #mother class and simple page
 import webindex
 import webaccess
+import webadmin
 
 #web utilies
 import webgraph
@@ -187,6 +188,10 @@ class Salaris:
 
 class Admin:
     def GET(self, userHash):
+        params = web.input()
+        page = webadmin.Admin(userHash, params)
+        return page.render()
+
         msg = ['Welcome to the admin panel']
         if not webaccess.check_auth(session, userHash, 'admin'):
             return web.notfound("Sorry the page you were looking for was not found.")
