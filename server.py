@@ -188,6 +188,7 @@ class Salaris:
         salaris = websalaris.groep_report(userHash, render, groep, jaar)
         return render.salaris(salaris)
 
+
 class Admin:
     def GET(self, userHash):
 #TODO SECURITY
@@ -255,3 +256,4 @@ else:
 
 if __name__ == "__main__":
     app.run()
+    print session

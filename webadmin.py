@@ -16,8 +16,6 @@ import functions
 from webpage import Webpage
 from config import config
 
-#TODO get all from params not web.input
-
 class Admin(Webpage):
     def __init__(self, userHash, params):
         Webpage.__init__(self, userHash, params)
@@ -58,6 +56,10 @@ class Admin(Webpage):
                 form.Dropdown('Year', self.dropDownOptions['empty_years_all']),
             )
 
+
+    def GET(self, userHash):
+        print session
+        return 'jaaajaa'
 
     def render_body(self):
         testResults = self.run_tests()
