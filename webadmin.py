@@ -3,7 +3,8 @@ TODO
 
 """
 import web
-from config import config
+from web import form
+
 import model
 import os
 from xlsx2csv import Xlsx2csv
@@ -13,6 +14,7 @@ import tests
 import functions
 
 from webpage import Webpage
+from config import config
 
 #TODO get all from params not web.input
 
@@ -28,69 +30,64 @@ class Admin(Webpage):
         #Admin specific
         self.msg = ['Welcome to the Admin panel']
 
+FORMS HIERHEEN VERPLAATSEN
+DAARNA SUBRENDER UITZOEKN
+        #Forms
+        self.form_remove_regels = form.Form(
+            form.Dropdown('year', self.dropDownOptions['empty_years_all'], 
+                form.notnull, description='Year to remove: '),
+            form.Dropdown('table', self.dropDownOptions['empty_tables_all'],
+                form.notnull, description='Table to remove from: '),
+        )
+
 
     def render_body(self):
-#TODO IMPLEMENT TEST
         testResults = self.run_tests()
         self.msg.extend(testResults)
 
         rendered = {}
-        rendered['removeRegels'] = self.render_remove_regels()
-        rendered['uploadRegels'] = self.render_upload_regels()
-        rendered['sapUpdate'] = self.render_update_sap_date()
-        rendered['graphsUpdate'] = self.render_rebuild_graphs()
         rendered['userAccess'] = self.webrender.user_access(model.get_auth_list(config['salt']) )
         rendered['dbStatus'] = self.render_db_status()
+        rendered['forms'] = []
+
+        #rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels()))
+        rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
+        rendered['forms'].append(self.webrender.form('Upload Regels to DB', self.form_upload_regels()))
+        rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap_date()))
+        rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs()))
 
         self.body = self.webrender.admin(self.msg, rendered)
 
 
-    def render_remove_regels(self):
-        form = web.form.Form(
-            web.form.Dropdown('Year', self.dropDownOptions['empty_years_all']),
-            web.form.Dropdown('Table', self.dropDownOptions['empty_tables_all']),
-            web.form.Button('Purge year from regels')
-        )
-
-        return self.webrender.remove_regels(form)
 
 
-    def render_upload_regels(self):
+    def form_upload_regels(self):
         tableNames = self.dropDownOptions['empty_tables']
-        form = web.form.Form(
-            web.form.File('myfile1'),
-            web.form.Dropdown('Type1', tableNames),
-            web.form.File('myfile2'),
-            web.form.Dropdown('Type2', tableNames),
-            web.form.File('myfile3'),
-            web.form.Dropdown('Type3', tableNames),
-            web.form.File('myfile4'),
-            web.form.Dropdown('Type4', tableNames),
-            web.form.File('myfile5'),
-            web.form.Dropdown('Type5', tableNames),
-            web.form.Button('Upload data'),
+        return form.Form(
+            form.File('myfile1'),
+            form.Dropdown('Type1', tableNames),
+            form.File('myfile2'),
+            form.Dropdown('Type2', tableNames),
+            form.File('myfile3'),
+            form.Dropdown('Type3', tableNames),
+            form.File('myfile4'),
+            form.Dropdown('Type4', tableNames),
+            form.File('myfile5'),
+            form.Dropdown('Type5', tableNames),
         )
 
-        return self.webrender.upload_regels(form)
 
-
-    def render_update_sap_date(self):
-        form = web.form.Form(
-            web.form.Textbox('Sapdate:', value=model.last_update()),
-            web.form.Button('Update'),
+    def form_update_sap_date(self):
+        return form.Form(
+            form.Textbox('Sapdate:', value=model.last_update()),
         )
 
-        return self.webrender.update_sap_date(form)
 
-
-    def render_rebuild_graphs(self):
-        form = web.form.Form(
-            web.form.Textbox('target', description='Order/groep/*'),
-            web.form.Dropdown('Year', self.dropDownOptions['empty_years_all']),
-            web.form.Button('Refresh Graphs'),
+    def form_rebuild_graphs(self):
+        return form.Form(
+            form.Textbox('target', description='Order/groep/*'),
+            form.Dropdown('Year', self.dropDownOptions['empty_years_all']),
         )
-
-        return self.webrender.rebuild_graphs(form)
 
 
     def render_db_status(self):
@@ -147,6 +144,24 @@ class Admin(Webpage):
             msg.extend(testMsg)
         return msg
 
+    def parse_forms(self):
+        form = self.form_remove_regels()
+        if form.validates():
+            self.msg.append('dummy remove regels parse')
+
+        return
+
+        #handling of the post action:
+        if 'Update' in web.input():
+            msg = ['Updating last sap update date']
+            model.last_update(web.input()['Sapdate'])
+            msg.append('DONE')
+        if 'Upload data' in web.input():
+            msg = webadmin.parse_upload_form()
+        if 'Refresh Graphs' in web.input():
+            msg = webadmin.parse_updateGraphs()
+        if 'Purge year from regels' in web.input():
+            msg = webadmin.parse_purgeRegelsForm()
 
     def parse_purgeRegelsForm(self):
         msg = ["Purging year from regels..."]

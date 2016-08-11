@@ -8,6 +8,10 @@ BUGS
         if not webaccess.check_auth(session, userHash, 'graph'):
             return web.notfound("Sorry the page you were looking for was not found.")
 TODO
+
+- test om forms uit functies te halen en in de classe zelf te zetten (los). of los onderaan. Werkt dat met params?
+- params uit de Webpage verwijderen (self.params <- in form zitten ze al en get apart parsen in de server class)
+
 - add checking if user is allowed for the order he is viewing. Right now we don't use thge auth file other to see if you can login or not.
 
 - redirect to requrested page after login
@@ -184,32 +188,19 @@ class Salaris:
         salaris = websalaris.groep_report(userHash, render, groep, jaar)
         return render.salaris(salaris)
 
-
-
 class Admin:
     def GET(self, userHash):
+#TODO SECURITY
         params = web.input()
         page = webadmin.Admin(userHash, params)
         return page.render()
-
 
     def POST(self, userHash):
+#TODO SECURITY
         params = web.input()
         page = webadmin.Admin(userHash, params)
+        page.parse_forms()
         return page.render()
-
-        #handling of the post action:
-        if 'Update' in web.input():
-            msg = ['Updating last sap update date']
-            model.last_update(web.input()['Sapdate'])
-            msg.append('DONE')
-        if 'Upload data' in web.input():
-            msg = webadmin.parse_upload_form()
-        if 'Refresh Graphs' in web.input():
-            msg = webadmin.parse_updateGraphs()
-        if 'Purge year from regels' in web.input():
-            msg = webadmin.parse_purgeRegelsForm()
-
 
 
 class Login:

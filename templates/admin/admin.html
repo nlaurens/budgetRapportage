@@ -11,47 +11,8 @@ $def with(msg, rendered)
             </div>
         </div>
 
-
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4>Remove regels from db</h4>
-            </div>
-            <div class="panel-body">
-                $:rendered['removeRegels']
-            </div>
-        </div>
-
-
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4>Upload regels into the DB</h4>
-            </div>
-            <div class="panel-body">
-                $:rendered['uploadRegels']
-            </div>
-        </div>
-
-
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4>Set latest sap update field (date)</h4>
-            </div>
-            <div class="panel-body">
-                <form method="POST" enctype="multipart/form-data" action="">
-                $:rendered['sapUpdate']
-                </form>
-            </div>
-        </div>
-
-
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4>Rebuild graphs</h4>
-            </div>
-            <div class="panel-body">
-                $:rendered['graphsUpdate']
-            </div>
-        </div>
+        $for form in rendered['forms']:
+            $:form
 
         <div class="panel panel-default">
             <div class="panel-heading">
