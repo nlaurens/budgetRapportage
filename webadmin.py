@@ -30,8 +30,7 @@ class Admin(Webpage):
         #Admin specific
         self.msg = ['Welcome to the Admin panel']
 
-FORMS HIERHEEN VERPLAATSEN
-DAARNA SUBRENDER UITZOEKN
+#DAN CLASSE HIERHEEN EN IMPORTEREN IN SERVER
         #Forms
         self.form_remove_regels = form.Form(
             form.Dropdown('year', self.dropDownOptions['empty_years_all'], 
@@ -39,6 +38,25 @@ DAARNA SUBRENDER UITZOEKN
             form.Dropdown('table', self.dropDownOptions['empty_tables_all'],
                 form.notnull, description='Table to remove from: '),
         )
+        self.form_upload_regels = form.Form(
+                form.File('myfile1'),
+                form.Dropdown('Type1', self.dropDownOptions['empty_tables']),
+                form.File('myfile2'),
+                form.Dropdown('Type2', self.dropDownOptions['empty_tables']),
+                form.File('myfile3'),
+                form.Dropdown('Type3', self.dropDownOptions['empty_tables']),
+                form.File('myfile4'),
+                form.Dropdown('Type4', self.dropDownOptions['empty_tables']),
+                form.File('myfile5'),
+                form.Dropdown('Type5', self.dropDownOptions['empty_tables']),
+            )
+        self.form_update_sap_date = form.Form(
+                form.Textbox('Sapdate:', value=model.last_update()),
+            )
+        self.form_rebuild_graphs = form.Form(
+                form.Textbox('target', description='Order/groep/*'),
+                form.Dropdown('Year', self.dropDownOptions['empty_years_all']),
+            )
 
 
     def render_body(self):
@@ -48,47 +66,14 @@ DAARNA SUBRENDER UITZOEKN
         rendered = {}
         rendered['userAccess'] = self.webrender.user_access(model.get_auth_list(config['salt']) )
         rendered['dbStatus'] = self.render_db_status()
-        rendered['forms'] = []
 
-        #rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels()))
+        rendered['forms'] = []
         rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
-        rendered['forms'].append(self.webrender.form('Upload Regels to DB', self.form_upload_regels()))
-        rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap_date()))
-        rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs()))
+        rendered['forms'].append(self.webrender.form('Upload Regels to DB', self.form_upload_regels))
+        rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap_date))
+        rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
 
         self.body = self.webrender.admin(self.msg, rendered)
-
-
-
-
-    def form_upload_regels(self):
-        tableNames = self.dropDownOptions['empty_tables']
-        return form.Form(
-            form.File('myfile1'),
-            form.Dropdown('Type1', tableNames),
-            form.File('myfile2'),
-            form.Dropdown('Type2', tableNames),
-            form.File('myfile3'),
-            form.Dropdown('Type3', tableNames),
-            form.File('myfile4'),
-            form.Dropdown('Type4', tableNames),
-            form.File('myfile5'),
-            form.Dropdown('Type5', tableNames),
-        )
-
-
-    def form_update_sap_date(self):
-        return form.Form(
-            form.Textbox('Sapdate:', value=model.last_update()),
-        )
-
-
-    def form_rebuild_graphs(self):
-        return form.Form(
-            form.Textbox('target', description='Order/groep/*'),
-            form.Dropdown('Year', self.dropDownOptions['empty_years_all']),
-        )
-
 
     def render_db_status(self):
         #construct dict with total regels per table
