@@ -7,7 +7,6 @@ $def with(title, form)
                 <form method="POST" enctype="multipart/form-data" action="">
                     $if not form.valid: <p class="error">Error in form</p>
                     $:form.render()
-                    <input type="submit">
                 </form>
             </div>
         </div>

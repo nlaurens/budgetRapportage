@@ -28,7 +28,7 @@ class Webpage(object):
 
         options['empty_years_all'] = options['empty'] + options['years'] + options['all']
 
-        options['empty_tables'] = options['empty'] + options['tables'] 
+        options['empty_tables'] = options['empty'] + options['tables']
         options['empty_tables_all'] = options['empty'] + options['tables'] + options['all']
 
         return options

@@ -1,6 +1,11 @@
 """
 TODO
-
+- opmaak admin form descr (nu nog vaak descr = name)
+- params er uit. web.input is beschikbaar indien nodig!
+- alle forms/post zaken naar een 'aparte' Class in server.py laten verwijzen
+  daarmee kan je 1 scherm maken met een mooie message wat er allemaal gebeurd is
+  en daarna weer terug naar /admin/ en dan zijn alle forms weer schoon. Anders blijf je
+  de info in de forms herhalen.. erg onhandig
 """
 import web
 from web import form
@@ -28,38 +33,38 @@ class Admin(Webpage):
         #Admin specific
         self.msg = ['Welcome to the Admin panel']
 
-#DAN CLASSE HIERHEEN EN IMPORTEREN IN SERVER
         #Forms
         self.form_remove_regels = form.Form(
-            form.Dropdown('year', self.dropDownOptions['empty_years_all'], 
+            form.Dropdown('year', self.dropDownOptions['empty_years_all'],
                 form.notnull, description='Year to remove: '),
             form.Dropdown('table', self.dropDownOptions['empty_tables_all'],
                 form.notnull, description='Table to remove from: '),
+            form.Button('submit', value='removeRegels')
         )
         self.form_upload_regels = form.Form(
-                form.File('myfile1'),
-                form.Dropdown('Type1', self.dropDownOptions['empty_tables']),
-                form.File('myfile2'),
-                form.Dropdown('Type2', self.dropDownOptions['empty_tables']),
-                form.File('myfile3'),
-                form.Dropdown('Type3', self.dropDownOptions['empty_tables']),
-                form.File('myfile4'),
-                form.Dropdown('Type4', self.dropDownOptions['empty_tables']),
-                form.File('myfile5'),
-                form.Dropdown('Type5', self.dropDownOptions['empty_tables']),
-            )
+                form.File(name='upload1'),
+                form.Dropdown('type1', self.dropDownOptions['empty_tables']),
+                form.File(name='upload2'),
+                form.Dropdown('type2', self.dropDownOptions['empty_tables']),
+                form.File('upload3'),
+                form.Dropdown('type3', self.dropDownOptions['empty_tables']),
+                form.File('upload4'),
+                form.Dropdown('type4', self.dropDownOptions['empty_tables']),
+                form.File('upload5'),
+                form.Dropdown('type5', self.dropDownOptions['empty_tables']),
+                form.Button('submit', value='uploadRegels')
+        )
         self.form_update_sap_date = form.Form(
-                form.Textbox('Sapdate:', value=model.last_update()),
-            )
+                form.Textbox('sapdate', form.notnull, value=model.last_update(),
+                    description='Date last SAP regels are uploaded'),
+                form.Button('submit', value='updateSapDate')
+        )
         self.form_rebuild_graphs = form.Form(
-                form.Textbox('target', description='Order/groep/*'),
-                form.Dropdown('Year', self.dropDownOptions['empty_years_all']),
-            )
+                form.Textbox('target', form.notnull, description='Order/groep/*'),
+                form.Dropdown('year', self.dropDownOptions['empty_years_all'], form.notnull),
+                form.Button('submit', value='rebuildGraphs')
+        )
 
-
-    def GET(self, userHash):
-        print session
-        return 'jaaajaa'
 
     def render_body(self):
         testResults = self.run_tests()
@@ -87,7 +92,7 @@ class Admin(Webpage):
         for table in config["mysql"]["tables"]["regels"]:
             regelCount[table] = {}
             if model.check_table_exists(table):
-                regelCount[table][0] = "OK" 
+                regelCount[table][0] = "OK"
                 years = model.get_years_available()
                 yearsFound = yearsFound.union(years)
                 for year in sorted(list(years)):
@@ -99,7 +104,7 @@ class Admin(Webpage):
                         totals[year] += regelCount[table][year]
                         totals['total'] += regelCount[table][year]
             else:
-                regelCount[table][0] = "Not found" 
+                regelCount[table][0] = "Not found"
 
         # create vars for render
         tableNames = regelCount.keys()
@@ -131,67 +136,52 @@ class Admin(Webpage):
             msg.extend(testMsg)
         return msg
 
-    def parse_forms(self):
-        form = self.form_remove_regels()
-        if form.validates():
-            self.msg.append('dummy remove regels parse')
+    def validate_forms(self):
+        formUsed = self.params['submit']
+        print formUsed
+        if formUsed == 'removeRegels' and self.form_remove_regels.validates():
+            self.msg.extend( self.parse_remove_regels() )
 
-        return
+        if formUsed == 'uploadRegels' and self.form_upload_regels.validates():
+            self.msg.extend(self.parse_upload_form())
 
-        #handling of the post action:
-        if 'Update' in web.input():
-            msg = ['Updating last sap update date']
-            model.last_update(web.input()['Sapdate'])
-            msg.append('DONE')
-        if 'Upload data' in web.input():
-            msg = webadmin.parse_upload_form()
-        if 'Refresh Graphs' in web.input():
-            msg = webadmin.parse_updateGraphs()
-        if 'Purge year from regels' in web.input():
-            msg = webadmin.parse_purgeRegelsForm()
+        if formUsed == 'updateSapDate' and self.form_update_sap_date.validates():
+            self.msg.append('Updating last sap update date')
+            model.last_update(self.form_update_sap_date['sapdate'].value)
 
-    def parse_purgeRegelsForm(self):
-        msg = ["Purging year from regels..."]
-        jaar = web.input()['Year']
-        if web.input()['Year'] == '*':
-            jaar = '%' 
+        if formUsed =='rebuildGraphs' and self.form_rebuild_graphs.validates():
+            self.msg.extend(self.parse_rebuild_graphs())
+
+
+    def parse_remove_regels(self):
+        msg = ['Removing regels from DB']
+        jaar = self.form_remove_regels['year'].value
+        if jaar == '*':
+            jaar = '%'
         else:
-            try:
-                jaar = int(jaar)
-            except:
-                msg.append("No valid year selected")
-                return msg
+            jaar = int(jaar)
 
-        table = web.input()['Table']
+        table = self.form_remove_regels['table'].value
         if table == '':
             msg.append("No valid table selected")
             return msg
 
-
-        msg.append("From table  %s" % table)
         msg.append("Purging year %s" % jaar)
+        msg.append("From table  %s" % table)
         if table == '*':
             aantalWeg = model.delete_regels(jaar)
         else:
             aantalWeg = model.delete_regels(jaar, tableNames=[table])
         msg.append("Deleted %s rows" % aantalWeg)
+
         return msg
 
 
-    def parse_updateGraphs(self):
+    def parse_rebuild_graphs(self):
         msg = ['Parsing rebuild graph']
-
-        target = web.input()['target']
-        jaar = web.input()['Year']
-#TODO duplicate code below. perhaps make a 'year' checker?
-        if web.input()['Year'] == '%':
-            jaar = '*'
-        else:
-            try:
-                jaar = int(jaar)
-            except:
-                msg.append("No valid year selected")
-                return msg
+#TODO security op deze input, jaar = int tussen x en y. target = string
+        jaar = self.form_rebuild_graphs['year'].value
+        target = self.form_rebuild_graphs['target'].value
 
         msg.append("running: $python graph.py %s %s" % (target, jaar))
 #TODO SOMEDAY fire proccess in sep. thread, graph.py write a log (clean everytime it starts), and webadmin poll if there is such a log running (report using msg)
@@ -201,39 +191,22 @@ class Admin(Webpage):
 
     def parse_upload_form(self):
         msg = ['Start parsing of upload form']
-        # try each upload
-#TODO make this iterable.. web.input(myfile1).myfile1 is the problem.
-        fileHandle = web.input(myfile1={}).myfile1
-        table = web.input()['Type1']
-        msg = upload_and_process_file('myfile1', table, fileHandle, msg)
+        fileHandle = web.input(upload1={}, upload2={}, upload3={}, upload4={}, upload5={})
+        uploads = []
+        for i in range(1,6):
+            try:
+                fileHandle = eval("fileHandle.upload%s" % i)
+            except:
+                fileHandle = None
+            table = eval("self.form_upload_regels['type%s'].value" % i)
 
-        fileHandle = web.input(myfile2={}).myfile2
-        table = web.input()['Type2']
-        msg = upload_and_process_file('myfile2', table, fileHandle, msg)
-
-        fileHandle = web.input(myfile3={}).myfile3
-        table = web.input()['Type3']
-        msg = upload_and_process_file('myfile3', table, fileHandle, msg)
-
-        fileHandle = web.input(myfile4={}).myfile4
-        table = web.input()['Type4']
-        msg = upload_and_process_file('myfile4', table, fileHandle, msg)
-
-        fileHandle = web.input(myfile5={}).myfile5
-        table = web.input()['Type5']
-        msg = upload_and_process_file('myfile5', table, fileHandle, msg)
+            if fileHandle != None and table in config['mysql']['tables']['regels'].values():
+                msg.extend(self.upload_and_process_file(table, fileHandle))
 
         return msg
 
-    def upload_and_process_file(self, fileHandleName, table, fileHandle, msg):
-        table_allowed = False
-        if table in config['mysql']['tables']['regels'].values():
-            table_allowed = True
-
-        if not table_allowed:
-            msg.append('Type not selected!')
-            return msg
-
+    def upload_and_process_file(self, table, fileHandle):
+        msg = ['Starting upload']
         allowed = ['.xlsx']
         msg.append('Uploading file.')
         succes_upload = False

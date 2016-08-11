@@ -200,7 +200,7 @@ class Admin:
 #TODO SECURITY
         params = web.input()
         page = webadmin.Admin(userHash, params)
-        page.parse_forms()
+        page.validate_forms()
         return page.render()
 
 
