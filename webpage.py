@@ -2,7 +2,7 @@ import web
 # Mother class for all webpages
 class Webpage(object):
     def __init__(self, userHash, static=False):
-        self.mainRender = web.template.render('templates/')
+        self.mainRender = web.template.render('templates/', cache=False)
         self.static = static
         self.userHash = userHash
         self.title = 'subclass did not set title'
