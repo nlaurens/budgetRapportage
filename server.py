@@ -54,12 +54,8 @@ import webaccess
 
 class Index:
     def GET(self, userHash):
-        page = webaccess.Index(userHash)
-        return page.render()
+        return 'index'
 
-    def POST(self, userHash):
-        page = webaccess.Login(userHash)
-        return page.render()
 
 class View:
     settings_simple_form = web.form.Form(
@@ -218,12 +214,14 @@ class Admin:
 
 
 class Login:
-    def GET(self, userHash, caller):
-        page = webaccess.Login(userHash, caller)
+    def GET(self, userHash):
+        params = web.input(caller="/")
+        page = webaccess.Login(userHash, params)
         return page.render()
 
-    def POST(self, userHash, caller):
-        page = webaccess.Login(userHash, caller)
+    def POST(self, userHash):
+        params = web.input(caller="/")
+        page = webaccess.Login(userHash, params)
         page.parse_form(session) #will redirect on success
         return page.render()
 
@@ -231,7 +229,7 @@ class Login:
 class Logout:
     def GET(self):
         session.logged_in = False
-        page = webpage.Simple(userHash, 'Logout', 'You have been logged out')
+        page = webpage.Simple('', 'Logout', 'You have been logged out')
         return page.render()
 
 
@@ -244,14 +242,14 @@ class Graph:
 
 ### Url mappings
 urls = (
-    '/', 'Index',
-    '/view/(.+)/(\d+)', 'View',
-    '/login/(.+)/(.+)', 'Login',
-    '/logout', 'Logout',
+    '/view/(.+)', 'View',
+    '/login/(.+)', 'Login',
+    '/logout.*', 'Logout',
     '/report/(.+)', 'Report',
     '/salaris/(.+)', 'Salaris',
     '/admin/(.+)', 'Admin',
     '/graph/(.+)/(\d+)/(.*)/(.*).png', 'Graph',
+    '/(.+)', 'Index',
 )
 
 t_globals = {

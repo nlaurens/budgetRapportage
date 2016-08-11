@@ -3,13 +3,17 @@ from config import config
 from webpage import Webpage
 
 class Login(Webpage):
-    def __init__(self, userHash, caller):
-        Webpage.__init__(self, userHash)
+    def __init__(self, userHash, params):
+        Webpage.__init__(self, userHash, params)
 
         #subclass specific
-        self.webrender = web.template.render('templates/access/')
         self.title = 'Login'
-        self.caller = caller
+        self.module = 'login'
+        self.webrender = web.template.render('templates/access/')
+
+        #login specific
+#TODO get target from params
+        self.redirect = params.caller
         self.msg = ''
 
 
@@ -30,7 +34,7 @@ class Login(Webpage):
         if form.validates():
             if form['password'].value == config["globalPW"]:
                 session.logged_in = True
-                raise web.seeother('/%s/%s/' % (self.caller, self.userHash))
+                raise web.seeother('/%s/%s' % (self.redirect, self.userHash))
             else:
                 self.msg = 'Wrong password'
         else:
