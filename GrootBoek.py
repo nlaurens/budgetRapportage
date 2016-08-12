@@ -105,6 +105,9 @@ class GrootBoek():
 
     # Assings regellist to all the children
     def assign_regels_recursive(self,regels):
+        if not regels: #No regels means we can directly exit
+            return
+
         for child in self.children:
             child.assign_regels_recursive(regels)
 

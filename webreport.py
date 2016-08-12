@@ -29,11 +29,16 @@ class Report(Webpage):
         self.jaar = int(web.input(jaar=config["currentYear"])['jaar'])
 #TODO config
         self.groepstr = web.input(groep='TOTAAL')['groep']
+        self.regels = {} #Dictionary per order, per tiepe = regellist
 
     def render_body(self):
 #TODO config
         self.root = OrderGroep.load('LION')
         self.root = self.root.find(self.groepstr)
+        
+        ordersInGroep = self.root.list_orders_recursive().keys()
+        regels = model.get_regellist(jaar=[self.jaar], orders=ordersInGroep)
+        self.regels = regels.split_by_regel_attributes(['ordernummer', 'tiepe'])
 
 #TODO lijkt erop dat dit recursie is die we in de render_body all kunnen doen
         body = self.render_table_html()
@@ -115,8 +120,10 @@ class Report(Webpage):
 
     def parse_order(self, order, descr):
         #parse orders in groep:
+        regels = {}
+        if order in self.regels:
+            regels = self.regels[order] 
 
-        regels = model.get_regellist_per_table(jaar=[self.jaar], orders=[order])
 #TODO  In config params!!
         root = GrootBoek.load('BFRE15')
         root = root.find('BFRE15E01')

@@ -19,6 +19,38 @@ db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["u
 
 # Returns a dictionary of regellists of select tables (or all if emtpy)
 # {'geboekt': RegelList, '..': Regellist}
+def get_regellist(tableNames=[], jaar=[], periodes=[], orders=[], kostensoorten=[]):
+#TODO dit stukje naar een aparte 'privagte' functie van model (is nu dubbele code in functies)
+    if not tableNames:
+        tableNames = config["mysql"]["tables"]["regels"].keys()
+    else:
+        for name in tableNames:
+            assert name in config["mysql"]["tables"]["regels"], "unknown table in model.get_reggellist_per_table: " + name
+
+    regels = []
+    for tableName in tableNames:
+        query = mysql_regels_query(jaar, periodes, orders, kostensoorten)
+        try:
+            dbSelect = db.select(config["mysql"]["tables"]["regels"][tableName], where=query, vars=locals())
+        except IndexError:
+            return None
+
+        for dbRegel in dbSelect:
+            regel = Regel()
+            regel.import_from_db_select(dbRegel, tableName)
+            modifiedRegels = specific_rules(regel)
+            for regel in modifiedRegels:
+                regels.append(regel)
+
+    return RegelList(regels)
+
+#TODO functie: get_regels schrijven dat alles in 1 regellist doet. Splitsen per tiepe kan altijd met de
+# split_regel functie 
+
+# TODO deze functie uitschakelen!
+
+# Returns a dictionary of regellists of select tables (or all if emtpy)
+# {'geboekt': RegelList, '..': Regellist}
 def get_regellist_per_table(tableNames=[], jaar=[], periodes=[], orders=[], kostensoorten=[]):
 #TODO dit stukje naar een aparte 'privagte' functie van model (is nu dubbele code in functies)
     if not tableNames:
