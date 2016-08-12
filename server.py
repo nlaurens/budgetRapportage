@@ -66,7 +66,7 @@ import webgraph
 class Index:
     def GET(self, userHash):
 #TODO SECURITY
-        page = webpage.Simple('', 'Welcome', 'Make a selection from the menu above.')
+        page = webpage.Simple(userHash, 'Welcome', 'Make a selection from the menu above.')
         return page.render()
 
 
@@ -238,7 +238,7 @@ urls = (
     '/salaris/(.+)', 'Salaris',
     '/admin/(.+)', 'Admin',
     '/graph/(.+)/(\d+)/(.*)/(.*).png', 'Graph',
-    '/(.+)', 'Index',
+    '/index/(.+)', 'Index',
 )
 
 t_globals = {
