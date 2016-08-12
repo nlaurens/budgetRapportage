@@ -28,13 +28,13 @@ class Report(Webpage):
 
         #Report specific:
         self.jaar = int(web.input(jaar=config["currentYear"])['jaar'])
-        self.groepstr = web.input(groep='')['groep']
+#TODO config
+        self.groepstr = web.input(groep='TOTAAL')['groep']
 
     def render_body(self):
 #TODO config
         self.root = OrderGroep.load('LION')
-        if self.groepstr != '':
-            self.root = self.root.find(self.groepstr)
+        self.root = self.root.find(self.groepstr)
 
 #TODO lijkt erop dat dit recursie is die we in de render_body all kunnen doen
         body = self.render_table_html()
