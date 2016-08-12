@@ -3,10 +3,8 @@ BUGS
 
   - Baten verdwijnen
   - SQL inject in model bekijken
+  - authorisatie in elke class per order/groep/admin. Wellicht via model.isAuthed() doen?
 
-        REINTRODUCE SECURITY:
-        if not webaccess.check_auth(session, userHash, 'graph'):
-            return web.notfound("Sorry the page you were looking for was not found.")
 TODO
 
 - test om forms uit functies te halen en in de classe zelf te zetten (los). of los onderaan. Werkt dat met params?
