@@ -70,6 +70,46 @@ class Index:
         return page.render()
 
 
+class Admin:
+    def GET(self, userHash):
+#TODO SECURITY
+        page = webadmin.Admin(userHash)
+        return page.render()
+
+    def POST(self, userHash):
+#TODO SECURITY
+        page = webadmin.Admin(userHash, 'formAction')
+        return page.render()
+
+
+class Login:
+    def GET(self, userHash):
+#TODO SECURITY
+        page = webaccess.Login(userHash)
+        return page.render()
+
+    def POST(self, userHash):
+#TODO SECURITY
+        page = webaccess.Login(userHash)
+        page.parse_form(session) #will redirect on success
+        return page.render()
+
+
+class Logout:
+    def GET(self):
+#TODO SECURITY
+        session.logged_in = False
+        page = webpage.Simple('', 'Logout', 'You have been logged out')
+        return page.render()
+
+
+class Graph:
+    def GET(self, userHash, jaar, tiepe, order):
+#TODO SECURITY
+        return webgraph.return_graph(jaar, tiepe, order)
+
+
+#TODO convert to webpage class
 class View:
     settings_simple_form = web.form.Form(
         web.form.Dropdown('jaar', [(2016, '2016'), (2015, '2015'), (2014, '2014'), (2013, '2013'), (2012, '2012')], class_="btn btn-default btn-sm"),
@@ -133,7 +173,7 @@ class View:
         settings["clean"] = True
         return webview.view(settings, render, form, order)
 
-
+#TODO convert to webpage class
 class Report:
     def get_params(self):
 
@@ -164,7 +204,7 @@ class Report:
         report = webreport.groep_report(userHash, render, groep, jaar)
         return render.report(report)
 
-
+#TODO convert to webpage class
 class Salaris:
     def get_params(self):
 
@@ -190,45 +230,6 @@ class Salaris:
         salaris = websalaris.groep_report(userHash, render, groep, jaar)
         return render.salaris(salaris)
 
-
-class Admin:
-    def GET(self, userHash):
-#TODO SECURITY
-        page = webadmin.Admin(userHash)
-        return page.render()
-
-    def POST(self, userHash):
-#TODO SECURITY
-        page = webadmin.Admin(userHash, 'formAction')
-        return page.render()
-
-
-class Login:
-    def GET(self, userHash):
-#TODO SECURITY
-        page = webaccess.Login(userHash)
-        return page.render()
-
-    def POST(self, userHash):
-#TODO SECURITY
-        page = webaccess.Login(userHash)
-        page.parse_form(session) #will redirect on success
-        return page.render()
-
-
-class Logout:
-    def GET(self):
-#TODO SECURITY
-        session.logged_in = False
-        page = webpage.Simple('', 'Logout', 'You have been logged out')
-        return page.render()
-
-
-class Graph:
-    def GET(self, userHash, jaar, tiepe, order):
-#TODO SECURITY
-        return webgraph.return_graph(jaar, tiepe, order)
-
 ### Url mappings
 urls = (
     '/view/(.+)', 'View',
@@ -241,9 +242,6 @@ urls = (
     '/index/(.+)', 'Index',
 )
 
-t_globals = {
-    'datestr': web.datestr
-}
 app = web.application(urls, globals())
 if web.config.get('_session') is None:
     session = web.session.Session(app, web.session.DiskStore('sessions'), {'count': 0})
