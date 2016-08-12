@@ -4,17 +4,34 @@ from config import config
 
 # Mother class for all webpages
 class Webpage(object):
-    def __init__(self, userHash, params, static=False):
+    def __init__(self, userHash, static=False):
         self.userHash = userHash
-        self.params = params
         self.static = static
         self.mainRender = web.template.render('templates/', cache=False) #in init cause subclasses might also access it
+        print 'WARNING DEBUG CODE STILL ON '
+        print 'WARNING DEBUG CODE STILL ON '
+        print 'WARNING DEBUG CODE STILL ON '
         self.dropDownOptions = self.dropdown_options()
 
         # should be set in the subclass
         self.title = None
         self.module = None
         self.webrender = None
+
+
+    def render(self):
+#TODO cache renderd page and check if we can serve that
+        self.render_body()
+        return self.mainRender.page(self.title, self.body)
+
+    # Should be implemented by subclass
+    def render_body(self):
+        raise NotImplementedError
+
+    #used for creating links in the submodule
+    def base_url(self):
+        return ('/%s/%s' % (self.module, self.userHash))
+
 
     # Returns possible dropdown fills for web.py forms. Used by __init__
     def dropdown_options(self):
@@ -32,21 +49,6 @@ class Webpage(object):
         options['empty_tables_all'] = options['empty'] + options['tables'] + options['all']
 
         return options
-
-
-    def render(self):
-#TODO cache renderd page and check if we can serve that
-        self.render_body()
-        return self.mainRender.page(self.title, self.body)
-
-
-    def base_url(self):
-        return ('/%s/%s' % (self.module, self.userHash))
-
-
-    # Should be implemented by subclass
-    def render_body(self):
-        raise NotImplementedError
 
 
 # Simple webpage for messages/forms

@@ -1,7 +1,6 @@
 """
 TODO
 - opmaak admin form descr (nu nog vaak descr = name)
-- params er uit. web.input is beschikbaar indien nodig!
 - alle forms/post zaken naar een 'aparte' Class in server.py laten verwijzen
   daarmee kan je 1 scherm maken met een mooie message wat er allemaal gebeurd is
   en daarna weer terug naar /admin/ en dan zijn alle forms weer schoon. Anders blijf je
@@ -22,8 +21,8 @@ from webpage import Webpage
 from config import config
 
 class Admin(Webpage):
-    def __init__(self, userHash, params):
-        Webpage.__init__(self, userHash, params)
+    def __init__(self, userHash):
+        Webpage.__init__(self, userHash)
 
         #subclass specific
         self.title = 'Admin Panel'
@@ -136,9 +135,9 @@ class Admin(Webpage):
             msg.extend(testMsg)
         return msg
 
+
     def validate_forms(self):
-        formUsed = self.params['submit']
-        print formUsed
+        formUsed = web.input()['submit']
         if formUsed == 'removeRegels' and self.form_remove_regels.validates():
             self.msg.extend( self.parse_remove_regels() )
 

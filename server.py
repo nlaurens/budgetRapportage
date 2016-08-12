@@ -192,14 +192,12 @@ class Salaris:
 class Admin:
     def GET(self, userHash):
 #TODO SECURITY
-        params = web.input()
-        page = webadmin.Admin(userHash, params)
+        page = webadmin.Admin(userHash)
         return page.render()
 
     def POST(self, userHash):
 #TODO SECURITY
-        params = web.input()
-        page = webadmin.Admin(userHash, params)
+        page = webadmin.Admin(userHash)
         page.validate_forms()
         return page.render()
 
@@ -207,14 +205,12 @@ class Admin:
 class Login:
     def GET(self, userHash):
 #TODO SECURITY
-        params = web.input(caller="/")
-        page = webaccess.Login(userHash, params)
+        page = webaccess.Login(userHash)
         return page.render()
 
     def POST(self, userHash):
 #TODO SECURITY
-        params = web.input(caller="/")
-        page = webaccess.Login(userHash, params)
+        page = webaccess.Login(userHash)
         page.parse_form(session) #will redirect on success
         return page.render()
 
