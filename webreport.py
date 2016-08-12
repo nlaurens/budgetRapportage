@@ -1,7 +1,6 @@
 """
 TODO
     * Change glyph on collapse like in websalaris!
-    * Use the new model db system. Load all regels from db once. Select afterwards.
 """
 import web
 from config import config
@@ -30,14 +29,15 @@ class Report(Webpage):
 #TODO config
         self.groepstr = web.input(groep='TOTAAL')['groep']
         self.regels = {} #Dictionary per order, per tiepe = regellist
+        self.orders = [] #list of all orders in the group
 
     def render_body(self):
 #TODO config
         self.root = OrderGroep.load('LION')
         self.root = self.root.find(self.groepstr)
         
-        ordersInGroep = self.root.list_orders_recursive().keys()
-        regels = model.get_regellist(jaar=[self.jaar], orders=ordersInGroep)
+        self.orders = self.root.list_orders_recursive().keys()
+        regels = model.get_regellist(jaar=[self.jaar], orders=self.orders)
         self.regels = regels.split_by_regel_attributes(['ordernummer', 'tiepe'])
 
 #TODO lijkt erop dat dit recursie is die we in de render_body all kunnen doen
@@ -207,14 +207,10 @@ class Report(Webpage):
 #TODO replace dummy vasr
 #javaScripts = java_scripts(render, HRregels['geboekt'], HRregels['begroot']) <- should be used in new db system
     def render_java_scripts(self):
-        #def java_scripts(render, regelsGeboekt, regelsBegroot):
         #ordersGeboekt = regelsGeboekt.split_by_regel_attributes(['order']).keys()
         #ordersBegroot = regelsBegroot.split_by_regel_attributes(['order']).keys()
         #orders = set(ordersGeboekt + ordersBegroot)
-
-        orders = self.root.list_orders_recursive()
-
-        return self.webrender.report_javascripts(orders)
+        return self.webrender.report_javascripts(self.orders)
 
 
 
