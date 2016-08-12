@@ -1,4 +1,5 @@
 import web
+from web import form
 import model
 from config import config
 
@@ -53,14 +54,22 @@ class Webpage(object):
 
 # Simple webpage for messages/forms
 class Simple(Webpage):
-    def __init__(self, userHash, title, msg, form=''):
+    def __init__(self, userHash, title, msg, redirect=''):
         Webpage.__init__(self, userHash, None)
 
         #subclass specific
         self.title = title
         self.msg = msg
-        self.form = form
+        self.redirect = redirect
+        self.form_redirect = form.Form(
+                form.Button('ok', value='redirect')
+        )
 
 
     def render_body(self):
+        if self.redirect:
+            self.form = self.form_redirect
+        else:
+            self.form = ''
+
         self.body = self.mainRender.simple(self.title, self.msg, self.form)

@@ -197,8 +197,7 @@ class Admin:
 
     def POST(self, userHash):
 #TODO SECURITY
-        page = webadmin.Admin(userHash)
-        page.validate_forms()
+        page = webadmin.Admin(userHash, 'formAction')
         return page.render()
 
 
