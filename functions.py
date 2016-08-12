@@ -54,31 +54,3 @@ def moneyfmt(value, places=0, curr='', sep=',', dp='',
     build(curr)
     build(neg if sign else pos)
     return ''.join(reversed(result))
-
-
-# Checks if incoming IP is in
-# allowed config range: True
-# if not: False
-def IpBlock(ip, ipRanges):
-    from iptools import IpRangeList
-    ipRanges = ipRanges.split()
-    start = ipRanges[0:][::2]
-    stop = ipRanges[1:][::2]
-
-    for start,stop in zip(start,stop):
-        ipRange = IpRangeList( (start,stop) )
-        if ip in ipRange:
-            return True
-    return False
-
-
-#TODO SPLITS IN 'ben je ingelogd?' en ben je 'bevoegd
-#AUTH
-def check_auth(session, userHash, caller):
-    if not session.get('logged_in', False):
-        raise web.seeother('/login/%s/%s' %(userHash, caller)  )
-
-    IPAllowed= IpBlock(web.ctx['ip'], config['IpRanges'])
-    if userHash == '' or not IPAllowed:
-        return False
-    return True

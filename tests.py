@@ -5,7 +5,7 @@ import web
 import model
 import GrootBoek
 from config import config
-from functions import moneyfmt, IpBlock
+from functions import moneyfmt
 from decimal import *
 import glob
 

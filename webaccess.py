@@ -13,8 +13,7 @@ class Login(Webpage):
         self.webrender = web.template.render('templates/access/')
 
         #login specific
-        self.redirect = web.input(caller='/').caller
-        self.msg = ''
+        self.redirect = web.input(caller='index').caller
 
         #forms
         self.form_login = form.Form (
@@ -24,7 +23,7 @@ class Login(Webpage):
 
 
     def render_body(self):
-        self.body = self.webrender.login(self.form_login, self.msg)
+        self.body = self.webrender.login(self.form_login)
 
 
     def parse_form(self, session):

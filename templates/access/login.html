@@ -1,4 +1,4 @@
-$def with (form, msg)
+$def with (form)
       <div class="container">
           <div class="panel panel-default">
                 <div class="panel-heading">
@@ -7,7 +7,6 @@ $def with (form, msg)
                   </h4>
                 </div>
                 <div class="panel-body">
-                    <b>$msg</b><br>
                     <form name="main" method="post"> 
                         $:form.render()
                     </form>

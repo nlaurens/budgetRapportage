@@ -65,47 +65,52 @@ import webgraph
 
 class Index:
     def GET(self, userHash):
-#TODO SECURITY
+        auth_block_by_ip()
+        auth_login(session, userHash, 'index')
+
         page = webpage.Simple(userHash, 'Welcome', 'Make a selection from the menu above.')
         return page.render()
 
 
 class Admin:
     def GET(self, userHash):
-#TODO SECURITY
+        auth_block_by_ip()
+        auth_login(session, userHash, 'admin')
         page = webadmin.Admin(userHash)
         return page.render()
 
     def POST(self, userHash):
-#TODO SECURITY
+        auth_block_by_ip()
+        auth_login(session, userHash, 'admin')
         page = webadmin.Admin(userHash, 'formAction')
         return page.render()
 
 
 class Login:
     def GET(self, userHash):
-#TODO SECURITY
+        auth_block_by_ip()
         page = webaccess.Login(userHash)
         return page.render()
 
     def POST(self, userHash):
-#TODO SECURITY
+        auth_block_by_ip()
         page = webaccess.Login(userHash)
         page.parse_form(session) #will redirect on success
         return page.render()
 
 
 class Logout:
-    def GET(self):
-#TODO SECURITY
+    def GET(self, userHash):
+        auth_block_by_ip()
         session.logged_in = False
-        page = webpage.Simple('', 'Logout', 'You have been logged out')
+        page = webpage.Simple(userHash, 'Logout', 'You have been logged out')
         return page.render()
 
 
 class Graph:
     def GET(self, userHash, jaar, tiepe, order):
-#TODO SECURITY
+        auth_block_by_ip()
+        auth_login(session, userHash, 'index')
         return webgraph.return_graph(jaar, tiepe, order)
 
 
@@ -230,11 +235,34 @@ class Salaris:
         salaris = websalaris.groep_report(userHash, render, groep, jaar)
         return render.salaris(salaris)
 
+
+# Checks if IP is allowed
+# If not imidialty sends a 404 and stops all processing
+def auth_block_by_ip():
+    from iptools import IpRangeList
+    ip = web.ctx['ip']
+    ipRanges = config['IpRanges'].split()
+    start = ipRanges[0:][::2]
+    stop = ipRanges[1:][::2]
+
+    for start,stop in zip(start,stop):
+        ipRange = IpRangeList( (start,stop) )
+        if ip in ipRange:
+            return
+
+    raise web.notfound()
+
+
+def auth_login(session, userHash, caller):
+    if not session.get('logged_in', False):
+        raise web.seeother('/login/%s?caller=%s' %(userHash, caller))
+
+
 ### Url mappings
 urls = (
     '/view/(.+)', 'View',
     '/login/(.+)', 'Login',
-    '/logout.*', 'Logout',
+    '/logout/(.+)', 'Logout',
     '/report/(.+)', 'Report',
     '/salaris/(.+)', 'Salaris',
     '/admin/(.+)', 'Admin',
