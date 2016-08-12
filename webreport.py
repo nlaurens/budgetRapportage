@@ -51,8 +51,6 @@ class Report(Webpage):
 
         self.body = self.webrender.report(report)
 
-        return report
-
 
     def render_table_html(self):
         table = []
@@ -162,7 +160,6 @@ class Report(Webpage):
 
     def groep_regel_to_html(self, row):
         html = row.copy()
-#TODO
         html['name'] = row['name']
         html['begroot'] = table_string(row['begroot'])
         html['realisatie'] =  table_string(row['realisatie'])

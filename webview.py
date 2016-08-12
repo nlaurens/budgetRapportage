@@ -7,6 +7,54 @@ import numpy as np
 from functions import moneyfmt
 from RegelList import RegelList
 
+import webpage
+from webpage import Webpage
+from web import form
+import web
+
+class View(Webpage):
+    def __init__(self, userHash):
+        Webpage.__init__(self, userHash)
+
+        #subclass specific
+        self.title = 'Budget View'
+        self.module = 'view'
+        self.webrender = web.template.render('templates/view/')
+
+        #Forms
+        self.settings_simple_form = web.form.Form(
+            web.form.Dropdown('jaar', [(2016, '2016'), (2015, '2015'), (2014, '2014'), (2013, '2013'), (2012, '2012')], class_="btn btn-default btn-sm"),
+            web.form.Dropdown('periode', [(0, 'All'), (1, 'Jan'), (2, 'Feb'), (3, 'March'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'), (9, 'Sep'), (10, 'Okt'), (11, 'Nov'), (12, 'Dec')], class_="btn btn-default btn-sm"),
+            web.form.Hidden('maxdepth', [(0,'1. Totals'), (1,'2. Subtotals'), (10, '3. Details')]),
+            web.form.Hidden('ksgroep', []),
+            web.form.Hidden('clean'),
+            web.form.Button('Update', 'update', class_="btn btn-default btn-sm"),
+        )
+        self.settings_expert_form = web.form.Form(
+            web.form.Dropdown('jaar', [(2016, '2016'), (2015, '2015'), (2014, '2014'), (2013, '2013'), (2012, '2012')]),
+            web.form.Dropdown('periode', [('', 'all')]),
+            web.form.Dropdown('maxdepth', [(0,'1. Totals'), (1,'2. Subtotals'), (10, '3. Details')]),
+            web.form.Dropdown('ksgroep', []),
+            web.form.Checkbox('clean'),
+            web.form.Button('Update', 'update'),
+        )
+
+        #View specific:
+        self.maxdepth = int(web.input(maxdepth=1)['maxdepth'])
+        self.KSgroep = int(web.input(ksgroep=0)['ksgroep'])
+        self.jaar = int(web.input(jaar=config["currentYear"])['jaar'])
+        self.periode = int(web.input(periode=0)['periode'])
+        self.clean = web.input().has_key('clean')
+
+#TODO CONFIG
+        self.order = web.input(order=2008502040)['order']
+
+
+    def render_body(self):
+        self.body = 'dummy body'
+        #self.body = self.view <- deze als 1e renderen
+
+################## OLD ##################
 def fill_dropdowns(form, settings, KSgroepen):
     dropdownlist = []
     for i, path in enumerate(KSgroepen):

@@ -57,6 +57,7 @@ import webindex
 import webaccess
 import webadmin
 import webreport
+import webview
 
 #web utilies
 import webgraph
@@ -120,75 +121,26 @@ class Report:
         page = webreport.Report(userHash)
         return page.render()
 
+
     def POST(self, userHash):
         auth_block_by_ip()
         auth_login(session, userHash, 'report')
         page = webreport.Report(userHash)
         return page.render()
 
-#TODO convert to webpage class
 class View:
-    settings_simple_form = web.form.Form(
-        web.form.Dropdown('jaar', [(2016, '2016'), (2015, '2015'), (2014, '2014'), (2013, '2013'), (2012, '2012')], class_="btn btn-default btn-sm"),
-        web.form.Dropdown('periode', [(0, 'All'), (1, 'Jan'), (2, 'Feb'), (3, 'March'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'), (9, 'Sep'), (10, 'Okt'), (11, 'Nov'), (12, 'Dec')], class_="btn btn-default btn-sm"),
-        web.form.Hidden('maxdepth', [(0,'1. Totals'), (1,'2. Subtotals'), (10, '3. Details')]),
-        web.form.Hidden('ksgroep', []),
-        web.form.Hidden('clean'),
-        web.form.Button('Update', 'update', class_="btn btn-default btn-sm"),
-    )
-    settings_expert_form = web.form.Form(
-        web.form.Dropdown('jaar', [(2016, '2016'), (2015, '2015'), (2014, '2014'), (2013, '2013'), (2012, '2012')]),
-        web.form.Dropdown('periode', [('', 'all')]),
-        web.form.Dropdown('maxdepth', [(0,'1. Totals'), (1,'2. Subtotals'), (10, '3. Details')]),
-        web.form.Dropdown('ksgroep', []),
-        web.form.Checkbox('clean'),
-        web.form.Button('Update', 'update'),
-    )
-    def __init__(self):
-        pass
+    def POST(self, userHash):
+        auth_block_by_ip()
+        auth_login(session, userHash, 'view')
+        page = webview.View(userHash)
+        return page.render()
 
 
-    def get_post_params(self, form):
-        try:
-            maxdepth = int(web.input()['maxdepth'])
-        except:
-            maxdepth = 1
-
-        try:
-            KSgroep = int(web.input()['ksgroep'])
-        except:
-            KSgroep = 0
-
-        try:
-            jaar = int(web.input()['jaar'])
-        except:
-            jaar = config["currentYear"]
-
-        try:
-            periode = int(web.input()['periode'])
-        except:
-            periode = 0
-
-        clean = web.input().has_key('clean')
-
-        return {"maxdepth":maxdepth, "KSgroep":KSgroep, "jaar":jaar, "periode":periode, "clean":clean}
-
-    def POST(self, userHash, order):
-        form = self.settings_simple_form
-        if not webaccess.check_auth(session, userHash, 'view'):
-            return web.notfound("Sorry the page you were looking for was not found.")
-
-        settings = self.get_post_params(form)
-        return webview.view(settings, render, form, order)
-
-    def GET(self, userHash, order):
-        form = self.settings_simple_form
-        if not webaccess.check_auth(session, userHash, 'view'):
-            return web.notfound("Sorry the page you were looking for was not found.")
-
-        settings = self.get_post_params(form)
-        settings["clean"] = True
-        return webview.view(settings, render, form, order)
+    def GET(self, userHash):
+        auth_block_by_ip()
+        auth_login(session, userHash, 'view')
+        page = webview.View(userHash)
+        return page.render()
 
 
 #TODO convert to webpage class
