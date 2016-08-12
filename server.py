@@ -65,7 +65,9 @@ import webgraph
 
 class Index:
     def GET(self, userHash):
-        return 'index'
+#TODO SECURITY
+        page = webpage.Simple('', 'Welcome', 'Make a selection from the menu above.')
+        return page.render()
 
 
 class View:
