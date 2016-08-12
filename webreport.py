@@ -12,7 +12,53 @@ import model
 import numpy as np
 from graph import graph_url
 
+import webpage
+from webpage import Webpage
 
+class Report(Webpage):
+    def __init__(self, userHash):
+        Webpage.__init__(self, userHash)
+
+        #subclass specific
+        self.title = 'Budget Report'
+        self.module = 'report'
+        self.webrender = web.template.render('templates/report/')
+
+        #Forms
+
+    def render_body(self):
+        self.body = 'dummy body'
+
+# FROM OLD SERVER.PY - render:
+        #if not webaccess.check_auth(session, userHash, 'report'):
+        #    return web.notfound("Sorry the page you were looking for was not found.")
+        #jaar, periode, groep = self.get_params()
+        #report = webreport.groep_report(userHash, render, groep, jaar)
+        #return render.report(report)
+
+   # def get_params(self):
+
+   #     try:
+   #         jaar = int(web.input()['jaar'])
+   #     except:
+   #         jaar = config["currentYear"]
+
+   #     try:
+   #         periode = web.input()['periode']
+   #     except:
+   #         periode = '0,1,2,3,4,5,6,7,8,9,10,11,12'
+
+   #     try:
+   #         groep = web.input()['groep']
+   #     except:
+   #         groep = 'TOTAAL'
+
+   #     return jaar, periode, groep
+
+
+###########################################################
+#OLD
+###########################################################
 def table_string(value):
     value = value/1000
     if value == 0 or np.abs(value) < 0.5:
