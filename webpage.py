@@ -72,4 +72,5 @@ class Simple(Webpage):
         else:
             self.form = ''
 
-        self.body = self.mainRender.simple(self.title, self.msg, self.form)
+        redirect = '/%s/%s' % (self.redirect, self.userHash)
+        self.body = self.mainRender.simple(self.title, self.msg, self.form, redirect)

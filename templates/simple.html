@@ -1,4 +1,4 @@
-$def with (title, msg, form)
+$def with (title, msg, form, redirect)
       <div class="container">
           <div class="panel panel-default">
                 <div class="panel-heading">
@@ -11,7 +11,10 @@ $def with (title, msg, form)
                 </div>
                 $if form != '':
                     <div class="panel-body">
-                        $:form.render()
+                        <form method="GET" enctype="multipart/form-data" action="$redirect">
+                            $if not form.valid: <p class="error">Error in form</p>
+                            $:form.render()
+                        </form>
                     </div>
             </div>
       </div>

@@ -1,10 +1,6 @@
 """
 TODO
 - opmaak admin form descr (nu nog vaak descr = name)
-- alle forms/post zaken naar een 'aparte' Class in server.py laten verwijzen
-  daarmee kan je 1 scherm maken met een mooie message wat er allemaal gebeurd is
-  en daarna weer terug naar /admin/ en dan zijn alle forms weer schoon. Anders blijf je
-  de info in de forms herhalen.. erg onhandig
 """
 import web
 from web import form
@@ -17,16 +13,18 @@ import datetime
 import tests
 import functions
 
+import webpage
 from webpage import Webpage
 from config import config
 
 class Admin(Webpage):
-    def __init__(self, userHash):
+    def __init__(self, userHash, subpage='main'):
         Webpage.__init__(self, userHash)
 
         #subclass specific
         self.title = 'Admin Panel'
         self.module = 'admin'
+        self.subpage = subpage
         self.webrender = web.template.render('templates/admin/')
 
         #Admin specific
@@ -66,6 +64,21 @@ class Admin(Webpage):
 
 
     def render_body(self):
+        if self.subpage == 'main':
+            self.render_body_main()
+        elif self.subpage == 'formAction':
+            (validForm, msg) = self.parse_forms()
+            if validForm:
+                page = webpage.Simple(self.userHash, 'Admin', msg, 'admin')
+                page.render()
+                self.body = page.body # we don't need the header/footer
+            else:
+                self.render_body_main()
+        else:
+            self.body = 'webadmin subpage %s unknown' % self.subpage
+
+
+    def render_body_main(self):
         testResults = self.run_tests()
         self.msg.extend(testResults)
 
@@ -136,20 +149,29 @@ class Admin(Webpage):
         return msg
 
 
-    def validate_forms(self):
+    def parse_forms(self):
+        validForm = False
+        msg = ['Parsing forms']
+
         formUsed = web.input()['submit']
         if formUsed == 'removeRegels' and self.form_remove_regels.validates():
-            self.msg.extend( self.parse_remove_regels() )
+            msg.extend( self.parse_remove_regels() )
+            validForm = True
 
         if formUsed == 'uploadRegels' and self.form_upload_regels.validates():
-            self.msg.extend(self.parse_upload_form())
+            msg.extend(self.parse_upload_form())
+            validForm = True
 
         if formUsed == 'updateSapDate' and self.form_update_sap_date.validates():
-            self.msg.append('Updating last sap update date')
+            msg.append('Updating last sap update date')
             model.last_update(self.form_update_sap_date['sapdate'].value)
+            validForm = True
 
         if formUsed =='rebuildGraphs' and self.form_rebuild_graphs.validates():
-            self.msg.extend(self.parse_rebuild_graphs())
+            msg.extend(self.parse_rebuild_graphs())
+            validForm = True
+
+        return (validForm, msg)
 
 
     def parse_remove_regels(self):
