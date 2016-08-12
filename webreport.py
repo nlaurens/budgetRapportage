@@ -10,7 +10,7 @@ import OrderGroep
 import GrootBoek
 import model
 import numpy as np
-from graph import graph_url
+from webgraph import generate_url
 
 import webpage
 from webpage import Webpage
@@ -27,14 +27,61 @@ class Report(Webpage):
         #Forms
 
     def render_body(self):
-        self.body = 'dummy body'
 
+#TODO root, jaar naar init en self.params
+        groepstr = '' #DUMMY VAR
+        jaar = 2016 #DUMMY VAR
+
+#TODO CONFIG
+        root = OrderGroep.load('LION')
+        if groepstr != '':
+            root = root.find(groepstr)
+
+#TODO lijkt erop dat dit recursie is die we in de render_body all kunnen doen
+        body = 'dummy body'#render_table_html(root, render, jaar)
+        figs = 'dummy figs'#fig_html(root, render, jaar)
+        settings = 'dummy settings'#settings_html(root, render, jaar)
+        #javaScripts = java_scripts(render, HRregels['geboekt'], HRregels['begroot']) <- should be used in new db system
+        javaScripts = 'dummy-java-'#java_scripts(render, root)
+
+        report = {}
+        report['settings'] = settings
+        report['figpage'] = figs
+        url = 'dummy url'#graph_url(userHash, jaar, 'realisatie', groepstr)
+        report['summary'] = "<a href='"+url+"' target='_blank'><img class='img-responsive' src='"+url+"'></a>"
+        report['body'] = body
+        report['javaScripts'] = javaScripts
+
+        self.body = self.webrender.report(report)
+
+        return report
+
+
+    def render_table_html(self, root, render, jaar):
+        table = []
+        childtable = []
+        groeptotal = {}
+        groeptotal['begroot'] = 0
+        groeptotal['realisatie'] = 0
+        groeptotal['obligo'] = 0
+        groeptotal['resultaat'] = 0
+        for child in root.children:
+            rows, header, groeprows, total = parse_groep(child, jaar, render)
+            childtable.append(render.report_table_groep(rows, header, groeprows))
+            groeptotal['begroot'] += total['begroot']
+            groeptotal['realisatie'] += total['realisatie']
+            groeptotal['obligo'] += total['obligo']
+            groeptotal['resultaat'] += total['resultaat']
+
+        #add orders of the top group (if any)
+        order_tables, header,total = parse_orders_in_groep(root, jaar, render, groeptotal)
+        table.append(render.report_table_groep(order_tables, header, childtable))
+
+        body = render.report_table(table)
+        return body
 # FROM OLD SERVER.PY - render:
-        #if not webaccess.check_auth(session, userHash, 'report'):
-        #    return web.notfound("Sorry the page you were looking for was not found.")
         #jaar, periode, groep = self.get_params()
         #report = webreport.groep_report(userHash, render, groep, jaar)
-        #return render.report(report)
 
    # def get_params(self):
 
@@ -189,28 +236,6 @@ def fig_html(root, render, jaar):
         return None
 
 
-def table_html(root, render, jaar):
-    table = []
-    childtable = []
-    groeptotal = {}
-    groeptotal['begroot'] = 0
-    groeptotal['realisatie'] = 0
-    groeptotal['obligo'] = 0
-    groeptotal['resultaat'] = 0
-    for child in root.children:
-        rows, header, groeprows, total = parse_groep(child, jaar, render)
-        childtable.append(render.report_table_groep(rows, header, groeprows))
-        groeptotal['begroot'] += total['begroot']
-        groeptotal['realisatie'] += total['realisatie']
-        groeptotal['obligo'] += total['obligo']
-        groeptotal['resultaat'] += total['resultaat']
-
-    #add orders of the top group (if any)
-    order_tables, header,total = parse_orders_in_groep(root, jaar, render, groeptotal)
-    table.append(render.report_table_groep(order_tables, header, childtable))
-
-    body = render.report_table(table)
-    return body
 
 def settings_html(root, render, jaar):
     form = 'FORM met daarin jaar'
@@ -230,24 +255,3 @@ def java_scripts(render, root):
     return render.salaris_javascripts(orders)
 
 
-def groep_report(userID, render, groepstr, jaar):
-    global userHash
-    userHash = userID
-    root = OrderGroep.load('LION')
-    if groepstr != '':
-        root = root.find(groepstr)
-
-    body = table_html(root, render, jaar)
-    figs = fig_html(root, render, jaar)
-    settings = settings_html(root, render, jaar)
-    #javaScripts = java_scripts(render, HRregels['geboekt'], HRregels['begroot']) <- should be used in new db system
-    javaScripts = java_scripts(render, root)
-
-    report = {}
-    report['settings'] = settings
-    report['figpage'] = figs
-    url = graph_url(userHash, jaar, 'realisatie', groepstr)
-    report['summary'] = "<a href='"+url+"' target='_blank'><img class='img-responsive' src='"+url+"'></a>"
-    report['body'] = body
-    report['javaScripts'] = javaScripts
-    return report

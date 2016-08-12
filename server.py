@@ -56,6 +56,7 @@ import webpage #mother class and simple page
 import webindex
 import webaccess
 import webadmin
+import webreport
 
 #web utilies
 import webgraph
