@@ -1,48 +1,15 @@
 """"
 BUGS
 
-  - Baten verdwijnen
-  - SQL inject in model bekijken
-  - authorisatie in elke class per order/groep/admin. Wellicht via model.isAuthed() doen?
 
 TODO
+    - authorisatie in elke class per order/groep/admin. Wellicht via model.isAuthed() doen?
+    - Show negative bestedingsruimte in red and bold.
+    - door pylinter heen halen / pycharm laten controleren ;)
 
-- test om forms uit functies te halen en in de classe zelf te zetten (los). of los onderaan. Werkt dat met params?
-- params uit de Webpage verwijderen (self.params <- in form zitten ze al en get apart parsen in de server class)
-
-- add checking if user is allowed for the order he is viewing. Right now we don't use thge auth file other to see if you can login or not.
-
-- redirect to requrested page after login
-
-- webaccess only checks IP access not if the budget# is allowed for that user
-
-- 'prognose' posten toevoegen.
-- verplaats alle decode/encode naar model (db_2_regel)
-
-- Het kan zijn dat er begroting is op een KS die niet geboekt is. Dan komt hij NIET in het overzicht. FIXEN!
-
-- Importeer functie maken die vraagt om welke kolom wat bevat (namen zijn strings die iedereen apart instelt in SAP....)
-
- - 'AFREKORD' grootboek weer toevoegen alleen als hij ook bestaat voor die orders.
-
- - kpl support toevoegen
-
- - WBS support toevoegen (betekend lijst maken met welk wbs bij welke groep hoort..)
-
-- Show negative bestedingsruimte in red and bold.
-
- - ik bedacht me later dat het misschien een goed idee is om boven alle tabbladen de boodschap te zetten in boldface:
-Notice that these records show only transactions up to (datum van laatste update)
-
-- Rewrite templates to be more modular with css and header parts:
-    http://webpy.org/cookbook/layout_template
-
-Somday/Maybe:
-
-#cool d3 ding:
-- http://bl.ocks.org/NPashaP/96447623ef4d342ee09b
+# TIPS
+    - render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh
 """
-# TIP: render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh
 import web
 web.config.debug = True #Set to False for no ouput! Must be done before the rest
 import model
@@ -58,6 +25,7 @@ import webaccess
 import webadmin
 import webreport
 import webview
+import websalaris
 
 #web utilies
 import webgraph
@@ -97,7 +65,6 @@ class Login:
         page = webaccess.Login(userHash)
         page.parse_form(session) #will redirect on success
         return page.render()
-
 
 class Logout:
     def GET(self, userHash):
@@ -142,32 +109,18 @@ class View:
         page = webview.View(userHash)
         return page.render()
 
-
-#TODO convert to webpage class
 class Salaris:
-    def get_params(self):
-
-        try:
-            jaar = int(web.input()['jaar'])
-        except:
-            jaar = config["currentYear"]
-
-        try:
-            groep = web.input()['groep']
-        except:
-            groep = 'TOTAAL'
-
-        return jaar, groep
-
     def POST(self, userHash):
-        return None
+        auth_block_by_ip()
+        auth_login(session, userHash, 'salaris')
+        page = websalaris.Salaris(userHash)
+        return page.render()
 
     def GET(self, userHash):
-        if not webaccess.check_auth(session, userHash, 'salaris'):
-            return web.notfound("Sorry the page you were looking for was not found.")
-        jaar, groep = self.get_params()
-        salaris = websalaris.groep_report(userHash, render, groep, jaar)
-        return render.salaris(salaris)
+        auth_block_by_ip()
+        auth_login(session, userHash, 'salaris')
+        page = websalaris.Salaris(userHash)
+        return page.render()
 
 
 # Checks if IP is allowed

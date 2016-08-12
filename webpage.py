@@ -19,12 +19,13 @@ class Webpage(object):
         self.module = None
         self.webrender = None
         self.breadCrum = None #list of dict items (keys: title, ulr, class:active)
+        self.SAPupdate = model.last_update()
 
 
     def render(self):
 #TODO cache renderd page and check if we can serve that
         self.render_body()
-        return self.mainRender.page(self.title, self.userHash, self.body, self.breadCrum)
+        return self.mainRender.page(self.title, self.userHash, self.body, self.breadCrum, self.SAPupdate)
 
 
     # Should be implemented by subclass

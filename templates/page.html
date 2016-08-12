@@ -1,4 +1,4 @@
-$def with(title, userHash, body, breadcrumb)
+$def with(title, userHash, body, breadcrumb, SAPupdate)
 
 <!doctype html>
 <html lang="en">
@@ -63,5 +63,13 @@ $if breadcrumb is not None:
   $:body
 
   </body>
+
+<div id="footer">
+    <div class="container">
+        <p class="text-muted" style="text-align: center">
+            Last SAP download took place on $SAPupdate - Niels Laurens
+        </p>
+    </div>
+</div>
 
 </html>

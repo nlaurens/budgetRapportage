@@ -5,13 +5,38 @@ TODO
     * Summary van alle totalen maken (totalOrderGeboekt, etc opvangen uit html_table)
     * Obligos salarissen ECHT uit systeem halen (kan! ipv de HR-obligos per order!)
 """
-import web
 from config import config
 import OrderGroep
 import GrootBoek
 import model
 import numpy as np
 from RegelList import RegelList
+
+import webpage
+from webpage import Webpage
+from web import form
+import web
+class Salaris(Webpage):
+    def __init__(self, userHash):
+        Webpage.__init__(self, userHash)
+
+        #subclass specific
+        self.title = 'Salaris Analyze'
+        self.module = 'salaris'
+        self.webrender = web.template.render('templates/salaris/')
+
+        #Forms
+
+        #Salaris sepcific
+        self.jaar = int(web.input(jaar=config["currentYear"])['jaar'])
+        self.groep = int(web.input(groep=0)['groep'])
+        self.clean = web.input().has_key('clean')
+
+    def render_body(self):
+        self.body = 'DUMMY SALARIS ANALYSE'
+        return #dummy stop
+        salaris = websalaris.groep_report(userHash, render, groep, jaar)
+        self.body = self.webrender.salaris(salaris)
 
 
 def table_string(value):
