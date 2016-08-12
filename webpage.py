@@ -18,16 +18,19 @@ class Webpage(object):
         self.title = None
         self.module = None
         self.webrender = None
+        self.breadCrum = None #list of dict items (keys: title, ulr, class:active)
 
 
     def render(self):
 #TODO cache renderd page and check if we can serve that
         self.render_body()
-        return self.mainRender.page(self.title, self.body)
+        return self.mainRender.page(self.title, self.userHash, self.body, self.breadCrum)
+
 
     # Should be implemented by subclass
     def render_body(self):
         raise NotImplementedError
+
 
     #used for creating links in the submodule
     def base_url(self):
