@@ -26,27 +26,26 @@ class Report(Webpage):
 
         #Forms
 
+        #Report specific:
+        self.jaar = int(web.input(jaar=config["currentYear"])['jaar'])
+        self.groepstr = web.input(groep='')['groep']
 
     def render_body(self):
-#TODO root, jaar naar init en self.params
-        self.groepstr = ''
-        self.jaar = 2016
 #TODO config
         self.root = OrderGroep.load('LION')
         if self.groepstr != '':
-            self.root = self.root.find(groepstr)
+            self.root = self.root.find(self.groepstr)
 
 #TODO lijkt erop dat dit recursie is die we in de render_body all kunnen doen
         body = self.render_table_html()
-        figs = 'dummy figs'#fig_html(root, render, jaar)
-        settings = 'dummy settings'#settings_html(root, render, jaar)
-        #javaScripts = java_scripts(render, HRregels['geboekt'], HRregels['begroot']) <- should be used in new db system
-        javaScripts = 'dummy-java-'#java_scripts(render, root)
+        figs = self.render_fig_html()
+        settings = self.render_settings_html()
+        javaScripts = self.render_java_scripts()
 
         report = {}
         report['settings'] = settings
         report['figpage'] = figs
-        url = 'dummy url'#graph_url(userHash, jaar, 'realisatie', groepstr)
+        url = generate_url(self.userHash, self.jaar, 'realisatie', self.groepstr)
         report['summary'] = "<a href='"+url+"' target='_blank'><img class='img-responsive' src='"+url+"'></a>"
         report['body'] = body
         report['javaScripts'] = javaScripts
@@ -170,88 +169,59 @@ class Report(Webpage):
         html['realisatie'] =  table_string(row['realisatie'])
         html['resultaat'] = table_string(row['resultaat'])
         return self.webrender.report_table_groep_regel(html)
-# FROM OLD SERVER.PY - render:
-        #jaar, periode, groep = self.get_params()
-        #report = webreport.groep_report(userHash, render, groep, jaar)
 
-   # def get_params(self):
 
-   #     try:
-   #         jaar = int(web.input()['jaar'])
-   #     except:
-   #         jaar = config["currentYear"]
+#TODO layout!
+    def render_fig_html(self):
+        figs = ''
+        if not self.root.children:
+            graphs = []
+            i = 0
+            for order, descr in self.root.orders.iteritems():
+                graph = {}
+                graph['link'] = ('../view/' + self.userHash + '/' + str(order))
+                graph['png'] = generate_url(self.userHash, self.jaar, 'realisatie', order)
+                #if i%2:
+                #    graph['spacer'] = '</tr><tr>'
+                #else:
+                #    graph['spacer'] = ''
+                graphs.append(graph)
+                i +=1
 
-   #     try:
-   #         periode = web.input()['periode']
-   #     except:
-   #         periode = '0,1,2,3,4,5,6,7,8,9,10,11,12'
+            figs = self.webrender.report_figpage(graphs)
+            return figs
+        else:
+            return None
 
-   #     try:
-   #         groep = web.input()['groep']
-   #     except:
-   #         groep = 'TOTAAL'
 
-   #     return jaar, periode, groep
+#TODO replace dummy vasr
+    def render_settings_html(self):
+        form = 'FORM met daarin jaar'
+        buttons = 'BUTTON'
+        lastupdate = '2'
+        return self.webrender.report_settings(lastupdate, buttons, form)
+
+#TODO replace dummy vasr
+#javaScripts = java_scripts(render, HRregels['geboekt'], HRregels['begroot']) <- should be used in new db system
+    def render_java_scripts(self):
+        #def java_scripts(render, regelsGeboekt, regelsBegroot):
+        #ordersGeboekt = regelsGeboekt.split_by_regel_attributes(['order']).keys()
+        #ordersBegroot = regelsBegroot.split_by_regel_attributes(['order']).keys()
+        #orders = set(ordersGeboekt + ordersBegroot)
+
+        orders = self.root.list_orders_recursive()
+
+        return self.webrender.report_javascripts(orders)
+
 
 
 ###########################################################
 #Functions
 ###########################################################
+#TODO dit naar functions zodat er 1 functie voor is (graph.py heeft het ook al d8 ik)
 def table_string(value):
     value = value/1000
     if value == 0 or np.abs(value) < 0.5:
         return '&nbsp;'
     else:
         return ('%.f' % value)
-
-
-def order_regel_to_html(row, render):
-    html = row.copy()
-#TODO
-    html['order'] = row['name']
-    html['begroot'] = table_string(row['begroot'])
-    html['realisatie'] =  table_string(row['realisatie'])
-    html['resultaat'] = table_string(row['resultaat'])
-    return render.report_table_order_regel(html)
-
-
-def fig_html(root, render, jaar):
-    figs = ''
-    if not root.children:
-        graphs = []
-        i = 0
-        for order, descr in root.orders.iteritems():
-            graph = {}
-            graph['link'] = ('../view/' + userHash + '/' + str(order))
-            graph['png'] = graph_url(userHash, jaar, 'realisatie', order)
-            #if i%2:
-            #    graph['spacer'] = '</tr><tr>'
-            #else:
-            #    graph['spacer'] = ''
-            graphs.append(graph)
-            i +=1
-
-        figs = render.report_figpage(graphs)
-        return figs
-    else:
-        return None
-
-
-def settings_html(root, render, jaar):
-    form = 'FORM met daarin jaar'
-    buttons = 'BUTTON'
-    lastupdate = '2'
-    return render.report_settings(lastupdate, buttons, form)
-
-
-def java_scripts(render, root):
-#def java_scripts(render, regelsGeboekt, regelsBegroot):
-    #ordersGeboekt = regelsGeboekt.split_by_regel_attributes(['order']).keys()
-    #ordersBegroot = regelsBegroot.split_by_regel_attributes(['order']).keys()
-    #orders = set(ordersGeboekt + ordersBegroot)
-
-    orders = root.list_orders_recursive()
-
-    return render.salaris_javascripts(orders)
-
-
