@@ -34,7 +34,7 @@ class Webpage(object):
 
 
     #used for creating links in the submodule
-    def base_url(self):
+    def url(self):
         return ('/%s/%s' % (self.module, self.userHash))
 
 

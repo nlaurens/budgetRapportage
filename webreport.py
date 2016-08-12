@@ -1,6 +1,7 @@
 """
 TODO
     * Change glyph on collapse like in websalaris!
+    * add tree view of the total groep
 """
 import web
 from config import config
@@ -35,6 +36,15 @@ class Report(Webpage):
 #TODO config
         self.root = OrderGroep.load('LION')
         self.root = self.root.find(self.groepstr)
+
+        #construct beadcrumbs
+        groep = self.root
+        breadCrum = [ {'title':groep.descr, 'url':groep.name, 'class':'active'}]
+        while groep.parent:
+            groep = groep.parent
+            breadCrum.append({'title':groep.descr, 'url':'%s?=%s' % (self.url(), groep.name), 'class':''})
+        
+        self.breadCrum = reversed(breadCrum)
         
         self.orders = self.root.list_orders_recursive().keys()
         regels = model.get_regellist(jaar=[self.jaar], orders=self.orders)

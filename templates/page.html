@@ -56,7 +56,10 @@ $def with(title, userHash, body, breadcrumb, SAPupdate)
 $if breadcrumb is not None:
     <ol class="breadcrumb">
         $for crumb in breadcrumb:
-            <li class="$crumb['class']"><a href=$crumb['url']>$crumb['title']</a></li>
+            $if crumb['class'] == 'active':
+                <li class="$crumb['class']">$crumb['title']</li>
+            $else:
+                <li class="$crumb['class']"><a href=$crumb['url']>$crumb['title']</a></li>
 </nav>
 
   
