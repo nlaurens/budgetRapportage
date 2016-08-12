@@ -56,6 +56,7 @@ import webpage #mother class and simple page
 import webindex
 import webaccess
 import webadmin
+import webreport
 
 #web utilies
 import webgraph
@@ -111,6 +112,19 @@ class Graph:
         auth_login(session, userHash, 'index')
         return webgraph.return_graph(jaar, tiepe, order)
 
+
+class Report:
+    def GET(self, userHash):
+        auth_block_by_ip()
+        auth_login(session, userHash, 'report')
+        page = webreport.Report(userHash)
+        return page.render()
+
+    def POST(self, userHash):
+        auth_block_by_ip()
+        auth_login(session, userHash, 'report')
+        page = webreport.Report(userHash)
+        return page.render()
 
 #TODO convert to webpage class
 class View:
@@ -176,36 +190,6 @@ class View:
         settings["clean"] = True
         return webview.view(settings, render, form, order)
 
-#TODO convert to webpage class
-class Report:
-    def get_params(self):
-
-        try:
-            jaar = int(web.input()['jaar'])
-        except:
-            jaar = config["currentYear"]
-
-        try:
-            periode = web.input()['periode']
-        except:
-            periode = '0,1,2,3,4,5,6,7,8,9,10,11,12'
-
-        try:
-            groep = web.input()['groep']
-        except:
-            groep = 'TOTAAL'
-
-        return jaar, periode, groep
-
-    def POST(self, userHash):
-        return None
-
-    def GET(self, userHash):
-        if not webaccess.check_auth(session, userHash, 'report'):
-            return web.notfound("Sorry the page you were looking for was not found.")
-        jaar, periode, groep = self.get_params()
-        report = webreport.groep_report(userHash, render, groep, jaar)
-        return render.report(report)
 
 #TODO convert to webpage class
 class Salaris:

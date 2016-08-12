@@ -35,7 +35,7 @@ import GrootBoek
 import OrderGroep
 import os
 from config import config
-from functions import moneyfmt, IpBlock
+from functions import moneyfmt
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
