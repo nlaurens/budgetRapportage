@@ -1,7 +1,6 @@
 """
 TODO
     * Change glyph on collapse like in websalaris!
-    * Collapse/Expand orders
     * Use the new model db system. Load all regels from db once. Select afterwards.
 """
 import web
