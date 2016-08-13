@@ -44,6 +44,7 @@ class OrderGroep():
         else:
             return self.parent.lower_level_parent(level)
 
+
     def walk_tree(self, maxdepth):
         if self.level <= maxdepth:
             # Use drukAf() or regel voor debugging.
@@ -126,6 +127,7 @@ class OrderGroep():
         for child in self.children:
             orders.update(child.list_orders_recursive())
         return orders
+
 
     def save_as_txt(self, file):
         lvl = self.level + 1

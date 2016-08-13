@@ -34,15 +34,16 @@ class Report(Webpage):
 
     def render_body(self):
 #TODO config
-        self.root = OrderGroep.load('LION')
-        self.root = self.root.find(self.groepstr)
+        orderGroep = OrderGroep.load('LION')
+        self.root = orderGroep.find(self.groepstr)
 
         #construct beadcrumbs
         groep = self.root
         breadCrum = [ {'title':groep.descr, 'url':groep.name, 'class':'active'}]
         while groep.parent:
             groep = groep.parent
-            breadCrum.append({'title':groep.descr, 'url':'%s?=%s' % (self.url(), groep.name), 'class':''})
+            link = '%sgroep?=%s' % (self.url(), groep.name)
+            breadCrum.append({'title':groep.descr, 'url':link, 'class':''})
 
         self.breadCrum = reversed(breadCrum)
 
@@ -56,11 +57,18 @@ class Report(Webpage):
         settings = self.render_settings_html()
         javaScripts = self.render_java_scripts()
 
+        #build nav
+        groups = []
+        for child in orderGroep.children:
+            groups.append (self.render_navigation(child))
+        link = '%sgroep?=%s' % (self.url(), orderGroep.name)
+        nav = self.webrender.navigation_group(orderGroep.name, link, groups, 'list-group-root well')
+
         report = {}
         report['settings'] = settings
         report['figpage'] = figs
         url = generate_url(self.userHash, self.jaar, 'realisatie', self.groepstr)
-        report['summary'] = "<a href='"+url+"' target='_blank'><img class='img-responsive' src='"+url+"'></a>"
+        report['nav'] = nav
         report['body'] = body
         report['javaScripts'] = javaScripts
 
@@ -221,6 +229,18 @@ class Report(Webpage):
         #ordersBegroot = regelsBegroot.split_by_regel_attributes(['order']).keys()
         #orders = set(ordersGeboekt + ordersBegroot)
         return self.webrender.javascripts(self.orders)
+
+
+    def render_navigation(self, root):
+        groups = []
+        for child in root.children:
+            groups.append( self.render_navigation(child))
+
+        link = '%s?=%s' % (self.url(), root.name)
+        return self.webrender.navigation_group(root.name, link, groups, '')
+
+
+
 
 
 
