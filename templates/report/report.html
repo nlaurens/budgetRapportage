@@ -1,29 +1,31 @@
 $def with (report)
 
+<style type="text/css">
+    .just-padding {
+        padding: 15px;
+    }
+    .list-group.list-group-root {
+        padding: 0;
+        overflow: hidden;
+    }
+    .list-group.list-group-root .list-group {
+        margin-bottom: 0;
+    }
+    .list-group.list-group-root .list-group-item {
+        border-radius: 0;
+        border-width: 1px 0 0 0;
+    }
+    .list-group.list-group-root > .list-group-item:first-child {
+        border-top-width: 0;
+    }
+    .list-group.list-group-root > .list-group > .list-group-item {
+        padding-left: 30px;
+    }
+    .list-group.list-group-root > .list-group > .list-group > .list-group-item {
+        padding-left: 45px;
+    }
+</style>
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>Budget overview</title>
-    <link rel="stylesheet" href="/static/css/bootstrap.css">
-    <link rel="stylesheet" href="/static/css/report.css">
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="/static/js/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="/static/js/bootstrap.min.js"></script>
-
-    <style>/#
-      @import url(http://fonts.googleapis.com/css?family=Bree+Serif);
-      body, h1, h2, h3, h4, h5, h6{
-      font-family: 'Bree Serif', serif;
-      }
-
-    </style>
-  </head>
-  
-  <body>
     <div class="container">
       <div class="row">
         <div class="col-xs-6">
@@ -38,10 +40,10 @@ $def with (report)
         <div class="col-xs-5">
           <div class="panel panel-default">
             <div class="panel-heading">
-              <h4>Summary</h4>
+              <h4>Report Groups</h4>
             </div>
             <div class="panel-body">
-                $:report['summary']
+                $:report['nav']
             </div>
           </div>
         </div>
@@ -65,5 +67,3 @@ $def with (report)
             $:report['figpage']
 
     $:report['javaScripts']
-</body>
-</html>
