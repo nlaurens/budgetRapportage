@@ -57,18 +57,11 @@ class Report(Webpage):
         settings = self.render_settings_html()
         javaScripts = self.render_java_scripts()
 
-        #build nav
-        groups = []
-        for child in orderGroep.children:
-            groups.append (self.render_navigation(child))
-        link = '%sgroep?=%s' % (self.url(), orderGroep.name)
-        nav = self.webrender.navigation_group(orderGroep.name, link, groups, 'list-group-root well')
-
         report = {}
         report['settings'] = settings
         report['figpage'] = figs
         url = generate_url(self.userHash, self.jaar, 'realisatie', self.groepstr)
-        report['nav'] = nav
+        report['nav'] = ' DUMMy'
         report['body'] = body
         report['javaScripts'] = javaScripts
 
@@ -229,19 +222,6 @@ class Report(Webpage):
         #ordersBegroot = regelsBegroot.split_by_regel_attributes(['order']).keys()
         #orders = set(ordersGeboekt + ordersBegroot)
         return self.webrender.javascripts(self.orders)
-
-
-    def render_navigation(self, root):
-        groups = []
-        for child in root.children:
-            groups.append( self.render_navigation(child))
-
-        link = '%s?=%s' % (self.url(), root.name)
-        return self.webrender.navigation_group(root.name, link, groups, '')
-
-
-
-
 
 
 ###########################################################

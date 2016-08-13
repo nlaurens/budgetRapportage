@@ -2,6 +2,7 @@ import web
 from web import form
 import model
 from config import config
+import OrderGroep
 
 # Mother class for all webpages
 class Webpage(object):
@@ -24,13 +25,32 @@ class Webpage(object):
 
     def render(self):
 #TODO cache renderd page and check if we can serve that
-        self.render_body()
-        return self.mainRender.page(self.title, self.userHash, self.body, self.breadCrum, self.SAPupdate)
 
+        #Navigation bar including a dropdown of the report layout
+#TODO to config
+        orderGroep = OrderGroep.load('LION')
+        groups = []
+        for child in orderGroep.children:
+            groups.append (self.render_navigation(child))
+        link = '/report/%s?groep=%s' % (self.userHash, orderGroep.name)
+        reportNav = self.mainRender.report_group(orderGroep.name, link, groups, 'dropdown-menu list-group-root')
+        navbar = self.mainRender.navbar(self.userHash, self.breadCrum, reportNav)
+
+        self.render_body()
+        return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
 
     # Should be implemented by subclass
     def render_body(self):
         raise NotImplementedError
+
+
+    def render_navigation(self, root):
+        groups = []
+        for child in root.children:
+            groups.append( self.render_navigation(child))
+
+        link = '/report/%s?groep=%s' % (self.userHash, root.name)
+        return self.mainRender.report_group(root.descr, link, groups, '')
 
 
     #used for creating links in the submodule
