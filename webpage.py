@@ -30,10 +30,12 @@ class Webpage(object):
 #TODO to config
         orderGroep = OrderGroep.load('LION')
         groups = []
+        i = 0
         for child in orderGroep.children:
-            groups.append (self.render_navigation(child))
+            i += 1
+            groups.append (self.render_navigation(child, str(i)))
         link = '/report/%s?groep=%s' % (self.userHash, orderGroep.name)
-        reportNav = self.mainRender.report_group(orderGroep.name, link, groups, 'dropdown-menu list-group-root')
+        reportNav = self.mainRender.report_group('1. %s' % orderGroep.descr, link, groups, 'dropdown-menu list-group-root')
         navbar = self.mainRender.navbar(self.userHash, self.breadCrum, reportNav)
 
         self.render_body()
@@ -44,13 +46,17 @@ class Webpage(object):
         raise NotImplementedError
 
 
-    def render_navigation(self, root):
+    def render_navigation(self, root, label):
         groups = []
+        i = 0
         for child in root.children:
-            groups.append( self.render_navigation(child))
+            i += 1
+            labelChild = '%s.%s' % (label, i)
+            groups.append(self.render_navigation(child, labelChild))
 
         link = '/report/%s?groep=%s' % (self.userHash, root.name)
-        return self.mainRender.report_group(root.descr, link, groups, '')
+        name = '%s. %s' % (label, root.descr)
+        return self.mainRender.report_group(name, link, groups, '')
 
 
     #used for creating links in the submodule
