@@ -5,6 +5,7 @@ BUGS
 
 TODO
     - authorisatie in elke class per order/groep/admin. Wellicht via model.isAuthed() doen?
+    - user lijst gebruiken om menu te bouwen (ordergroepen voor report!)
     - Show negative bestedingsruimte in red and bold.
     - door pylinter heen halen / pycharm laten controleren ;)
     - report navbar: niet report maar naam van de groep gebruiken, en alle groepen in de dir erin zetten 
@@ -168,4 +169,3 @@ else:
 
 if __name__ == "__main__":
     app.run()
-    print session

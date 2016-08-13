@@ -1,6 +1,6 @@
 import web
 import hashlib
-from config import config
+from config import config, users
 import glob
 import os
 import csv
@@ -13,7 +13,6 @@ TODO
     * Reserves in mysql
     * Prognose in mysql
     * Mee/tegenvallers in mysql
-    * Authorisation in mysql
 """
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"], host=config["mysql"]["host"])
 
@@ -151,56 +150,39 @@ def delete_regels(jaar, tableNames=[]):
 
     return deletedTotal
 
-
-# Gives a list of allowed budgets for that user.
-def get_budgets(verifyHash, salt):
-    authorisation = load_auth_list()
-    for user, orders in authorisation.iteritems():
-        userHash = hashlib.sha224(user+salt).hexdigest()
-        if userHash == verifyHash:
-            ordersList = []
-            for order in orders:
-                if order[0] == '!':
-                    order = order[1:]
-                    if '%'in order:
-                        for remove in get_orders(sqlLike=order):
-                            ordersList.remove(long(remove))
-                    else:
-                        ordersList.remove(long(order))
-                else:
-                    if '%'in order:
-                        ordersList.extend(get_orders(sqlLike=order))
-                    else:
-                        ordersList.append(order)
-            return ordersList
-
-    return []
-
-
-def load_auth_list():
-    authorisation = {}
-
-    with open('data/authorisation/authorisations.txt') as f:
-        for line in f.readlines():
-            line = line.strip()
-            if not line == '':
-                authline = line.split()
-                authorisation[authline[0]] = authline[1:]
-
-    return authorisation
-
-
-# returns a list of dict with:
-# [username, <orders he can access>, hash]
-# you can access the correct pages using the hashes.
-def get_auth_list(salt):
+def get_userlist():
     userList = []
-    authorisations = load_auth_list()
-    for user, orders in authorisations.iteritems():
-        userList.append([user, orders, hashlib.sha224(user+salt).hexdigest()])
+    for user in users:
+        print user #niels:LION.* test:LION.PL-TP,PL-BP
+        #userList.append([user, userHash, ])
+        #hashlib.sha224(user+config["salt"]).hexdigest()
+    #return 
+
+# returns a dict per username with:
+# hash, orders and OrderGroep objects
+def get_uses():
+    userList = {}
+    for userName, orderGroepStr in users.iteritems():
+        ogFile, ogNames = orderGroepStr.split('.')
+        ogNames = ogNames.split(',')
+        orders = ''
+        og = OrderGroep.load(ogFile)
+        user = {}
+        user['hash'] = hashlib.sha224(userName+config['salt']).hexdigest()
+        user['ordergroepen'] = [] 
+        user['orders'] = []
+        for grpStr in ogNames:
+            if grpStr == '*':
+                ogsub = og
+            else:
+                ogsub = og.find(grpStr)
+            if ogsub:
+                user['ordergroepen'].append(ogsub)
+                user['orders'].append(ogsub.list_orders_recursive())
+                
+        userList[userName] = user
 
     return userList
-
 
 # Read/write last sap-update date:
 def last_update(newdate=''):
