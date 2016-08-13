@@ -43,9 +43,9 @@ class Report(Webpage):
         while groep.parent:
             groep = groep.parent
             breadCrum.append({'title':groep.descr, 'url':'%s?=%s' % (self.url(), groep.name), 'class':''})
-        
+
         self.breadCrum = reversed(breadCrum)
-        
+
         self.orders = self.root.list_orders_recursive().keys()
         regels = model.get_regellist(jaar=[self.jaar], orders=self.orders)
         self.regels = regels.split_by_regel_attributes(['ordernummer', 'tiepe'])
@@ -77,7 +77,7 @@ class Report(Webpage):
         groeptotal['resultaat'] = 0
         for child in self.root.children:
             rows, header, groeprows, total = self.parse_groep(child)
-            childtable.append(self.webrender.report_table_groep(rows, header, groeprows))
+            childtable.append(self.webrender.table_groep(rows, header, groeprows))
             groeptotal['begroot'] += total['begroot']
             groeptotal['realisatie'] += total['realisatie']
             groeptotal['obligo'] += total['obligo']
@@ -85,9 +85,9 @@ class Report(Webpage):
 
         #add orders of the top group (if any)
         order_tables, header,total = self.parse_orders_in_groep(self.root, groeptotal)
-        table.append(self.webrender.report_table_groep(order_tables, header, childtable))
+        table.append(self.webrender.table_groep(order_tables, header, childtable))
 
-        body = self.webrender.report_table(table)
+        body = self.webrender.table(table)
         return body
 
 
@@ -100,7 +100,7 @@ class Report(Webpage):
         groeprows = []
         for child in root.children:
             childOrderTables, childheader, childgroep, total = self.parse_groep(child)
-            groeprows.append(self.webrender.report_table_groep(childOrderTables, childheader, childgroep))
+            groeprows.append(self.webrender.table_groep(childOrderTables, childheader, childgroep))
             groeptotal['begroot'] += total['begroot']
             groeptotal['realisatie'] += total['realisatie']
             groeptotal['obligo'] += total['obligo']
@@ -132,7 +132,7 @@ class Report(Webpage):
         #parse orders in groep:
         regels = {}
         if order in self.regels:
-            regels = self.regels[order] 
+            regels = self.regels[order]
 
 #TODO  In config params!!
         root = GrootBoek.load('BFRE15')
@@ -162,7 +162,7 @@ class Report(Webpage):
         header['realisatie'] =  table_string(root.totaalTree['geboekt'] + root.totaalTree['obligo'])
         header['resultaat'] = table_string(root.totaalTree['plan'] - root.totaalTree['geboekt'] - root.totaalTree['obligo'])
 
-        order_table = self.webrender.report_table_order(html_rows, header)
+        order_table = self.webrender.table_order(html_rows, header)
         return order_table, root.totaalTree
 
 
@@ -172,7 +172,7 @@ class Report(Webpage):
         html['begroot'] = table_string(row['begroot'])
         html['realisatie'] =  table_string(row['realisatie'])
         html['resultaat'] = table_string(row['resultaat'])
-        return self.webrender.report_table_grootboek_regel(html)
+        return self.webrender.table_grootboek_regel(html)
 
 
     def groep_regel_to_html(self, row):
@@ -181,7 +181,7 @@ class Report(Webpage):
         html['begroot'] = table_string(row['begroot'])
         html['realisatie'] =  table_string(row['realisatie'])
         html['resultaat'] = table_string(row['resultaat'])
-        return self.webrender.report_table_groep_regel(html)
+        return self.webrender.table_groep_regel(html)
 
 
 #TODO layout!
@@ -201,7 +201,7 @@ class Report(Webpage):
                 graphs.append(graph)
                 i +=1
 
-            figs = self.webrender.report_figpage(graphs)
+            figs = self.webrender.figpage(graphs)
             return figs
         else:
             return None
@@ -212,7 +212,7 @@ class Report(Webpage):
         form = 'FORM met daarin jaar'
         buttons = 'BUTTON'
         lastupdate = '2'
-        return self.webrender.report_settings(lastupdate, buttons, form)
+        return self.webrender.settings(lastupdate, buttons, form)
 
 #TODO replace dummy vasr
 #javaScripts = java_scripts(render, HRregels['geboekt'], HRregels['begroot']) <- should be used in new db system
@@ -220,7 +220,7 @@ class Report(Webpage):
         #ordersGeboekt = regelsGeboekt.split_by_regel_attributes(['order']).keys()
         #ordersBegroot = regelsBegroot.split_by_regel_attributes(['order']).keys()
         #orders = set(ordersGeboekt + ordersBegroot)
-        return self.webrender.report_javascripts(self.orders)
+        return self.webrender.javascripts(self.orders)
 
 
 
