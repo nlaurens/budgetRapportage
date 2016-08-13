@@ -1,6 +1,7 @@
 """"
 BUGS
 
+    - import multiple files gaat niet goed (stopt na de 1e)
 
 TODO
     - authorisatie in elke class per order/groep/admin. Wellicht via model.isAuthed() doen?

@@ -35,7 +35,7 @@ class Webpage(object):
             i += 1
             groups.append (self.render_navigation(child, str(i)))
         link = '/report/%s?groep=%s' % (self.userHash, orderGroep.name)
-        reportNav = self.mainRender.report_group('1. %s' % orderGroep.descr, link, groups, 'dropdown-menu list-group-root')
+        reportNav = self.mainRender.report_group(orderGroep.descr, link, groups, 'dropdown-menu list-group-root')
         navbar = self.mainRender.navbar(self.userHash, self.breadCrum, reportNav)
 
         self.render_body()
