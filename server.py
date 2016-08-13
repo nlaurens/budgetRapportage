@@ -7,8 +7,7 @@ TODO
     - authorisatie in elke class per order/groep/admin. Wellicht via model.isAuthed() doen?
     - Show negative bestedingsruimte in red and bold.
     - door pylinter heen halen / pycharm laten controleren ;)
-    - report navbar: 1e item = naam ordergroep-file zodat je meerdere files kan laden
-    - hele div gedoe vervangen door <ul><li> lijst en dan &nbps; voor het inspringen
+    - report navbar: niet report maar naam van de groep gebruiken, en alle groepen in de dir erin zetten 
 
 # TIPS
     - render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh

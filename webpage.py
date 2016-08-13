@@ -24,6 +24,7 @@ class Webpage(object):
 
 
     def render(self):
+        self.render_body() #Start with rendering subclass in case it sets breadcrums etc.
 #TODO cache renderd page and check if we can serve that
 
         #Navigation bar including a dropdown of the report layout
@@ -33,30 +34,35 @@ class Webpage(object):
         i = 0
         for child in orderGroep.children:
             i += 1
-            groups.append (self.render_navigation(child, str(i)))
-        link = '/report/%s?groep=%s' % (self.userHash, orderGroep.name)
-        reportNav = self.mainRender.report_group(orderGroep.descr, link, groups, 'dropdown-menu list-group-root')
-        navbar = self.mainRender.navbar(self.userHash, self.breadCrum, reportNav)
+            groups.extend( self.render_navigation(child, str(i), 1))
 
-        self.render_body()
+        name = orderGroep.descr
+        link = '/report/%s?groep=%s' % (self.userHash, orderGroep.name)
+        padding = str(0)
+        groups.insert(0,{'link': link, 'name':name, 'padding':padding})
+        navbar = self.mainRender.navbar(self.userHash, self.breadCrum, groups)
+
         return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
 
     # Should be implemented by subclass
     def render_body(self):
         raise NotImplementedError
 
-
-    def render_navigation(self, root, label):
+#Niet extended maar inserten!
+    def render_navigation(self, root, label, depth):
         groups = []
         i = 0
         for child in root.children:
             i += 1
             labelChild = '%s.%s' % (label, i)
-            groups.append(self.render_navigation(child, labelChild))
+            groups.extend(self.render_navigation(child, labelChild, depth+1))
 
+        name = '%s' % (root.descr) #you can use: '%s. %s' % (label, root.descr) as numbered list
         link = '/report/%s?groep=%s' % (self.userHash, root.name)
-        name = '%s. %s' % (label, root.descr)
-        return self.mainRender.report_group(name, link, groups, '')
+        padding = str(depth*15)
+        groups.insert(0,{'link': link, 'name':name, 'padding':padding})
+        return groups
+
 
 
     #used for creating links in the submodule

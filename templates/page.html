@@ -20,47 +20,6 @@ $def with(title, body, SAPupdate, navbar)
       }
 
     </style>
-
-    <!-- Style for the list group in the dropdown menu -->
-    <style type="text/css">
-        .just-padding {
-            padding: 15px;
-        }
-        .list-group.list-group-root {
-            padding: 0;
-            overflow: hidden;
-        }
-        .list-group.list-group-root .list-group {
-            margin-bottom: 0;
-        }
-        .list-group.list-group-root .list-group-item {
-            border-radius: 0;
-            border-width: 1px 0 0 0;
-        }
-        .list-group.list-group-root > .list-group-item:first-child {
-            border-top-width: 0;
-        }
-        .list-group.list-group-root > .list-group > .list-group-item {
-            padding-left: 30px;
-        }
-        .list-group.list-group-root > .list-group > .list-group > .list-group-item {
-            padding-left: 45px;
-        }
-        .list-group.list-group-root > .list-group > .list-group > .list-group > .list-group-item {
-            padding-left: 60px;
-        }
-        .list-group.list-group-root > .list-group > .list-group > .list-group > .list-group > .list-group-item {
-            padding-left: 75px;
-        }
-        .list-group.list-group-root > .list-group > .list-group > .list-group > .list-group > .list-group > .list-group-item {
-            padding-left: 90px;
-        }
-        .list-group.list-group-root > .list-group > .list-group > .list-group > .list-group > .list-group > .list-group > .list-group-item {
-            padding-left: 105px;
-        }
-        .dropdown-menu { width: 400px }
-    </style>
-
   </head>
 
   <body>
@@ -68,12 +27,11 @@ $def with(title, body, SAPupdate, navbar)
     $:body
   </body>
 
-<div id="footer">
-    <div class="container">
-        <p class="text-muted" style="text-align: center">
-            Last SAP download took place on $SAPupdate - Niels Laurens
-        </p>
+    <div id="footer">
+        <div class="container">
+            <p class="text-muted" style="text-align: center">
+                Last SAP download took place on $SAPupdate - Niels Laurens
+            </p>
+        </div>
     </div>
-</div>
-
 </html>
