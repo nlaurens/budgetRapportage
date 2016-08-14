@@ -9,6 +9,9 @@ graphs/*
 test.py
 config.py
 
+# Pycharm 
+.idea/*
+
 # Data
 data/*
 
