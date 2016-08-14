@@ -1,14 +1,7 @@
-""""
-
-"""
-import web
 import model
 import grootboek
-from config import config
-from decimal import *
-import glob
 
-def tests():
+def run_tests():
     success = False
     msg = [ 'nothing implmented' ]
 
