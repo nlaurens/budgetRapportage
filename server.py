@@ -9,6 +9,9 @@ TODO
     - Show negative bestedingsruimte in red and bold.
     - door pylinter heen halen / pycharm laten controleren ;)
     - report navbar: niet report maar naam van de groep gebruiken, en alle groepen in de dir erin zetten
+    - config module maken waar ook alle data in zit en users
+        - users in mysql maken
+        - alle config params naar db verplaatsen
 
 # TIPS
     - render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh

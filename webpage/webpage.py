@@ -8,7 +8,7 @@ class Webpage(object):
     def __init__(self, userHash, static=False):
         self.userHash = userHash
         self.static = static
-        self.mainRender = web.template.render('templates/', cache=False) #in init cause subclasses might also access it
+        self.mainRender = web.template.render('webpage/templates/', cache=False) #in init cause subclasses might also access it
         print 'WARNING DEBUG CODE STILL ON '
         print 'WARNING DEBUG CODE STILL ON '
         print 'WARNING DEBUG CODE STILL ON '
