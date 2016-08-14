@@ -14,6 +14,9 @@ TODO
         - users in mysql maken
         - alle config params naar db verplaatsen
 
+    - webpage.admin 
+        - forms layout doen (attributen van webpy forms setten)
+
 # TIPS
     - render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh
 """

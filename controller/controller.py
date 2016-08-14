@@ -5,13 +5,11 @@ class Controller(object):
     def __init__(self):
         pass
 
-#todo replace self, userHash by *arg
     def GET(*arg):
         self = arg[0]
         self.callType = 'GET'
         return self.process_main(self, arg[1:])
 
-#todo replace self, userHash by *arg
     def POST(*arg):
         self = arg[0]
         self.callType = 'POST'
@@ -20,8 +18,29 @@ class Controller(object):
     def process_main(*arg):
         self = arg[0]
         self.check_IP_allowed() # Will terminate all non-auth. connections 
-        self.SAPupdate = model.db.last_update()
 
+        # attributes for pages
+        pageAttr = {}
+        pageAttr['SAPupdate'] = model.db.last_update()
+        pageAttr['groups'] = self.navbar_groups()
+        self.pageAttr = pageAttr
+
+#TODO re-implement this
+        #if not session.get('logged_in', False):
+            #TODO: determine the caller'
+            #raise web.seeother('/login/%s?caller=%s' %(userHash, caller))
+
+        return self.process_sub(arg) #call the subclass implementation
+
+    # Should be implemented by subclass
+    def process_sub(self):
+        raise NotImplementedError
+
+    def set_page_attr(self, page):
+        for attr, value in self.pageAttr.iteritems():
+            setattr(page, attr, value)
+
+    def navbar_groups(slef):
         #Navigation bar including a dropdown of the report layout
 #TODO uit usergroup halen - daar zou de ordergroep al in geload moeten zijn!
         #orderGroep = OrderGroep.load('LION')
@@ -35,18 +54,7 @@ class Controller(object):
         #link = '/report/%s?groep=%s' % (self.userHash, orderGroep.name)
         #padding = str(0)
         #groups.insert(0,{'link': link, 'name':name, 'padding':padding})
-        self.groups = ''
-
-#TODO re-implement this
-        #if not session.get('logged_in', False):
-            #TODO: determine the caller'
-            #raise web.seeother('/login/%s?caller=%s' %(userHash, caller))
-
-        return self.process_sub(arg) #call the subclass implementation
-
-    # Should be implemented by subclass
-    def process_sub(self):
-        raise NotImplementedError
+        return ''
 
     # Checks if IP is allowed
     # If not imidialty sends a 404 and stops all processing
@@ -81,5 +89,3 @@ class Controller(object):
         options['empty_tables_all'] = options['empty'] + options['tables'] + options['all']
 
         return options
-
-

@@ -1,7 +1,3 @@
-"""
-TODO
-- opmaak admin form descr (nu nog vaak descr = name)
-"""
 import web
 from web import form
 
