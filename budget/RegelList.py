@@ -1,8 +1,9 @@
-class RegelList():
+class RegelList:
+    regels = []  # List of regels
 
-    regels = [] #List of regels
-
-    def __init__(self, regels=[]):
+    def __init__(self, regels=None):
+        if regels is None:
+            regels = []
         self.regels = regels
 
     '''
@@ -17,15 +18,16 @@ class RegelList():
         dict['order2']['kostensoort..'] = RegelList
         dict['order..']['kostensoort..'] = RegelList
     '''
+
     def split_by_regel_attributes(self, attributes_to_group):
         regelListDict = self.__split_by_regel_attribute(attributes_to_group.pop(0))
 
         if attributes_to_group:
-            for key, regelListDictChild  in regelListDict.iteritems():
-                regelListDict[key] = regelListDictChild.split_by_regel_attributes(list(attributes_to_group)) #list(..) creates a copy for recursion!
+            for key, regelListDictChild in regelListDict.iteritems():
+                regelListDict[key] = regelListDictChild.split_by_regel_attributes(
+                    list(attributes_to_group))  # list(..) creates a copy for recursion!
 
         return regelListDict
-
 
     def __split_by_regel_attribute(self, attribute_to_group):
         regelDict = {}
@@ -43,7 +45,6 @@ class RegelList():
 
         return regelListDict
 
-
     def total(self):
         total = 0
         for regel in self.regels:
@@ -51,10 +52,8 @@ class RegelList():
 
         return total
 
-
     def extend(self, regelListToAdd):
         self.regels = self.regels + regelListToAdd.regels
-
 
     def filter_regels_by_attribute(self, attribute, list_allowed):
         new_regels = []
@@ -72,7 +71,6 @@ class RegelList():
     def count(self):
         return len(self.regels)
 
-
-    #Returns a copy of the RegelList for recursion.
+    # Returns a copy of the RegelList for recursion.
     def copy(self):
         return RegelList(self.regels)

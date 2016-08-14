@@ -1,5 +1,4 @@
-class OrderGroep():
-
+class OrderGroep:
     def __init__(self, name, descr, level, parent):
         self.name = name
         self.descr = descr
@@ -7,7 +6,7 @@ class OrderGroep():
         self.level = level
         self.children = []
 
-        self.orders = {} #list that holds all orders
+        self.orders = {}  # list that holds all orders
 
     def add_order(self, order, descr):
         self.orders[order] = descr
@@ -19,7 +18,7 @@ class OrderGroep():
         print '*' * self.level + ' ' + self.name + ' (' + self.descr + ')'
 
     def druk_af(self):
-        print 'ordergroep ' + self.name + ' (level '+str(self.level)+') - ' + self.descr
+        print 'ordergroep ' + self.name + ' (level ' + str(self.level) + ') - ' + self.descr
 
         if self.parent != '':
             print 'belongs to parent: ' + self.parent.name
@@ -41,15 +40,13 @@ class OrderGroep():
         else:
             return self.parent.lower_level_parent(level)
 
-
     def walk_tree(self, maxdepth):
         if self.level <= maxdepth:
             # Use drukAf() or regel voor debugging.
             self.druk_af()
-            #self.regel()
+            # self.regel()
             for child in self.children:
                 child.walk_tree(maxdepth)
-
 
     def walk_levels(self):
         levels = {self.level}
@@ -81,7 +78,6 @@ class OrderGroep():
                     return result
         return ''
 
-
     # Creates a list of all levels in the tree
     # for example: [1, 5, 12, 40]
     def list_levels(self, levels):
@@ -103,7 +99,6 @@ class OrderGroep():
 
         return
 
-
     # normalizes the depth of levels to 1,2,3,..
     def normalize_levels(self):
         levels = sorted(self.list_levels([]))
@@ -118,28 +113,27 @@ class OrderGroep():
 
         return
 
-    #return all orders in node and subnodes
+    # return all orders in node and subnodes
     def list_orders_recursive(self):
         orders = self.orders.copy()
         for child in self.children:
             orders.update(child.list_orders_recursive())
         return orders
 
-
-    def save_as_txt(self, file):
+    def save_as_txt(self, fileHandle):
         lvl = self.level + 1
-        sp = (lvl-1)*'    '
-        head = lvl*'#'
+        sp = (lvl - 1) * '    '
+        head = lvl * '#'
 
-        file.write(sp + head + self.name + ' ' + self.descr + '\n')
+        fileHandle.write(sp + head + self.name + ' ' + self.descr + '\n')
         if self.orders:
             for order, descr in self.orders.iteritems():
-                file.write(sp + ' ' + str(order) + ' ' + descr+ '\n')
+                fileHandle.write(sp + ' ' + str(order) + ' ' + descr + '\n')
 
-        file.write('\n')
+        fileHandle.write('\n')
 
         for child in self.children:
-            child.save_as_txt(file)
+            child.save_as_txt(fileHandle)
 
 
 def first_item_in_list(lst):
@@ -153,9 +147,10 @@ def last_item_in_list(lst):
 
 def load(groep):
     print 'REIMPLEMNT THIS WITHOUTH ORDERGROEP KNOWNING ABOUT MODEL!'
-    groepen = ''#model.loadOrderGroepen()
+    groepen = ''  # model.loadOrderGroepen()
     path = groepen[groep]
 
+    root = ''
     f = open(path, 'r')
     group = ''
     for line in f:
@@ -166,10 +161,10 @@ def load(groep):
                 while line[lvl] == '#':
                     lvl += 1
 
-                lvl = lvl -1
+                lvl -= 1
                 sp = line.index(' ')
-                name = line[lvl+1:sp]
-                descr = line[sp+1:]
+                name = line[lvl + 1:sp]
+                descr = line[sp + 1:]
                 if group == '':
                     group = OrderGroep(name, descr, lvl, '')
                     root = group
@@ -180,8 +175,7 @@ def load(groep):
             else:
                 sp = line.index(' ')
                 order = line[:sp]
-                descr = line[sp+1:]
+                descr = line[sp + 1:]
                 group.add_order(int(order), descr)
 
     return root
-
