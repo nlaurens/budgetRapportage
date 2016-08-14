@@ -12,15 +12,12 @@ class Webpage(object):
         print 'WARNING DEBUG CODE STILL ON '
         print 'WARNING DEBUG CODE STILL ON '
         print 'WARNING DEBUG CODE STILL ON '
-        self.dropDownOptions = self.dropdown_options()
 
         # should be set in the subclass
         self.title = None
         self.module = None
         self.webrender = None
         self.breadCrum = None #list of dict items (keys: title, ulr, class:active)
-        self.SAPupdate = model.last_update()
-
 
     def render(self):
         self.render_body() #Start with rendering subclass in case it sets breadcrums etc.
@@ -42,7 +39,8 @@ class Webpage(object):
         #navbar = self.mainRender.navbar(self.userHash, self.breadCrum, groups)
         navbar = 'DUMMY navbar'
 
-        return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
+        a = self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
+        return a
 
     # Should be implemented by subclass
     def render_body(self):
@@ -63,30 +61,12 @@ class Webpage(object):
         groups.insert(0,{'link': link, 'name':name, 'padding':padding})
         return groups
 
-
-
     #used for creating links in the submodule
     def url(self):
         return ('/%s/%s' % (self.module, self.userHash))
 
-
-    # Returns possible dropdown fills for web.py forms. Used by __init__
-    def dropdown_options(self):
-        jarenDB = model.get_years_available()
-
-        options = {}
-        options['empty'] = [ ('', '')]
-        options['all'] = [ ('*','! ALL !') ]
-        options['years'] = zip(jarenDB, jarenDB)
-        options['tables'] = config['mysql']['tables']['regels'].items()
-
-        options['empty_years_all'] = options['empty'] + options['years'] + options['all']
-
-        options['empty_tables'] = options['empty'] + options['tables']
-        options['empty_tables_all'] = options['empty'] + options['tables'] + options['all']
-
-        return options
-
+    def set_SAPupdate(self, SAPupdate):
+        self.SAPupdate = SAPupdate
 
 # Simple webpage for messages/forms
 class Simple(Webpage):

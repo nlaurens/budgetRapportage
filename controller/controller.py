@@ -1,31 +1,32 @@
 import web
+import model.db
 
 class Controller(object):
     def __init__(self):
-        self.callType = ''
         pass
 
 #todo replace self, userHash by *arg
     def GET(*arg):
         self = arg[0]
         self.callType = 'GET'
-        self.process_main(self, arg[1:])
+        return self.process_main(self, arg[1:])
 
 #todo replace self, userHash by *arg
     def POST(*arg):
         self = arg[0]
         self.callType = 'POST'
-        self.process_main(arg)
+        return self.process_main(arg)
 
     def process_main(*arg):
         self = arg[0]
         self.check_IP_allowed() # Will terminate all non-auth. connections 
+        self.SAPupdate = model.db.last_update()
 #TODO re-implement this
         #if not session.get('logged_in', False):
             #TODO: determine the caller'
             #raise web.seeother('/login/%s?caller=%s' %(userHash, caller))
 
-        self.process_sub(arg) #call the subclass implementation
+        return self.process_sub(arg) #call the subclass implementation
 
     # Should be implemented by subclass
     def process_sub(self):
@@ -47,3 +48,22 @@ class Controller(object):
                 return
 
         raise web.notfound()
+
+    # Returns possible dropdown fills for web.py forms.
+    def dropdown_options(self):
+        jarenDB = model.get_years_available()
+
+        options = {}
+        options['empty'] = [ ('', '')]
+        options['all'] = [ ('*','! ALL !') ]
+        options['years'] = zip(jarenDB, jarenDB)
+        options['tables'] = config['mysql']['tables']['regels'].items()
+
+        options['empty_years_all'] = options['empty'] + options['years'] + options['all']
+
+        options['empty_tables'] = options['empty'] + options['tables']
+        options['empty_tables_all'] = options['empty'] + options['tables'] + options['all']
+
+        return options
+
+

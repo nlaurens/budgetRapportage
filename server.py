@@ -19,10 +19,6 @@ TODO
 """
 import web
 web.config.debug = True #Set to False for no ouput! Must be done before the rest
-import os
-from config import config
-import webpage
-import budget
 from controller import Index, Report, Admin, Login, Logout, Graph, View, Salaris
 
 ### Url mappings
