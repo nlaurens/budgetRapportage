@@ -21,35 +21,9 @@ import web
 web.config.debug = True #Set to False for no ouput! Must be done before the rest
 import os
 from config import config
-
 import webpage
 import budget
-
 from controller import Index, Report, Admin, Login, Logout, Graph, View, Salaris
-
-# Checks if IP is allowed
-# If not imidialty sends a 404 and stops all processing
-def auth_block_by_ip():
-    from iptools import IpRangeList
-    ip = web.ctx['ip']
-    ipRanges = config['IpRanges'].split()
-    start = ipRanges[0:][::2]
-    stop = ipRanges[1:][::2]
-
-    for start,stop in zip(start,stop):
-        ipRange = IpRangeList( (start,stop) )
-        if ip in ipRange:
-            return
-
-    raise web.notfound()
-
-
-def auth_login(session, userHash, caller):
-#TODO remove debug line
-    return
-    if not session.get('logged_in', False):
-        raise web.seeother('/login/%s?caller=%s' %(userHash, caller))
-
 
 ### Url mappings
 urls = (

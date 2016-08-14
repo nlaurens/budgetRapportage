@@ -1,4 +1,3 @@
-TODO SUPERCLASS
 from .index import Index
 from .report import Report
 from .admin import Admin
