@@ -25,98 +25,7 @@ from config import config
 import webpage
 import budget
 
-class Index:
-    def GET(self, userHash):
-        auth_block_by_ip()
-        auth_login(session, userHash, 'index')
-        page = webpage.Simple(userHash)
-        page.set_title('Welcome')
-        page.set_msg('Make a selection from the menu above.')
-        return page.render()
-
-
-class Admin:
-    def GET(self, userHash):
-        auth_block_by_ip()
-        auth_login(session, userHash, 'admin')
-        page = webadmin.Admin(userHash)
-        return page.render()
-
-    def POST(self, userHash):
-        auth_block_by_ip()
-        auth_login(session, userHash, 'admin')
-        page = webadmin.Admin(userHash, 'formAction')
-        return page.render()
-
-
-class Login:
-    def GET(self, userHash):
-        auth_block_by_ip()
-        page = webaccess.Login(userHash)
-        return page.render()
-
-    def POST(self, userHash):
-        auth_block_by_ip()
-        page = webaccess.Login(userHash)
-        page.parse_form(session) #will redirect on success
-        return page.render()
-
-class Logout:
-    def GET(self, userHash):
-        auth_block_by_ip()
-        session.logged_in = False
-        page = webpage.Simple(userHash, 'Logout', 'You have been logged out')
-        return page.render()
-
-
-class Graph:
-    def GET(self, userHash, jaar, tiepe, order):
-        auth_block_by_ip()
-        auth_login(session, userHash, 'index')
-        return webgraph.return_graph(jaar, tiepe, order)
-
-
-class Report:
-    def GET(self, userHash):
-        auth_block_by_ip()
-        auth_login(session, userHash, 'report')
-        page = webreport.Report(userHash)
-        return page.render()
-
-
-    def POST(self, userHash):
-        auth_block_by_ip()
-        auth_login(session, userHash, 'report')
-        page = webreport.Report(userHash)
-        return page.render()
-
-class View:
-    def POST(self, userHash):
-        auth_block_by_ip()
-        auth_login(session, userHash, 'view')
-        page = webview.View(userHash)
-        return page.render()
-
-
-    def GET(self, userHash):
-        auth_block_by_ip()
-        auth_login(session, userHash, 'view')
-        page = webview.View(userHash)
-        return page.render()
-
-class Salaris:
-    def POST(self, userHash):
-        auth_block_by_ip()
-        auth_login(session, userHash, 'salaris')
-        page = websalaris.Salaris(userHash)
-        return page.render()
-
-    def GET(self, userHash):
-        auth_block_by_ip()
-        auth_login(session, userHash, 'salaris')
-        page = websalaris.Salaris(userHash)
-        return page.render()
-
+from controller import Index, Report, Admin, Login, Logout, Graph, View, Salaris
 
 # Checks if IP is allowed
 # If not imidialty sends a 404 and stops all processing
@@ -160,13 +69,6 @@ if web.config.get('_session') is None:
     web.config._session = session
 else:
     session = web.config._session
-
-print 'haa'
-print model
-print type(model)
-print model.last_update()
-print type(model.last_update())
-exit()
 
 if __name__ == "__main__":
     app.run()
