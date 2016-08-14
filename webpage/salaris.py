@@ -5,17 +5,13 @@ TODO
     * Summary van alle totalen maken (totalOrderGeboekt, etc opvangen uit html_table)
     * Obligos salarissen ECHT uit systeem halen (kan! ipv de HR-obligos per order!)
 """
-from config import config
-import OrderGroep
-import GrootBoek
-import model
 import numpy as np
-from RegelList import RegelList
 
 import webpage
 from webpage import Webpage
 from web import form
 import web
+
 class Salaris(Webpage):
     def __init__(self, userHash):
         Webpage.__init__(self, userHash)

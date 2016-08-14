@@ -1,16 +1,7 @@
-from config import config
-import OrderGroep
-import GrootBoek
-import model
-import os
-import numpy as np
-from functions import moneyfmt
-from RegelList import RegelList
-
-import webpage
 from webpage import Webpage
 from web import form
 import web
+from functions import moneyfmt
 
 class View(Webpage):
     def __init__(self, userHash):
@@ -144,18 +135,3 @@ class View(Webpage):
         html = self.webrender.grootboekgroep(root.name, root.descr, groups, regelshtml, unfolded, totalsNode, depth)
 
         return html
-
-################## OLD ##################
-def fill_dropdowns(form, settings, KSgroepen):
-    dropdownlist = []
-    for i, path in enumerate(KSgroepen):
-        dropdownlist.append( (i, os.path.split(path)[-1] ))
-    form.ksgroep.args = dropdownlist
-
-    form.ksgroep.value = settings["KSgroep"]
-    form.jaar.value = settings["jaar"]
-    form.maxdepth.value = settings["maxdepth"]
-    form.periode.value = settings["periode"]
-    form.clean.checked = settings["clean"]
-
-

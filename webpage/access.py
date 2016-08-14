@@ -1,6 +1,5 @@
 import web
 from web import form
-from config import config
 from webpage import Webpage
 
 class Login(Webpage):

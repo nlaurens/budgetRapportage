@@ -1,8 +1,6 @@
 import web
 from web import form
-import model
 from config import config
-import OrderGroep
 
 # Mother class for all webpages
 class Webpage(object):
@@ -110,3 +108,5 @@ class Simple(Webpage):
 
         redirect = '/%s/%s' % (self.redirect, self.userHash)
         self.body = self.mainRender.simple(self.title, self.msg, self.form, redirect)
+
+#

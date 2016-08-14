@@ -5,7 +5,6 @@ TODO
 import web
 from web import form
 
-import model
 import os
 from xlsx2csv import Xlsx2csv
 import csv
@@ -15,7 +14,6 @@ import functions
 
 import webpage
 from webpage import Webpage
-from config import config
 
 class Admin(Webpage):
     def __init__(self, userHash, subpage='main'):

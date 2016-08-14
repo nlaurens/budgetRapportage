@@ -4,12 +4,8 @@ TODO
     * add tree view of the total groep
 """
 import web
-from config import config
-import OrderGroep
-import GrootBoek
-import model
 import numpy as np
-from webgraph import generate_url
+from graph import generate_url #TODO naar functies raar omdat van een andere webpage te hebben!
 
 import webpage
 from webpage import Webpage
