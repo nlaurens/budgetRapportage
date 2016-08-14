@@ -7,31 +7,25 @@ class Controller(object):
 
 #todo replace self, userHash by *arg
     def GET(*arg):
-        print type(arg)
-        print len(arg)
-        print arg
-        exit()
         self = arg[0]
         self.callType = 'GET'
-        self.process_main(self, arg[1])
+        self.process_main(self, arg[1:])
 
 #todo replace self, userHash by *arg
     def POST(*arg):
+        self = arg[0]
         self.callType = 'POST'
-        self.process_main()
+        self.process_main(arg)
 
-    def process_main(self, *arg):
-        print 'process_main'
-        print len(arg)
-        print type(arg)
-        print arg
+    def process_main(*arg):
+        self = arg[0]
         self.check_IP_allowed() # Will terminate all non-auth. connections 
 #TODO re-implement this
         #if not session.get('logged_in', False):
             #TODO: determine the caller'
             #raise web.seeother('/login/%s?caller=%s' %(userHash, caller))
 
-        #self.process_sub() #call the subclass implementation
+        self.process_sub(arg) #call the subclass implementation
 
     # Should be implemented by subclass
     def process_sub(self):
