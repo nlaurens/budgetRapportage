@@ -8,31 +8,19 @@ TODO
     - user lijst gebruiken om menu te bouwen (ordergroepen voor report!)
     - Show negative bestedingsruimte in red and bold.
     - door pylinter heen halen / pycharm laten controleren ;)
-    - report navbar: niet report maar naam van de groep gebruiken, en alle groepen in de dir erin zetten 
+    - report navbar: niet report maar naam van de groep gebruiken, en alle groepen in de dir erin zetten
 
 # TIPS
     - render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh
 """
 import web
 web.config.debug = True #Set to False for no ouput! Must be done before the rest
-import model
-import GrootBoek
-import OrderGroep
 import os
 from config import config
 
-# web-pages
-import webpage #mother class and simple page
-import webindex
-import webaccess
-import webadmin
-import webreport
-import webview
-import websalaris
-
-#web utilies
-import webgraph
-
+import webpage
+import budget
+import model
 
 class Index:
     def GET(self, userHash):

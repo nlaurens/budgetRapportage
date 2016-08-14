@@ -9,7 +9,6 @@ import os
 from xlsx2csv import Xlsx2csv
 import csv
 import datetime
-import tests
 import functions
 
 import webpage

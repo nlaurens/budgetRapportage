@@ -5,7 +5,7 @@ TODO
 """
 import web
 import numpy as np
-from graph import generate_url #TODO naar functies raar omdat van een andere webpage te hebben!
+from functions import generate_url #TODO naar functies raar omdat van een andere webpage te hebben!
 
 import webpage
 from webpage import Webpage

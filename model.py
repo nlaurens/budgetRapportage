@@ -1,11 +1,11 @@
 import web
 import hashlib
-from config import config, users
+from config import config
 import glob
 import os
 import csv
-from Regel import Regel, specific_rules
-from RegelList import RegelList
+from budget.regel import Regel, specific_rules
+from budget.regellist import RegelList
 
 """"
 
@@ -44,7 +44,7 @@ def get_regellist(tableNames=[], jaar=[], periodes=[], orders=[], kostensoorten=
     return RegelList(regels)
 
 #TODO functie: get_regels schrijven dat alles in 1 regellist doet. Splitsen per tiepe kan altijd met de
-# split_regel functie 
+# split_regel functie
 
 # TODO deze functie uitschakelen!
 
@@ -156,7 +156,7 @@ def get_userlist():
         print user #niels:LION.* test:LION.PL-TP,PL-BP
         #userList.append([user, userHash, ])
         #hashlib.sha224(user+config["salt"]).hexdigest()
-    #return 
+    #return
 
 # returns a dict per username with:
 # hash, orders and OrderGroep objects
@@ -169,7 +169,7 @@ def get_uses():
         og = OrderGroep.load(ogFile)
         user = {}
         user['hash'] = hashlib.sha224(userName+config['salt']).hexdigest()
-        user['ordergroepen'] = [] 
+        user['ordergroepen'] = []
         user['orders'] = []
         for grpStr in ogNames:
             if grpStr == '*':
@@ -179,7 +179,7 @@ def get_uses():
             if ogsub:
                 user['ordergroepen'].append(ogsub)
                 user['orders'].append(ogsub.list_orders_recursive())
-                
+
         userList[userName] = user
 
     return userList

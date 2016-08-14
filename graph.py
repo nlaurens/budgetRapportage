@@ -31,11 +31,10 @@ import web
 web.config.debug = False #must be done before the rest.
 
 import model
-import GrootBoek
-import OrderGroep
+import webpage
+import budget
 import os
 from config import config
-from functions import moneyfmt
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -686,7 +685,7 @@ if __name__ == "__main__":
     except:
         pass
 
-    year = config["currentYear"] 
+    year = config["currentYear"]
     try:
         year = sys.argv[2]
     except:
