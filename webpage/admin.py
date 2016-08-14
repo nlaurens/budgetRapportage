@@ -11,17 +11,13 @@ import webpage
 from webpage import Webpage
 
 class Admin(Webpage):
-    def __init__(self, userHash, subpage='main'):
+    def __init__(self, userHash):
         Webpage.__init__(self, userHash)
 
         #subclass specific
         self.title = 'Admin Panel'
         self.module = 'admin'
-        self.subpage = subpage
         self.webrender = web.template.render('templates/admin/')
-
-        #Admin specific
-        self.msg = ['Welcome to the Admin panel']
 
         #Forms
         self.form_remove_regels = form.Form(
@@ -55,26 +51,7 @@ class Admin(Webpage):
                 form.Button('submit', value='rebuildGraphs')
         )
 
-
     def render_body(self):
-        if self.subpage == 'main':
-            self.render_body_main()
-        elif self.subpage == 'formAction':
-            (validForm, msg) = self.parse_forms()
-            if validForm:
-                page = webpage.Simple(self.userHash, 'Admin', msg, 'admin')
-                page.render()
-                self.body = page.body # we don't need the header/footer
-            else:
-                self.render_body_main()
-        else:
-            self.body = 'webadmin subpage %s unknown' % self.subpage
-
-
-    def render_body_main(self):
-        testResults = self.run_tests()
-        self.msg.extend(testResults)
-
         rendered = {}
         rendered['userAccess'] = self.webrender.user_access(model.get_auth_list(config['salt']) )
         rendered['dbStatus'] = self.render_db_status()
