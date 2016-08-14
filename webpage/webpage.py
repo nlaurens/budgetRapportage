@@ -22,25 +22,8 @@ class Webpage(object):
     def render(self):
         self.render_body() #Start with rendering subclass in case it sets breadcrums etc.
 #TODO cache renderd page and check if we can serve that
-
-        #Navigation bar including a dropdown of the report layout
-#TODO uit usergroup halen - daar zou de ordergroep al in geload moeten zijn!
-        #orderGroep = OrderGroep.load('LION')
-        #groups = []
-        #i = 0
-        #for child in orderGroep.children:
-        #    i += 1
-        #    groups.extend( self.render_navigation(child, str(i), 1))
-
-        #name = orderGroep.descr
-        #link = '/report/%s?groep=%s' % (self.userHash, orderGroep.name)
-        #padding = str(0)
-        #groups.insert(0,{'link': link, 'name':name, 'padding':padding})
-        #navbar = self.mainRender.navbar(self.userHash, self.breadCrum, groups)
-        navbar = 'DUMMY navbar'
-
-        a = self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
-        return a
+        navbar = self.mainRender.navbar(self.userHash, self.breadCrum, self.groups)
+        return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
 
     # Should be implemented by subclass
     def render_body(self):
@@ -65,9 +48,6 @@ class Webpage(object):
     def url(self):
         return ('/%s/%s' % (self.module, self.userHash))
 
-    def set_SAPupdate(self, SAPupdate):
-        self.SAPupdate = SAPupdate
-
 # Simple webpage for messages/forms
 class Simple(Webpage):
     def __init__(self, userHash):
@@ -89,12 +69,3 @@ class Simple(Webpage):
 
         redirect = '/%s/%s' % (self.redirect, self.userHash)
         self.body = self.mainRender.simple(self.title, self.msg, self.form, redirect)
-
-    def set_title(self, title):
-        self.title = title
-
-    def set_msg(self, msg):
-        self.msg = msg
-#
-    def set_redirect(self, redirect):
-        self.redirect = redirect

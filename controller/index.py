@@ -4,7 +4,9 @@ import webpage
 class Index(Controller):
     def process_sub(self, userHash):
         page = webpage.Simple(userHash)
-        page.set_title('Welcome')
-        page.set_msg('Make a selection from the menu above.')
-        page.set_SAPupdate(self.SAPupdate)
+        page.SAPupdate = self.SAPupdate
+        page.groups = self.groups
+
+        page.title = 'Welcome'
+        page.msg = 'Make a selection from the menu above.'
         return page.render()
