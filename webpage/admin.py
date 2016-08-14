@@ -11,7 +11,7 @@ import webpage
 from webpage import Webpage
 
 class Admin(Webpage):
-    def __init__(self, userHash):
+    def __init__(self, userHash, dropDownOptions):
         Webpage.__init__(self, userHash)
 
         #subclass specific
@@ -21,23 +21,23 @@ class Admin(Webpage):
 
         #Forms
         self.form_remove_regels = form.Form(
-            form.Dropdown('year', self.dropDownOptions['empty_years_all'],
+            form.Dropdown('year', dropDownOptions['empty_years_all'],
                 form.notnull, description='Year to remove: '),
-            form.Dropdown('table', self.dropDownOptions['empty_tables_all'],
+            form.Dropdown('table', dropDownOptions['empty_tables_all'],
                 form.notnull, description='Table to remove from: '),
             form.Button('submit', value='removeRegels')
         )
         self.form_upload_regels = form.Form(
                 form.File(name='upload1'),
-                form.Dropdown('type1', self.dropDownOptions['empty_tables']),
+                form.Dropdown('type1', dropDownOptions['empty_tables']),
                 form.File(name='upload2'),
-                form.Dropdown('type2', self.dropDownOptions['empty_tables']),
+                form.Dropdown('type2', dropDownOptions['empty_tables']),
                 form.File('upload3'),
-                form.Dropdown('type3', self.dropDownOptions['empty_tables']),
+                form.Dropdown('type3', dropDownOptions['empty_tables']),
                 form.File('upload4'),
-                form.Dropdown('type4', self.dropDownOptions['empty_tables']),
+                form.Dropdown('type4', dropDownOptions['empty_tables']),
                 form.File('upload5'),
-                form.Dropdown('type5', self.dropDownOptions['empty_tables']),
+                form.Dropdown('type5', dropDownOptions['empty_tables']),
                 form.Button('submit', value='uploadRegels')
         )
         self.form_update_sap_date = form.Form(
@@ -47,14 +47,15 @@ class Admin(Webpage):
         )
         self.form_rebuild_graphs = form.Form(
                 form.Textbox('target', form.notnull, description='Order/groep/*'),
-                form.Dropdown('year', self.dropDownOptions['empty_years_all'], form.notnull),
+                form.Dropdown('year', dropDownOptions['empty_years_all'], form.notnull),
                 form.Button('submit', value='rebuildGraphs')
         )
 
     def render_body(self):
         rendered = {}
-        rendered['userAccess'] = self.webrender.user_access(model.get_auth_list(config['salt']) )
-        rendered['dbStatus'] = self.render_db_status()
+        model.get_auth_list(config['salt'])
+        rendered['userAccess'] = self.webrender.user_access(self.authList)
+        rendered['dbStatus'] = self.webrender.db_status(self.dbStatus)
 
         rendered['forms'] = []
         rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
@@ -64,60 +65,7 @@ class Admin(Webpage):
 
         self.body = self.webrender.admin(self.msg, rendered)
 
-    def render_db_status(self):
-        #construct dict with total regels per table
-        yearsFound = set()
-        regelCount = {}
-        totals = {}
-        totals['total'] = 0
-
-        for table in config["mysql"]["tables"]["regels"]:
-            regelCount[table] = {}
-            if model.check_table_exists(table):
-                regelCount[table][0] = "OK"
-                years = model.get_years_available()
-                yearsFound = yearsFound.union(years)
-                for year in sorted(list(years)):
-                    regelCount[table][year] = model.count_regels(int(year), table)
-                    if year not in totals:
-                        totals[year] = regelCount[table][year]
-                        totals['total'] += regelCount[table][year]
-                    else:
-                        totals[year] += regelCount[table][year]
-                        totals['total'] += regelCount[table][year]
-            else:
-                regelCount[table][0] = "Not found"
-
-        # create vars for render
-        tableNames = regelCount.keys()
-        regelsHeaders= ['table', 'status' ]
-        for year in sorted(list(yearsFound)):
-            regelsHeaders.append(str(year))
-
-        regelsBody = []
-        for table in tableNames:
-            regel = [table, regelCount[table][0]]
-            for year in sorted(list(yearsFound)):
-                regel.append(regelCount[table][year])
-            regelsBody.append(regel)
-
-        regelsTotal = ['Total', totals['total']]
-        for year in sorted(list(yearsFound)):
-            regelsTotal.append(totals[year])
-
-        return self.webrender.db_status(regelsHeaders, regelsBody, regelsTotal)
-
-
-    def run_tests(self):
-        msg = ['Running tests']
-        success, testMsg = tests.ks_missing_in_report()
-        if success:
-            msg.append('* ks-test: Pass')
-        else:
-            msg.append('WARNING KS THAT ARE NOT IN REPORTS FOUND IN DB!')
-            msg.extend(testMsg)
-        return msg
-
+TODO parse gedeelte helemaal overhevelen naar controller
 
     def parse_forms(self):
         validForm = False

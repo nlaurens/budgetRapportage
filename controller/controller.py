@@ -1,4 +1,4 @@
-import web
+pmport web
 import model.db
 
 class Controller(object):
@@ -75,7 +75,7 @@ class Controller(object):
 
     # Returns possible dropdown fills for web.py forms.
     def dropdown_options(self):
-        jarenDB = model.get_years_available()
+        jarenDB = model.db.get_years_available()
 
         options = {}
         options['empty'] = [ ('', '')]
