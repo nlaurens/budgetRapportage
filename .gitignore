@@ -9,6 +9,9 @@ graphs/*
 test.py
 config.py
 
+#Ipython notebook saves
+.ipynb_checkpoints/*
+
 # Pycharm 
 .idea/*
 
