@@ -4,6 +4,7 @@ BUGS
     - import multiple files gaat niet goed (stopt na de 1e)
 
 TODO
+    - Model, View, Controller .. Heb nu View en Controller in 1 gemaakt.. Splitsen dus!
     - authorisatie in elke class per order/groep/admin. Wellicht via model.isAuthed() doen?
     - user lijst gebruiken om menu te bouwen (ordergroepen voor report!)
     - Show negative bestedingsruimte in red and bold.
@@ -159,6 +160,13 @@ if web.config.get('_session') is None:
     web.config._session = session
 else:
     session = web.config._session
+
+print 'haa'
+print model
+print type(model)
+print model.last_update()
+print type(model.last_update())
+exit()
 
 if __name__ == "__main__":
     app.run()
