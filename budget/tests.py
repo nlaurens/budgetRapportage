@@ -9,6 +9,12 @@ from functions import moneyfmt
 from decimal import *
 import glob
 
+def tests():
+    success = False
+    msg = [ 'nothing implmented' ]
+
+
+    return (success, msg)
 
 # Test to see if there are regels containing ks that are not
 # in a report (and therefore would not show up).
