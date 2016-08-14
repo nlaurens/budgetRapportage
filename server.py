@@ -20,14 +20,14 @@ from config import config
 
 import webpage
 import budget
-import model
 
 class Index:
     def GET(self, userHash):
         auth_block_by_ip()
         auth_login(session, userHash, 'index')
-
-        page = webpage.Simple(userHash, 'Welcome', 'Make a selection from the menu above.')
+        page = webpage.Simple(userHash)
+        page.set_title('Welcome')
+        page.set_msg('Make a selection from the menu above.')
         return page.render()
 
 
@@ -132,6 +132,8 @@ def auth_block_by_ip():
 
 
 def auth_login(session, userHash, caller):
+#TODO remove debug line
+    return
     if not session.get('logged_in', False):
         raise web.seeother('/login/%s?caller=%s' %(userHash, caller))
 

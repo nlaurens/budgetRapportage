@@ -1,6 +1,7 @@
 import web
 from web import form
 from config import config
+import model
 
 # Mother class for all webpages
 class Webpage(object):
@@ -26,19 +27,20 @@ class Webpage(object):
 #TODO cache renderd page and check if we can serve that
 
         #Navigation bar including a dropdown of the report layout
-#TODO to config
-        orderGroep = OrderGroep.load('LION')
-        groups = []
-        i = 0
-        for child in orderGroep.children:
-            i += 1
-            groups.extend( self.render_navigation(child, str(i), 1))
+#TODO uit usergroup halen - daar zou de ordergroep al in geload moeten zijn!
+        #orderGroep = OrderGroep.load('LION')
+        #groups = []
+        #i = 0
+        #for child in orderGroep.children:
+        #    i += 1
+        #    groups.extend( self.render_navigation(child, str(i), 1))
 
-        name = orderGroep.descr
-        link = '/report/%s?groep=%s' % (self.userHash, orderGroep.name)
-        padding = str(0)
-        groups.insert(0,{'link': link, 'name':name, 'padding':padding})
-        navbar = self.mainRender.navbar(self.userHash, self.breadCrum, groups)
+        #name = orderGroep.descr
+        #link = '/report/%s?groep=%s' % (self.userHash, orderGroep.name)
+        #padding = str(0)
+        #groups.insert(0,{'link': link, 'name':name, 'padding':padding})
+        #navbar = self.mainRender.navbar(self.userHash, self.breadCrum, groups)
+        navbar = 'DUMMY navbar'
 
         return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
 
@@ -88,17 +90,16 @@ class Webpage(object):
 
 # Simple webpage for messages/forms
 class Simple(Webpage):
-    def __init__(self, userHash, title, msg, redirect=''):
-        Webpage.__init__(self, userHash, None)
+    def __init__(self, userHash):
+        Webpage.__init__(self, userHash)
 
         #subclass specific
-        self.title = title
-        self.msg = msg
-        self.redirect = redirect
+        self.title = ''
+        self.msg = ''
+        self.redirect = ''
         self.form_redirect = form.Form(
                 form.Button('ok', value='redirect')
         )
-
 
     def render_body(self):
         if self.redirect:
@@ -109,4 +110,11 @@ class Simple(Webpage):
         redirect = '/%s/%s' % (self.redirect, self.userHash)
         self.body = self.mainRender.simple(self.title, self.msg, self.form, redirect)
 
+    def set_title(self, title):
+        self.title = title
+
+    def set_msg(self, msg):
+        self.msg = msg
 #
+    def set_redirect(self, redirect):
+        self.redirect = redirect
