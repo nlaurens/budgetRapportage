@@ -1,7 +1,3 @@
-import model
-import os
-from RegelList import RegelList
-
 class GrootBoek():
 
     def __init__(self, name, descr, level, parent):
@@ -101,7 +97,7 @@ class GrootBoek():
                     return result
         else:
             return ''
-        
+
 
     # Assings regellist to all the children
     def assign_regels_recursive(self,regels):
@@ -242,7 +238,8 @@ def last_item_in_list(lst):
     return len(lst), lst[-1]
 
 def load(grootboek):
-    KSgroepen = model.loadKSgroepen()
+    print 'REIMPLEMENT THIS WITHOUTH GROOTBOEK KNOWING ABOUT MODEL'
+    KSgroepen = ['']#model.loadKSgroepen()
     path =  KSgroepen[grootboek]
 
     f = open(path, 'r')

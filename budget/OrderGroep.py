@@ -1,6 +1,3 @@
-import model
-
-
 class OrderGroep():
 
     def __init__(self, name, descr, level, parent):
@@ -155,7 +152,8 @@ def last_item_in_list(lst):
 
 
 def load(groep):
-    groepen = model.loadOrderGroepen()
+    print 'REIMPLEMNT THIS WITHOUTH ORDERGROEP KNOWNING ABOUT MODEL!'
+    groepen = ''#model.loadOrderGroepen()
     path = groepen[groep]
 
     f = open(path, 'r')
