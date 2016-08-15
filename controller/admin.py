@@ -188,11 +188,11 @@ class Admin(Controller):
 
     def parse_upload_form(self):
         msg = ['Start parsing of upload form']
-        fileHandle = web.input(upload1={}, upload2={}, upload3={}, upload4={}, upload5={})
+        fileHandles = web.input(upload1={}, upload2={}, upload3={}, upload4={}, upload5={})
         uploads = []
         for i in range(1,6):
             try:
-                fileHandle = eval("fileHandle.upload%s" % i)
+                fileHandle = eval("fileHandles.upload%s" % i)
             except:
                 fileHandle = None
             table = eval("self.form_upload_regels['type%s'].value" % i)
