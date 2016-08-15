@@ -10,7 +10,7 @@ class Index(Controller):
 
     def process_sub(self, userHash):
         self.title = 'Welcome'
-        self.msg = 'Make a selection from the menu above.'
+        self.msg = ['Make a selection from the menu above.']
         self.body = self.render_simple()
 
 

@@ -26,11 +26,11 @@ class Controller(object):
         self.callType = 'POST'
         return self.process_main(arg)
 
-    def process_main(*arg):
+    #arg: 0 superclass inst., 1 subclass inst. 2. vars from url_map in a tupple
+    def process_main(*arg): 
         self = arg[0]
         self.check_IP_allowed() # Will terminate all non-auth. connections 
-
-        self.userHash = arg[1]
+        self.userHash = str(arg[2][0])
 #TODO re-implement this
         #if not session.get('logged_in', False):
             #TODO: determine the caller'

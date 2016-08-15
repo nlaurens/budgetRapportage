@@ -53,7 +53,6 @@ class Admin(Controller):
         )
 
     def process_sub(self, userHash):
-        self.userHash = userHash
         # Handle posted forms
         if self.callType == 'POST':
             (validForm, msg) = self.parse_forms()
