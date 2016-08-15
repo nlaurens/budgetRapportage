@@ -2,6 +2,7 @@ import web
 import model.db
 from config import config
 from web import form
+import budget
 
 class Controller(object):
     def __init__(self):
@@ -50,27 +51,38 @@ class Controller(object):
     def process_sub(self):
         raise NotImplementedError
     
-    # self.body should have been rendered by subproc
     def render_page(self):
-        navgroups = self.navbar_groups()
+#TODO uit usergroup halen - daar zou de ordergroep al in geload moeten zijn!
+        ogPath = model.db.loadOrderGroepen()['LION']
+        orderGroep = budget.ordergroep.load(ogPath)
+        navgroups = []
+        i = 0
+        for child in orderGroep.children:
+            i += 1
+            navgroups.extend( self.list_nav_groups(child, str(i), 1))
+
+        name = orderGroep.descr
+        link = '%s?groep=%s' % (self.url(), orderGroep.name)
+        padding = str(0)
+        navgroups.insert(0,{'link': link, 'name':name, 'padding':padding})
+
         navbar = self.mainRender.navbar(self.userHash, self.breadCrum, navgroups)
+
         return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
 
-    def navbar_groups(self):
-        #Navigation bar including a dropdown of the report layout
-#TODO uit usergroup halen - daar zou de ordergroep al in geload moeten zijn!
-        #orderGroep = OrderGroep.load('LION')
-        #groups = []
-        #i = 0
-        #for child in orderGroep.children:
-        #    i += 1
-        #    groups.extend( self.render_navigation(child, str(i), 1))
+    def list_nav_groups(self, root, label, depth):
+        groups = []
+        i = 0
+        for child in root.children:
+            i += 1
+            labelChild = '%s.%s' % (label, i)
+            groups.extend(self.list_nav_groups(child, labelChild, depth+1))
 
-        #name = orderGroep.descr
-        #link = '/report/%s?groep=%s' % (self.userHash, orderGroep.name)
-        #padding = str(0)
-        #groups.insert(0,{'link': link, 'name':name, 'padding':padding})
-        return ''
+        name = '%s' % (root.descr) #you can use: '%s. %s' % (label, root.descr) as numbered list
+        link = '/report/%s?groep=%s' % (self.userHash, root.name)
+        padding = str(depth*15)
+        groups.insert(0,{'link': link, 'name':name, 'padding':padding})
+        return groups
 
     #used for creating links in the submodule
     def url(self):
