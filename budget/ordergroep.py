@@ -118,7 +118,15 @@ class OrderGroep:
 
         return
 
-    # return all orders in node and subnodes
+    # returns: [ {descr:name} ] for all groepen in nodes
+    def list_groepen_recursive(self):
+        groepen = {}
+        groepen[self.descr] = self.name
+        for child in self.children:
+            groepen.update(child.list_groepen_recursive())
+        return groepen
+
+    # return [ {descr:name} ] for all orders in nodes
     def list_orders_recursive(self):
         orders = self.orders.copy()
         for child in self.children:

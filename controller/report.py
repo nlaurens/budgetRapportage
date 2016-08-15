@@ -204,7 +204,6 @@ class Report(Controller):
         else:
             return None
 
-
 #TODO replace dummy vasr
     def render_settings_html(self):
         form = 'FORM met daarin jaar'
@@ -212,13 +211,12 @@ class Report(Controller):
         lastupdate = '2'
         return self.webrender.settings(lastupdate, buttons, form)
 
-#TODO replace dummy vasr
-#javaScripts = java_scripts(render, HRregels['geboekt'], HRregels['begroot']) <- should be used in new db system
     def render_java_scripts(self):
-        #ordersGeboekt = regelsGeboekt.split_by_regel_attributes(['order']).keys()
-        #ordersBegroot = regelsBegroot.split_by_regel_attributes(['order']).keys()
-        #orders = set(ordersGeboekt + ordersBegroot)
-        return self.webrender.javascripts(self.orders)
+        expandItems = self.orders
+        expandItems.extend(self.root.list_groepen_recursive().values())
+        print expandItems
+        print type(expandItems)
+        return self.webrender.javascripts(expandItems)
 
 
 ###########################################################
