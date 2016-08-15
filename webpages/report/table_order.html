@@ -9,9 +9,11 @@ $def with(orderrows, html, expand)
         <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph$html['id']">
             <span class="glyphicon glyphicon-paperclip"></span>
         </button>
+        <!--
         <a class="btn btn-default btn-xs" href="/view/$:html['userHash']/$:html['id']" role="button">
             <span class="glyphicon glyphicon-zoom-in"></span>
         </a>
+        -->
         <div id="graph$html['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -23,10 +25,10 @@ $def with(orderrows, html, expand)
         </div>
 
     </td>
-    <td class="text-right">$:html['name']</td>
-    <td class="text-right">$:html['begroot']</td>
-    <td class="text-right">$:html['realisatie']</td>
-    <td class="text-right">$:html['resultaat']</td>
+    <td class="text-right"><a href="$html['link']">$html['name']</a></td>
+    <td class="text-right">$html['begroot']</td>
+    <td class="text-right">$html['realisatie']</td>
+    <td class="text-right">$html['resultaat']</td>
 </tr>
 <tr class="hiddenRow accordian-body collapse" id="collapse$html['id']">
     <td colspan="12">

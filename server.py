@@ -5,6 +5,7 @@ BUGS
     - import multiple files gaat niet goed (stopt na de 1e)
 
 TODO
+    - Alle templates doorlopen op $:xxx als dat niet nodig is.
     - Model, View, Controller .. Heb nu View en Controller in 1 gemaakt.. Splitsen dus!
         --> geen aparte view class. Gebruik web.render in de controller!
     - authorisatie in elke class per order/groep/admin. Wellicht via model.isAuthed() doen?

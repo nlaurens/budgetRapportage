@@ -12,7 +12,7 @@ class Report(Controller):
         #subclass specific
         self.title = 'Report'
         self.module = 'report'
-        self.webrender = web.template.render('webpages/report/')
+        self.webrender = web.template.render('webpages/report/', cache=False)
 
         #Salaris specific:
         #Report specific:
@@ -63,7 +63,6 @@ class Report(Controller):
 
         self.body = self.webrender.report(report)
 
-
     def render_table_html(self):
         table = []
         childtable = []
@@ -109,6 +108,7 @@ class Report(Controller):
 
     def parse_orders_in_groep(self, root, total_groep):
         order_tables = []
+        total_groep['id'] = root.name
         total_groep['name'] = root.descr
         for order, descr in root.orders.iteritems():
             order_table, totaalTree = self.parse_order(order, descr)
@@ -152,7 +152,8 @@ class Report(Controller):
                 html_rows.append(self.grootboek_regel_to_html(row))
 
         header = {}
-        header['name'] = descr + '(%s)' % order
+        header['name'] = '%s (%s)' % (descr, order)
+        header['link'] = '/view/%s?order=%s' % (self.userHash, order)
         header['userHash'] = self.userHash
         header['id'] = order
         header['img'] = self.url_graph(self.jaar, 'realisatie', order)
@@ -175,7 +176,8 @@ class Report(Controller):
 
     def groep_regel_to_html(self, row):
         html = row.copy()
-        html['name'] = row['name']
+        html['name'] = row['name'] 
+        html['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroep, row['id'] )
         html['begroot'] = table_string(row['begroot'])
         html['realisatie'] =  table_string(row['realisatie'])
         html['resultaat'] = table_string(row['resultaat'])
