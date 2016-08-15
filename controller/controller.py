@@ -53,7 +53,18 @@ class Controller(object):
     
     def render_page(self):
 #TODO uit usergroup halen - daar zou de ordergroep al in geload moeten zijn!
-        ogPath = model.db.loadOrderGroepen()['LION']
+        navgroups = []
+        navgroups.append(self.navbar_group('LION'))
+        navgroups.append(self.navbar_group('LION-BSF'))
+        navgroups.append(self.navbar_group('LION-DITP'))
+        navgroups.append(self.navbar_group('LION-NF'))
+
+        navbar = self.mainRender.navbar(self.userHash, self.breadCrum, navgroups)
+
+        return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
+
+    def navbar_group(self, og):
+        ogPath = model.db.loadOrderGroepen()[og]
         orderGroep = budget.ordergroep.load(ogPath)
         navgroups = []
         i = 0
@@ -66,9 +77,7 @@ class Controller(object):
         padding = str(0)
         navgroups.insert(0,{'link': link, 'name':name, 'padding':padding})
 
-        navbar = self.mainRender.navbar(self.userHash, self.breadCrum, navgroups)
-
-        return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
+        return {'title':og, 'items':navgroups}
 
     def list_nav_groups(self, root, label, depth):
         groups = []
