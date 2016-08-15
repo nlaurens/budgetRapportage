@@ -13,15 +13,21 @@ TODO
     - door pylinter heen halen / pycharm laten controleren ;)
     - report navbar: niet report maar naam van de groep gebruiken, en alle groepen in de dir erin zetten
     - config module maken waar ook alle data in zit en users
-        - users in mysql maken
-        - alle config params naar db verplaatsen
+        * users in mysql maken
+        * alle config params naar db verplaatsen
 
     - webpage.admin 
-        - forms layout doen (attributen van webpy forms setten)
-        - upload .xlsx naar tmp dir
+        * forms layout doen (attributen van webpy forms setten)
+        * upload .xlsx naar tmp dir
 
     - webpage.login
-        - bij password verkeerd invullen post form leegmaken.
+        * bij password verkeerd invullen post form leegmaken.
+
+    - webpage.salaris
+        * Naam order uit andere db halen, salaris geeft korte namen.. (kostensoort groep?)
+        * Plaatjes maken/koppelen
+        * Summary van alle totalen maken (totalOrderGeboekt, etc opvangen uit html_table)
+        * Obligos salarissen ECHT uit systeem halen (kan! ipv de HR-obligos per order!)
 
 # TIPS
     - render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh
