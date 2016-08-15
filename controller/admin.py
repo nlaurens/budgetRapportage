@@ -5,17 +5,22 @@ import os
 
 from controller import Controller
 from budget import run_tests as budget_run_tests
+import web
+from web import form
+import model.db
 
 class Admin(Controller):
-    def __init__(self, userHash, dropDownOptions):
-        Webpage.__init__(self, userHash)
+    def __init__(self):
+        Controller.__init__(self)
 
         #subclass specific
         self.title = 'Admin Panel'
         self.module = 'admin'
-        self.webrender = web.template.render('templates/admin/')
+        self.webrender = web.template.render('webpages/admin/')
 
         #Forms
+        dropDownOptions = self.dropdown_options()
+
         self.form_remove_regels = form.Form(
             form.Dropdown('year', dropDownOptions['empty_years_all'],
                 form.notnull, description='Year to remove: '),
@@ -37,7 +42,7 @@ class Admin(Controller):
                 form.Button('submit', value='uploadRegels')
         )
         self.form_update_sap_date = form.Form(
-                form.Textbox('sapdate', form.notnull, value=model.last_update(),
+                form.Textbox('sapdate', form.notnull, value=self.SAPupdate,
                     description='Date last SAP regels are uploaded'),
                 form.Button('submit', value='updateSapDate')
         )
@@ -48,28 +53,33 @@ class Admin(Controller):
         )
 
     def process_sub(self, userHash):
-        page = webpage.Admin(userHash, self.dropdown_options())
-        self.set_page_attr(page)
-#TODO
-        page.msg = ['Welcome to the Admin panel']
-        page.msg.extend(budget_run_tests())
-
+        self.userHash = userHash
         # Handle posted forms
-        if self.caller == 'POST':
-            (validForm, msg) = page.parse_forms()
+        if self.callType == 'POST':
+            (validForm, msg) = self.parse_forms()
             if validForm:
-                page = webpage.Simple(userHash)
-                page.set_page_attr(page)
-                page.title = 'Admin Panel results'
-                page.msg = msg 
-                return page.render()
+                self.title = 'Admin Panel Results'
+                self.msg = msg 
+                self.body = self.render_simple()
+        elif self.callType == 'GET':
+            # Display admin page:
+            self.msg = ['Welcome to the Admin panel']
+            self.msg.extend(budget_run_tests())
 
-        #GET
 #TODO coppelen aan config.user
-        page.authList = model.get_auth_list(config['salt'])
-        page.dbStatus = self.db_status()
+            self.authList = '' #model.db.get_users()
 
-        return page.msg
+            rendered = {}
+            rendered['userAccess'] = self.webrender.user_access(self.authList)
+            rendered['dbStatus'] = 'DUMYY' #self.webrender.db_status(self.db_status())
+
+            rendered['forms'] = []
+            rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
+            rendered['forms'].append(self.webrender.form('Upload Regels to DB', self.form_upload_regels))
+            rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap_date))
+            rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
+
+            self.body = self.webrender.admin(self.msg, rendered)
 
     def db_status(self):
         #construct dict with total regels per table
@@ -80,12 +90,12 @@ class Admin(Controller):
 
         for table in config["mysql"]["tables"]["regels"]:
             regelCount[table] = {}
-            if model.check_table_exists(table):
+            if model.db.check_table_exists(table):
                 regelCount[table][0] = "OK"
-                years = model.get_years_available()
+                years = model.db.get_years_available()
                 yearsFound = yearsFound.union(years)
                 for year in sorted(list(years)):
-                    regelCount[table][year] = model.count_regels(int(year), table)
+                    regelCount[table][year] = model.db.count_regels(int(year), table)
                     if year not in totals:
                         totals[year] = regelCount[table][year]
                         totals['total'] += regelCount[table][year]
@@ -114,22 +124,6 @@ class Admin(Controller):
 
         return [regelsHeaders, regelsBody, regelsTotal]
 
-    def render_body(self):
-        rendered = {}
-        model.get_auth_list(config['salt'])
-        rendered['userAccess'] = self.webrender.user_access(self.authList)
-        rendered['dbStatus'] = self.webrender.db_status(self.dbStatus)
-
-        rendered['forms'] = []
-        rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
-        rendered['forms'].append(self.webrender.form('Upload Regels to DB', self.form_upload_regels))
-        rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap_date))
-        rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
-
-        self.body = self.webrender.admin(self.msg, rendered)
-
-TODO parse gedeelte helemaal overhevelen naar controller
-
     def parse_forms(self):
         validForm = False
         msg = ['Parsing forms']
@@ -145,7 +139,7 @@ TODO parse gedeelte helemaal overhevelen naar controller
 
         if formUsed == 'updateSapDate' and self.form_update_sap_date.validates():
             msg.append('Updating last sap update date')
-            model.last_update(self.form_update_sap_date['sapdate'].value)
+            model.db.last_update(self.form_update_sap_date['sapdate'].value)
             validForm = True
 
         if formUsed =='rebuildGraphs' and self.form_rebuild_graphs.validates():
@@ -171,9 +165,9 @@ TODO parse gedeelte helemaal overhevelen naar controller
         msg.append("Purging year %s" % jaar)
         msg.append("From table  %s" % table)
         if table == '*':
-            aantalWeg = model.delete_regels(jaar)
+            aantalWeg = model.db.delete_regels(jaar)
         else:
-            aantalWeg = model.delete_regels(jaar, tableNames=[table])
+            aantalWeg = model.db.delete_regels(jaar, tableNames=[table])
         msg.append("Deleted %s rows" % aantalWeg)
 
         return msg
@@ -233,10 +227,10 @@ TODO parse gedeelte helemaal overhevelen naar controller
             return msg
         msg.append('xlsx to csv convertion succes')
 
-        if model.check_table_exists(table):
+        if model.db.check_table_exists(table):
             table_backup = table + datetime.datetime.now().strftime("%Y%m%d%H%M-%f")
             msg.append('Copying '+table+' to ' + table_backup)
-            if not model.copy_table(table, table_backup):
+            if not model.db.copy_table(table, table_backup):
                 msg.append('Copying table failed!')
                 return msg
             msg.append('Copying table succes')
@@ -260,9 +254,9 @@ TODO parse gedeelte helemaal overhevelen naar controller
                 msg.append('Required field not in excel: ' + attribute)
                 return msg
 
-        if not model.check_table_exists(table):
+        if not model.db.check_table_exists(table):
             msg.append('Creating new table using headers')
-            model.create_table(table, fields)
+            model.db.create_table(table, fields)
         else:
             msg.append('Table already exists, add regels to it.')
 
@@ -281,7 +275,7 @@ TODO parse gedeelte helemaal overhevelen naar controller
             rownumber +=1
         f.close()
 
-        model.insert_into_table(table, rows)
+        model.db.insert_into_table(table, rows)
 
         # clean up
         msg.append('Cleaning up files')

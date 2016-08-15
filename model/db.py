@@ -150,17 +150,9 @@ def delete_regels(jaar, tableNames=[]):
 
     return deletedTotal
 
-def get_userlist():
-    userList = []
-    for user in users:
-        print user #niels:LION.* test:LION.PL-TP,PL-BP
-        #userList.append([user, userHash, ])
-        #hashlib.sha224(user+config["salt"]).hexdigest()
-    #return
-
 # returns a dict per username with:
 # hash, orders and OrderGroep objects
-def get_uses():
+def get_users():
     userList = {}
     for userName, orderGroepStr in users.iteritems():
         ogFile, ogNames = orderGroepStr.split('.')

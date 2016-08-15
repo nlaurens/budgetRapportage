@@ -1,10 +1,13 @@
 import web
 import model.db
+from config import config
 
 class Controller(object):
     def __init__(self):
 #TODO remove cache=False
         self.mainRender = web.template.render('webpages/', cache=False) 
+        self.config = config
+        self.SAPupdate = model.db.last_update() #gives subclass__init__ access
 
         # should be set in the subclass
         self.title = None
@@ -30,7 +33,6 @@ class Controller(object):
         self.check_IP_allowed() # Will terminate all non-auth. connections 
 
         self.userHash = arg[1]
-        self.SAPupdate = model.db.last_update()
 #TODO re-implement this
         #if not session.get('logged_in', False):
             #TODO: determine the caller'
@@ -76,10 +78,9 @@ class Controller(object):
     # Checks if IP is allowed
     # If not imidialty sends a 404 and stops all processing
     def check_IP_allowed(self):
-        from config import config
         from iptools import IpRangeList
         ip = web.ctx['ip']
-        ipRanges = config['IpRanges'].split()
+        ipRanges = self.config['IpRanges'].split()
         start = ipRanges[0:][::2]
         stop = ipRanges[1:][::2]
 
@@ -98,7 +99,7 @@ class Controller(object):
         options['empty'] = [ ('', '')]
         options['all'] = [ ('*','! ALL !') ]
         options['years'] = zip(jarenDB, jarenDB)
-        options['tables'] = config['mysql']['tables']['regels'].items()
+        options['tables'] = self.config['mysql']['tables']['regels'].items()
 
         options['empty_years_all'] = options['empty'] + options['years'] + options['all']
 
