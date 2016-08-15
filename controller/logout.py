@@ -1,7 +1,18 @@
 from controller import Controller
+import web
+from web import form
+
 class Logout(Controller):
-    def process_sub(self, userHash):
-        auth_block_by_ip()
-        session.logged_in = False
-        page = webpage.Simple(userHash, 'Logout', 'You have been logged out')
-        return page.render()
+    def __init__(self):
+        Controller.__init__(self)
+
+        #subclass specific
+        self.title = 'Logout'
+        self.module = 'logout'
+        self.webrender = web.template.render('webpages/access/')
+        self.redirect = 'index'
+
+    def process_sub(self):
+        self.msg = ['You have been logged out']
+        self.redirect = self.redirect
+        self.body = self.render_simple()
