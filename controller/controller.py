@@ -4,7 +4,7 @@ import model.db
 class Controller(object):
     def __init__(self):
 #TODO remove cache=False
-        self.mainRender = web.template.render('webpage/templates/', cache=False) 
+        self.mainRender = web.template.render('webpages/', cache=False) 
 
         # should be set in the subclass
         self.title = None
