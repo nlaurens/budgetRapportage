@@ -1,12 +1,8 @@
 from controller import Controller
-from web import form
 
 class Index(Controller):
     def __init__(self):
         Controller.__init__(self)
-        self.form_redirect = form.Form(
-                form.Button('ok', value='redirect')
-        )
 
     def process_sub(self):
         self.title = 'Welcome'

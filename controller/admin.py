@@ -59,6 +59,7 @@ class Admin(Controller):
             if validForm:
                 self.title = 'Admin Panel Results'
                 self.msg = msg 
+                self.redirect = 'admin'
                 self.body = self.render_simple()
         elif self.callType == 'GET':
             # Display admin page:

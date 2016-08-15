@@ -126,7 +126,7 @@ def get_years_available(tableNames=[]):
         for dbRow in jarenTable:
             jaren.add(dbRow.jaar)
 
-    return jaren
+    return sorted(jaren)
 
 
 def delete_regels(jaar, tableNames=[]):

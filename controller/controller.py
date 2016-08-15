@@ -1,6 +1,7 @@
 import web
 import model.db
 from config import config
+from web import form
 
 class Controller(object):
     def __init__(self):
@@ -15,6 +16,11 @@ class Controller(object):
         self.webrender = None
         self.breadCrum = None #list of dict items (keys: title, ulr, class:active)
         self.static = False
+
+        #forms
+        self.form_redirect = form.Form(
+                form.Button('ok', value='redirect')
+        )
 
     def GET(*arg):
         self = arg[0]
