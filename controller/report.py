@@ -18,22 +18,22 @@ class Report(Controller):
         #Report specific:
         self.jaar = int(web.input(jaar=self.config["currentYear"])['jaar'])
 #TODO config
-        self.groepstr = web.input(groep='TOTAAL')['groep']
+        self.subgroep = str(web.input(subgroep='TOTAAL')['subgroep'])
+        self.ordergroep = str(web.input(ordergroep='LION')['ordergroep'])
         self.regels = {} #Dictionary per order, per tiepe = regellist
         self.orders = [] #list of all orders in the group
 
-
     def process_sub(self):
-        ogPath = model.db.loadOrderGroepen()['LION']
+        ogPath = model.db.loadOrderGroepen()[self.ordergroep]
         orderGroep = budget.ordergroep.load(ogPath)
-        self.root = orderGroep.find(self.groepstr)
+        self.root = orderGroep.find(self.subgroep)
 
         #construct beadcrumbs
         groep = self.root
         breadCrum = [ {'title':groep.descr, 'url':groep.name, 'class':'active'}]
         while groep.parent:
             groep = groep.parent
-            link = '%sgroep?=%s' % (self.url(), groep.name)
+            link = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroep, groep.name)
             breadCrum.append({'title':groep.descr, 'url':link, 'class':''})
 
         self.breadCrum = reversed(breadCrum)

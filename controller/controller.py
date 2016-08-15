@@ -70,25 +70,25 @@ class Controller(object):
         i = 0
         for child in orderGroep.children:
             i += 1
-            navgroups.extend( self.list_nav_groups(child, str(i), 1))
+            navgroups.extend( self.list_nav_groups(og, child, str(i), 1))
 
         name = orderGroep.descr
-        link = '%s?groep=%s' % (self.url(), orderGroep.name)
+        link = '/report/%s?ordergroep=%s&subgroep=%s' % (self.userHash, og, orderGroep.name)
         padding = str(0)
         navgroups.insert(0,{'link': link, 'name':name, 'padding':padding})
 
         return {'title':og, 'items':navgroups}
 
-    def list_nav_groups(self, root, label, depth):
+    def list_nav_groups(self, og, root, label, depth):
         groups = []
         i = 0
         for child in root.children:
             i += 1
             labelChild = '%s.%s' % (label, i)
-            groups.extend(self.list_nav_groups(child, labelChild, depth+1))
+            groups.extend(self.list_nav_groups(og, child, labelChild, depth+1))
 
         name = '%s' % (root.descr) #you can use: '%s. %s' % (label, root.descr) as numbered list
-        link = '/report/%s?groep=%s' % (self.userHash, root.name)
+        link = '/report/%s?ordergroep=%s&subgroep=%s' % (self.userHash, og, root.name)
         padding = str(depth*15)
         groups.insert(0,{'link': link, 'name':name, 'padding':padding})
         return groups
