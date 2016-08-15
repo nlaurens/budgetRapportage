@@ -3,10 +3,15 @@ class OrderGroep:
         self.name = name
         self.descr = descr
         self.parent = parent
-        self.level = level
+        self.level = level #Depth starts at 1
         self.children = []
 
         self.orders = {}  # list that holds all orders
+
+    def flat_copy(self):
+        flat = OrderGroep(self.name, 'Flat %s' % self.descr, 1, '')
+        flat.orders = self.list_orders_recursive()
+        return flat
 
     def add_order(self, order, descr):
         self.orders[order] = descr
@@ -162,8 +167,8 @@ def load(groepPath):
                 name = line[lvl + 1:sp]
                 descr = line[sp + 1:]
                 if group == '':
-                    group = OrderGroep(name, descr, lvl, '')
-                    root = group
+                        group = OrderGroep(name, descr, lvl, '')
+                        root = group
                 else:
                     parent = group.lower_level_parent(lvl)
                     group = OrderGroep(name, descr, lvl, parent)
@@ -173,6 +178,7 @@ def load(groepPath):
                 order = line[:sp]
                 descr = line[sp + 1:]
                 group.add_order(int(order), descr)
+
 
     return root
 

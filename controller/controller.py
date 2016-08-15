@@ -58,6 +58,7 @@ class Controller(object):
         navgroups.append(self.navbar_group('LION-BSF'))
         navgroups.append(self.navbar_group('LION-DITP'))
         navgroups.append(self.navbar_group('LION-NF'))
+        navgroups.append(self.navbar_group('20081GS'))
 
         navbar = self.mainRender.navbar(self.userHash, self.breadCrum, navgroups)
 

@@ -32,6 +32,7 @@ TODO
     - webpage.report
         * Change glyph on collapse like in websalaris!
         * add tree view of the total groep
+        * settings: &flat={1,0}
 
     -webpage.graph
         * userHash checken - alles staat nu op

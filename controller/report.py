@@ -20,13 +20,18 @@ class Report(Controller):
 #TODO config
         self.subgroep = str(web.input(subgroep='TOTAAL')['subgroep'])
         self.ordergroep = str(web.input(ordergroep='LION')['ordergroep'])
+        self.flat = bool(int(web.input(flat='0')['flat']))
         self.regels = {} #Dictionary per order, per tiepe = regellist
         self.orders = [] #list of all orders in the group
 
     def process_sub(self):
         ogPath = model.db.loadOrderGroepen()[self.ordergroep]
         orderGroep = budget.ordergroep.load(ogPath)
-        self.root = orderGroep.find(self.subgroep)
+        orderGroep = orderGroep.find(self.subgroep) #AIAI!
+        if self.flat:
+            orderGroep = orderGroep.flat_copy()
+
+        self.root = orderGroep
 
         #construct beadcrumbs
         groep = self.root
