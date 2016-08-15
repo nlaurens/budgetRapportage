@@ -7,13 +7,6 @@ import csv
 from budget.regel import Regel, specific_rules
 from budget.regellist import RegelList
 
-""""
-
-TODO
-    * Reserves in mysql
-    * Prognose in mysql
-    * Mee/tegenvallers in mysql
-"""
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"], host=config["mysql"]["host"])
 
 # Returns a dictionary of regellists of select tables (or all if emtpy)
@@ -198,6 +191,7 @@ def last_update(newdate=''):
 # returns the list of all reserves
 # TODO into mysql and use currentYear!
 def get_reserves():
+    return None
     from decimal import Decimal
     reserves = {}
     with open('data/reserves/2015.txt') as f:
