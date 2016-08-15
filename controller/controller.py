@@ -16,8 +16,6 @@ class Controller(object):
         self.breadCrum = None #list of dict items (keys: title, ulr, class:active)
         self.static = False
 
-        pass
-
     def GET(*arg):
         self = arg[0]
         self.callType = 'GET'
@@ -50,10 +48,6 @@ class Controller(object):
         navgroups = self.navbar_groups()
         navbar = self.mainRender.navbar(self.userHash, self.breadCrum, navgroups)
         return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
-
-    #def set_page_attr(self, page):
-    #    for attr, value in self.pageAttr.iteritems():
-    #        setattr(page, attr, value)
 
     def navbar_groups(self):
         #Navigation bar including a dropdown of the report layout
