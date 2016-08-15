@@ -4,6 +4,7 @@ class Index(Controller):
     def __init__(self):
         Controller.__init__(self)
         self.title = 'Welcome'
+        self.module = 'index'
         self.msg = ['Make a selection from the menu above.']
 
     def process_sub(self):

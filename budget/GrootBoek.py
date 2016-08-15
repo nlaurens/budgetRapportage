@@ -226,13 +226,9 @@ def last_item_in_list(lst):
     return len(lst), lst[-1]
 
 
-def load(grootboek):
-    print 'REIMPLEMENT THIS WITHOUTH GROOTBOEK KNOWING ABOUT MODEL'
-    KSgroepen = ['']  # model.loadKSgroepen()
-    path = KSgroepen[grootboek]
-
+def load(ogPath):
     root = ''
-    f = open(path, 'r')
+    f = open(ogPath, 'r')
     group = ''
     for line in f:
         line = line.replace('|', ' ')
