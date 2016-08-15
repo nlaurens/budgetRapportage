@@ -1,9 +1,11 @@
-$def with(orderrows, html)
+$def with(orderrows, html, expand)
 <tr>
     <td>
-        <button data-toggle="collapse" data-target="#collapse$html['id']" class="accordion-toggle btn btn-default btn-xs">
-            <span id="plusminus$html['id']" class="glyphicon glyphicon-plus"></span>
-        </button>
+        $if expand:
+            <button data-toggle="collapse" data-target="#collapse$html['id']" class="accordion-toggle btn btn-default btn-xs">
+                <span id="plusminus$html['id']" class="glyphicon glyphicon-plus"></span>
+            </button>
+
         <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph$html['id']">
             <span class="glyphicon glyphicon-paperclip"></span>
         </button>

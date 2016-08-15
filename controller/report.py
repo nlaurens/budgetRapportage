@@ -21,6 +21,7 @@ class Report(Controller):
         self.subgroep = str(web.input(subgroep='TOTAAL')['subgroep'])
         self.ordergroep = str(web.input(ordergroep='LION')['ordergroep'])
         self.flat = bool(int(web.input(flat='0')['flat']))
+        self.expandOrders = bool(int(web.input(expandOrders='0')['expandOrders']))
         self.regels = {} #Dictionary per order, per tiepe = regellist
         self.orders = [] #list of all orders in the group
 
@@ -159,7 +160,7 @@ class Report(Controller):
         header['realisatie'] =  table_string(root.totaalTree['geboekt'] + root.totaalTree['obligo'])
         header['resultaat'] = table_string(root.totaalTree['plan'] - root.totaalTree['geboekt'] - root.totaalTree['obligo'])
 
-        order_table = self.webrender.table_order(html_rows, header)
+        order_table = self.webrender.table_order(html_rows, header, self.expandOrders)
         return order_table, root.totaalTree
 
 
