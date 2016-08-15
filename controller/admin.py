@@ -281,7 +281,9 @@ class Admin(Controller):
 
         # clean up
         msg.append('Cleaning up files')
-        #os.remove(table+'.xlsx') # BUG.. xlsx2csv seems to block the file handle.
+        
+        del xlsx2csv 
+        os.remove(table+'.xlsx') # BUG.. xlsx2csv seems to block the file handle.
         os.remove(table+'.csv')
         msg.append('')
 

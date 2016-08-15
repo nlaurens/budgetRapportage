@@ -19,7 +19,6 @@ TODO
 
     - webpage.admin 
         * forms layout doen (attributen van webpy forms setten)
-        * upload .xlsx naar tmp dir
 
     - webpage.login
         * bij password verkeerd invullen post form leegmaken.
@@ -31,8 +30,7 @@ TODO
         * Obligos salarissen ECHT uit systeem halen (kan! ipv de HR-obligos per order!)
 
     - webpage.report
-        * Change glyph on collapse like in websalaris!
-        * add tree view of the total groep
+        * try to make .css to adjust colors for each div/table so its easier to see
         * settings: &flat={1,0}
 
     -webpage.graph
