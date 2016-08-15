@@ -52,7 +52,7 @@ class Admin(Controller):
                 form.Button('submit', value='rebuildGraphs')
         )
 
-    def process_sub(self, userHash):
+    def process_sub(self):
         # Handle posted forms
         if self.callType == 'POST':
             (validForm, msg) = self.parse_forms()

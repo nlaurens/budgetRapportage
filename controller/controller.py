@@ -18,25 +18,26 @@ class Controller(object):
 
     def GET(*arg):
         self = arg[0]
+        self.userHash = arg[1]
         self.callType = 'GET'
-        return self.process_main(self, arg[1:])
+        return self.process_main(*arg[2:]) # remaining params
 
     def POST(*arg):
         self = arg[0]
+        self.userHash = arg[1]
         self.callType = 'POST'
-        return self.process_main(arg)
+        return self.process_main(*arg[2:])
 
     #arg: 0 superclass inst., 1 subclass inst. 2. vars from url_map in a tupple
-    def process_main(*arg): 
-        self = arg[0]
+    def process_main(self, *arg): 
         self.check_IP_allowed() # Will terminate all non-auth. connections 
-        self.userHash = str(arg[2][0])
+
 #TODO re-implement this
         #if not session.get('logged_in', False):
             #TODO: determine the caller'
             #raise web.seeother('/login/%s?caller=%s' %(userHash, caller))
+        self.process_sub(*arg) # arg = remaining params
         
-        self.process_sub(arg) #sets the self.body, title
         return self.render_page()
 
     # Should be implemented by subclass and set self.body

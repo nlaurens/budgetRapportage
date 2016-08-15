@@ -8,7 +8,7 @@ class Index(Controller):
                 form.Button('ok', value='redirect')
         )
 
-    def process_sub(self, userHash):
+    def process_sub(self):
         self.title = 'Welcome'
         self.msg = ['Make a selection from the menu above.']
         self.body = self.render_simple()
