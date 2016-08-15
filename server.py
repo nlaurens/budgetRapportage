@@ -18,6 +18,10 @@ TODO
 
     - webpage.admin 
         - forms layout doen (attributen van webpy forms setten)
+        - upload .xlsx naar tmp dir
+
+    - webpage.login
+        - bij password verkeerd invullen post form leegmaken.
 
 # TIPS
     - render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh
@@ -44,6 +48,7 @@ if web.config.get('_session') is None:
     web.config._session = session
 else:
     session = web.config._session
+
 
 if __name__ == "__main__":
     app.run()
