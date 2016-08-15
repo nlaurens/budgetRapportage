@@ -71,7 +71,7 @@ class Admin(Controller):
 
             rendered = {}
             rendered['userAccess'] = self.webrender.user_access(self.authList)
-            rendered['dbStatus'] = 'DUMYY' #self.webrender.db_status(self.db_status())
+            rendered['dbStatus'] = self.webrender.db_status(self.db_status())
 
             rendered['forms'] = []
             rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
@@ -83,12 +83,14 @@ class Admin(Controller):
 
     def db_status(self):
         #construct dict with total regels per table
+        db_status = {}
+
         yearsFound = set()
         regelCount = {}
         totals = {}
         totals['total'] = 0
 
-        for table in config["mysql"]["tables"]["regels"]:
+        for table in self.config["mysql"]["tables"]["regels"]:
             regelCount[table] = {}
             if model.db.check_table_exists(table):
                 regelCount[table][0] = "OK"
@@ -107,22 +109,22 @@ class Admin(Controller):
 
         # create vars for render
         tableNames = regelCount.keys()
-        regelsHeaders= ['table', 'status' ]
+        db_status['headers'] = ['table', 'status' ]
         for year in sorted(list(yearsFound)):
-            regelsHeaders.append(str(year))
+            db_status['headers'].append(str(year))
 
-        regelsBody = []
+        db_status['body'] = []
         for table in tableNames:
             regel = [table, regelCount[table][0]]
             for year in sorted(list(yearsFound)):
                 regel.append(regelCount[table][year])
-            regelsBody.append(regel)
+            db_status['body'].append(regel)
 
-        regelsTotal = ['Total', totals['total']]
+        db_status['totals'] = ['Total', totals['total']]
         for year in sorted(list(yearsFound)):
-            regelsTotal.append(totals[year])
+            db_status['totals'].append(totals[year])
 
-        return [regelsHeaders, regelsBody, regelsTotal]
+        return db_status
 
     def parse_forms(self):
         validForm = False
@@ -196,7 +198,7 @@ class Admin(Controller):
                 fileHandle = None
             table = eval("self.form_upload_regels['type%s'].value" % i)
 
-            if fileHandle != None and table in config['mysql']['tables']['regels'].values():
+            if fileHandle != None and table in self.config['mysql']['tables']['regels'].values():
                 msg.extend(self.upload_and_process_file(table, fileHandle))
 
         return msg
@@ -239,7 +241,7 @@ class Admin(Controller):
         f = open(table+'.csv', 'rb')
         reader = csv.reader(f)
         headers = reader.next()
-        header_map = {y:x for x,y in config["SAPkeys"][table].iteritems()}
+        header_map = {y:x for x,y in self.config["SAPkeys"][table].iteritems()}
         fields = []
         for header in headers:
             if header in header_map:
@@ -249,7 +251,7 @@ class Admin(Controller):
                 msg.append('Import stopped!')
                 return msg
 
-        for attribute, SAPkey in config["SAPkeys"][table].iteritems():
+        for attribute, SAPkey in self.config["SAPkeys"][table].iteritems():
             if attribute not in fields:
                 msg.append('Required field not in excel: ' + attribute)
                 return msg

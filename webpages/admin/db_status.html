@@ -1,19 +1,19 @@
-$def with(regelsHeaders, regelsBody, regelsTotal)
+$def with(db_status)
                 <table class="table table-condensed" style="border-collapse:collapse;">
                     <thead>
                         <tr>
-                            $for header in regelsHeaders:
+                            $for header in db_status['headers']:
                                 <th class="text-right">$header</th>
                         </tr>                          
                     </thead>
                     <tbody>
-                    $for regels in regelsBody:
+                    $for regels in db_status['body']:
                         <tr>
                         $for regel in regels:
                             <td class="text-right">$regel</td>
                         </tr>
                     <tr class="table-warning">
-                    $for regel in regelsTotal:
+                    $for regel in db_status['totals']:
                         <td class="text-right">$regel</td>
                     </tr>
                     </tbody>
