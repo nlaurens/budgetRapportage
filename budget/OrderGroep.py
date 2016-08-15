@@ -145,13 +145,9 @@ def last_item_in_list(lst):
     return len(lst), lst[-1]
 
 
-def load(groep):
-    print 'REIMPLEMNT THIS WITHOUTH ORDERGROEP KNOWNING ABOUT MODEL!'
-    groepen = ''  # model.loadOrderGroepen()
-    path = groepen[groep]
-
+def load(groepPath):
     root = ''
-    f = open(path, 'r')
+    f = open(groepPath, 'r')
     group = ''
     for line in f:
         line = line.strip()

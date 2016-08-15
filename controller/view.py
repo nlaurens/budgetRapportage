@@ -48,8 +48,8 @@ class View(Controller):
 
         regels = model.db.get_regellist_per_table(jaar=[self.jaar], orders=[self.order])
 #TODO replace with param/CONFIG
-        og = model.db.loadKSgroepen()['WNMODEL4']
-        root = budget.grootboek.load(og)
+        ksPath = model.db.loadKSgroepen()['WNMODEL4']
+        root = budget.grootboek.load(ksPath)
         root.assign_regels_recursive(regels)
         root.set_totals()
 #TODO replace with param

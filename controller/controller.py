@@ -120,21 +120,9 @@ class Controller(object):
 
         return self.mainRender.simple(self.title, self.msg, form, redirect)
 
-    # Opens and returns a graph as a data stream
-    def return_graph(jaar, tiepe, order):
-        orderAllowed = True
-        graphPath = self.config['graphPath'] +'%s/%s/%s.png' % (jaar, tiepe, order)
-
-        if int(jaar) in range(1000, 9999):
-            if os.path.isfile(graphPath):
-                web.header("Content-Type", "images/png") # Set the Header
-                return open(graphPath,"rb").read()
-        else:
-            raise web.notfound()
-
     # Creates url to graph
     # tiepes: realisatie, bars, pie
     # names: anything from group orders to order numbers.
-    def graph_url(jaar, tiepe, name):
+    def url_graph(self, jaar, tiepe, name):
         return ('/graph/%s/%s/%s/%s.png' % (self.userHash, jaar, tiepe, name))
 
