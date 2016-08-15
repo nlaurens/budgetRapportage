@@ -1,10 +1,12 @@
 """"
+
 BUGS
 
     - import multiple files gaat niet goed (stopt na de 1e)
 
 TODO
     - Model, View, Controller .. Heb nu View en Controller in 1 gemaakt.. Splitsen dus!
+        --> geen aparte view class. Gebruik web.render in de controller!
     - authorisatie in elke class per order/groep/admin. Wellicht via model.isAuthed() doen?
     - user lijst gebruiken om menu te bouwen (ordergroepen voor report!)
     - Show negative bestedingsruimte in red and bold.
