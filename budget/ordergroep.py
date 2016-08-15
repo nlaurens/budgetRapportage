@@ -180,7 +180,7 @@ def load(groepPath):
 def load_sap_export(groepPath):
     print 'WARNING THIS SHOULD ONLY BE USED FOR CONVERTING SAP EXPORTS'
     root = ''
-    f = open(path, 'r')
+    f = open(groepPath, 'r')
     group = ''
     for line in f:
         line = line.replace('|', ' ')
@@ -194,7 +194,7 @@ def load_sap_export(groepPath):
             if item.isdigit():
                 if not descr.isdigit():
                     group.add_order(int(item), descr)
-            if group == '':
+            elif group == '':
                 group = OrderGroep(item, descr, level, '')
                 root = group
             else:

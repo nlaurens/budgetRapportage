@@ -14,10 +14,8 @@ def first_item_in_list(lst):
 def convert_gb_sap_2_txt(path):
     print 'converteren grootboek SAP export naar txt'
     print 'file: %s' % path
-    print dir(budget.ordergroep)
-    return
-
     root = budget.ordergroep.load_sap_export(path)
+    root.normalize_levels()
     file = open(path + '-converted.dat', 'w')
     root.save_as_txt(file)
     file.close()
