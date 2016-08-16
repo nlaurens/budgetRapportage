@@ -14,6 +14,7 @@ Model
         * access via model only
 
     - regels
+        * write validator for input that can be re-used (tablename in config[''] etc.)
         * add reserve to db
 
 Config
