@@ -226,6 +226,8 @@ def last_item_in_list(lst):
     return len(lst), lst[-1]
 
 
+#TODO
+#not ogpath maar dit is een kostensoort file!
 def load(ogPath):
     root = ''
     f = open(ogPath, 'r')
