@@ -1,20 +1,15 @@
 """ 
-Available submodules in model:
+Available functions in model:
     .ksgroup
+        .available() -> list of ksgroups as str
+        .load( name as str ) -> root as KostensoortGroup
     .ordergroup
     .regellist
     .regels
     .user
 
-model.ksgroup
-    .load( name )
-        input: name as str
-        returns: instance of KostenSoortGroep
-
-    .available() 
-        input: None 
-        output: names of kostensoortgroepen as a list of str
-
+-------------
+TODO
 model.ordergroup
     .load( name )
         input: name as str
@@ -70,4 +65,4 @@ model.users
 
 """
 
-
+__ALL__ = ['ksgroup']

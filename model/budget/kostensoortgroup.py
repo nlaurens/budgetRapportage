@@ -1,11 +1,11 @@
-class GrootBoek:
+class KostensoortGroup:
     def __init__(self, name, descr, level, parent):
         self.name = name
         self.descr = descr
-        self.parent = parent  # GrootBoek class
+        self.parent = parent  # KostensoortGroup class
         self.level = level
         self.kostenSoorten = {}  # KS die bij deze node horen (uit kostensoortgroep)
-        self.children = []  # list of GrootBoek classes
+        self.children = []  # list of kostensoortGroup classes
 
         self.regels = {}  # ['geboekt', 'obligo', 'plan'] = RegelList
 
@@ -21,7 +21,7 @@ class GrootBoek:
         self.children.append(child)
 
     def druk_af(self):
-        print 'grootboek ' + self.name + ' (level ' + str(self.level) + ') - ' + self.descr
+        print 'ksgroup ' + self.name + ' (level ' + str(self.level) + ') - ' + self.descr
         print 'totaal node: ' + str(self.totaalNodePerKS)
         print 'totaal tree: ' + str(self.totaalTree)
 
@@ -215,43 +215,3 @@ class GrootBoek:
 
         ks.update(self.kostenSoorten)
         return ks
-
-
-def first_item_in_list(lst):
-    i = next(i for i, j in enumerate(lst) if j)
-    return i, lst[i]
-
-
-def last_item_in_list(lst):
-    return len(lst), lst[-1]
-
-
-#TODO
-#not ogpath maar dit is een kostensoort file!
-def load(ogPath):
-    root = ''
-    f = open(ogPath, 'r')
-    group = ''
-    for line in f:
-        line = line.replace('|', ' ')
-        line = line.replace('--', '')
-        line = line.split(' ')
-        level, item = first_item_in_list(line)
-        item = item.strip()
-        descr = ' '.join(line[level + 1:]).strip()
-
-        if item != '':
-            if item.isdigit():
-                if not descr.isdigit():
-                    group.add_kostensoort(int(item), descr)
-            elif item != '>>>':
-                if group == '':
-                    group = GrootBoek(item, descr, level, '')
-                    root = group
-                else:
-                    parent = group.lower_level_parent(level)
-                    group = GrootBoek(item, descr, level, parent)
-                    parent.add_child(group)
-
-    root.normalize_levels()
-    return root
