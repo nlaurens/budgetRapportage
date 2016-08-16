@@ -10,7 +10,8 @@
         # Note don't use load_sap() for reports/graphs/etc. Only for
         # converting sap exports to txt files that can be used in .load()
 
-.regellist
+.regels
+    .exists( tableName as str) -> True/False
     .load(year=[], periode=[], order=[], tablesName=[], kostensoort=[]) -> RegelList
     .count() -> dict.dict: {<table as str>: <year as int>:<amount of regels as int>}
     .last_update( newdate=<str> ) -> writes/reads last_update as str from/to db

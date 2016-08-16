@@ -6,6 +6,8 @@ import os
 from controller import Controller
 import web
 from web import form
+import model.regels
+import model.functions
 
 class Admin(Controller):
     def __init__(self):
@@ -59,68 +61,57 @@ class Admin(Controller):
                 self.msg = msg 
                 self.redirect = 'admin'
                 self.body = self.render_simple()
-        elif self.callType == 'GET':
-            # Display admin page:
-            self.msg = ['Welcome to the Admin panel']
-            self.msg.extend(budget_run_tests())
+                return # prevent Get page from rendering
+
+        # Display admin page on GET or invalid form post
+        self.msg = ['Welcome to the Admin panel']
+        self.msg.extend(self.run_tests())
 
 #TODO coppelen aan config.user
-            self.authList = '' #model.db.get_users()
+        self.authList = '' #model.db.get_users()
 
-            rendered = {}
-            rendered['userAccess'] = self.webrender.user_access(self.authList)
-            rendered['dbStatus'] = self.webrender.db_status(self.db_status())
+        rendered = {}
+        rendered['userAccess'] = self.webrender.user_access(self.authList)
+        rendered['dbStatus'] = self.webrender.db_status(self.db_status())
 
-            rendered['forms'] = []
-            rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
-            rendered['forms'].append(self.webrender.form('Upload Regels to DB', self.form_upload_regels))
-            rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap_date))
-            rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
+        rendered['forms'] = []
+        rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
+        rendered['forms'].append(self.webrender.form('Upload Regels to DB', self.form_upload_regels))
+        rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap_date))
+        rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
 
-            self.body = self.webrender.admin(self.msg, rendered)
+        self.body = self.webrender.admin(self.msg, rendered)
 
     def db_status(self):
         #construct dict with total regels per table
         db_status = {}
 
-        yearsFound = set()
-        regelCount = {}
-        totals = {}
-        totals['total'] = 0
+        regel_count = model.regels.count()
+        tableNames = regel_count.keys()
+        years = model.regels.years()
 
-        for table in self.config["mysql"]["tables"]["regels"]:
-            regelCount[table] = {}
-            if model.db.check_table_exists(table):
-                regelCount[table][0] = "OK"
-                years = model.db.get_years_available()
-                yearsFound = yearsFound.union(years)
-                for year in sorted(list(years)):
-                    regelCount[table][year] = model.db.count_regels(int(year), table)
-                    if year not in totals:
-                        totals[year] = regelCount[table][year]
-                        totals['total'] += regelCount[table][year]
-                    else:
-                        totals[year] += regelCount[table][year]
-                        totals['total'] += regelCount[table][year]
-            else:
-                regelCount[table][0] = "Not found"
 
         # create vars for render
-        tableNames = regelCount.keys()
         db_status['headers'] = ['table', 'status' ]
-        for year in sorted(list(yearsFound)):
+        for year in years:
             db_status['headers'].append(str(year))
 
         db_status['body'] = []
         for table in tableNames:
-            regel = [table, regelCount[table][0]]
-            for year in sorted(list(yearsFound)):
-                regel.append(regelCount[table][year])
+            if model.regels.check_table_exists(table):
+                regel = [table, '']
+            else:
+                regel = [table, 'ERROR']
+            for year in years:
+                regel.append(regel_count[table][year])
             db_status['body'].append(regel)
 
-        db_status['totals'] = ['Total', totals['total']]
-        for year in sorted(list(yearsFound)):
-            db_status['totals'].append(totals[year])
+        db_status['totals'] = ['Total', '']
+        for year in years:
+            total = 0
+            for table in tableNames:
+                total += int(regel_count[table][year])
+            db_status['totals'].append(total)
 
         return db_status
 
@@ -139,7 +130,7 @@ class Admin(Controller):
 
         if formUsed == 'updateSapDate' and self.form_update_sap_date.validates():
             msg.append('Updating last sap update date')
-            model.db.last_update(self.form_update_sap_date['sapdate'].value)
+            model.regels.last_update(self.form_update_sap_date['sapdate'].value)
             validForm = True
 
         if formUsed =='rebuildGraphs' and self.form_rebuild_graphs.validates():
@@ -151,24 +142,30 @@ class Admin(Controller):
 
     def parse_remove_regels(self):
         msg = ['Removing regels from DB']
-        jaar = self.form_remove_regels['year'].value
-        if jaar == '*':
-            jaar = '%'
-        else:
-            jaar = int(jaar)
-
+        year = self.form_remove_regels['year'].value
         table = self.form_remove_regels['table'].value
+
+        msg.append("Purging year %s" % year)
+        msg.append("From table  %s" % table)
+
         if table == '':
             msg.append("No valid table selected")
             return msg
-
-        msg.append("Purging year %s" % jaar)
-        msg.append("From table  %s" % table)
-        if table == '*':
-            aantalWeg = model.db.delete_regels(jaar)
+        elif table == '*':
+            tableNames = []
         else:
-            aantalWeg = model.db.delete_regels(jaar, tableNames=[table])
-        msg.append("Deleted %s rows" % aantalWeg)
+            tableNames = [table]
+
+        if year == '':
+            msg.append("No valid year selected")
+            return msg
+        elif year == '*':
+            years = []
+        else:
+            years = [year]
+
+        deleted = model.regels.delete(years=years, tableNames=tableNames)
+        msg.append("Deleted %s rows" % deleted)
 
         return msg
 
@@ -203,6 +200,7 @@ class Admin(Controller):
 
     def upload_and_process_file(self, table, fileHandle):
         msg = ['Starting upload']
+        return 'DUMMY'
         allowed = ['.xlsx']
         msg.append('Uploading file.')
         succes_upload = False
@@ -287,19 +285,15 @@ class Admin(Controller):
 
         return msg
 
-
-# NEW - use to be in model.tests. Should be moved here and implemented in admin
-# class.
-    def run_tests():
+    def run_tests(self):
         success = False
         msg = [ 'nothing implmented' ]
-
 
         return (success, msg)
 
 # Test to see if there are regels containing ks that are not
 # in a report (and therefore would not show up).
-    def ks_missing_in_report():
+    def test_ks_missing_in_report():
         msg = []
         success = True
         ksDB = model.get_kosten_soorten()

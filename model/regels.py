@@ -1,9 +1,21 @@
 import web
 from config import config
 from budget import Regel, RegelList
-from functions import check_table_exists
 
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"], host=config["mysql"]["host"])
+
+
+"""
+.check_table_exists(table)
+    input: table as str
+    output: Boolean
+"""
+def check_table_exists(table):
+    results = db.query("SHOW TABLES LIKE '"+table+"'")
+    if len(results) == 0:
+        return False
+    return True
+
 
 """
 .load(years=[], periodes=[], orders=[], tablesNames=[], kostensoorten=[])
@@ -107,7 +119,7 @@ def count():
     output: last sap update from db as a string
 """
 def last_update(newdate=''):
-    if not check_table_exists(db, 'config'):
+    if not check_table_exists('config'):
         sql = "CREATE TABLE `config` ( `key` varchar(255), `value` varchar(255) );"
         results = db.query(sql)
         sql = "INSERT INTO `config` ( `key`, `value`) VALUES ( 'sapdate', 'no date set' );"

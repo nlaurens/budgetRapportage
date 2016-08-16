@@ -8,13 +8,6 @@ def last_item_in_list(lst):
 ####################
 # functions that are left over. Should still be re-assigned in model!
 ###################
-# Checks if all tables exist: def check_table_exists(table):
-def check_table_exists(db, table):
-    results = db.query("SHOW TABLES LIKE '"+table+"'")
-    if len(results) == 0:
-        return False
-    return True
-
 # Moves a table in the db to a new one (renames!)
 def move_table(table, target):
     if not check_table_exists(table):
