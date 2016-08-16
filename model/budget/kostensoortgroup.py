@@ -98,10 +98,11 @@ class KostensoortGroup:
         for child in self.children:
             child.assign_regels_recursive(regels)
 
-        for key in regels.keys():
-            filteredRegels = regels[key].copy()
+        regels_by_type = regels.split(['tiepe']) #plan, geboekt, obligo, etc.
+        for regel_type, regels in regels_by_type.iteritems():
+            filteredRegels = regels.copy()
             filteredRegels.filter_regels_by_attribute('kostensoort', self.kostenSoorten.keys())
-            self.regels[key] = filteredRegels
+            self.regels[regel_type] = filteredRegels
 
     # Set totals per key [obligo, plan, etc.], and per ks for each node
     def set_totals(self, periodeRequested=range(0, 16)):
@@ -113,7 +114,7 @@ class KostensoortGroup:
 
         # For each key [begroot, plan, ] split into ks and periode
         for key in self.regels.keys():
-            regelsPerKS = self.regels[key].split_by_regel_attributes(['kostensoort', 'periode'])
+            regelsPerKS = self.regels[key].split(['kostensoort', 'periode'])
 
             # Walk over all ks, make sure there is a dict item
             for ks, regelsPerPeriode in regelsPerKS.iteritems():

@@ -5,6 +5,8 @@ BUGS
 
 TODO
 
+Remove hardcoded 'geboekt', 'obligo', etc. from all model/controller - grep
+
 Model
     - model.users
         * ouser lijst gebruiken om menu te bouwen (ordergroepen voor report!)
@@ -19,6 +21,9 @@ Config
 
 Controller & Webpages
     - Alle templates doorlopen op $:xxx als dat niet nodig is.
+
+    - view
+        * html_tree has double code, lot of it is done by budget.kostensoortgroup
 
     - admin 
         * forms layout doen (attributen van webpy forms setten)

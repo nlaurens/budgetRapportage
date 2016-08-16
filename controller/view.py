@@ -3,6 +3,9 @@ from controller import Controller
 import web
 from web import form
 
+import model.regels
+import model.ksgroup
+
 class View(Controller):
     def __init__(self):
         Controller.__init__(self)
@@ -44,15 +47,14 @@ class View(Controller):
         #KSgroepen = model.loadKSgroepen()
         #fill_dropdowns(form, settings, KSgroepen)
 
-        regels = model.db.get_regellist_per_table(jaar=[self.jaar], orders=[self.order])
+        regels = model.regels.load(years=[self.jaar], orders=[self.order])
 #TODO replace with param/CONFIG
-        ksPath = model.db.loadKSgroepen()['WNMODEL4']
-        root = budget.grootboek.load(ksPath)
-        root.assign_regels_recursive(regels)
-        root.set_totals()
+        ksgroup = model.ksgroup.load('WNMODEL4')
+        ksgroup.assign_regels_recursive(regels)
+        ksgroup.set_totals()
 #TODO replace with param
-        rootBaten = root.find('WNTBA')
-        rootLasten = root.find('WNTL')
+        rootBaten = ksgroup.find('WNTBA')
+        rootLasten = ksgroup.find('WNTL')
 
         if self.clean:
             rootBaten.clean_empty_nodes()
@@ -60,20 +62,17 @@ class View(Controller):
 
         totaal = {}
         totaal['order'] = self.order
-        totaal['begroting'] = root.totaalTree['plan']
+        totaal['begroting'] = ksgroup.totaalTree['plan']
         totaal['baten'] = rootBaten.totaalTree['geboekt'] + rootBaten.totaalTree['obligo']
         totaal['lasten'] = rootLasten.totaalTree['geboekt'] + rootLasten.totaalTree['obligo']
 
-        reserves = model.db.get_reserves()
-        try:
-            totaal['reserve'] = reserves[str(self.order)]
-        except:
-            totaal['reserve'] = 0
+        #TODO implment reserves
+        totaal['reserve'] = 0
 
         if totaal['reserve'] < 0:
-            totaal['ruimte'] = -1*(root.totaalTree['geboekt'] + root.totaalTree['obligo']) + totaal['begroting'] + totaal['reserve']
+            totaal['ruimte'] = -1*(ksgroup.totaalTree['geboekt'] + ksgroup.totaalTree['obligo']) + totaal['begroting'] + totaal['reserve']
         else:
-            totaal['ruimte'] = -1*(root.totaalTree['geboekt'] + root.totaalTree['obligo']) + totaal['begroting']
+            totaal['ruimte'] = -1*(ksgroup.totaalTree['geboekt'] + ksgroup.totaalTree['obligo']) + totaal['begroting']
 
         totaal['reserve'] = moneyfmt(totaal['reserve'])
         totaal['ruimte'] = moneyfmt(totaal['ruimte'])
@@ -82,7 +81,7 @@ class View(Controller):
         totaal['begroting'] = moneyfmt(totaal['begroting'])
 
         htmlgrootboek = []
-        for child in root.children:
+        for child in ksgroup.children:
             htmlgrootboek.append(self.html_tree(child, 0))
 
         self.body = self.webrender.view(self.settings_simple_form, 'dummy sap datum', htmlgrootboek, totaal)
@@ -103,12 +102,16 @@ class View(Controller):
         totalsNode['obligo'] = root.totaalTree['obligo']
         totalsNode['plan'] = root.totaalTree['plan']
 
-        regelsPerKSPerTiepe = budget.RegelList() # Create 1 regellist and not a dict per type
+#TODO import should be moving
+        from model.budget import RegelList
+        regelsPerKSPerTiepe =  RegelList()# Create 1 regellist and not a dict per type
         for key, regelsPerTiepe in root.regels.iteritems():
             regelsPerKSPerTiepe.extend(regelsPerTiepe)
 
-        regelsPerKSPerTiepe = regelsPerKSPerTiepe.split_by_regel_attributes(['kostensoort','tiepe'])
+        regelsPerKSPerTiepe = regelsPerKSPerTiepe.split(['kostensoort','tiepe'])
         for kostenSoort, regelsPerTiepe in regelsPerKSPerTiepe.iteritems():
+
+#TODO Already in kostensoortgroup!
             totalsKS = {}
             totalsKS['geboekt'] = 0
             totalsKS['obligo'] = 0
