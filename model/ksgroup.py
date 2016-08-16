@@ -1,13 +1,14 @@
 import glob
 import os
-from budget import KostensoortGroup
+
 from config import config
+from budget import KostensoortGroup
 from functions import first_item_in_list as first_item_in_list
 
 """
 .available() 
     input: None 
-    output: names of kostensoortgroepen as a list of str
+    output: names of kostensoortgroups as a list of str
 """
 def available():
     ksgroups = []
@@ -20,7 +21,7 @@ def available():
 """
 .load( name )
     input: name as str
-    returns: instance of KostenSoortGroep
+    returns: KostenSoortGroup
 """
 def load(ks_group_name):
     path = '%s\%s' % (config['ksGroupsPath'], ks_group_name)

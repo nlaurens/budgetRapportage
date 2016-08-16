@@ -2,23 +2,19 @@
 Available functions in model:
     .ksgroup
         .available() -> list of ksgroups as str
-        .load( name as str ) -> root as KostensoortGroup
+        .load( name as str ) -> KostensoortGroup
     .ordergroup
+        .available() -> list of ordergroups as str
+        .load( name as str ) -> OrderGroup
+        .load_sap( path_sap_export_file as str ) -> OrderGroup
+            # Note don't use load_sap() for reports/graphs/etc. Only for
+            # converting sap exports to txt files that can be used in .load()
     .regellist
     .regels
     .user
 
 -------------
 TODO
-model.ordergroup
-    .load( name )
-        input: name as str
-        output: instance of OrderGroep
-
-    .available() 
-        input: None 
-        output: names of ordergroepen as a list of str
-
 model.regellist
     .load( year=[], orders=[], tablesNames=[])
         input: year as list of int,
@@ -65,4 +61,4 @@ model.users
 
 """
 
-__ALL__ = ['ksgroup']
+__ALL__ = ['ksgroup', 'ordergroup']

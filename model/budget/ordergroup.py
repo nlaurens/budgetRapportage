@@ -1,4 +1,4 @@
-class OrderGroep:
+class OrderGroup:
     def __init__(self, name, descr, level, parent):
         self.name = name
         self.descr = descr
@@ -9,7 +9,7 @@ class OrderGroep:
         self.orders = {}  # list that holds all orders
 
     def flat_copy(self):
-        flat = OrderGroep(self.name, 'Flat %s' % self.descr, 1, '')
+        flat = OrderGroup(self.name, 'Flat %s' % self.descr, 1, '')
         flat.orders = self.list_orders_recursive()
         return flat
 
@@ -23,7 +23,7 @@ class OrderGroep:
         print '*' * self.level + ' ' + self.name + ' (' + self.descr + ')'
 
     def druk_af(self):
-        print 'ordergroep ' + self.name + ' (level ' + str(self.level) + ') - ' + self.descr
+        print 'ordergroup ' + self.name + ' (level ' + str(self.level) + ') - ' + self.descr
 
         if self.parent != '':
             print 'belongs to parent: ' + self.parent.name
@@ -147,74 +147,3 @@ class OrderGroep:
 
         for child in self.children:
             child.save_as_txt(fileHandle)
-
-
-def first_item_in_list(lst):
-    i = next(i for i, j in enumerate(lst) if j)
-    return i, lst[i]
-
-
-def last_item_in_list(lst):
-    return len(lst), lst[-1]
-
-# We don't use sap exports anymore. Need to be converted first!
-def load(groepPath):
-    root = ''
-    f = open(groepPath, 'r')
-    group = ''
-    for line in f:
-        line = line.strip()
-        if line != '':
-            if line[0] == '#':
-                lvl = 0
-                while line[lvl] == '#':
-                    lvl += 1
-
-                lvl -= 1
-                sp = line.index(' ')
-                name = line[lvl + 1:sp]
-                descr = line[sp + 1:]
-                if group == '':
-                        group = OrderGroep(name, descr, lvl, '')
-                        root = group
-                else:
-                    parent = group.lower_level_parent(lvl)
-                    group = OrderGroep(name, descr, lvl, parent)
-                    parent.add_child(group)
-            else:
-                sp = line.index(' ')
-                order = line[:sp]
-                descr = line[sp + 1:]
-                group.add_order(int(order), descr)
-
-
-    return root
-
-# Only use for converting!
-def load_sap_export(groepPath):
-    print 'WARNING THIS SHOULD ONLY BE USED FOR CONVERTING SAP EXPORTS'
-    root = ''
-    f = open(groepPath, 'r')
-    group = ''
-    for line in f:
-        line = line.replace('|', ' ')
-        line = line.replace('--', '')
-        line = line.split(' ')
-        level, item = first_item_in_list(line)
-        item = item.strip()
-        descr = ' '.join(line[level + 1:]).strip()
-
-        if item != '':
-            if item.isdigit():
-                if not descr.isdigit():
-                    group.add_order(int(item), descr)
-            elif group == '':
-                group = OrderGroep(item, descr, level, '')
-                root = group
-            else:
-                print 'GROUP %s - %s (%s)' % (level, item, descr)
-                parent = group.lower_level_parent(level)
-                group = OrderGroep(item, descr, level, parent)
-                parent.add_child(group)
-
-    return root
