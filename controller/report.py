@@ -3,6 +3,9 @@ import web
 from web import form
 import numpy as np
 
+import model.ksgroup
+import model.ordergroup
+
 class Report(Controller):
     def __init__(self):
         Controller.__init__(self)
@@ -24,13 +27,12 @@ class Report(Controller):
         self.orders = [] #list of all orders in the group
 
     def process_sub(self):
-        ogPath = model.db.loadOrderGroepen()[self.ordergroep]
-        orderGroep = budget.ordergroep.load(ogPath)
-        orderGroep = orderGroep.find(self.subgroep) #AIAI!
+        ordergroup = model.ordergroup.load(self.ordergroep)
+        ordergroup = ordergroup.find(self.subgroep) 
         if self.flat:
-            orderGroep = orderGroep.flat_copy()
+            ordergroup = ordergroup.flat_copy()
 
-        self.root = orderGroep
+        self.root = ordergroup
 
         #construct beadcrumbs
         groep = self.root
@@ -43,8 +45,8 @@ class Report(Controller):
         self.breadCrum = reversed(breadCrum)
 
         self.orders = self.root.list_orders_recursive().keys()
-        regels = model.db.get_regellist(jaar=[self.jaar], orders=self.orders)
-        self.regels = regels.split_by_regel_attributes(['ordernummer', 'tiepe'])
+        regels = model.regels.load(years=[self.jaar], orders=self.orders)
+        self.regels = regels.split(['ordernummer', 'tiepe'])
 
 #TODO lijkt erop dat dit recursie is die we in de render_body all kunnen doen
         body = self.render_table_html()
@@ -130,9 +132,18 @@ class Report(Controller):
             regels = self.regels[order]
 
 #TODO  In config params!!
-        ksPath = model.db.loadKSgroepen()['BFRE15']
-        root = budget.grootboek.load(ksPath)
+        root = model.ksgroup.load('BFRE15')
         root = root.find('BFRE15E01')
+
+#TODO prevent this. regels is now a dictionary not a single regellist.
+        from model.budget import RegelList
+        regel_list =  RegelList()# Create 1 regellist and not a dict per type
+        for key, regellist in regels.iteritems():
+            regel_list.extend(regellist)
+        regels = regel_list
+
+
+
         root.assign_regels_recursive(regels)
         root.clean_empty_nodes()
         root.set_totals()
