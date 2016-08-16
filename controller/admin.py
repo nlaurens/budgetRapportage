@@ -200,7 +200,6 @@ class Admin(Controller):
 
     def upload_and_process_file(self, table, fileHandle):
         msg = ['Starting upload']
-        return 'DUMMY'
         allowed = ['.xlsx']
         msg.append('Uploading file.')
         succes_upload = False
@@ -225,19 +224,12 @@ class Admin(Controller):
             return msg
         msg.append('xlsx to csv convertion succes')
 
-        if model.db.check_table_exists(table):
-            table_backup = table + datetime.datetime.now().strftime("%Y%m%d%H%M-%f")
-            msg.append('Copying '+table+' to ' + table_backup)
-            if not model.db.copy_table(table, table_backup):
-                msg.append('Copying table failed!')
-                return msg
-            msg.append('Copying table succes')
-
         msg.append('Reading headers from CSV')
         f = open(table+'.csv', 'rb')
         reader = csv.reader(f)
         headers = reader.next()
         header_map = {y:x for x,y in self.config["SAPkeys"][table].iteritems()}
+
         fields = []
         for header in headers:
             if header in header_map:
@@ -251,13 +243,6 @@ class Admin(Controller):
             if attribute not in fields:
                 msg.append('Required field not in excel: ' + attribute)
                 return msg
-
-        if not model.db.check_table_exists(table):
-            msg.append('Creating new table using headers')
-            model.db.create_table(table, fields)
-        else:
-            msg.append('Table already exists, add regels to it.')
-
 
         # Fill table from CSV
         msg.append('Inserting data into table')
@@ -273,7 +258,7 @@ class Admin(Controller):
             rownumber +=1
         f.close()
 
-        model.db.insert_into_table(table, rows)
+        model.regels.add(table, fields, rows)
 
         # clean up
         msg.append('Cleaning up files')

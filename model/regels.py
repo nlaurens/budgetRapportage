@@ -59,11 +59,9 @@ def load(years=[], periods=[], orders=[], tableNames=[], kostensoorten=[]):
     return RegelList(regels)
 
 
-"""
-.__specific_rules(regel)
-    modification of the regels in the db based on their content should be written
-    here. Note this changes per setup.
-"""
+# .__specific_rules(regel)
+#   modification of the regels in the db based on their content should be written
+#   here. Note this changes per setup.
 def __specific_rules(regel):
     modifiedRegels = [regel]  # one regel can be replaced by multiple hence the list.
 
@@ -107,8 +105,15 @@ def count():
     for table in tableNames:
         count[table] = {}
         for year in years_in_db:
-            results = db.query("SELECT COUNT(*) AS total_regels FROM %s WHERE `jaar`=%s " % (table, year) )
-            count[table][year] = int(results[0].total_regels)
+            try:
+                results = db.query("SELECT COUNT(*) AS total_regels FROM %s WHERE `jaar`=%s " % (table, year) )
+            except:
+                results = None
+
+            if results:
+                count[table][year] = int(results[0].total_regels)
+            else:
+                count[table][year] = 0
 
     return count
 
@@ -170,9 +175,14 @@ def __select_distinct(regel_attribute, tableNames=[]):
     table_names = config["mysql"]["tables"]["regels"].keys()
 
     for table_name in table_names:
-        table = db.query("SELECT DISTINCT(`%s`) FROM `%s`" % (regel_attribute, table_name))
-        for db_row in table:
-            distinct.add( getattr(db_row, regel_attribute) )
+        try:
+            table = db.query("SELECT DISTINCT(`%s`) FROM `%s`" % (regel_attribute, table_name))
+        except:
+            table = None
+
+        if table:
+            for db_row in table:
+                distinct.add( getattr(db_row, regel_attribute) )
 
     return distinct
 
@@ -203,3 +213,31 @@ def delete(years=[], tableNames=[]):
         deleted_total += deleted
 
     return deleted_total
+
+
+"""
+.add(table, fields, rows)
+    input: table as str, fields as list of str, rows as list of str
+    output: msg-queue as list of str
+"""
+def add(table, fields, rows):
+    if not check_table_exists(table):
+        fieldsAndType = []
+        for field in fields:
+            sqlType = config["SAPkeys"]["types"][field]
+            fieldsAndType.append('`'+field + '` ' + sqlType)
+
+        sql = "CREATE TABLE " + table + " (" + ', '.join(fieldsAndType) + ");"
+        results = db.query(sql)
+
+    rowChunks = __chunk_rows(rows, 10000)
+    for rows in rowChunks:
+        db.multiple_insert(table, values=rows)
+
+
+# Cuts op the row list in multiple rows
+# used by .add()
+def __chunk_rows(rows, chunkSize):
+    for i in xrange(0, len(rows), chunkSize):
+        yield rows[i:i+chunkSize]
+
