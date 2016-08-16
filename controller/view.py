@@ -2,8 +2,6 @@ from functions import moneyfmt
 from controller import Controller
 import web
 from web import form
-import model.db
-import budget
 
 class View(Controller):
     def __init__(self):

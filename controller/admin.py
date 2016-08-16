@@ -6,7 +6,6 @@ import os
 from controller import Controller
 import web
 from web import form
-import model.db
 
 class Admin(Controller):
     def __init__(self):

@@ -1,15 +1,16 @@
 import web
-import model.db
 from config import config
 from web import form
-import budget
+
+import model.regels
+import model.ordergroup
 
 class Controller(object):
     def __init__(self):
 #TODO remove cache=False
         self.mainRender = web.template.render('webpages/', cache=False) 
         self.config = config
-        self.SAPupdate = model.db.last_update() #gives subclass__init__ access
+        self.SAPupdate = model.regels.last_update() #gives subclass__init__ access
 
         # should be set in the subclass
         self.title = None
@@ -54,27 +55,24 @@ class Controller(object):
     def render_page(self):
 #TODO uit usergroup halen - daar zou de ordergroep al in geload moeten zijn!
         navgroups = []
-        navgroups.append(self.navbar_group('LION'))
-        navgroups.append(self.navbar_group('LION-BSF'))
-        navgroups.append(self.navbar_group('LION-DITP'))
-        navgroups.append(self.navbar_group('LION-NF'))
-        navgroups.append(self.navbar_group('20081GS'))
+        
+        for ordergroup in model.ordergroup.available():
+            navgroups.append(self.navbar_group(ordergroup))
 
         navbar = self.mainRender.navbar(self.userHash, self.breadCrum, navgroups)
 
         return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
 
     def navbar_group(self, og):
-        ogPath = model.db.loadOrderGroepen()[og]
-        orderGroep = budget.ordergroep.load(ogPath)
+        ordergroup = model.ordergroup.load(og)
         navgroups = []
         i = 0
-        for child in orderGroep.children:
+        for child in ordergroup.children:
             i += 1
             navgroups.extend( self.list_nav_groups(og, child, str(i), 1))
 
-        name = orderGroep.descr
-        link = '/report/%s?ordergroep=%s&subgroep=%s' % (self.userHash, og, orderGroep.name)
+        name = ordergroup.descr
+        link = '/report/%s?ordergroep=%s&subgroep=%s' % (self.userHash, og, ordergroup.name)
         padding = str(0)
         navgroups.insert(0,{'link': link, 'name':name, 'padding':padding})
 
@@ -116,7 +114,7 @@ class Controller(object):
 
     # Returns possible dropdown fills for web.py forms.
     def dropdown_options(self):
-        jarenDB = model.db.get_years_available()
+        jarenDB = model.regels.years()
 
         options = {}
         options['empty'] = [ ('', '')]

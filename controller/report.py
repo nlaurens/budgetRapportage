@@ -1,8 +1,6 @@
 from controller import Controller
 import web
 from web import form
-import model.db
-import budget
 import numpy as np
 
 class Report(Controller):

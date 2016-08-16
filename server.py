@@ -2,16 +2,12 @@
 
 BUGS
 
-    - import multiple files gaat niet goed (stopt na de 1e)
 
 TODO
 
 Model
-    - useraccess
+    - model.users
         * ouser lijst gebruiken om menu te bouwen (ordergroepen voor report!)
-
-    - budget 
-        * access via model only
 
     - regels
         * write validator for input that can be re-used (tablename in config[''] etc.)
