@@ -47,7 +47,7 @@ class View(Controller):
         #KSgroepen = model.loadKSgroepen()
         #fill_dropdowns(form, settings, KSgroepen)
 
-        regels = model.regels.load(years=[self.jaar], orders=[self.order])
+        regels = model.regels.load(years_load=[self.jaar], orders_load=[self.order])
 #TODO replace with param/CONFIG
         ksgroup = model.ksgroup.load('WNMODEL4')
         ksgroup.assign_regels_recursive(regels)

@@ -3,7 +3,7 @@ class OrderGroup:
         self.name = name
         self.descr = descr
         self.parent = parent
-        self.level = level #Depth starts at 1
+        self.level = level  # Depth starts at 1
         self.children = []
 
         self.orders = {}  # list that holds all orders
@@ -120,8 +120,7 @@ class OrderGroup:
 
     # returns: [ {descr:name} ] for all groepen in nodes
     def list_groepen_recursive(self):
-        groepen = {}
-        groepen[self.descr] = self.name
+        groepen = {self.descr: self.name}
         for child in self.children:
             groepen.update(child.list_groepen_recursive())
         return groepen
@@ -133,17 +132,17 @@ class OrderGroup:
             orders.update(child.list_orders_recursive())
         return orders
 
-    def save_as_txt(self, fileHandle):
+    def save_as_txt(self, filehandle):
         lvl = self.level + 1
         sp = (lvl - 1) * '    '
         head = lvl * '#'
 
-        fileHandle.write(sp + head + self.name + ' ' + self.descr + '\n')
+        filehandle.write(sp + head + self.name + ' ' + self.descr + '\n')
         if self.orders:
             for order, descr in self.orders.iteritems():
-                fileHandle.write(sp + ' ' + str(order) + ' ' + descr + '\n')
+                filehandle.write(sp + ' ' + str(order) + ' ' + descr + '\n')
 
-        fileHandle.write('\n')
+        filehandle.write('\n')
 
         for child in self.children:
-            child.save_as_txt(fileHandle)
+            child.save_as_txt(filehandle)

@@ -164,7 +164,7 @@ class Admin(Controller):
         else:
             years = [year]
 
-        deleted = model.regels.delete(years=years, tableNames=tableNames)
+        deleted = model.regels.delete(years_delete=years, table_names_delete=tableNames)
         msg.append("Deleted %s rows" % deleted)
 
         return msg

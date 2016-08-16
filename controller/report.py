@@ -28,7 +28,7 @@ class Report(Controller):
 
     def process_sub(self):
         ordergroup = model.ordergroup.load(self.ordergroep)
-        ordergroup = ordergroup.find(self.subgroep) 
+        ordergroup = ordergroup.find(self.subgroep)
         if self.flat:
             ordergroup = ordergroup.flat_copy()
 
@@ -45,7 +45,7 @@ class Report(Controller):
         self.breadCrum = reversed(breadCrum)
 
         self.orders = self.root.list_orders_recursive().keys()
-        regels = model.regels.load(years=[self.jaar], orders=self.orders)
+        regels = model.regels.load(years_load=[self.jaar], orders_load=self.orders)
         self.regels = regels.split(['ordernummer', 'tiepe'])
 
 #TODO lijkt erop dat dit recursie is die we in de render_body all kunnen doen
@@ -185,7 +185,7 @@ class Report(Controller):
 
     def groep_regel_to_html(self, row):
         html = row.copy()
-        html['name'] = row['name'] 
+        html['name'] = row['name']
         html['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroep, row['id'] )
         html['begroot'] = table_string(row['begroot'])
         html['realisatie'] =  table_string(row['realisatie'])
@@ -225,8 +225,6 @@ class Report(Controller):
     def render_java_scripts(self):
         expandItems = self.orders
         expandItems.extend(self.root.list_groepen_recursive().values())
-        print expandItems
-        print type(expandItems)
         return self.webrender.javascripts(expandItems)
 
 

@@ -98,14 +98,14 @@ class KostensoortGroup:
         for child in self.children:
             child.assign_regels_recursive(regels)
 
-        regels_by_type = regels.split(['tiepe']) #plan, geboekt, obligo, etc.
+        regels_by_type = regels.split(['tiepe'])  # plan, geboekt, obligo, etc.
         for regel_type, regels in regels_by_type.iteritems():
-            filteredRegels = regels.copy()
-            filteredRegels.filter_regels_by_attribute('kostensoort', self.kostenSoorten.keys())
-            self.regels[regel_type] = filteredRegels
+            filtered_regels = regels.copy()
+            filtered_regels.filter_regels_by_attribute('kostensoort', self.kostenSoorten.keys())
+            self.regels[regel_type] = filtered_regels
 
     # Set totals per key [obligo, plan, etc.], and per ks for each node
-    def set_totals(self, periodeRequested=range(0, 16)):
+    def set_totals(self, periode_requested=range(0, 16)):
         self.totaalTree = {}
         self.totaalNodePerKS = {}
         self.totaalTree['geboekt'] = 0
@@ -114,16 +114,16 @@ class KostensoortGroup:
 
         # For each key [begroot, plan, ] split into ks and periode
         for key in self.regels.keys():
-            regelsPerKS = self.regels[key].split(['kostensoort', 'periode'])
+            regels_per_ks = self.regels[key].split(['kostensoort', 'periode'])
 
             # Walk over all ks, make sure there is a dict item
-            for ks, regelsPerPeriode in regelsPerKS.iteritems():
+            for ks, regelsPerPeriode in regels_per_ks.iteritems():
                 if key not in self.totaalNodePerKS:
                     self.totaalNodePerKS[key] = {}
 
                 # walk over all periodes, make sure there is a dict item only if the period matches
                 for periode, regellist in regelsPerPeriode.iteritems():
-                    if periode in periodeRequested:
+                    if periode in periode_requested:
                         if ks not in self.totaalNodePerKS[key]:
                             self.totaalNodePerKS[key][ks] = 0
                         self.totaalNodePerKS[key][ks] += regellist.total()
@@ -131,9 +131,9 @@ class KostensoortGroup:
 
         # add childrens totaltree's
         for child in self.children:
-            totaalChildTree = child.set_totals(periodeRequested=periodeRequested)
-            for key in totaalChildTree.keys():
-                self.totaalTree[key] += totaalChildTree[key]
+            totaal_child_tree = child.set_totals(periode_requested=periode_requested)
+            for key in totaal_child_tree.keys():
+                self.totaalTree[key] += totaal_child_tree[key]
 
         return self.totaalTree
 

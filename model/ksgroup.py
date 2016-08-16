@@ -10,10 +10,12 @@ from functions import first_item_in_list as first_item_in_list
     input: None 
     output: names of kostensoortgroups as a list of str
 """
+
+
 def available():
     ksgroups = []
     for path in glob.glob("%s\*" % config['ksGroupsPath']):
-        ksgroups.append( os.path.split(path)[1] )
+        ksgroups.append(os.path.split(path)[1])
 
     return ksgroups
 
@@ -23,10 +25,13 @@ def available():
     input: name as str
     returns: KostenSoortGroup
 """
+
+
 def load(ks_group_name):
     path = '%s\%s' % (config['ksGroupsPath'], ks_group_name)
     f = open(path, 'r')
     group = None
+    ksgroup = None
     for line in f:
         line = line.replace('|', ' ')
         line = line.replace('--', '')
@@ -40,7 +45,7 @@ def load(ks_group_name):
                 if not descr.isdigit():
                     group.add_kostensoort(int(item), descr)
             elif item != '>>>':
-                if group == None:
+                if group is None:
                     group = KostensoortGroup(item, descr, level, '')
                     ksgroup = group
                 else:
