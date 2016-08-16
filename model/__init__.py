@@ -1,5 +1,10 @@
 """ 
-Available functions in model:
+Available submodules in model:
+    .ksgroup
+    .ordergroup
+    .regellist
+    .regels
+    .user
 
 model.ksgroup
     .load( name )
@@ -64,3 +69,5 @@ model.users
     TODO
 
 """
+
+
