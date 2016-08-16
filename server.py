@@ -25,8 +25,10 @@ Controller & Webpages
     - view
         * html_tree has double code, lot of it is done by budget.kostensoortgroup
 
-    - admin 
+    - admin
         * forms layout doen (attributen van webpy forms setten)
+        * create test that looks if there are orders in db not in any ordergroup
+          (and perhaps also look at the GS)
 
     - login
         * bij password verkeerd invullen post form leegmaken.
@@ -44,7 +46,7 @@ Controller & Webpages
 
     -graph
         * userHash checken - alles staat nu op
-    
+
 # TIPS
     - render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh
 """

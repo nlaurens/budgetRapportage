@@ -58,7 +58,7 @@ class Admin(Controller):
             (validForm, msg) = self.parse_forms()
             if validForm:
                 self.title = 'Admin Panel Results'
-                self.msg = msg 
+                self.msg = msg
                 self.redirect = 'admin'
                 self.body = self.render_simple()
                 return # prevent Get page from rendering
@@ -262,8 +262,8 @@ class Admin(Controller):
 
         # clean up
         msg.append('Cleaning up files')
-        
-        del xlsx2csv 
+
+        del xlsx2csv
         os.remove(table+'.xlsx') # BUG.. xlsx2csv seems to block the file handle.
         os.remove(table+'.csv')
         msg.append('')
@@ -272,25 +272,30 @@ class Admin(Controller):
 
     def run_tests(self):
         success = False
-        msg = [ 'nothing implmented' ]
+        msg = ['','Running tests']
+        succes, msg_test = self.test_ks_missing_in_report()
+        msg.extend(msg_test)
 
-        return (success, msg)
+        return msg
 
-# Test to see if there are regels containing ks that are not
-# in a report (and therefore would not show up).
-    def test_ks_missing_in_report():
-        msg = []
+    # Test to see if there are regels containing ks that are not
+    # in a report (and therefore would not show up).
+    def test_ks_missing_in_report(self):
+        msg = ['Testing for ks in db that are not in ksgroups']
         success = True
-        ksDB = model.get_kosten_soorten()
 
-        # loop over all kostensoortgroepen
-        for ksGroepName in model.loadKSgroepen().keys():
-            root = GrootBoek.load(ksGroepName)
-            ksGroep = root.get_ks_recursive()
-            for ks in ksDB:
-                if ks not in ksGroep:
+        for ksgroup_name in model.ksgroup.available():
+            ksgroup = model.ksgroup.load(ksgroup_name)
+            ks_all = ksgroup.get_ks_recursive()
+            for ks in model.regels.kostensoorten():
+                if ks not in ks_all:
                     success = False
                     msg.append('WARNING kostensoort %s appears in DB but is not included in report %s' % (ks, ksGroepName))
+
+        if success:
+            msg.append('test PASS')
+        else:
+            msg.append('test FAILED')
 
         return (success, msg)
 
