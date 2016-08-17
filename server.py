@@ -43,6 +43,7 @@ Controller & Webpages
         * try to make .css to adjust colors for each div/table so its easier to see
         * settings: &flat={1,0}
         * Show negative bestedingsruimte in red and bold.
+        * realisatie values and perc into two table columns
 
     -graph
         * userHash checken - alles staat nu op

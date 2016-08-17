@@ -1,4 +1,5 @@
 import web
+from web import form
 import numpy as np
 
 from controller import Controller
@@ -20,11 +21,13 @@ class Report(Controller):
 
         # Salaris specific:
         # Report specific:
-        self.jaar = int(web.input(jaar=self.config["currentYear"])['jaar'])
+        self.jaar = int(web.input(year=self.config["currentYear"])['year'])
 # TODO config
         self.subgroep = str(web.input(subgroep='TOTAAL')['subgroep'])
         self.ordergroep = str(web.input(ordergroep='LION')['ordergroep'])
-        self.flat = bool(int(web.input(flat='0')['flat']))
+        self.flat = False 
+        if web.input().has_key('flat'):
+            self.flat = True
         self.expandOrders = bool(int(web.input(expandOrders='0')['expandOrders']))
 
         ordergroup = model.ordergroup.load(self.ordergroep)
@@ -36,8 +39,16 @@ class Report(Controller):
         regels = model.regels.load(years_load=[self.jaar], orders_load=self.orders)
         self.regels = regels.split(['ordernummer', 'tiepe'])
 
-    def process_sub(self):
+        # Forms
+        dropdown_options = self. dropdown_options()
+        self.form_settings_simple = form.Form(
+            form.Dropdown('year', dropdown_options['years'], 
+                          description='Year', value=self.jaar),
+            form.Checkbox('flat', description='ignore subgroups'),
+            form.Button('submit', value='report_settings')
+        )
 
+    def process_sub(self):
         self.create_bread_crums()
 
         report = {}
@@ -249,10 +260,8 @@ class Report(Controller):
 
 # TODO replace dummy vasr
     def render_settings_html(self):
-        form_settings = 'FORM met daarin jaar'
-        buttons = 'BUTTON'
-        lastupdate = '2'
-        return self.webrender.settings(lastupdate, buttons, form_settings)
+        form_settings = self.form_settings_simple
+        return self.webrender.settings(form_settings)
 
     def render_java_scripts(self):
         expand_items = self.orders
