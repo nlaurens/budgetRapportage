@@ -2,7 +2,7 @@ import web
 import numpy as np
 
 from controller import Controller
-from functions import table_string
+from functions import moneyfmt
 
 import model.ksgroup
 import model.ordergroup
@@ -36,37 +36,33 @@ class Report(Controller):
             ordergroup = ordergroup.flat_copy()
 
         self.root = ordergroup
+        self.orders = self.root.list_orders_recursive().keys()
+        regels = model.regels.load(years_load=[self.jaar], orders_load=self.orders)
+        self.regels = regels.split(['ordernummer', 'tiepe'])
 
-        # construct beadcrumbs
+        self.create_bread_crums()
+
+        report = {}
+        report['tables'] = []
+        for ksgroup in self.root.children:
+            report['tables'].append(self.render_top_table(ksgroup))
+        report['figpage'] = self.render_fig_html()
+        report['settings'] = self.render_settings_html()
+        report['javaScripts'] = self.render_java_scripts()
+        report['nav'] = ' DUMMy'
+
+        self.body = self.webrender.report(report)
+
+    def create_bread_crums(self):
         groep = self.root
         bread_crum = [{'title': groep.descr, 'url': groep.name, 'class': 'active'}]
         while groep.parent:
             groep = groep.parent
             link = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroep, groep.name)
             bread_crum.append({'title': groep.descr, 'url': link, 'class': ''})
-
         self.breadCrum = reversed(bread_crum)
 
-        self.orders = self.root.list_orders_recursive().keys()
-        regels = model.regels.load(years_load=[self.jaar], orders_load=self.orders)
-        self.regels = regels.split(['ordernummer', 'tiepe'])
-
-# TODO lijkt erop dat dit recursie is die we in de render_body all kunnen doen
-        body = self.render_table_html()
-        figs = self.render_fig_html()
-        settings = self.render_settings_html()
-        java_scripts = self.render_java_scripts()
-
-        report = {}
-        report['settings'] = settings
-        report['figpage'] = figs
-        report['nav'] = ' DUMMy'
-        report['body'] = body
-        report['javaScripts'] = java_scripts
-
-        self.body = self.webrender.report(report)
-
-    def render_table_html(self):
+    def render_top_table(self, ksgroup):
         table = []
         childtable = []
         groeptotal = {}
@@ -74,8 +70,10 @@ class Report(Controller):
         groeptotal['realisatie'] = 0
         groeptotal['obligo'] = 0
         groeptotal['resultaat'] = 0
-        for child in self.root.children:
+
+        for child in ksgroup.children:
             rows, header, groeprows, total = self.parse_groep(child)
+#TODO als er nog een subgroep is, niet render_table maar render_table_html aanroepen
             childtable.append(self.webrender.table_groep(rows, header, groeprows))
             groeptotal['begroot'] += total['begroot']
             groeptotal['realisatie'] += total['realisatie']
@@ -83,10 +81,9 @@ class Report(Controller):
             groeptotal['resultaat'] += total['resultaat']
 
         # add orders of the top group (if any)
-        order_tables, header, total = self.parse_orders_in_groep(self.root, groeptotal)
-        table.append(self.webrender.table_groep(order_tables, header, childtable))
+        order_tables, header, total = self.parse_orders_in_groep(ksgroup, groeptotal)
 
-        body = self.webrender.table(table)
+        body = self.webrender.table(order_tables, header, childtable)
         return body
 
     def parse_groep(self, root):
@@ -119,7 +116,9 @@ class Report(Controller):
             total_groep['resultaat'] += totaal_tree['plan'] - totaal_tree['geboekt'] - totaal_tree['obligo']
 
         groep_header = {}
-        groep_header['row'] = self.groep_regel_to_html(total_groep)
+        regel_html_ready = self.groep_regel_to_html(total_groep)  
+        groep_header['panel_header'] = self.webrender.table_header(regel_html_ready)   # row for panel-header - if top group
+        groep_header['row'] = self.webrender.table_groep_regel(regel_html_ready)
         groep_header['id'] = root.name
         groep_header['img'] = self.url_graph(self.jaar, 'realisatie', root.name)
 
@@ -164,9 +163,9 @@ class Report(Controller):
         header['userHash'] = self.userHash
         header['id'] = order
         header['img'] = self.url_graph(self.jaar, 'realisatie', order)
-        header['begroot'] = table_string(root.totaalTree['plan'])
-        header['realisatie'] = table_string(root.totaalTree['geboekt'] + root.totaalTree['obligo'])
-        header['resultaat'] = table_string(root.totaalTree['plan'] - root.totaalTree['geboekt'] - root.totaalTree['obligo'])
+        header['begroot'] = moneyfmt(root.totaalTree['plan'], keur=True)
+        header['realisatie'] = moneyfmt(root.totaalTree['geboekt'] + root.totaalTree['obligo'], keur=True)
+        header['resultaat'] = moneyfmt(root.totaalTree['plan'] - root.totaalTree['geboekt'] - root.totaalTree['obligo'], keur=True)
 
         order_table = self.webrender.table_order(html_rows, header, self.expandOrders)
         return order_table, root.totaalTree
@@ -174,19 +173,19 @@ class Report(Controller):
     def grootboek_regel_to_html(self, row):
         html = row.copy()
         html['grootboek'] = row['grootboek']
-        html['begroot'] = table_string(row['begroot'])
-        html['realisatie'] = table_string(row['realisatie'])
-        html['resultaat'] = table_string(row['resultaat'])
+        html['begroot'] = moneyfmt(row['begroot'], keur=True)
+        html['realisatie'] = moneyfmt(row['realisatie'], keur=True)
+        html['resultaat'] = moneyfmt(row['resultaat'], keur=True)
         return self.webrender.table_grootboek_regel(html)
 
     def groep_regel_to_html(self, row):
         html = row.copy()
         html['name'] = row['name']
         html['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroep, row['id'])
-        html['begroot'] = table_string(row['begroot'])
-        html['realisatie'] = table_string(row['realisatie'])
-        html['resultaat'] = table_string(row['resultaat'])
-        return self.webrender.table_groep_regel(html)
+        html['begroot'] = moneyfmt(row['begroot'], keur=True)
+        html['realisatie'] = moneyfmt(row['realisatie'], keur=True)
+        html['resultaat'] = moneyfmt(row['resultaat'], keur=True)
+        return html
 
 # TODO layout!
     def render_fig_html(self):

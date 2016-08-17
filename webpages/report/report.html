@@ -31,11 +31,8 @@ $def with (report)
           </div>
         </div>
       </div>
-    <div class="panel panel-default">
-        <div class="panel-body">
-            $:report['body']
-        </div>
-    </div>
+            $for table in report['tables']:
+                $:table
         <p style="page-break-after:always;"></p>
             $:report['figpage']
 

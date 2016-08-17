@@ -1,6 +1,6 @@
 import numpy as np
 
-def moneyfmt(value, places=0, curr='', sep=',', dp='',
+def moneyfmt(value, places=0, curr='', sep='.', dp=',',
              pos='', neg='-', trailneg='', keur=False):
 #TODO fix import: import * niet toegestaan. moet dan in module.
     from decimal import *
@@ -30,8 +30,11 @@ def moneyfmt(value, places=0, curr='', sep=',', dp='',
     '<0.02>'
 
     """
+    if places == 0:
+        dp = ''
     if keur:
         value /= 1000
+
     q = Decimal(10) ** -places      # 2 places --> '0.01'
     sign, digits, exp = value.quantize(q).as_tuple()
     result = []

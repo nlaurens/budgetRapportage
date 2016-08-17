@@ -1,0 +1,7 @@
+$def with(table_head)
+<a href=$:table_head['link']>
+    $table_head['name']
+    <span class="badge pull-right">Begroot: &euro;$table_head['begroot']</span>
+    <span class="badge pull-right">Realisatie: &euro;$table_head['realisatie']</span>
+    <span class="badge pull-right">Resultaat: &euro;$table_head['resultaat']</span>
+</a>
