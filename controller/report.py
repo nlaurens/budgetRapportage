@@ -190,10 +190,10 @@ class Report(Controller):
         header['img'] = self.url_graph(self.jaar, 'realisatie', order)
         header['begroot'] = moneyfmt(root.totaalTree['plan'], keur=True)
         header['realisatie'] = moneyfmt(realisatie, keur=True)
-        if begroot > 0:
-            header['realisatie_perc'] = str(int((realisatie/begroot)*100))
-        else:
+        if begroot == 0:
             header['realisatie_perc'] = str(0)
+        else:
+            header['realisatie_perc'] = moneyfmt(realisatie/begroot*100)
         header['resultaat'] = moneyfmt(root.totaalTree['plan'] - root.totaalTree['geboekt'] - root.totaalTree['obligo'], keur=True)
 
         order_table = self.webrender.table_order(html_rows, header, self.expandOrders)
@@ -205,10 +205,10 @@ class Report(Controller):
         html['grootboek'] = row['grootboek']
         html['begroot'] = moneyfmt(row['begroot'], keur=True)
         html['realisatie'] = moneyfmt(row['realisatie'], keur=True)
-        if row['begroot'] > 0:
-            html['realisatie_perc'] = str(int((row['realisatie']/row['begroot'])*100))
+        if row['begroot'] == 0:
+            html['realisatie_perc'] = 0
         else:
-            html['realisatie_perc'] = moneyfmt(0, keur=True)
+            html['realisatie_perc'] = moneyfmt(row['realisatie']/row['begroot']*100)
         html['resultaat'] = moneyfmt(row['resultaat'], keur=True)
         return self.webrender.table_order_regel(html)
 
@@ -218,10 +218,10 @@ class Report(Controller):
         html['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroep, row['id'])
         html['begroot'] = moneyfmt(row['begroot'], keur=True)
         html['realisatie'] = moneyfmt(row['realisatie'], keur=True)
-        if row['begroot'] > 0:
-            html['realisatie_perc'] = str(int((row['realisatie']/row['begroot'])*100))
+        if row['begroot'] == 0:
+            html['realisatie_perc'] = 0
         else:
-            html['realisatie_perc'] = moneyfmt(0, keur=True)
+            html['realisatie_perc'] = moneyfmt(row['realisatie']/row['begroot']*100)
         html['resultaat'] = moneyfmt(row['resultaat'], keur=True)
         return html
 
