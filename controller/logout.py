@@ -1,12 +1,12 @@
 from controller import Controller
 import web
-from web import form
+
 
 class Logout(Controller):
     def __init__(self):
         Controller.__init__(self)
 
-        #subclass specific
+        # subclass specific
         self.title = 'Logout'
         self.module = 'logout'
         self.webrender = web.template.render('webpages/access/')

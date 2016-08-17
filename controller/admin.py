@@ -1,6 +1,5 @@
 from xlsx2csv import Xlsx2csv
 import csv
-import datetime
 import os
 
 from controller import Controller
@@ -8,67 +7,69 @@ import web
 from web import form
 import model.regels
 import model.functions
+import model.ksgroup
+
 
 class Admin(Controller):
     def __init__(self):
         Controller.__init__(self)
 
-        #subclass specific
+        # subclass specific
         self.title = 'Admin Panel'
         self.module = 'admin'
         self.webrender = web.template.render('webpages/admin/')
 
-        #Forms
-        dropDownOptions = self.dropdown_options()
+        # Forms
+        drop_down_options = self.dropdown_options()
 
         self.form_remove_regels = form.Form(
-            form.Dropdown('year', dropDownOptions['empty_years_all'],
-                form.notnull, description='Year to remove: '),
-            form.Dropdown('table', dropDownOptions['empty_tables_all'],
-                form.notnull, description='Table to remove from: '),
+            form.Dropdown('year', drop_down_options['empty_years_all'],
+                          form.notnull, description='Year to remove: '),
+            form.Dropdown('table', drop_down_options['empty_tables_all'],
+                          form.notnull, description='Table to remove from: '),
             form.Button('submit', value='removeRegels')
         )
         self.form_upload_regels = form.Form(
                 form.File(name='upload1'),
-                form.Dropdown('type1', dropDownOptions['empty_tables']),
+                form.Dropdown('type1', drop_down_options['empty_tables']),
                 form.File(name='upload2'),
-                form.Dropdown('type2', dropDownOptions['empty_tables']),
+                form.Dropdown('type2', drop_down_options['empty_tables']),
                 form.File('upload3'),
-                form.Dropdown('type3', dropDownOptions['empty_tables']),
+                form.Dropdown('type3', drop_down_options['empty_tables']),
                 form.File('upload4'),
-                form.Dropdown('type4', dropDownOptions['empty_tables']),
+                form.Dropdown('type4', drop_down_options['empty_tables']),
                 form.File('upload5'),
-                form.Dropdown('type5', dropDownOptions['empty_tables']),
+                form.Dropdown('type5', drop_down_options['empty_tables']),
                 form.Button('submit', value='uploadRegels')
         )
         self.form_update_sap_date = form.Form(
                 form.Textbox('sapdate', form.notnull, value=self.SAPupdate,
-                    description='Date last SAP regels are uploaded'),
+                             description='Date last SAP regels are uploaded'),
                 form.Button('submit', value='updateSapDate')
         )
         self.form_rebuild_graphs = form.Form(
                 form.Textbox('target', form.notnull, description='Order/groep/*'),
-                form.Dropdown('year', dropDownOptions['empty_years_all'], form.notnull),
+                form.Dropdown('year', drop_down_options['empty_years_all'], form.notnull),
                 form.Button('submit', value='rebuildGraphs')
         )
 
     def process_sub(self):
         # Handle posted forms
         if self.callType == 'POST':
-            (validForm, msg) = self.parse_forms()
-            if validForm:
+            (valid_form, msg) = self.parse_forms()
+            if valid_form:
                 self.title = 'Admin Panel Results'
                 self.msg = msg
                 self.redirect = 'admin'
                 self.body = self.render_simple()
-                return # prevent Get page from rendering
+                return  # prevent Get page from rendering
 
         # Display admin page on GET or invalid form post
         self.msg = ['Welcome to the Admin panel']
         self.msg.extend(self.run_tests())
 
-#TODO coppelen aan config.user
-        self.authList = '' #model.db.get_users()
+# TODO coppelen aan config.user
+        self.authList = ''  # model.db.get_users()
 
         rendered = {}
         rendered['userAccess'] = self.webrender.user_access(self.authList)
@@ -83,21 +84,20 @@ class Admin(Controller):
         self.body = self.webrender.admin(self.msg, rendered)
 
     def db_status(self):
-        #construct dict with total regels per table
+        # construct dict with total regels per table
         db_status = {}
 
         regel_count = model.regels.count()
-        tableNames = regel_count.keys()
+        table_names = regel_count.keys()
         years = model.regels.years()
 
-
         # create vars for render
-        db_status['headers'] = ['table', 'status' ]
+        db_status['headers'] = ['table', 'status']
         for year in years:
             db_status['headers'].append(str(year))
 
         db_status['body'] = []
-        for table in tableNames:
+        for table in table_names:
             if model.regels.check_table_exists(table):
                 regel = [table, '']
             else:
@@ -109,36 +109,35 @@ class Admin(Controller):
         db_status['totals'] = ['Total', '']
         for year in years:
             total = 0
-            for table in tableNames:
+            for table in table_names:
                 total += int(regel_count[table][year])
             db_status['totals'].append(total)
 
         return db_status
 
     def parse_forms(self):
-        validForm = False
+        valid_form = False
         msg = ['Parsing forms']
 
-        formUsed = web.input()['submit']
-        if formUsed == 'removeRegels' and self.form_remove_regels.validates():
-            msg.extend( self.parse_remove_regels() )
-            validForm = True
+        form_used = web.input()['submit']
+        if form_used == 'removeRegels' and self.form_remove_regels.validates():
+            msg.extend(self.parse_remove_regels())
+            valid_form = True
 
-        if formUsed == 'uploadRegels' and self.form_upload_regels.validates():
+        if form_used == 'uploadRegels' and self.form_upload_regels.validates():
             msg.extend(self.parse_upload_form())
-            validForm = True
+            valid_form = True
 
-        if formUsed == 'updateSapDate' and self.form_update_sap_date.validates():
+        if form_used == 'updateSapDate' and self.form_update_sap_date.validates():
             msg.append('Updating last sap update date')
             model.regels.last_update(self.form_update_sap_date['sapdate'].value)
-            validForm = True
+            valid_form = True
 
-        if formUsed =='rebuildGraphs' and self.form_rebuild_graphs.validates():
+        if form_used == 'rebuildGraphs' and self.form_rebuild_graphs.validates():
             msg.extend(self.parse_rebuild_graphs())
-            validForm = True
+            valid_form = True
 
-        return (validForm, msg)
-
+        return valid_form, msg
 
     def parse_remove_regels(self):
         msg = ['Removing regels from DB']
@@ -152,9 +151,9 @@ class Admin(Controller):
             msg.append("No valid table selected")
             return msg
         elif table == '*':
-            tableNames = []
+            table_names = []
         else:
-            tableNames = [table]
+            table_names = [table]
 
         if year == '':
             msg.append("No valid year selected")
@@ -164,50 +163,48 @@ class Admin(Controller):
         else:
             years = [year]
 
-        deleted = model.regels.delete(years_delete=years, table_names_delete=tableNames)
+        deleted = model.regels.delete(years_delete=years, table_names_delete=table_names)
         msg.append("Deleted %s rows" % deleted)
 
         return msg
 
-
     def parse_rebuild_graphs(self):
         msg = ['Parsing rebuild graph']
-#TODO security op deze input, jaar = int tussen x en y. target = string
+# TODO security op deze input, jaar = int tussen x en y. target = string
         jaar = self.form_rebuild_graphs['year'].value
         target = self.form_rebuild_graphs['target'].value
 
         msg.append("running: $python graph.py %s %s" % (target, jaar))
-#TODO SOMEDAY fire proccess in sep. thread, graph.py write a log (clean everytime it starts), and webadmin poll if there is such a log running (report using msg)
+# TODO SOMEDAY fire proccess in sep. thread, graph.py write a log (clean everytime it starts), and webadmin poll if there is such a log running (report using msg)
         os.system("python graph.py %s %s" % (target, jaar))
         return msg
 
-
     def parse_upload_form(self):
         msg = ['Start parsing of upload form']
-        fileHandles = web.input(upload1={}, upload2={}, upload3={}, upload4={}, upload5={})
+        file_handles = web.input(upload1={}, upload2={}, upload3={}, upload4={}, upload5={})
         uploads = []
-        for i in range(1,6):
+        for i in range(1, 6):
             try:
-                fileHandle = eval("fileHandles.upload%s" % i)
-            except:
-                fileHandle = None
+                file_handle = eval("file_handles.upload%s" % i)
+            except Exception:
+                file_handle = None
             table = eval("self.form_upload_regels['type%s'].value" % i)
 
-            if fileHandle != None and table in self.config['mysql']['tables']['regels'].values():
-                msg.extend(self.upload_and_process_file(table, fileHandle))
+            if file_handle is not None and table in self.config['mysql']['tables']['regels'].values():
+                msg.extend(self.upload_and_process_file(table, file_handle))
 
         return msg
 
-    def upload_and_process_file(self, table, fileHandle):
+    def upload_and_process_file(self, table, file_handle):
         msg = ['Starting upload']
         allowed = ['.xlsx']
         msg.append('Uploading file.')
         succes_upload = False
-        pwd, filenamefull = os.path.split(fileHandle.filename)
+        pwd, filenamefull = os.path.split(file_handle.filename)
         filename, extension = os.path.splitext(filenamefull)
         if extension in allowed:
-            fout = open(table+'.xlsx','wb')
-            fout.write(fileHandle.file.read())
+            fout = open(table+'.xlsx', 'wb')
+            fout.write(file_handle.file.read())
             fout.close()
             succes_upload = True
 
@@ -228,7 +225,7 @@ class Admin(Controller):
         f = open(table+'.csv', 'rb')
         reader = csv.reader(f)
         headers = reader.next()
-        header_map = {y:x for x,y in self.config["SAPkeys"][table].iteritems()}
+        header_map = {y: x for x ,y in self.config["SAPkeys"][table].iteritems()}
 
         fields = []
         for header in headers:
@@ -253,9 +250,9 @@ class Admin(Controller):
             if row_empty_replaced != row:
                 empty_indexes = [i for i, item in enumerate(row) if item == '']
                 for index in empty_indexes:
-                    msg.append('WARNING empty %s in row #(%s)' %(fields[index],rownumber) )
+                    msg.append('WARNING empty %s in row #(%s)' % (fields[index], rownumber))
             rows.append(dict(zip(fields, row_empty_replaced)))
-            rownumber +=1
+            rownumber += 1
         f.close()
 
         model.regels.add(table, fields, rows)
@@ -264,7 +261,7 @@ class Admin(Controller):
         msg.append('Cleaning up files')
 
         del xlsx2csv
-        os.remove(table+'.xlsx') # BUG.. xlsx2csv seems to block the file handle.
+        os.remove(table+'.xlsx')  # BUG.. xlsx2csv seems to block the file handle.
         os.remove(table+'.csv')
         msg.append('')
 
@@ -272,7 +269,7 @@ class Admin(Controller):
 
     def run_tests(self):
         success = False
-        msg = ['','Running tests']
+        msg = ['', 'Running tests']
         succes, msg_test = self.test_ks_missing_in_report()
         msg.extend(msg_test)
 
@@ -290,12 +287,12 @@ class Admin(Controller):
             for ks in model.regels.kostensoorten():
                 if ks not in ks_all:
                     success = False
-                    msg.append('WARNING kostensoort %s appears in DB but is not included in report %s' % (ks, ksGroepName))
+                    msg.append('WARNING kostensoort %s appears in DB but is not included in report %s' % (ks, ksgroup_name))
 
         if success:
             msg.append('test PASS')
         else:
             msg.append('test FAILED')
 
-        return (success, msg)
+        return success, msg
 
