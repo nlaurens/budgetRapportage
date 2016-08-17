@@ -43,15 +43,38 @@ class Report(Controller):
         self.create_bread_crums()
 
         report = {}
-        report['tables'] = []
-        for ksgroup in self.root.children:
-            report['tables'].append(self.render_top_table(ksgroup))
+        report['name'] = self.root.descr
+        report['tables'], totals = self.render_tables()
         report['figpage'] = self.render_fig_html()
         report['settings'] = self.render_settings_html()
         report['javaScripts'] = self.render_java_scripts()
-        report['nav'] = ' DUMMy'
+        for key,value in totals.iteritems():
+            totals[key] = moneyfmt(value, keur=True)
+        report['summary'] = self.webrender.summary(totals)
 
         self.body = self.webrender.report(report)
+
+    def render_tables(self):
+        tables = []
+
+        totals = {}
+        totals['begroot'] = 0
+        totals['realisatie'] = 0
+        totals['obligo'] = 0
+        totals['resultaat'] = 0
+        if self.root.children:
+            for ksgroup in self.root.children:
+                top_table, total_table = self.render_top_table(ksgroup)
+                totals['begroot'] += total_table['begroot']
+                totals['realisatie'] += total_table['realisatie']
+                totals['obligo'] += total_table['obligo']
+                totals['resultaat'] += total_table['resultaat']
+                tables.append(top_table)
+        else:
+            top_table, totals = self.render_top_table(self.root)
+            tables.append(top_table)
+
+        return tables, totals
 
     def create_bread_crums(self):
         groep = self.root
@@ -73,7 +96,6 @@ class Report(Controller):
 
         for child in ksgroup.children:
             rows, header, groeprows, total = self.parse_groep(child)
-#TODO als er nog een subgroep is, niet render_table maar render_table_html aanroepen
             childtable.append(self.webrender.table_groep(rows, header, groeprows))
             groeptotal['begroot'] += total['begroot']
             groeptotal['realisatie'] += total['realisatie']
@@ -83,8 +105,8 @@ class Report(Controller):
         # add orders of the top group (if any)
         order_tables, header, total = self.parse_orders_in_groep(ksgroup, groeptotal)
 
-        body = self.webrender.table(order_tables, header, childtable)
-        return body
+        top_table = self.webrender.table(order_tables, header, childtable)
+        return top_table, groeptotal
 
     def parse_groep(self, root):
         groeptotal = {}
