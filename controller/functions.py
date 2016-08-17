@@ -1,3 +1,5 @@
+import numpy as np
+
 def moneyfmt(value, places=0, curr='', sep=',', dp='',
              pos='', neg='-', trailneg='', keur=False):
 #TODO fix import: import * niet toegestaan. moet dan in module.
@@ -29,7 +31,7 @@ def moneyfmt(value, places=0, curr='', sep=',', dp='',
 
     """
     if keur:
-        value = value / 1000
+        value /= 1000
     q = Decimal(10) ** -places      # 2 places --> '0.01'
     sign, digits, exp = value.quantize(q).as_tuple()
     result = []
@@ -52,3 +54,12 @@ def moneyfmt(value, places=0, curr='', sep=',', dp='',
     build(curr)
     build(neg if sign else pos)
     return ''.join(reversed(result))
+
+def table_string(value):
+    value /= 1000
+    if value == 0 or np.abs(value) < 0.5:
+        return '&nbsp;'
+    else:
+        return '%.f' % value
+
+

@@ -1,10 +1,10 @@
-from functions import moneyfmt
 from controller import Controller
 import web
 from web import form
 
 import model.regels
 import model.ksgroup
+from functions import moneyfmt
 
 
 class View(Controller):

@@ -3,7 +3,7 @@ import os
 
 from config import config
 from budget import KostensoortGroup
-from functions import first_item_in_list as first_item_in_list
+from model.functions import first_item_in_list as first_item_in_list
 
 """
 .available() 

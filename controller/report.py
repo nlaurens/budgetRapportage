@@ -1,6 +1,8 @@
-from controller import Controller
 import web
 import numpy as np
+
+from controller import Controller
+from functions import table_string
 
 import model.ksgroup
 import model.ordergroup
@@ -219,16 +221,4 @@ class Report(Controller):
         expand_items = self.orders
         expand_items.extend(self.root.list_groepen_recursive().values())
         return self.webrender.javascripts(expand_items)
-
-
-# ##########################################################
-# Functions
-# ##########################################################
-# TODO dit naar functions zodat er 1 functie voor is (graph.py heeft het ook al d8 ik)
-def table_string(value):
-    value /= 1000
-    if value == 0 or np.abs(value) < 0.5:
-        return '&nbsp;'
-    else:
-        return '%.f' % value
 

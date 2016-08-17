@@ -33,7 +33,7 @@ class Regel:
         for attribute, value in vars(self).iteritems():
             try:
                 setattr(new, attribute, value)
-            except:
+            except Exception:
                 print 'Warning something went wrong with Regel.copy'
                 exit()
         return new
@@ -48,7 +48,7 @@ class Regel:
             try:
                 dbValue = dbRegel[attribute]
                 setattr(self, attribute, dbValue)
-            except:
+            except Exception:
                 pass
 
         attributes_remove_list = []

@@ -51,7 +51,7 @@ Controller & Webpages
     - render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh
 """
 import web
-web.config.debug = True #Set to False for no ouput! Must be done before the rest
+web.config.debug = True  # Set to False for no ouput! Must be done before the rest
 from controller import Index, Report, Admin, Login, Logout, Graph, View, Salaris
 
 ### Url mappings

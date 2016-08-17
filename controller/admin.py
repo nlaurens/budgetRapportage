@@ -6,7 +6,6 @@ from controller import Controller
 import web
 from web import form
 import model.regels
-import model.functions
 import model.ksgroup
 
 
