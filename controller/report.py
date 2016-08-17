@@ -57,8 +57,11 @@ class Report(Controller):
         report['figpage'] = self.render_fig_html()
         report['settings'] = self.render_settings_html()
         report['javaScripts'] = self.render_java_scripts()
-        for key,value in totals.iteritems():
-            totals[key] = moneyfmt(value, keur=True)
+
+        totals['realisatie_perc'] = moneyfmt(totals['realisatie']/totals['begroot']*100)
+        totals['begroot'] = moneyfmt(totals['begroot'], keur=True)
+        totals['realisatie'] = moneyfmt(totals['realisatie'], keur=True)
+        totals['resultaat'] = moneyfmt(totals['resultaat'], keur=True)
         report['summary'] = self.webrender.summary(totals)
 
         self.body = self.webrender.report(report)
