@@ -26,19 +26,17 @@ class Report(Controller):
         self.ordergroep = str(web.input(ordergroep='LION')['ordergroep'])
         self.flat = bool(int(web.input(flat='0')['flat']))
         self.expandOrders = bool(int(web.input(expandOrders='0')['expandOrders']))
-        self.regels = {}  # Dictionary per order, per tiepe = regellist
-        self.orders = []  # list of all orders in the group
 
-    def process_sub(self):
         ordergroup = model.ordergroup.load(self.ordergroep)
         ordergroup = ordergroup.find(self.subgroep)
-        if self.flat:
-            ordergroup = ordergroup.flat_copy()
-
         self.root = ordergroup
+
         self.orders = self.root.list_orders_recursive().keys()
+
         regels = model.regels.load(years_load=[self.jaar], orders_load=self.orders)
         self.regels = regels.split(['ordernummer', 'tiepe'])
+
+    def process_sub(self):
 
         self.create_bread_crums()
 
@@ -62,9 +60,12 @@ class Report(Controller):
         totals['realisatie'] = 0
         totals['obligo'] = 0
         totals['resultaat'] = 0
+        
         if self.root.children:
-            for ksgroup in self.root.children:
-                top_table, total_table = self.render_top_table(ksgroup)
+            for ordergroep in self.root.children:
+                if self.flat and ordergroep.children:
+                    ordergroep = ordergroep.flat_copy()
+                top_table, total_table = self.render_top_table(ordergroep)
                 totals['begroot'] += total_table['begroot']
                 totals['realisatie'] += total_table['realisatie']
                 totals['obligo'] += total_table['obligo']
@@ -85,7 +86,7 @@ class Report(Controller):
             bread_crum.append({'title': groep.descr, 'url': link, 'class': ''})
         self.breadCrum = reversed(bread_crum)
 
-    def render_top_table(self, ksgroup):
+    def render_top_table(self, ordergroep):
         table = []
         childtable = []
         groeptotal = {}
@@ -94,7 +95,7 @@ class Report(Controller):
         groeptotal['obligo'] = 0
         groeptotal['resultaat'] = 0
 
-        for child in ksgroup.children:
+        for child in ordergroep.children:
             rows, header, groeprows, total = self.parse_groep(child)
             childtable.append(self.webrender.table_groep(rows, header, groeprows))
             groeptotal['begroot'] += total['begroot']
@@ -103,7 +104,7 @@ class Report(Controller):
             groeptotal['resultaat'] += total['resultaat']
 
         # add orders of the top group (if any)
-        order_tables, header, total = self.parse_orders_in_groep(ksgroup, groeptotal)
+        order_tables, header, total = self.parse_orders_in_groep(ordergroep, groeptotal)
 
         top_table = self.webrender.table(order_tables, header, childtable)
         return top_table, groeptotal
@@ -177,8 +178,10 @@ class Report(Controller):
                 row['begroot'] = child.totaalTree['plan']
                 row['realisatie'] = child.totaalTree['geboekt'] + child.totaalTree['obligo']
                 row['resultaat'] = child.totaalTree['plan'] - (child.totaalTree['geboekt'] + child.totaalTree['obligo'])
-                html_rows.append(self.grootboek_regel_to_html(row))
+                html_rows.append(self.order_regel_to_html(row))
 
+        begroot = root.totaalTree['plan']
+        realisatie = root.totaalTree['geboekt'] + root.totaalTree['obligo']
         header = {}
         header['name'] = '%s (%s)' % (descr, order)
         header['link'] = '/view/%s?order=%s' % (self.userHash, order)
@@ -186,19 +189,28 @@ class Report(Controller):
         header['id'] = order
         header['img'] = self.url_graph(self.jaar, 'realisatie', order)
         header['begroot'] = moneyfmt(root.totaalTree['plan'], keur=True)
-        header['realisatie'] = moneyfmt(root.totaalTree['geboekt'] + root.totaalTree['obligo'], keur=True)
+        header['realisatie'] = moneyfmt(realisatie, keur=True)
+        if begroot > 0:
+            header['realisatie_perc'] = str(int((realisatie/begroot)*100))
+        else:
+            header['realisatie_perc'] = str(0)
         header['resultaat'] = moneyfmt(root.totaalTree['plan'] - root.totaalTree['geboekt'] - root.totaalTree['obligo'], keur=True)
 
         order_table = self.webrender.table_order(html_rows, header, self.expandOrders)
         return order_table, root.totaalTree
 
-    def grootboek_regel_to_html(self, row):
+    # Renders the kostensoort per order
+    def order_regel_to_html(self, row):
         html = row.copy()
         html['grootboek'] = row['grootboek']
         html['begroot'] = moneyfmt(row['begroot'], keur=True)
         html['realisatie'] = moneyfmt(row['realisatie'], keur=True)
+        if row['begroot'] > 0:
+            html['realisatie_perc'] = str(int((row['realisatie']/row['begroot'])*100))
+        else:
+            html['realisatie_perc'] = moneyfmt(0, keur=True)
         html['resultaat'] = moneyfmt(row['resultaat'], keur=True)
-        return self.webrender.table_grootboek_regel(html)
+        return self.webrender.table_order_regel(html)
 
     def groep_regel_to_html(self, row):
         html = row.copy()
@@ -206,6 +218,10 @@ class Report(Controller):
         html['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroep, row['id'])
         html['begroot'] = moneyfmt(row['begroot'], keur=True)
         html['realisatie'] = moneyfmt(row['realisatie'], keur=True)
+        if row['begroot'] > 0:
+            html['realisatie_perc'] = str(int((row['realisatie']/row['begroot'])*100))
+        else:
+            html['realisatie_perc'] = moneyfmt(0, keur=True)
         html['resultaat'] = moneyfmt(row['resultaat'], keur=True)
         return html
 

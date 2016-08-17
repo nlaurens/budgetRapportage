@@ -9,7 +9,7 @@ class OrderGroup:
         self.orders = {}  # list that holds all orders
 
     def flat_copy(self):
-        flat = OrderGroup(self.name, 'Flat %s' % self.descr, 1, '')
+        flat = OrderGroup(self.name, 'Flat - %s' % self.descr, 1, '')
         flat.orders = self.list_orders_recursive()
         return flat
 
