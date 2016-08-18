@@ -53,25 +53,27 @@ class Report(Controller):
         )
 
     def process_sub(self):
-        self.create_bread_crums()
+        self.create_bread_crums()  # sets the breadcrumbs for the header
 
-        # 
-        data = self.construct_data()
+        data = self.construct_data() 
 
         report = {}
         report['name'] = self.ordergroup.descr
-        report['tables'], totals = self.render_tables()
+        report['tables'] = 'DUMMY'
         report['figpage'] = self.render_fig_html()
         report['settings'] = self.render_settings_html()
         report['javaScripts'] = self.render_java_scripts()
-
-        totals['realisatie_perc'] = moneyfmt(totals['realisatie']/totals['begroot']*100)
-        totals['begroot'] = moneyfmt(totals['begroot'], keur=True)
-        totals['realisatie'] = moneyfmt(totals['realisatie'], keur=True)
-        totals['resultaat'] = moneyfmt(totals['resultaat'], keur=True)
-        report['summary'] = self.webrender.summary(totals)
-
+        report['summary'] = self.render_summary(data)
         self.body = self.webrender.report(report)
+
+    def render_summary(self, data):
+        totals = {}
+        totals['realisatie_perc'] = 'dummy' #moneyfmt(totals['realisatie']/totals['begroot']*100)
+        totals['begroot'] = 'dummy' #moneyfmt(totals['begroot'], keur=True)
+        totals['realisatie'] = 'dummy' #moneyfmt(totals['realisatie'], keur=True)
+        totals['resultaat'] = 'dummy' #moneyfmt(totals['resultaat'], keur=True)
+        return self.webrender.summary(totals)
+
 
     def construct_data(self):   
         regels = model.regels.load(years_load=self.years, orders_load=self.orders) 
