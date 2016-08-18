@@ -22,19 +22,22 @@ class Report(Controller):
         # Salaris specific:
         # Report specific:
         self.jaar = int(web.input(year=self.config["currentYear"])['year'])
+#TODO naar settings form and remove self.jaar
+        self.years = [2016,2017]  
 # TODO config
-        self.subgroep = str(web.input(subgroep='TOTAAL')['subgroep'])
-        self.ordergroep = str(web.input(ordergroep='LION')['ordergroep'])
+
         self.flat = False 
         if web.input().has_key('flat'):
             self.flat = True
-        self.expandOrders = bool(int(web.input(expandOrders='0')['expandOrders']))
+       
+        self.expand_orders = False 
+        if web.input().has_key('expand_orders'):
+            self.expand_orders = True
 
-        ordergroup = model.ordergroup.load(self.ordergroep)
-        ordergroup = ordergroup.find(self.subgroep)
-        self.root = ordergroup
-
-        self.orders = self.root.list_orders_recursive().keys()
+        ordergroup = model.ordergroup.load(str(web.input(ordergroep='TOTAAL')['ordergroep']))
+        ordergroup = ordergroup.find(str(web.input(subgroep='LION')['subgroep']))
+        self.ordergroup = ordergroup
+        self.orders = self.ordergroup.list_orders_recursive().keys()
 
         regels = model.regels.load(years_load=[self.jaar], orders_load=self.orders)
         self.regels = regels.split(['ordernummer', 'tiepe'])
@@ -45,14 +48,18 @@ class Report(Controller):
             form.Dropdown('year', dropdown_options['years'], 
                           description='Year', value=self.jaar),
             form.Checkbox('flat', description='ignore subgroups'),
+            form.Checkbox('expand_orders', description='Details orders'),
             form.Button('submit', value='report_settings')
         )
 
     def process_sub(self):
         self.create_bread_crums()
 
+        # 
+        data = self.construct_data()
+
         report = {}
-        report['name'] = self.root.descr
+        report['name'] = self.ordergroup.descr
         report['tables'], totals = self.render_tables()
         report['figpage'] = self.render_fig_html()
         report['settings'] = self.render_settings_html()
@@ -66,6 +73,32 @@ class Report(Controller):
 
         self.body = self.webrender.report(report)
 
+    def construct_data(self):   
+        regels = model.regels.load(years_load=self.years, orders_load=self.orders) 
+        regels_order_tiepe = regels.split(['ordernummer', 'jaar', 'tiepe'])
+
+        data = {}  # holds all data needed to build the view
+        data['totaal'] = {}
+        for year in self.years:
+            data['totaal'][year] = {'geboekt':0, 'obligo':0, 'plan':0, 'realisatie':0, 'resultaat':0}
+
+        for order in regels_order_tiepe.keys():
+            data[order] = {}
+            for year in self.years:
+                data[order][year] = {}
+                data[order][year] = {'geboekt':0, 'obligo':0, 'plan':0, 'realisatie':0, 'resultaat':0}
+            for year in regels_order_tiepe[order].keys():
+                for tiepe in regels_order_tiepe[order][year].keys():
+                    data[order][year][tiepe] = regels_order_tiepe[order][year][tiepe].total()
+                    data['totaal'][year][tiepe] += data[order][year][tiepe]
+
+                data[order][year]['realisatie'] = data[order][year]['geboekt'] + data[order][year]['obligo']
+                data['totaal'][year]['realisatie'] += data[order][year]['realisatie']
+                data[order][year]['resultaat'] = data[order][year]['plan'] - data[order][year]['realisatie']
+                data['totaal'][year]['resultaat'] += data[order][year]['resultaat']
+
+        return data
+
     def render_tables(self):
         tables = []
 
@@ -75,8 +108,8 @@ class Report(Controller):
         totals['obligo'] = 0
         totals['resultaat'] = 0
         
-        if self.root.children:
-            for ordergroep in self.root.children:
+        if self.ordergroup.children:
+            for ordergroep in self.ordergroup.children:
                 if self.flat and ordergroep.children:
                     ordergroep = ordergroep.flat_copy()
                 top_table, total_table = self.render_top_table(ordergroep)
@@ -86,17 +119,17 @@ class Report(Controller):
                 totals['resultaat'] += total_table['resultaat']
                 tables.append(top_table)
         else:
-            top_table, totals = self.render_top_table(self.root)
+            top_table, totals = self.render_top_table(self.ordergroup)
             tables.append(top_table)
 
         return tables, totals
 
     def create_bread_crums(self):
-        groep = self.root
+        groep = self.ordergroup
         bread_crum = [{'title': groep.descr, 'url': groep.name, 'class': 'active'}]
         while groep.parent:
             groep = groep.parent
-            link = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroep, groep.name)
+            link = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup, groep.name)
             bread_crum.append({'title': groep.descr, 'url': link, 'class': ''})
         self.breadCrum = reversed(bread_crum)
 
@@ -185,6 +218,7 @@ class Report(Controller):
         html_rows = []
         totals_order = {}
 
+        #subgroepen van subgroepen
         for child_root in root.children:
             for child in child_root.children:
                 row = {}
@@ -210,7 +244,7 @@ class Report(Controller):
             header['realisatie_perc'] = moneyfmt(realisatie/begroot*100)
         header['resultaat'] = moneyfmt(root.totaalTree['plan'] - root.totaalTree['geboekt'] - root.totaalTree['obligo'], keur=True)
 
-        order_table = self.webrender.table_order(html_rows, header, self.expandOrders)
+        order_table = self.webrender.table_order(html_rows, header, self.expand_orders)
         return order_table, root.totaalTree
 
     # Renders the kostensoort per order
@@ -229,7 +263,7 @@ class Report(Controller):
     def groep_regel_to_html(self, row):
         html = row.copy()
         html['name'] = row['name']
-        html['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroep, row['id'])
+        html['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup, row['id'])
         html['begroot'] = moneyfmt(row['begroot'], keur=True)
         html['realisatie'] = moneyfmt(row['realisatie'], keur=True)
         if row['begroot'] == 0:
@@ -242,10 +276,10 @@ class Report(Controller):
 # TODO layout!
     def render_fig_html(self):
         figs = ''
-        if not self.root.children:
+        if not self.ordergroup.children:
             graphs = []
             i = 0
-            for order, descr in self.root.orders.iteritems():
+            for order, descr in self.ordergroup.orders.iteritems():
                 graph = {}
                 graph['link'] = ('../view/' + self.userHash + '/' + str(order))
                 graph['png'] = self.url_graph(self.jaar, 'realisatie', order)
@@ -268,6 +302,6 @@ class Report(Controller):
 
     def render_java_scripts(self):
         expand_items = self.orders
-        expand_items.extend(self.root.list_groepen_recursive().values())
+        expand_items.extend(self.ordergroup.list_groepen_recursive().values())
         return self.webrender.javascripts(expand_items)
 
