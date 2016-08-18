@@ -27,7 +27,8 @@ $def with(orderrows, html, expand)
     </td>
     <td class="text-right"><a href="$html['link']">$html['name']</a></td>
     <td class="text-right">$html['begroot']</td>
-    <td class="text-right">$html['realisatie'] ($html['realisatie_perc']%)</td>
+    <td class="text-right">$html['realisatie']</td>
+    <td class="text-right">$html['realisatie_perc']%</td>
     <td class="text-right">$html['resultaat']</td>
 </tr>
 <tr class="hiddenRow accordian-body collapse" id="collapse$html['id']">
@@ -38,7 +39,7 @@ $def with(orderrows, html, expand)
                             <tr>
                             <th class="text-right">Type kosten</th>
                             <th class="text-right">Begroot</th>
-                            <th class="text-right">Realisatie</th>
+                            <th class="text-center" colspan="2">Realisatie</th>
                             <th class="text-right">Resultaat</th>
                             </tr>
                     </thead>
