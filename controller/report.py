@@ -23,7 +23,7 @@ class Report(Controller):
         # Report specific:
         self.jaar = int(web.input(year=self.config["currentYear"])['year'])
 #TODO naar settings form and remove self.jaar
-        self.years = [2016,2017]  
+        self.years = [2016, 2017]  
 # TODO config
 
         self.flat = False 
@@ -56,6 +56,7 @@ class Report(Controller):
         self.create_bread_crums()  # sets the breadcrumbs for the header
 
         data = self.construct_data() 
+        data_str = self.convert_data_to_str(data)
 
         report = {}
         report['name'] = self.ordergroup.descr
@@ -63,41 +64,53 @@ class Report(Controller):
         report['figpage'] = self.render_fig_html()
         report['settings'] = self.render_settings_html()
         report['javaScripts'] = self.render_java_scripts()
-        report['summary'] = self.render_summary(data)
+        report['summary'] = self.webrender.summary(data['total'])
         self.body = self.webrender.report(report)
-
-    def render_summary(self, data):
-        totals = {}
-        totals['realisatie_perc'] = 'dummy' #moneyfmt(totals['realisatie']/totals['begroot']*100)
-        totals['begroot'] = 'dummy' #moneyfmt(totals['begroot'], keur=True)
-        totals['realisatie'] = 'dummy' #moneyfmt(totals['realisatie'], keur=True)
-        totals['resultaat'] = 'dummy' #moneyfmt(totals['resultaat'], keur=True)
-        return self.webrender.summary(totals)
-
 
     def construct_data(self):   
         regels = model.regels.load(years_load=self.years, orders_load=self.orders) 
         regels_order_tiepe = regels.split(['ordernummer', 'jaar', 'tiepe'])
 
         data = {}  # holds all data needed to build the view
-        data['totaal'] = {}
+        data['total'] = {}
         for year in self.years:
-            data['totaal'][year] = {'geboekt':0, 'obligo':0, 'plan':0, 'realisatie':0, 'resultaat':0}
+            data['total'][year] = {'geboekt':0, 'obligo':0, 'plan':0, 'realisatie':0, 'resultaat':0, 'realisatie_perc':0}
 
         for order in regels_order_tiepe.keys():
             data[order] = {}
             for year in self.years:
                 data[order][year] = {}
-                data[order][year] = {'geboekt':0, 'obligo':0, 'plan':0, 'realisatie':0, 'resultaat':0}
+                data[order][year] = {'geboekt':0, 'obligo':0, 'plan':0, 'realisatie':0, 'resultaat':0, 'realisatie_perc':0}
             for year in regels_order_tiepe[order].keys():
                 for tiepe in regels_order_tiepe[order][year].keys():
                     data[order][year][tiepe] = regels_order_tiepe[order][year][tiepe].total()
-                    data['totaal'][year][tiepe] += data[order][year][tiepe]
+                    data['total'][year][tiepe] += data[order][year][tiepe]
 
-                data[order][year]['realisatie'] = data[order][year]['geboekt'] + data[order][year]['obligo']
-                data['totaal'][year]['realisatie'] += data[order][year]['realisatie']
                 data[order][year]['resultaat'] = data[order][year]['plan'] - data[order][year]['realisatie']
-                data['totaal'][year]['resultaat'] += data[order][year]['resultaat']
+                data['total'][year]['resultaat'] += data[order][year]['resultaat']
+                data[order][year]['realisatie'] = data[order][year]['geboekt'] + data[order][year]['obligo']
+                data['total'][year]['realisatie'] += data[order][year]['realisatie']
+
+                if data[order][year]['plan'] != 0:
+                    data[order][year]['realisatie_perc'] = data[order][year]['realisatie'] / data[order][year]['plan'] * 100
+                else:
+                    data[order][year]['realisatie_perc'] = 0
+
+                if data['total'][year]['plan'] != 0:
+                    data['total'][year]['realisatie_perc'] = data['total'][year]['realisatie'] / data['total'][year]['plan'] * 100
+                else:
+                    data['total'][year]['realisatie_perc'] = 0
+
+
+        return data
+
+    def convert_data_to_str(self, data):
+        for year, tiepes in data['total'].iteritems():
+            for tiepe, value in tiepes.iteritems():
+                if tiepe == 'realisatie_perc':
+                    data['total'][year][tiepe] = moneyfmt(value)
+                else:
+                    data['total'][year][tiepe] = moneyfmt(value, keur=True)
 
         return data
 

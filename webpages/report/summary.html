@@ -1,5 +1,7 @@
 $def with (totals)
 
-Begroot: $totals['begroot']<BR>
-Realisatie: $totals['realisatie'] ($totals['realisatie_perc']%)<BR>
-Resultaat: $totals['resultaat']<BR>
+$for year in totals:
+    Year: $year
+    Begroot: $totals[year]['plan']<BR>
+    Realisatie: $totals[year]['realisatie'] ($totals[year]['realisatie_perc']%)<BR>
+    Resultaat: $totals[year]['resultaat']<BR>
