@@ -29,7 +29,7 @@ $def with(years, totals, group_rows, order_table, expand)
                                                     <td class="text-right">$group_row[year]['resultaat']</td>
                                                     <td>
                                                         <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph$group_row[year]['id']">
-                                                            <span class="glyphicon glyphicon-paperclip"></span>
+                                                            <span class="glyphicon glyphicon-stats"></span>
                                                         </button>
                                                         <div id="graph$group_row[year]['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog">
@@ -45,10 +45,10 @@ $def with(years, totals, group_rows, order_table, expand)
                                         <tr>
                                             <th>Totals</th>
                                             $for year in years:
-                                                <td class="text-right">$totals[year]['plan']</td>
-                                                <td class="text-right">$totals[year]['realisatie']</td>
-                                                <td class="text-right">$totals[year]['realisatie_perc']%</td>
-                                                <td class="text-right">$totals[year]['resultaat']</td>
+                                                <td class="text-right"><B>$totals[year]['plan']</B></td>
+                                                <td class="text-right"><B>$totals[year]['realisatie']</B></td>
+                                                <td class="text-right"><B>$totals[year]['realisatie_perc']%</B></td>
+                                                <td class="text-right"><B>$totals[year]['resultaat']</B></td>
                                                 <td></td>
                                         </tr>
                                         

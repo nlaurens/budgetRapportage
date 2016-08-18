@@ -26,11 +26,11 @@ class Report(Controller):
         self.years = [2013, 2014,2015,2016]
 # TODO config
 
-        self.flat = False 
+        self.flat = False
         if web.input().has_key('flat'):
             self.flat = True
-       
-        self.expand_orders = False 
+
+        self.expand_orders = False
         if web.input().has_key('expand_orders'):
             self.expand_orders = True
 
@@ -45,7 +45,7 @@ class Report(Controller):
         # Forms
         dropdown_options = self. dropdown_options()
         self.form_settings_simple = form.Form(
-            form.Dropdown('year', dropdown_options['years'], 
+            form.Dropdown('year', dropdown_options['years'],
                           description='Year', value=self.jaar),
             form.Checkbox('flat', description='ignore subgroups'),
             form.Checkbox('expand_orders', description='Details orders'),
@@ -55,7 +55,7 @@ class Report(Controller):
     def process_sub(self):
         self.create_bread_crums()  # sets the breadcrumbs for the header
 
-        data = self.construct_data() 
+        data = self.construct_data()
         self.convert_data_to_str(data)
 
         report = {}
@@ -78,13 +78,13 @@ class Report(Controller):
 
     """
         Constructs all the data that is needed for the report:
-        data{ 
-                <order#>: {<year1>: {geboekt/obligo/etc./}, <year2>: {..} 
-                total: {<year1>: {geboekt/obligo/etc./}, <year2>: {..} 
+        data{
+                <order#>: {<year1>: {geboekt/obligo/etc./}, <year2>: {..}
+                total: {<year1>: {geboekt/obligo/etc./}, <year2>: {..}
         }
     """
-    def construct_data(self):   
-        regels = model.regels.load(years_load=self.years, orders_load=self.orders) 
+    def construct_data(self):
+        regels = model.regels.load(years_load=self.years, orders_load=self.orders)
         regels_order_tiepe = regels.split(['ordernummer', 'jaar', 'tiepe'])
 
         data = {}  # construct data dictand preload all possible keys
@@ -133,6 +133,7 @@ class Report(Controller):
         return data
 
     def convert_data_to_str(self, data):
+        # totals
         for year, tiepes in data['total'].iteritems():
             for tiepe, value in tiepes.iteritems():
                 if tiepe == 'realisatie_perc':
@@ -140,13 +141,15 @@ class Report(Controller):
                 else:
                     data['total'][year][tiepe] = moneyfmt(value, keur=True)
 
-        for order in data.keys():
-            for year in data[order].keys():
-                for tiepe, value in data[order][year].iteritems():
-                    if tiepe == 'realisatie_perc':
-                        data[order][year][tiepe] = moneyfmt(value)
-                    else:
-                        data[order][year][tiepe] = moneyfmt(value, keur=True)
+        for key in data.keys():
+            if key != 'total':  # only allow orders to be parsed
+                order = key
+                for year in data[order].keys():
+                    for tiepe, value in data[order][year].iteritems():
+                        if tiepe == 'realisatie_perc':
+                            data[order][year][tiepe] = moneyfmt(value)
+                        else:
+                            data[order][year][tiepe] = moneyfmt(value, keur=True)
 
     def render_tables(self, data):
         tables = []
@@ -194,7 +197,7 @@ class Report(Controller):
                 row[year]['graph'] = self.url_graph(year, 'realisatie', subgroup.name)
                 row[year]['plan'] = data[subgroup.name][year]['plan']
                 row[year]['realisatie'] = data[subgroup.name][year]['realisatie']
-                row[year]['realisatie_perc'] = data[subgroup.name][year]['realisatie_perc'] 
+                row[year]['realisatie_perc'] = data[subgroup.name][year]['realisatie_perc']
                 row[year]['resultaat'] = data[subgroup.name][year]['resultaat']
             group_rows.append(row)
 
@@ -229,128 +232,12 @@ class Report(Controller):
                 row[year]['graph'] = self.url_graph(year, 'realisatie', order)
                 row[year]['plan'] = data[order][year]['plan']
                 row[year]['realisatie'] = data[order][year]['realisatie']
-                row[year]['realisatie_perc'] = data[order][year]['realisatie_perc'] 
+                row[year]['realisatie_perc'] = data[order][year]['realisatie_perc']
                 row[year]['resultaat'] = data[order][year]['resultaat']
             order_rows.append(row)
 
         order_table = self.webrender.table_order(self.years, order_rows, self.expand_orders)
         return order_table
-
-    def parse_orders_in_groep(self, root, total_groep):
-        order_tables = []
-        total_groep['id'] = root.name
-        total_groep['name'] = root.descr
-        for order, descr in root.orders.iteritems():
-            order_table, totaal_tree = self.parse_order(order, descr)
-            order_tables.append(order_table)
-            total_groep['begroot'] += totaal_tree['plan']
-            total_groep['realisatie'] += totaal_tree['geboekt'] + totaal_tree['obligo']
-            total_groep['resultaat'] += totaal_tree['plan'] - totaal_tree['geboekt'] - totaal_tree['obligo']
-
-        groep_header = {}
-        regel_html_ready = self.groep_regel_to_html(total_groep)  
-        groep_header['row'] = self.webrender.table_groep_regel(regel_html_ready)
-        groep_header['id'] = root.name
-        groep_header['img'] = self.url_graph(self.jaar, 'realisatie', root.name)
-
-        return order_tables, groep_header, total_groep
-
-    def parse_groep(self, root):
-        groeptotal = {}
-        groeptotal['begroot'] = 0
-        groeptotal['realisatie'] = 0
-        groeptotal['obligo'] = 0
-        groeptotal['resultaat'] = 0
-        groeprows = []
-        for child in root.children:
-            child_order_tables, childheader, childgroep, total = self.parse_groep(child)
-            groeprows.append(self.webrender.table_groep(child_order_tables, childheader, childgroep))
-            groeptotal['begroot'] += total['begroot']
-            groeptotal['realisatie'] += total['realisatie']
-            groeptotal['obligo'] += total['obligo']
-            groeptotal['resultaat'] += total['resultaat']
-
-        order_tables, groepheader, groeptotal = self.parse_orders_in_groep(root, groeptotal)
-        return order_tables, groepheader, groeprows, groeptotal
-
-
-    def parse_order(self, order, descr):
-        # parse orders in groep:
-        regels = {}
-        if order in self.regels:
-            regels = self.regels[order]
-
-# TODO  In config params!!
-        root = model.ksgroup.load('BFRE15')
-        root = root.find('BFRE15E01')
-
-# TODO prevent this. regels is now a dictionary not a single regellist.
-        from model.budget import RegelList
-        regel_list = RegelList()  # Create 1 regellist and not a dict per type
-        for key, regellist in regels.iteritems():
-            regel_list.extend(regellist)
-        regels = regel_list
-
-        root.assign_regels_recursive(regels)
-        root.clean_empty_nodes()
-        root.set_totals()
-
-        html_rows = []
-        totals_order = {}
-
-        #subgroepen van subgroepen
-        for child_root in root.children:
-            for child in child_root.children:
-                row = {}
-                row['grootboek'] = child.descr
-                row['begroot'] = child.totaalTree['plan']
-                row['realisatie'] = child.totaalTree['geboekt'] + child.totaalTree['obligo']
-                row['resultaat'] = child.totaalTree['plan'] - (child.totaalTree['geboekt'] + child.totaalTree['obligo'])
-                html_rows.append(self.order_regel_to_html(row))
-
-        begroot = root.totaalTree['plan']
-        realisatie = root.totaalTree['geboekt'] + root.totaalTree['obligo']
-        header = {}
-        header['name'] = '%s (%s)' % (descr, order)
-        header['link'] = '/view/%s?order=%s' % (self.userHash, order)
-        header['userHash'] = self.userHash
-        header['id'] = order
-        header['img'] = self.url_graph(self.jaar, 'realisatie', order)
-        header['begroot'] = moneyfmt(root.totaalTree['plan'], keur=True)
-        header['realisatie'] = moneyfmt(realisatie, keur=True)
-        if begroot == 0:
-            header['realisatie_perc'] = str(0)
-        else:
-            header['realisatie_perc'] = moneyfmt(realisatie/begroot*100)
-        header['resultaat'] = moneyfmt(root.totaalTree['plan'] - root.totaalTree['geboekt'] - root.totaalTree['obligo'], keur=True)
-
-        return order_table, root.totaalTree
-
-    # Renders the kostensoort per order
-    def order_regel_to_html(self, row):
-        html = row.copy()
-        html['grootboek'] = row['grootboek']
-        html['begroot'] = moneyfmt(row['begroot'], keur=True)
-        html['realisatie'] = moneyfmt(row['realisatie'], keur=True)
-        if row['begroot'] == 0:
-            html['realisatie_perc'] = 0
-        else:
-            html['realisatie_perc'] = moneyfmt(row['realisatie']/row['begroot']*100)
-        html['resultaat'] = moneyfmt(row['resultaat'], keur=True)
-        return self.webrender.table_order_regel(html)
-
-    def groep_regel_to_html(self, row):
-        html = row.copy()
-        html['name'] = row['name']
-        html['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup, row['id'])
-        html['begroot'] = moneyfmt(row['begroot'], keur=True)
-        html['realisatie'] = moneyfmt(row['realisatie'], keur=True)
-        if row['begroot'] == 0:
-            html['realisatie_perc'] = 0
-        else:
-            html['realisatie_perc'] = moneyfmt(row['realisatie']/row['begroot']*100)
-        html['resultaat'] = moneyfmt(row['resultaat'], keur=True)
-        return html
 
 # TODO layout!
     def render_fig_html(self):
@@ -374,7 +261,6 @@ class Report(Controller):
         else:
             return None
 
-# TODO replace dummy vasr
     def render_settings_html(self):
         form_settings = self.form_settings_simple
         return self.webrender.settings(form_settings)

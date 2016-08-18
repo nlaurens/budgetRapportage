@@ -29,7 +29,7 @@ $def with(years, order_rows, expand)
                                                     <td class="text-right">$order_row[year]['resultaat']</td>
                                                     <td>
                                                         <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph$order_row[year]['id']">
-                                                            <span class="glyphicon glyphicon-paperclip"></span>
+                                                            <span class="glyphicon glyphicon-stats"></span>
                                                         </button>
                                                         <div id="graph$order_row[year]['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog">
@@ -45,10 +45,10 @@ $def with(years, order_rows, expand)
                                         <tr>
                                             <th>Totals</th>
                                             $for year in years:
-                                                <td class="text-right">$order_row[year]['plan']</td>
-                                                <td class="text-right">$order_row[year]['realisatie']</td>
-                                                <td class="text-right">$order_row[year]['realisatie_perc']%</td>
-                                                <td class="text-right">$order_row[year]['resultaat']</td>
+                                                <td class="text-right"><b>$order_row[year]['plan']</b></td>
+                                                <td class="text-right"><b>$order_row[year]['realisatie']</b></td>
+                                                <td class="text-right"><b>$order_row[year]['realisatie_perc']%</b></td>
+                                                <td class="text-right"><b>$order_row[year]['resultaat']</b></td>
                                                 <td></td>
                                         </tr>
                                     </tbody>
