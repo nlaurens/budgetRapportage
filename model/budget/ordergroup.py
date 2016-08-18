@@ -118,11 +118,14 @@ class OrderGroup:
 
         return
 
-    # returns: [ {descr:group} ] for all groepen in nodes
-    def list_groups(self):
-        groepen = {self.name: self}
+    # returns: [OrderGroup, ..] for all groepen in nodes
+    def list_groups(self, inverted=True):
+        groepen = [self]
         for child in self.children:
-            groepen.update(child.list_groups())
+            if inverted:
+                groepen = child.list_groups() + groepen
+            else:
+                groepen = groepen + child.list_groups() 
         return groepen
 
     # return [ {descr:name} ] for all orders in nodes

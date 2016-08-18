@@ -64,7 +64,7 @@ class Report(Controller):
         report['figpage'] = self.render_fig_html()
         report['settings'] = self.render_settings_html()
         report['javaScripts'] = self.render_java_scripts()
-        report['summary'] = self.webrender.summary(data['total'])
+        report['summary'] = self.webrender.summary(data[self.ordergroup.name])
         self.body = self.webrender.report(report)
 
     def create_bread_crums(self):
@@ -79,8 +79,8 @@ class Report(Controller):
     """
         Constructs all the data that is needed for the report:
         data{
-                <order#>: {<year1>: {geboekt/obligo/etc./}, <year2>: {..}
-                total: {<year1>: {geboekt/obligo/etc./}, <year2>: {..}
+          <order#/ordergroup-descr>: {<year1>: {geboekt/obligo/etc./}, <year2>: {..}
+          ,, 
         }
     """
     def construct_data(self):
@@ -88,74 +88,57 @@ class Report(Controller):
         regels_order_tiepe = regels.split(['ordernummer', 'jaar', 'tiepe'])
 
         data = {}  # construct data dictand preload all possible keys
-        data['total'] = {}
         for order in self.orders:
             data[order] = {}
             for year in self.years:
                 data[order][year] = {}
                 data[order][year] = {'geboekt':0, 'obligo':0, 'plan':0, 'realisatie':0, 'resultaat':0, 'realisatie_perc':0}
-                data['total'][year] = {'geboekt':0, 'obligo':0, 'plan':0, 'realisatie':0, 'resultaat':0, 'realisatie_perc':0}
 
         # load data for all orders
         for order in regels_order_tiepe.keys():
             for year in regels_order_tiepe[order].keys():
                 for tiepe in regels_order_tiepe[order][year].keys():
                     data[order][year][tiepe] = regels_order_tiepe[order][year][tiepe].total()
-                    data['total'][year][tiepe] += data[order][year][tiepe]
 
                 data[order][year]['realisatie'] = data[order][year]['geboekt'] + data[order][year]['obligo']
-                data['total'][year]['realisatie'] += data[order][year]['realisatie']
                 data[order][year]['resultaat'] = data[order][year]['plan'] - data[order][year]['realisatie']
-                data['total'][year]['resultaat'] += data[order][year]['resultaat']
 
                 if data[order][year]['plan'] != 0:
                     data[order][year]['realisatie_perc'] = data[order][year]['realisatie'] / data[order][year]['plan'] * 100
                 else:
                     data[order][year]['realisatie_perc'] = 0
 
-                if data['total'][year]['plan'] != 0:
-                    data['total'][year]['realisatie_perc'] = data['total'][year]['realisatie'] / data['total'][year]['plan'] * 100
-                else:
-                    data['total'][year]['realisatie_perc'] = 0
-
         # load data for all groups:
-        # TODO WRONG!! we should also take the total of the subgroups!
-        # Use the load ordergroup with regels?
-        # or recursively load order in all groups -> easiest and saves walking through all regels!
-        # or option 3: get groups and orders from the ordergroups and add those. Be smart about 
-        # what to do first.
-        ordergroups = self.ordergroup.list_groups()  # [{name:ordegroup}, ..]
-        for name, group in ordergroups.iteritems():
-            data[name] = {}
+        ordergroups = self.ordergroup.list_groups()
+        for group in ordergroups:
+            data[group.name] = {}
             for year in self.years:
-                data[name][year] = {}
+                data[group.name][year] = {}
                 for tiepe in ['begroot', 'plan', 'resultaat', 'realisatie', 'realisatie_perc']:
-                    data[name][year][tiepe] = 0
-                    for order in group.orders:
+                    data[group.name][year][tiepe] = 0
+
+                    # add subgroup values
+                    for subgroup in group.children: 
+                        if tiepe in data[subgroup.name][year]:
+                            data[group.name][year][tiepe] += data[subgroup.name][year][tiepe] 
+
+                    # add orders from this grop
+                    for order in group.orders: 
                         if tiepe in data[order][year]:
-                            data[name][year][tiepe] += data[order][year][tiepe]
+                            data[group.name][year][tiepe] += data[order][year][tiepe]
 
         return data
 
     def convert_data_to_str(self, data):
-        # totals
-        for year, tiepes in data['total'].iteritems():
-            for tiepe, value in tiepes.iteritems():
-                if tiepe == 'realisatie_perc':
-                    data['total'][year][tiepe] = moneyfmt(value)
-                else:
-                    data['total'][year][tiepe] = moneyfmt(value, keur=True)
-
         # orders
         for key in data.keys():
-            if key != 'total':  # only allow orders to be parsed
-                order = key
-                for year in data[order].keys():
-                    for tiepe, value in data[order][year].iteritems():
-                        if tiepe == 'realisatie_perc':
-                            data[order][year][tiepe] = moneyfmt(value)
-                        else:
-                            data[order][year][tiepe] = moneyfmt(value, keur=True)
+            order = key
+            for year in data[order].keys():
+                for tiepe, value in data[order][year].iteritems():
+                    if tiepe == 'realisatie_perc':
+                        data[order][year][tiepe] = moneyfmt(value)
+                    else:
+                        data[order][year][tiepe] = moneyfmt(value, keur=True)
 
     def render_fig_html(self):
         figs = ''
@@ -181,8 +164,8 @@ class Report(Controller):
     def render_java_scripts(self):
         expand_items = self.orders
         ordergroup_list = self.ordergroup.list_groups()
-        for name, group in ordergroup_list.iteritems():
-            expand_items.append(name)
+        for group in ordergroup_list:
+            expand_items.append(group.name)
         return self.webrender.javascripts(expand_items)
 
     def render_tables(self, data):
@@ -235,14 +218,8 @@ class Report(Controller):
                 row[year]['resultaat'] = data[subgroup.name][year]['resultaat']
             group_rows.append(row)
 
-        #totals
-        totals = {}
-        for year in self.years:
-            totals[year] = {}
-            totals[year]['realisatie'] = data[ordergroup.name][year]['realisatie']
-            totals[year]['realisatie_perc'] = data[ordergroup.name][year]['realisatie_perc']
-            totals[year]['plan'] = data[ordergroup.name][year]['plan']
-            totals[year]['resultaat'] = data[ordergroup.name][year]['resultaat']
+
+        totals = data[ordergroup.name]
 
         # add orders of the top group
         order_table = None
@@ -270,7 +247,8 @@ class Report(Controller):
                 row[year]['resultaat'] = data[order][year]['resultaat']
             order_rows.append(row)
 
-        order_table = self.webrender.table_order(self.years, order_rows, self.expand_orders)
+        totals = data[ordergroup.name]
+        order_table = self.webrender.table_order(self.years, order_rows, totals, self.expand_orders)
         return order_table
 
 

@@ -1,4 +1,4 @@
-$def with(years, order_rows, expand)
+$def with(years, order_rows, total, expand)
                             <table class="table table-condensed table-hover">
                                     <thead>
                                             <tr>
@@ -45,10 +45,10 @@ $def with(years, order_rows, expand)
                                         <tr>
                                             <th>Totals</th>
                                             $for year in years:
-                                                <td class="text-right"><b>$order_row[year]['plan']</b></td>
-                                                <td class="text-right"><b>$order_row[year]['realisatie']</b></td>
-                                                <td class="text-right"><b>$order_row[year]['realisatie_perc']%</b></td>
-                                                <td class="text-right"><b>$order_row[year]['resultaat']</b></td>
+                                                <td class="text-right"><b>$total[year]['plan']</b></td>
+                                                <td class="text-right"><b>$total[year]['realisatie']</b></td>
+                                                <td class="text-right"><b>$total[year]['realisatie_perc']%</b></td>
+                                                <td class="text-right"><b>$total[year]['resultaat']</b></td>
                                                 <td></td>
                                         </tr>
                                     </tbody>

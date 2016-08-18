@@ -21,6 +21,8 @@ Config
 
 Controller & Webpages
     - Alle templates doorlopen op $:xxx als dat niet nodig is.
+    - Navbar is build on 2 recursive functions. Replace by ordergroup.list_groups(Inverted=True)
+      That function should give you the exact list that you need.
 
     - view
         * html_tree has double code, lot of it is done by budget.kostensoortgroup
