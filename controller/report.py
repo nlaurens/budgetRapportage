@@ -23,7 +23,7 @@ class Report(Controller):
         # Report specific:
         self.jaar = int(web.input(year=self.config["currentYear"])['year'])
 #TODO naar settings form and remove self.jaar
-        self.years = [2016, 2017]  
+        self.years = [2014,2015,2016]  
 # TODO config
 
         self.flat = False 
@@ -76,29 +76,36 @@ class Report(Controller):
             bread_crum.append({'title': groep.descr, 'url': link, 'class': ''})
         self.breadCrum = reversed(bread_crum)
 
+    """
+        Constructs all the data that is needed for the report:
+        data{ 
+                <order#>: {<year1>: {geboekt/obligo/etc./}, <year2>: {..} 
+                total: {<year1>: {geboekt/obligo/etc./}, <year2>: {..} 
+        }
+    """
     def construct_data(self):   
         regels = model.regels.load(years_load=self.years, orders_load=self.orders) 
         regels_order_tiepe = regels.split(['ordernummer', 'jaar', 'tiepe'])
 
-        data = {}  # holds all data needed to build the view
+        data = {}  # construct data dictand preload all possible keys
         data['total'] = {}
-        for year in self.years:
-            data['total'][year] = {'geboekt':0, 'obligo':0, 'plan':0, 'realisatie':0, 'resultaat':0, 'realisatie_perc':0}
-
-        for order in regels_order_tiepe.keys():
+        for order in self.orders:
             data[order] = {}
             for year in self.years:
                 data[order][year] = {}
                 data[order][year] = {'geboekt':0, 'obligo':0, 'plan':0, 'realisatie':0, 'resultaat':0, 'realisatie_perc':0}
+                data['total'][year] = {'geboekt':0, 'obligo':0, 'plan':0, 'realisatie':0, 'resultaat':0, 'realisatie_perc':0}
+
+        for order in regels_order_tiepe.keys():
             for year in regels_order_tiepe[order].keys():
                 for tiepe in regels_order_tiepe[order][year].keys():
                     data[order][year][tiepe] = regels_order_tiepe[order][year][tiepe].total()
                     data['total'][year][tiepe] += data[order][year][tiepe]
 
-                data[order][year]['resultaat'] = data[order][year]['plan'] - data[order][year]['realisatie']
-                data['total'][year]['resultaat'] += data[order][year]['resultaat']
                 data[order][year]['realisatie'] = data[order][year]['geboekt'] + data[order][year]['obligo']
                 data['total'][year]['realisatie'] += data[order][year]['realisatie']
+                data[order][year]['resultaat'] = data[order][year]['plan'] - data[order][year]['realisatie']
+                data['total'][year]['resultaat'] += data[order][year]['resultaat']
 
                 if data[order][year]['plan'] != 0:
                     data[order][year]['realisatie_perc'] = data[order][year]['realisatie'] / data[order][year]['plan'] * 100
@@ -142,11 +149,11 @@ class Report(Controller):
 
         return tables
 
-    def render_top_table(self, ordergroep, data):
+    def render_top_table(self, ordergroup, data):
         table = []
         childtable = []
 
-        for child in ordergroep.children:
+        for child in ordergroup.children:
             pass
             #rows, header, groeprows, total = self.parse_groep(child)
             #childtable.append(self.webrender.table_groep(rows, header, groeprows))
@@ -156,28 +163,36 @@ class Report(Controller):
             #groeptotal['resultaat'] += total['resultaat']
 
         # add orders of the top group (if any)
-        order_rows = []
-        for order, descr in ordergroep.orders.iteritems():
-            row = {}
-            row['id'] = 'ID'
-            row['graph'] = 'GRAPH'
-            row['link'] = 'link'
-            row['name'] = descr
-            row['begroot'] = 'begroot'
-            row['realisatie'] = 'realisate'
-            row['realisatie_perc'] = 'realisate_perc'
-            row['resultaat'] = 'resultaat'
-            order_rows.append(row)
-
-        order_table = self.webrender.table_order(order_rows, self.expand_orders)
+        order_table = None
+        if ordergroup.orders:
+            order_table = self.render_order_table(data, ordergroup)
 
         header = {}
-        header['name'] = ordergroep.descr
-        header['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup_file, ordergroep.name)
+        header['name'] = ordergroup.descr
+        header['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup_file, ordergroup.name)
 
         top_table = self.webrender.table(order_table, header, childtable)
         return top_table
 
+    def render_order_table(self, data, ordergroup):
+        order_rows = []
+        for order, descr in ordergroup.orders.iteritems():
+            row = {}
+            row['link'] = 'link'
+            row['name'] = descr
+
+            for year in self.years:
+                row[year] = {}
+                row[year]['id'] = '%s-%s' % (year, order)
+                row[year]['graph'] = self.url_graph(year, 'realisatie', order)
+                row[year]['plan'] = data[order][year]['plan']
+                row[year]['realisatie'] = data[order][year]['realisatie']
+                row[year]['realisatie_perc'] = data[order][year]['realisatie_perc'] 
+                row[year]['resultaat'] = data[order][year]['resultaat']
+            order_rows.append(row)
+
+        order_table = self.webrender.table_order(self.years, order_rows, self.expand_orders)
+        return order_table
 
     def parse_orders_in_groep(self, root, total_groep):
         order_tables = []

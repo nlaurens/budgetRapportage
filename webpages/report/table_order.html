@@ -1,42 +1,46 @@
-$def with(order_rows, expand)
+$def with(years, order_rows, expand)
                             <table class="table table-condensed">
                                     <thead>
                                             <tr>
-                                            <th></th>
-                                            <th class="text-right">Order</th>
-                                            <th class="text-right">Begroot</th>
-                                            <th class="text-center" colspan="2">Realisatie</th>
-                                            <th class="text-right">Resultaat</th>
+                                                <th></th>
+                                                $for year in years:
+                                                    <th class="text-center" colspan=5>$year</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="text-right"></th>
+
+                                                $for year in years:
+                                                    <th class="text-right">Budget</th>
+                                                    <th class="text-center" colspan=2>Spent</th>
+                                                    <th class="text-right">+/-</th>
+                                                    <th></th>
+
                                             </tr>
                                     </thead>
                                     <tbody>
                                         $for order_row in order_rows:
                                             <tr>
-                                                <td>
-                                                    $if expand:
-                                                        <button data-toggle="collapse" data-target="#collapse$order_row['id']" class="accordion-toggle btn btn-default btn-xs">
-                                                            <span id="#plusminus$order_row['id']" class="glyphicon glyphicon-plus"></span>
-                                                        </button>
+                                                <td class="text-right"><a href="$order_row['link']">$order_row['name']</a></td>
 
-                                                    <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph$order_row['id']">
-                                                        <span class="glyphicon glyphicon-paperclip"></span>
-                                                    </button>
-                                                    <div id="graph$order_row['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-body">
-                                                                <img src="$:order_row['graph']" class="img-responsive">
+                                                $for year in years:
+                                                    <td class="text-right">$order_row[year]['plan']</td>
+                                                    <td class="text-right">$order_row[year]['realisatie']</td>
+                                                    <td class="text-right">$order_row[year]['realisatie_perc']%</td>
+                                                    <td class="text-right">$order_row[year]['resultaat']</td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph$order_row[year]['id']">
+                                                            <span class="glyphicon glyphicon-paperclip"></span>
+                                                        </button>
+                                                        <div id="graph$order_row[year]['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-body">
+                                                                    <img src="$:order_row[year]['graph']" class="img-responsive">
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    </div>
-
-                                                </td>
-                                                <td class="text-right"><a href="$order_row['link']">$order_row['name']</a></td>
-                                                <td class="text-right">$order_row['begroot']</td>
-                                                <td class="text-right">$order_row['realisatie']</td>
-                                                <td class="text-right">$order_row['realisatie_perc']%</td>
-                                                <td class="text-right">$order_row['resultaat']</td>
+                                                        </div>
+                                                    </td>
                                             </tr>
                                     </tbody>
                             </table> 
