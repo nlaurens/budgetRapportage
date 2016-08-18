@@ -119,6 +119,11 @@ class Report(Controller):
                     data['total'][year]['realisatie_perc'] = 0
 
         # load data for all groups:
+        # TODO WRONG!! we should also take the total of the subgroups!
+        # Use the load ordergroup with regels?
+        # or recursively load order in all groups -> easiest and saves walking through all regels!
+        # or option 3: get groups and orders from the ordergroups and add those. Be smart about 
+        # what to do first.
         ordergroups = self.ordergroup.list_groups()  # [{name:ordegroup}, ..]
         for name, group in ordergroups.iteritems():
             data[name] = {}
@@ -141,6 +146,7 @@ class Report(Controller):
                 else:
                     data['total'][year][tiepe] = moneyfmt(value, keur=True)
 
+        # orders
         for key in data.keys():
             if key != 'total':  # only allow orders to be parsed
                 order = key
@@ -150,6 +156,34 @@ class Report(Controller):
                             data[order][year][tiepe] = moneyfmt(value)
                         else:
                             data[order][year][tiepe] = moneyfmt(value, keur=True)
+
+    def render_fig_html(self):
+        figs = ''
+        if not self.ordergroup.children:
+            graphs = []
+            i = 0
+            for order, descr in self.ordergroup.orders.iteritems():
+                graph = {}
+                graph['link'] = ('../view/' + self.userHash + '/' + str(order))
+                graph['png'] = self.url_graph(self.jaar, 'realisatie', order)
+                graphs.append(graph)
+                i += 1
+
+            figs = self.webrender.figpage(graphs)
+            return figs
+        else:
+            return None
+
+    def render_settings_html(self):
+        form_settings = self.form_settings_simple
+        return self.webrender.settings(form_settings)
+
+    def render_java_scripts(self):
+        expand_items = self.orders
+        ordergroup_list = self.ordergroup.list_groups()
+        for name, group in ordergroup_list.iteritems():
+            expand_items.append(name)
+        return self.webrender.javascripts(expand_items)
 
     def render_tables(self, data):
         tables = []
@@ -205,10 +239,10 @@ class Report(Controller):
         totals = {}
         for year in self.years:
             totals[year] = {}
-            totals[year]['realisatie'] = 0
-            totals[year]['realisatie_perc'] = 0
-            totals[year]['plan'] = 0
-            totals[year]['resultaat'] = 0
+            totals[year]['realisatie'] = data[ordergroup.name][year]['realisatie']
+            totals[year]['realisatie_perc'] = data[ordergroup.name][year]['realisatie_perc']
+            totals[year]['plan'] = data[ordergroup.name][year]['plan']
+            totals[year]['resultaat'] = data[ordergroup.name][year]['resultaat']
 
         # add orders of the top group
         order_table = None
@@ -239,36 +273,4 @@ class Report(Controller):
         order_table = self.webrender.table_order(self.years, order_rows, self.expand_orders)
         return order_table
 
-# TODO layout!
-    def render_fig_html(self):
-        figs = ''
-        if not self.ordergroup.children:
-            graphs = []
-            i = 0
-            for order, descr in self.ordergroup.orders.iteritems():
-                graph = {}
-                graph['link'] = ('../view/' + self.userHash + '/' + str(order))
-                graph['png'] = self.url_graph(self.jaar, 'realisatie', order)
-                # if i%2:
-                #    graph['spacer'] = '</tr><tr>'
-                # else:
-                #    graph['spacer'] = ''
-                graphs.append(graph)
-                i += 1
-
-            figs = self.webrender.figpage(graphs)
-            return figs
-        else:
-            return None
-
-    def render_settings_html(self):
-        form_settings = self.form_settings_simple
-        return self.webrender.settings(form_settings)
-
-    def render_java_scripts(self):
-        expand_items = self.orders
-        ordergroup_list = self.ordergroup.list_groups()
-        for name, group in ordergroup_list.iteritems():
-            expand_items.append(name)
-        return self.webrender.javascripts(expand_items)
 
