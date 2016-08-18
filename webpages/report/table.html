@@ -1,29 +1,7 @@
 $def with(order_tables, header, childtable)
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <!--
-                        <button data-toggle="collapse" data-target="#collapse$header['id']" class="accordion-toggle btn btn-default btn-xs">
-                            <span id="plusminus$header['id']" class="glyphicon glyphicon-plus"></span>
-                        </button>
-                        -->
-                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph$header['id']">
-                            <span class="glyphicon glyphicon-paperclip"></span>
-                        </button>
-                        <!--
-                        <a class="btn btn-default btn-xs" href="?groep=$:header['id']" role="button">
-                            <span class="glyphicon glyphicon-zoom-in"></span>
-                        </a>
-                        -->
-                        <div id="graph$header['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-body">
-                                    <img src="$:header['img']" class="img-responsive">
-                                </div>
-                            </div>
-                        </div>
-                        </div>
-                        $:header['panel_header']
+                        <a href=$:header['link']>$header['name']</a>
                     </div>
                     <div class="panel-body">
                         $if childtable:

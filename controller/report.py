@@ -34,9 +34,9 @@ class Report(Controller):
         if web.input().has_key('expand_orders'):
             self.expand_orders = True
 
-        ordergroup = model.ordergroup.load(str(web.input(ordergroep='TOTAAL')['ordergroep']))
-        ordergroup = ordergroup.find(str(web.input(subgroep='LION')['subgroep']))
-        self.ordergroup = ordergroup
+        self.ordergroup_file = str(web.input(ordergroep='LION')['ordergroep'])
+        ordergroup = model.ordergroup.load(self.ordergroup_file)
+        self.ordergroup = ordergroup.find(str(web.input(subgroep='TOTAAL')['subgroep']))
         self.orders = self.ordergroup.list_orders_recursive().keys()
 
         regels = model.regels.load(years_load=[self.jaar], orders_load=self.orders)
@@ -56,16 +56,25 @@ class Report(Controller):
         self.create_bread_crums()  # sets the breadcrumbs for the header
 
         data = self.construct_data() 
-        data_str = self.convert_data_to_str(data)
+        self.convert_data_to_str(data)
 
         report = {}
         report['name'] = self.ordergroup.descr
-        report['tables'] = 'DUMMY'
+        report['tables'] = self.render_tables(data)
         report['figpage'] = self.render_fig_html()
         report['settings'] = self.render_settings_html()
         report['javaScripts'] = self.render_java_scripts()
         report['summary'] = self.webrender.summary(data['total'])
         self.body = self.webrender.report(report)
+
+    def create_bread_crums(self):
+        groep = self.ordergroup
+        bread_crum = [{'title': groep.descr, 'url': groep.name, 'class': 'active'}]
+        while groep.parent:
+            groep = groep.parent
+            link = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup_file, groep.name)
+            bread_crum.append({'title': groep.descr, 'url': link, 'class': ''})
+        self.breadCrum = reversed(bread_crum)
 
     def construct_data(self):   
         regels = model.regels.load(years_load=self.years, orders_load=self.orders) 
@@ -101,7 +110,6 @@ class Report(Controller):
                 else:
                     data['total'][year]['realisatie_perc'] = 0
 
-
         return data
 
     def convert_data_to_str(self, data):
@@ -112,64 +120,73 @@ class Report(Controller):
                 else:
                     data['total'][year][tiepe] = moneyfmt(value, keur=True)
 
-        return data
+        for order in data.keys():
+            for year in data[order].keys():
+                for tiepe, value in data[order][year].iteritems():
+                    if tiepe == 'realisatie_perc':
+                        data[order][year][tiepe] = moneyfmt(value)
+                    else:
+                        data[order][year][tiepe] = moneyfmt(value, keur=True)
 
-    def render_tables(self):
+    def render_tables(self, data):
         tables = []
-
-        totals = {}
-        totals['begroot'] = 0
-        totals['realisatie'] = 0
-        totals['obligo'] = 0
-        totals['resultaat'] = 0
-        
         if self.ordergroup.children:
             for ordergroep in self.ordergroup.children:
                 if self.flat and ordergroep.children:
                     ordergroep = ordergroep.flat_copy()
-                top_table, total_table = self.render_top_table(ordergroep)
-                totals['begroot'] += total_table['begroot']
-                totals['realisatie'] += total_table['realisatie']
-                totals['obligo'] += total_table['obligo']
-                totals['resultaat'] += total_table['resultaat']
+                top_table = self.render_top_table(ordergroep, data)
                 tables.append(top_table)
         else:
-            top_table, totals = self.render_top_table(self.ordergroup)
+            top_table = self.render_top_table(self.ordergroup, data)
             tables.append(top_table)
 
-        return tables, totals
+        return tables
 
-    def create_bread_crums(self):
-        groep = self.ordergroup
-        bread_crum = [{'title': groep.descr, 'url': groep.name, 'class': 'active'}]
-        while groep.parent:
-            groep = groep.parent
-            link = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup, groep.name)
-            bread_crum.append({'title': groep.descr, 'url': link, 'class': ''})
-        self.breadCrum = reversed(bread_crum)
-
-    def render_top_table(self, ordergroep):
+    def render_top_table(self, ordergroep, data):
         table = []
         childtable = []
-        groeptotal = {}
-        groeptotal['begroot'] = 0
-        groeptotal['realisatie'] = 0
-        groeptotal['obligo'] = 0
-        groeptotal['resultaat'] = 0
+        order_table = []
 
         for child in ordergroep.children:
-            rows, header, groeprows, total = self.parse_groep(child)
-            childtable.append(self.webrender.table_groep(rows, header, groeprows))
-            groeptotal['begroot'] += total['begroot']
-            groeptotal['realisatie'] += total['realisatie']
-            groeptotal['obligo'] += total['obligo']
-            groeptotal['resultaat'] += total['resultaat']
+            pass
+            #rows, header, groeprows, total = self.parse_groep(child)
+            #childtable.append(self.webrender.table_groep(rows, header, groeprows))
+            #groeptotal['begroot'] += total['begroot']
+            #groeptotal['realisatie'] += total['realisatie']
+            #groeptotal['obligo'] += total['obligo']
+            #groeptotal['resultaat'] += total['resultaat']
 
         # add orders of the top group (if any)
-        order_tables, header, total = self.parse_orders_in_groep(ordergroep, groeptotal)
+        #for order, descr in ordergroep.iteritems():
+        #    #order_table = self.webrender.table_order(html_rows, header, self.expand_orders)
+        #    pass
 
-        top_table = self.webrender.table(order_tables, header, childtable)
-        return top_table, groeptotal
+        header = {}
+        header['name'] = ordergroep.descr
+        header['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup_file, ordergroep.name)
+
+        top_table = self.webrender.table(order_table, header, childtable)
+        return top_table
+
+
+    def parse_orders_in_groep(self, root, total_groep):
+        order_tables = []
+        total_groep['id'] = root.name
+        total_groep['name'] = root.descr
+        for order, descr in root.orders.iteritems():
+            order_table, totaal_tree = self.parse_order(order, descr)
+            order_tables.append(order_table)
+            total_groep['begroot'] += totaal_tree['plan']
+            total_groep['realisatie'] += totaal_tree['geboekt'] + totaal_tree['obligo']
+            total_groep['resultaat'] += totaal_tree['plan'] - totaal_tree['geboekt'] - totaal_tree['obligo']
+
+        groep_header = {}
+        regel_html_ready = self.groep_regel_to_html(total_groep)  
+        groep_header['row'] = self.webrender.table_groep_regel(regel_html_ready)
+        groep_header['id'] = root.name
+        groep_header['img'] = self.url_graph(self.jaar, 'realisatie', root.name)
+
+        return order_tables, groep_header, total_groep
 
     def parse_groep(self, root):
         groeptotal = {}
@@ -189,25 +206,6 @@ class Report(Controller):
         order_tables, groepheader, groeptotal = self.parse_orders_in_groep(root, groeptotal)
         return order_tables, groepheader, groeprows, groeptotal
 
-    def parse_orders_in_groep(self, root, total_groep):
-        order_tables = []
-        total_groep['id'] = root.name
-        total_groep['name'] = root.descr
-        for order, descr in root.orders.iteritems():
-            order_table, totaal_tree = self.parse_order(order, descr)
-            order_tables.append(order_table)
-            total_groep['begroot'] += totaal_tree['plan']
-            total_groep['realisatie'] += totaal_tree['geboekt'] + totaal_tree['obligo']
-            total_groep['resultaat'] += totaal_tree['plan'] - totaal_tree['geboekt'] - totaal_tree['obligo']
-
-        groep_header = {}
-        regel_html_ready = self.groep_regel_to_html(total_groep)  
-        groep_header['panel_header'] = self.webrender.table_header(regel_html_ready)   # row for panel-header - if top group
-        groep_header['row'] = self.webrender.table_groep_regel(regel_html_ready)
-        groep_header['id'] = root.name
-        groep_header['img'] = self.url_graph(self.jaar, 'realisatie', root.name)
-
-        return order_tables, groep_header, total_groep
 
     def parse_order(self, order, descr):
         # parse orders in groep:
@@ -259,7 +257,6 @@ class Report(Controller):
             header['realisatie_perc'] = moneyfmt(realisatie/begroot*100)
         header['resultaat'] = moneyfmt(root.totaalTree['plan'] - root.totaalTree['geboekt'] - root.totaalTree['obligo'], keur=True)
 
-        order_table = self.webrender.table_order(html_rows, header, self.expand_orders)
         return order_table, root.totaalTree
 
     # Renders the kostensoort per order
