@@ -1,42 +1,13 @@
-$def with(order_tables, header, childtable)
+$def with(order_table, header, childtable)
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <a href=$:header['link']>$header['name']</a>
                     </div>
                     <div class="panel-body">
                         $if childtable:
-                            <table class="table table-striped table-condensed">
-                                    <thead>
-                                            <tr>
-                                            <th></th>
-                                            <th class="text-right">Groep</th>
-                                            <th class="text-right">Begroot</th>
-                                            <th class="text-center" colspan="2">Realisatie</th>
-                                            <th class="text-right">Resultaat</th>
-                                            </tr>
-                                    </thead>
-                                    <tbody>
-                                    $for row in childtable:
-                                        $:row
-                                    </tbody>
-                            </table> 
-                        $if order_tables:
-                            <table class="table table-condensed">
-                                    <thead>
-                                            <tr>
-                                            <th></th>
-                                            <th class="text-right">Order</th>
-                                            <th class="text-right">Begroot</th>
-                                            <th class="text-center" colspan="2">Realisatie</th>
-                                            <th class="text-right">Resultaat</th>
-                                            </tr>
-                                    </thead>
-                                    <tbody>
-                                    $for table in order_tables:
-                                        $:table
-                                    </tbody>
-                            </table> 
+                            $:childtable
 
-
+                        $if order_table:
+                            $:order_table
                     </div>
                 </div>

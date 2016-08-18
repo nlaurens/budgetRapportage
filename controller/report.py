@@ -145,7 +145,6 @@ class Report(Controller):
     def render_top_table(self, ordergroep, data):
         table = []
         childtable = []
-        order_table = []
 
         for child in ordergroep.children:
             pass
@@ -157,9 +156,20 @@ class Report(Controller):
             #groeptotal['resultaat'] += total['resultaat']
 
         # add orders of the top group (if any)
-        #for order, descr in ordergroep.iteritems():
-        #    #order_table = self.webrender.table_order(html_rows, header, self.expand_orders)
-        #    pass
+        order_rows = []
+        for order, descr in ordergroep.orders.iteritems():
+            row = {}
+            row['id'] = 'ID'
+            row['graph'] = 'GRAPH'
+            row['link'] = 'link'
+            row['name'] = descr
+            row['begroot'] = 'begroot'
+            row['realisatie'] = 'realisate'
+            row['realisatie_perc'] = 'realisate_perc'
+            row['resultaat'] = 'resultaat'
+            order_rows.append(row)
+
+        order_table = self.webrender.table_order(order_rows, self.expand_orders)
 
         header = {}
         header['name'] = ordergroep.descr
