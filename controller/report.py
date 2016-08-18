@@ -23,7 +23,7 @@ class Report(Controller):
         # Report specific:
         self.jaar = int(web.input(year=self.config["currentYear"])['year'])
 #TODO naar settings form and remove self.jaar
-        self.years = [2014,2015,2016]  
+        self.years = [2013, 2014,2015,2016]
 # TODO config
 
         self.flat = False 

@@ -5,9 +5,13 @@ $def with(order_table, header, group_table)
                     </div>
                     <div class="panel-body">
                         $if group_table:
-                            $:group_table
+                            <div class="table-responsive">
+                                $:group_table
+                            </div>
 
                         $if order_table:
-                            $:order_table
+                            <div class="table-responsive">
+                                $:order_table
+                            </div>
                     </div>
                 </div>
