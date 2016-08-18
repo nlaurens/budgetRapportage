@@ -42,7 +42,7 @@ Controller & Webpages
         * Obligos salarissen ECHT uit systeem halen (kan! ipv de HR-obligos per order!)
 
     - report
-        * realisatie values and perc into two table columns
+        * aantal voorgaande jaren in settings
 
     -graph
         * userHash checken - alles staat nu op
