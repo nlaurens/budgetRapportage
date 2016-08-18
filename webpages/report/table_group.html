@@ -1,5 +1,5 @@
-$def with(years, group_rows, order_table, expand)
-                            <table class="table table-condensed">
+$def with(years, totals, group_rows, order_table, expand)
+                            <table class="table table-condensed table-hover">
                                     <thead>
                                             <tr>
                                                 <th></th>
@@ -42,6 +42,16 @@ $def with(years, group_rows, order_table, expand)
                                                         </div>
                                                     </td>
                                             </tr>
+                                        <tr>
+                                            <th>Totals</th>
+                                            $for year in years:
+                                                <td class="text-right">$totals[year]['plan']</td>
+                                                <td class="text-right">$totals[year]['realisatie']</td>
+                                                <td class="text-right">$totals[year]['realisatie_perc']%</td>
+                                                <td class="text-right">$totals[year]['resultaat']</td>
+                                                <td></td>
+                                        </tr>
+                                        
                                     </tbody>
                             </table> 
                             $if order_table:

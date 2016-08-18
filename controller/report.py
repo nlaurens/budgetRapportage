@@ -198,12 +198,21 @@ class Report(Controller):
                 row[year]['resultaat'] = data[subgroup.name][year]['resultaat']
             group_rows.append(row)
 
+        #totals
+        totals = {}
+        for year in self.years:
+            totals[year] = {}
+            totals[year]['realisatie'] = 0
+            totals[year]['realisatie_perc'] = 0
+            totals[year]['plan'] = 0
+            totals[year]['resultaat'] = 0
+
         # add orders of the top group
         order_table = None
         if ordergroup.orders:
             order_table = self.render_order_table(data, ordergroup)
 
-        sub_table = self.webrender.table_group(self.years, group_rows, order_table, self.expand_orders)
+        sub_table = self.webrender.table_group(self.years, totals, group_rows, order_table, self.expand_orders)
         return sub_table
 
     def render_order_table(self, data, ordergroup):
