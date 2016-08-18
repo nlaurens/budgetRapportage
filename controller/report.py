@@ -30,10 +30,6 @@ class Report(Controller):
         if web.input().has_key('flat'):
             self.flat = True
 
-        self.expand_orders = False
-        if web.input().has_key('expand_orders'):
-            self.expand_orders = True
-
         self.ordergroup_file = str(web.input(ordergroep='LION')['ordergroep'])
         ordergroup = model.ordergroup.load(self.ordergroup_file)
         self.ordergroup = ordergroup.find(str(web.input(subgroep='TOTAAL')['subgroep']))
@@ -47,8 +43,7 @@ class Report(Controller):
         self.form_settings_simple = form.Form(
             form.Dropdown('year', dropdown_options['years'],
                           description='Year', value=self.jaar),
-            form.Checkbox('flat', description='ignore subgroups'),
-            form.Checkbox('expand_orders', description='Details orders'),
+            form.Checkbox('flat', description='Show all orders in groups:'),
             form.Button('submit', value='report_settings')
         )
 
@@ -226,7 +221,7 @@ class Report(Controller):
         if ordergroup.orders:
             order_table = self.render_order_table(data, ordergroup)
 
-        sub_table = self.webrender.table_group(self.years, totals, group_rows, order_table, self.expand_orders)
+        sub_table = self.webrender.table_group(self.years, totals, group_rows, order_table)
         return sub_table
 
     def render_order_table(self, data, ordergroup):
@@ -248,7 +243,7 @@ class Report(Controller):
             order_rows.append(row)
 
         totals = data[ordergroup.name]
-        order_table = self.webrender.table_order(self.years, order_rows, totals, self.expand_orders)
+        order_table = self.webrender.table_order(self.years, order_rows, totals)
         return order_table
 
 
