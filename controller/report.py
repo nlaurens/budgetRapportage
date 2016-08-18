@@ -96,6 +96,7 @@ class Report(Controller):
                 data[order][year] = {'geboekt':0, 'obligo':0, 'plan':0, 'realisatie':0, 'resultaat':0, 'realisatie_perc':0}
                 data['total'][year] = {'geboekt':0, 'obligo':0, 'plan':0, 'realisatie':0, 'resultaat':0, 'realisatie_perc':0}
 
+        # load data for all orders
         for order in regels_order_tiepe.keys():
             for year in regels_order_tiepe[order].keys():
                 for tiepe in regels_order_tiepe[order][year].keys():
@@ -116,6 +117,18 @@ class Report(Controller):
                     data['total'][year]['realisatie_perc'] = data['total'][year]['realisatie'] / data['total'][year]['plan'] * 100
                 else:
                     data['total'][year]['realisatie_perc'] = 0
+
+        # load data for all groups:
+        ordergroups = self.ordergroup.list_groups()  # [{name:ordegroup}, ..]
+        for name, group in ordergroups.iteritems():
+            data[name] = {}
+            for year in self.years:
+                data[name][year] = {}
+                for tiepe in ['begroot', 'plan', 'resultaat', 'realisatie', 'realisatie_perc']:
+                    data[name][year][tiepe] = 0
+                    for order in group.orders:
+                        if tiepe in data[order][year]:
+                            data[name][year][tiepe] += data[order][year][tiepe]
 
         return data
 
@@ -155,36 +168,42 @@ class Report(Controller):
         header['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup_file, ordergroup.name)
 
         # sub tables
-        childtable = []
-        for child in ordergroup.children:
-            childtable.append(self.render_sub_table(child, data))
+        group_table = None
+        if ordergroup.children:
+            group_table = self.render_group_table(ordergroup, data)
 
         # add orders of the top group (if any)
         order_table = None
         if ordergroup.orders:
             order_table = self.render_order_table(data, ordergroup)
 
-
-        top_table = self.webrender.table(order_table, header, childtable)
+        top_table = self.webrender.table(order_table, header, group_table)
         return top_table
 
-    def render_sub_table(self, ordergroup, data):
-        header = {}
-        header['name'] = ordergroup.descr
-        header['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup_file, ordergroup.name)
+    def render_group_table(self, ordergroup, data):
+        group_rows = []
+        for subgroup in ordergroup.children:
+            row = {}
+            row['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup_file, subgroup.name)
+            row['name'] = subgroup.descr
+            row['subgroup'] = 'SUBGROUP'  # replace by self.render_group_table
 
-        # sub tables
-        childtable = []
-        for child in ordergroup.children:
-            childtable.append(self.render_sub_table(child, data))
+            for year in self.years:
+                row[year] = {}
+                row[year]['id'] = '%s-%s' % (year, subgroup.name)
+                row[year]['graph'] = self.url_graph(year, 'realisatie', subgroup.name)
+                row[year]['plan'] = data[subgroup.name][year]['plan']
+                row[year]['realisatie'] = data[subgroup.name][year]['realisatie']
+                row[year]['realisatie_perc'] = data[subgroup.name][year]['realisatie_perc'] 
+                row[year]['resultaat'] = data[subgroup.name][year]['resultaat']
+            group_rows.append(row)
 
-        # add orders of the top group (if any)
+        # add orders of the top group
         order_table = None
         if ordergroup.orders:
             order_table = self.render_order_table(data, ordergroup)
 
-
-        sub_table = self.webrender.table(order_table, header, childtable)
+        sub_table = self.webrender.table_group(self.years, group_rows, order_table, self.expand_orders)
         return sub_table
 
     def render_order_table(self, data, ordergroup):
@@ -353,6 +372,8 @@ class Report(Controller):
 
     def render_java_scripts(self):
         expand_items = self.orders
-        expand_items.extend(self.ordergroup.list_groepen_recursive().values())
+        ordergroup_list = self.ordergroup.list_groups()
+        for name, group in ordergroup_list.iteritems():
+            expand_items.append(name)
         return self.webrender.javascripts(expand_items)
 
