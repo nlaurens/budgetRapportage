@@ -1,11 +1,12 @@
-$def with(order_table, header, childtable)
+$def with(order_table, header, childtables)
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <a href=$:header['link']>$header['name']</a>
                     </div>
                     <div class="panel-body">
-                        $if childtable:
-                            $:childtable
+                        $if childtables:
+                            $for table in childtables:
+                                $:table
 
                         $if order_table:
                             $:order_table

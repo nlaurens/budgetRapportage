@@ -20,7 +20,7 @@ $def with(years, order_rows, expand)
                                     <tbody>
                                         $for order_row in order_rows:
                                             <tr>
-                                                <td class="text-right"><a href="$order_row['link']">$order_row['name']</a></td>
+                                                <td class="text-right">$order_row['name'] (<a href="$order_row['link']">$order_row['order']</a>)</td>
 
                                                 $for year in years:
                                                     <td class="text-right">$order_row[year]['plan']</td>

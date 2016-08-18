@@ -150,36 +150,50 @@ class Report(Controller):
         return tables
 
     def render_top_table(self, ordergroup, data):
-        table = []
-        childtable = []
+        header = {}
+        header['name'] = ordergroup.descr
+        header['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup_file, ordergroup.name)
 
+        # sub tables
+        childtable = []
         for child in ordergroup.children:
-            pass
-            #rows, header, groeprows, total = self.parse_groep(child)
-            #childtable.append(self.webrender.table_groep(rows, header, groeprows))
-            #groeptotal['begroot'] += total['begroot']
-            #groeptotal['realisatie'] += total['realisatie']
-            #groeptotal['obligo'] += total['obligo']
-            #groeptotal['resultaat'] += total['resultaat']
+            childtable.append(self.render_sub_table(child, data))
 
         # add orders of the top group (if any)
         order_table = None
         if ordergroup.orders:
             order_table = self.render_order_table(data, ordergroup)
 
+
+        top_table = self.webrender.table(order_table, header, childtable)
+        return top_table
+
+    def render_sub_table(self, ordergroup, data):
         header = {}
         header['name'] = ordergroup.descr
         header['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup_file, ordergroup.name)
 
-        top_table = self.webrender.table(order_table, header, childtable)
-        return top_table
+        # sub tables
+        childtable = []
+        for child in ordergroup.children:
+            childtable.append(self.render_sub_table(child, data))
+
+        # add orders of the top group (if any)
+        order_table = None
+        if ordergroup.orders:
+            order_table = self.render_order_table(data, ordergroup)
+
+
+        sub_table = self.webrender.table(order_table, header, childtable)
+        return sub_table
 
     def render_order_table(self, data, ordergroup):
         order_rows = []
         for order, descr in ordergroup.orders.iteritems():
             row = {}
-            row['link'] = 'link'
+            row['link'] = '/view/%s?order=%s' % (self.userHash, order)
             row['name'] = descr
+            row['order'] = order
 
             for year in self.years:
                 row[year] = {}
