@@ -10,6 +10,15 @@ import model.ordergroup
 import model.regels
 
 
+#TODO: get start/stop years from model and take latest year and years before that (if avail.)
+#TODO: fig page.. now what do we do with the years?
+#TODO: groups en orders in 1 table renderen en bij de jaartallen de link naar de hoofdgroep grpahs zetten
+#TODO: jaartallen in summary de link naar de graphs
+#TODO: 1 kolom extra in elke tabel en daarin het grafiekje van de jaren zetten zodat het goed te zien is
+# grafiek: x = jan/dec, y = 0 tot 100% realisatie t.o.v. begroting (dus 1 lijn begroting stippel de rest in kleurtjes
+# met in legenda eronder de absolute getallen in realisatie
+
+
 class Report(Controller):
     def __init__(self):
         Controller.__init__(self)
@@ -21,10 +30,10 @@ class Report(Controller):
 
         # Salaris specific:
         # Report specific:
-        self.jaar = int(web.input(year=self.config["currentYear"])['year'])
-#TODO naar settings form and remove self.jaar
-        self.years = [2013, 2014,2015,2016]
-# TODO config
+        year_start = int(web.input(year_start=self.config["currentYear"])['year_start'])
+        year_stop = int(web.input(year_stop=self.config["currentYear"])['year_stop'])
+
+        self.years = range(year_start, year_stop+1)
 
         self.flat = False
         if web.input().has_key('flat'):
@@ -35,14 +44,13 @@ class Report(Controller):
         self.ordergroup = ordergroup.find(str(web.input(subgroep='TOTAAL')['subgroep']))
         self.orders = self.ordergroup.list_orders_recursive().keys()
 
-        regels = model.regels.load(years_load=[self.jaar], orders_load=self.orders)
-        self.regels = regels.split(['ordernummer', 'tiepe'])
-
         # Forms
         dropdown_options = self. dropdown_options()
         self.form_settings_simple = form.Form(
-            form.Dropdown('year', dropdown_options['years'],
-                          description='Year', value=self.jaar),
+            form.Dropdown('year_start', dropdown_options['years'],
+                          description='From', value=year_start),
+            form.Dropdown('year_stop', dropdown_options['years'],
+                          description='To', value=year_stop),
             form.Checkbox('flat', description='Show all orders in groups:'),
             form.Button('submit', value='report_settings')
         )
@@ -75,7 +83,7 @@ class Report(Controller):
         Constructs all the data that is needed for the report:
         data{
           <order#/ordergroup-descr>: {<year1>: {geboekt/obligo/etc./}, <year2>: {..}
-          ,, 
+          ,,
         }
     """
     def construct_data(self):
@@ -113,12 +121,12 @@ class Report(Controller):
                     data[group.name][year][tiepe] = 0
 
                     # add subgroup values
-                    for subgroup in group.children: 
+                    for subgroup in group.children:
                         if tiepe in data[subgroup.name][year]:
-                            data[group.name][year][tiepe] += data[subgroup.name][year][tiepe] 
+                            data[group.name][year][tiepe] += data[subgroup.name][year][tiepe]
 
                     # add orders from this grop
-                    for order in group.orders: 
+                    for order in group.orders:
                         if tiepe in data[order][year]:
                             data[group.name][year][tiepe] += data[order][year][tiepe]
 
@@ -143,7 +151,7 @@ class Report(Controller):
             for order, descr in self.ordergroup.orders.iteritems():
                 graph = {}
                 graph['link'] = ('../view/' + self.userHash + '/' + str(order))
-                graph['png'] = self.url_graph(self.jaar, 'realisatie', order)
+                graph['png'] = self.url_graph(self.years[0], 'realisatie', order)
                 graphs.append(graph)
                 i += 1
 
