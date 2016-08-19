@@ -7,27 +7,31 @@ $def with(years, rows, totals, header)
                         <table class="table table-condensed table-hover">
                                 <thead>
                                         <tr>
-                                            <th></th>
+                                            <th></th><!-- order/group name -->
                                             $for year in years:
                                                 <th class="text-center" colspan=5>$year</th>
+                                            <th></th><!-- graph all years -->
                                         </tr>
                                         <tr>
-                                            <th class="text-right"></th>
+                                            <th class="text-right"></th><!-- order/group name -->
 
                                             $for year in years:
                                                 <th class="text-right">Budget</th>
                                                 <th class="text-center" colspan=2>Spent</th>
                                                 <th class="text-right">+/-</th>
-                                                <th></th>
+                                                <th></th><!-- graph -->
 
+                                            <th>Overview</th><!-- graph all years -->
                                         </tr>
                                 </thead>
                                 <tbody>
                                     $for row in rows:
                                         <tr>
-                                            <td class="text-right"><a href="$row['link']">$row['name']</a>
-                                            $if row['order']:
-                                                ($row['order'])
+                                            <td class="text-right">
+                                                <a href="$row['link']">$row['name']</a>
+                                                $if row['order']:
+                                                    ($row['order'])
+                                                    
                                             </td>
 
                                             $for year in years:
@@ -49,6 +53,20 @@ $def with(years, rows, totals, header)
                                                     </div>
                                                     </div>
                                                 </td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph_overview$row['id']">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </button>
+                                                <div id="graph_overview$row['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-body">
+                                                                <img src="$:row['graph_overview']" class="img-responsive">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
                                         </tr>
                                     <tr>
                                         <th>Totals</th>
@@ -71,6 +89,20 @@ $def with(years, rows, totals, header)
                                                     </div>
                                                     </div>
                                             </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph_overview$row['id']">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </button>
+                                            <div id="graph_overview$row['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-body">
+                                                            <img src="$:row['graph_overview']" class="img-responsive">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </tbody>
                         </table> 

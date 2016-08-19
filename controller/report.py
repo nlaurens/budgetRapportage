@@ -217,6 +217,9 @@ class Report(Controller):
             row['name'] = subgroup.descr
             row['order'] = None
             row['subgroup'] = 'SUBGROUP'  # replace by self.render_group_table
+            #TODO
+            row['graph_overview'] = self.url_graph(2012, 'realisatie', subgroup.name)
+            row['id'] = subgroup.name
 
             for year in self.years:
                 row[year] = {}
@@ -237,6 +240,8 @@ class Report(Controller):
             row['link'] = '/view/%s?order=%s' % (self.userHash, order)
             row['name'] = descr 
             row['order'] = order
+            row['graph_overview'] = self.url_graph(2012, 'realisatie', order)
+            row['id'] = order
 
             for year in self.years:
                 row[year] = {}
