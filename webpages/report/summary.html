@@ -1,32 +1,34 @@
 $def with (totals)
 
-<table class="table table-condensed">
-    <thead><tr>
-            <th class="text-right"></th>
-            $for year in totals:
-                <th class="text-right">$year</th>
-    </tr></thead>
-    <tbody>
-        <tr>
-            <td class="text-right">Begroot:</td>
-            $for year in totals:
-                <td class="text-right">$totals[year]['plan']</td>
-        </tr>
-        <tr>
-            <td class="text-right">Realisatie:</td>
-            $for year in totals:
-                <td class="text-right">$totals[year]['realisatie']</td>
-        </tr>
-        <tr>
-            <td class="text-right"></td>
-            $for year in totals:
-                <td class="text-right">$totals[year]['realisatie_perc']%</td>
-        </tr>
-        <tr>
-            <td class="text-right">Resultaat:</td>
-            $for year in totals:
-                <td class="text-right">$totals[year]['resultaat']</td>
-        </tr>
-    </body>
-</table>
+<div class="table-responsive">
+    <table class="table table-condensed">
+        <thead><tr>
+                <th class="text-right"></th>
+                $for year in totals:
+                    <th class="text-right">$year</th>
+        </tr></thead>
+        <tbody>
+            <tr>
+                <td class="text-right">Begroot:</td>
+                $for year in totals:
+                    <td class="text-right">$totals[year]['plan']</td>
+            </tr>
+            <tr>
+                <td class="text-right">Realisatie:</td>
+                $for year in totals:
+                    <td class="text-right">$totals[year]['realisatie']</td>
+            </tr>
+            <tr>
+                <td class="text-right"></td>
+                $for year in totals:
+                    <td class="text-right">$totals[year]['realisatie_perc']%</td>
+            </tr>
+            <tr>
+                <td class="text-right">Resultaat:</td>
+                $for year in totals:
+                    <td class="text-right">$totals[year]['resultaat']</td>
+            </tr>
+        </body>
+    </table>
+</div>
 
