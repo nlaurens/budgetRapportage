@@ -15,7 +15,7 @@
     .load(year=[], periode=[], order=[], tablesName=[], kostensoort=[]) -> RegelList
     .count() -> dict.dict: {<table as str>: <year as int>:<amount of regels as int>}
     .last_update( newdate=<str> ) -> writes/reads last_update as str from/to db
-    .years() -> years available in regels db as int
+    .years() -> years available in regels db as int - sorted
     .orders() -> orders available in regels db as int
     .kostensoorten() -> kostensoorten available in regels db as int
     .delete(years=[], tableNames=[]) -> total regels deleted from db as int

@@ -10,7 +10,6 @@ import model.ordergroup
 import model.regels
 
 
-#TODO: get start/stop years from model and take latest year and years before that (if avail.)
 #TODO: fig page.. now what do we do with the years?
 #TODO: groups en orders in 1 table renderen en bij de jaartallen de link naar de hoofdgroep grpahs zetten
 #TODO: jaartallen in summary de link naar de graphs
@@ -28,12 +27,20 @@ class Report(Controller):
         self.module = 'report'
         self.webrender = web.template.render('webpages/report/', cache=False)
 
-        # Salaris specific:
         # Report specific:
-        year_start = int(web.input(year_start=self.config["currentYear"])['year_start'])
-        year_stop = int(web.input(year_stop=self.config["currentYear"])['year_stop'])
-
-        self.years = range(year_start, year_stop+1)
+        years = model.regels.years()
+        if len(years) == 1:
+            year_start_def = years[0]
+            year_stop_def = years[0]
+        elif len(years) == 2:
+            year_start_def = years[-1]
+            year_stop_def = years[0]
+        else:
+            year_start_def = years[-1]
+            year_stop_def = years[-3]
+        year_start = int(web.input(year_start=year_start_def)['year_start'])
+        year_stop = int(web.input(year_stop=year_stop_def)['year_stop'])
+        self.years = range(min(year_start, year_stop), max(year_start, year_stop)+1)
 
         self.flat = False
         if web.input().has_key('flat'):
@@ -190,25 +197,25 @@ class Report(Controller):
         header['name'] = ordergroup.descr
         header['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup_file, ordergroup.name)
 
-        # sub tables
-        group_table = None
-        if ordergroup.children:
-            group_table = self.render_group_table(ordergroup, data)
+        rows = []
+        rows = self.group_to_rows(ordergroup, data)
+        rows.extend(self.orders_to_rows(ordergroup, data))
 
-        # add orders of the top group (if any)
-        order_table = None
-        if ordergroup.orders:
-            order_table = self.render_order_table(data, ordergroup)
+        totals = data[ordergroup.name]
+        for year in self.years:
+            totals[year]['id'] = '%s-%s' % (year, ordergroup.name)
+            totals[year]['graph'] = self.url_graph(year, 'realisatie', ordergroup.name)
 
-        top_table = self.webrender.table(order_table, header, group_table)
+        top_table = self.webrender.table(self.years, rows, totals, header)
         return top_table
 
-    def render_group_table(self, ordergroup, data):
+    def group_to_rows(self, ordergroup, data):
         group_rows = []
         for subgroup in ordergroup.children:
             row = {}
             row['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup_file, subgroup.name)
             row['name'] = subgroup.descr
+            row['order'] = None
             row['subgroup'] = 'SUBGROUP'  # replace by self.render_group_table
 
             for year in self.years:
@@ -221,23 +228,14 @@ class Report(Controller):
                 row[year]['resultaat'] = data[subgroup.name][year]['resultaat']
             group_rows.append(row)
 
+        return group_rows 
 
-        totals = data[ordergroup.name]
-
-        # add orders of the top group
-        order_table = None
-        if ordergroup.orders:
-            order_table = self.render_order_table(data, ordergroup)
-
-        sub_table = self.webrender.table_group(self.years, totals, group_rows, order_table)
-        return sub_table
-
-    def render_order_table(self, data, ordergroup):
+    def orders_to_rows(self, ordergroup, data):
         order_rows = []
         for order, descr in ordergroup.orders.iteritems():
             row = {}
             row['link'] = '/view/%s?order=%s' % (self.userHash, order)
-            row['name'] = descr
+            row['name'] = descr 
             row['order'] = order
 
             for year in self.years:
@@ -250,8 +248,4 @@ class Report(Controller):
                 row[year]['resultaat'] = data[order][year]['resultaat']
             order_rows.append(row)
 
-        totals = data[ordergroup.name]
-        order_table = self.webrender.table_order(self.years, order_rows, totals)
-        return order_table
-
-
+        return order_rows

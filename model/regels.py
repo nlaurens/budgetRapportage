@@ -10,8 +10,6 @@ db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["u
     input: table as str
     output: Boolean
 """
-
-
 def check_table_exists(table):
     results = db.query("SHOW TABLES LIKE '" + table + "'")
     if len(results) == 0:
@@ -28,8 +26,6 @@ def check_table_exists(table):
            kostensoorten as list of int
     output: RegelList
 """
-
-
 def load(years_load=None, periods_load=None, orders_load=None, table_names_load=None, kostensoorten_load=None):
     if not table_names_load:
         table_names_load = config["mysql"]["tables"]["regels"].keys()
@@ -102,8 +98,6 @@ def __specific_rules(regel):
     output: dict.value: number of regels as int,
             dict.key: tableName as str
 """
-
-
 def count():
     table_names = config["mysql"]["tables"]["regels"].keys()
     years_in_db = years()
@@ -130,8 +124,6 @@ def count():
     input: newdate to be written in the db as str
     output: last sap update from db as a string
 """
-
-
 def last_update(newdate=''):
     if not check_table_exists('config'):
         sql = "CREATE TABLE `config` ( `key` varchar(255), `value` varchar(255) );"
@@ -158,8 +150,6 @@ def last_update(newdate=''):
     input: None
     output: years in db available as list of int
 """
-
-
 def years():
     years_in_db = list(map(int, __select_distinct('jaar')))
     return sorted(years_in_db)
@@ -171,8 +161,6 @@ def years():
     input: None
     output: orders in db available as list of int
 """
-
-
 def orders():
     orders_in_db = list(map(int, __select_distinct('ordernummer')))
     return sorted(orders_in_db)
@@ -183,8 +171,6 @@ def orders():
     input: None
     output: kostensoorten in db available as list of int
 """
-
-
 def kostensoorten():
     ks = list(map(int, __select_distinct('kostensoort')))
     return sorted(ks)
@@ -214,8 +200,6 @@ def __select_distinct(regel_attribute):
     input: years al list of int, tableNames as list of str
     output: total amount of regels deleted as int
 """
-
-
 def delete(years_delete=None, table_names_delete=None):
     if not table_names_delete:
         table_names_delete = config["mysql"]["tables"]["regels"].keys()
@@ -245,8 +229,6 @@ def delete(years_delete=None, table_names_delete=None):
     input: table as str, fields as list of str, rows as list of str
     output: msg-queue as list of str
 """
-
-
 def add(table, fields, rows):
     if not check_table_exists(table):
         fields_and_type = []
@@ -261,7 +243,6 @@ def add(table, fields, rows):
     row_chunks = __chunk_rows(rows, 10000)
     for rows in row_chunks:
         db.multiple_insert(table, values=rows)
-
 
 # Cuts op the row list in multiple rows
 # used by .add()
