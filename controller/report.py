@@ -11,7 +11,6 @@ import model.regels
 
 
 #TODO: fig page.. now what do we do with the years?
-#TODO: groups en orders in 1 table renderen en bij de jaartallen de link naar de hoofdgroep grpahs zetten
 #TODO: jaartallen in summary de link naar de graphs
 #TODO: 1 kolom extra in elke tabel en daarin het grafiekje van de jaren zetten zodat het goed te zien is
 # grafiek: x = jan/dec, y = 0 tot 100% realisatie t.o.v. begroting (dus 1 lijn begroting stippel de rest in kleurtjes
@@ -74,8 +73,12 @@ class Report(Controller):
         report['figpage'] = self.render_fig_html()
         report['settings'] = self.render_settings_html()
         report['javaScripts'] = self.render_java_scripts()
-        report['summary'] = self.webrender.summary(data[self.ordergroup.name])
+        report['summary'] = self.render_settings(data[self.ordergroup.name])
         self.body = self.webrender.report(report)
+
+    def render_settings(self, totals):
+        settings = self.webrender.summary(totals)
+        return settings
 
     def create_bread_crums(self):
         groep = self.ordergroup
