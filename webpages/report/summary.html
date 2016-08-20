@@ -5,19 +5,20 @@ $def with (totals)
         <thead><tr>
                 <th class="text-right"></th>
                 $for year in totals:
-                    <th class="text-right">$year</th>
-                    <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph$totals[year]['id']">
-                        <span class="glyphicon glyphicon-stats"></span>
-                    </button>
-                    <div id="graph$totals[year]['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-body">
-                                <img src="$:totals[year]['graph']" class="img-responsive">
+                    <th class="text-right">$year
+                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph$totals[year]['id']">
+                            <span class="glyphicon glyphicon-stats"></span>
+                        </button>
+                        <div id="graph$totals[year]['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <img src="$:totals[year]['graph']" class="img-responsive">
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    </div>
+                    </t>
         </tr></thead>
         <tbody>
             <tr>

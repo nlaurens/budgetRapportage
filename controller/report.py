@@ -70,13 +70,17 @@ class Report(Controller):
         report = {}
         report['name'] = self.ordergroup.descr
         report['tables'] = self.render_tables(data)
-        report['figpage'] = self.render_fig_html()
-        report['settings'] = self.render_settings_html()
+        report['figpage'] = self.render_fig()
+        report['settings'] = self.render_settings()
         report['javaScripts'] = self.render_java_scripts()
-        report['summary'] = self.render_settings(data[self.ordergroup.name])
+        report['summary'] = self.render_summary(data[self.ordergroup.name])
         self.body = self.webrender.report(report)
 
-    def render_settings(self, totals):
+    def render_summary(self, totals):
+        for year in self.years:
+            totals[year]['id'] = '%s-%s' % (year, self.ordergroup.name)
+            totals[year]['graph'] = self.url_graph(year, 'realisatie', self.ordergroup.name)
+
         settings = self.webrender.summary(totals)
         return settings
 
@@ -153,7 +157,7 @@ class Report(Controller):
                     else:
                         data[order][year][tiepe] = moneyfmt(value, keur=True)
 
-    def render_fig_html(self):
+    def render_fig(self):
         figs = ''
         if not self.ordergroup.children:
             graphs = []
@@ -170,7 +174,7 @@ class Report(Controller):
         else:
             return None
 
-    def render_settings_html(self):
+    def render_settings(self):
         form_settings = self.form_settings_simple
         return self.webrender.settings(form_settings)
 
@@ -234,14 +238,14 @@ class Report(Controller):
                 row[year]['resultaat'] = data[subgroup.name][year]['resultaat']
             group_rows.append(row)
 
-        return group_rows 
+        return group_rows
 
     def orders_to_rows(self, ordergroup, data):
         order_rows = []
         for order, descr in ordergroup.orders.iteritems():
             row = {}
             row['link'] = '/view/%s?order=%s' % (self.userHash, order)
-            row['name'] = descr 
+            row['name'] = descr
             row['order'] = order
             row['graph_overview'] = self.url_graph(2012, 'realisatie', order)
             row['id'] = order
