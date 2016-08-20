@@ -125,6 +125,8 @@ class Report(Controller):
                     data[order][year]['realisatie_perc'] = 0
 
         # load data for all groups:
+        # TODO we should only go 2 levels deep and on the deepest level get all orders instead of
+        # just the orders in that group
         ordergroups = self.ordergroup.list_groups()
         for group in ordergroups:
             data[group.name] = {}
@@ -142,6 +144,7 @@ class Report(Controller):
                     for order in group.orders:
                         if tiepe in data[order][year]:
                             data[group.name][year][tiepe] += data[order][year][tiepe]
+
 
                 if data[group.name][year]['plan'] != 0:
                     data[group.name][year]['realisatie_perc'] = data[group.name][year]['realisatie'] / data[group.name][year]['plan'] * 100
@@ -184,9 +187,9 @@ class Report(Controller):
 
     def render_java_scripts(self):
         expand_items = []
-        ordergroup_list = self.ordergroup.list_groups()
-        for group in ordergroup_list:
-            expand_items.append(group.name)
+        for child in self.ordergroup.children:
+            expand_items.append(child.name)
+            
         return self.webrender.javascripts(expand_items)
 
     def render_tables(self, data):
