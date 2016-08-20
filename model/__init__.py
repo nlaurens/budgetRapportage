@@ -12,7 +12,7 @@
 
 .regels
     .exists( tableName as str) -> True/False
-    .load(year=[], periode=[], order=[], tablesName=[], kostensoort=[]) -> RegelList
+    .load(years_load=[], periods_load=[], orders_load=[], table_names_load=[], kostensoort_load=[]) -> RegelList
     .count() -> dict.dict: {<table as str>: <year as int>:<amount of regels as int>}
     .last_update( newdate=<str> ) -> writes/reads last_update as str from/to db
     .years() -> years available in regels db as int - sorted
