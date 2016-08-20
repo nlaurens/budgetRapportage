@@ -12,6 +12,14 @@
     #ffffff
 
   */
+
+.label-as-badge {
+    border-radius: 1em;
+    width: 120px;
+    min-width: 120px;
+    max-width: 200px;
+    font-size: 12px;
+}
 .badge {
   color: #222;
   background-color: #eee;

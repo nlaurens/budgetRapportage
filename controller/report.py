@@ -9,13 +9,7 @@ import model.ksgroup
 import model.ordergroup
 import model.regels
 
-
 #TODO: fig page.. now what do we do with the years?
-#TODO: jaartallen in summary de link naar de graphs
-#TODO: 1 kolom extra in elke tabel en daarin het grafiekje van de jaren zetten zodat het goed te zien is
-# grafiek: x = jan/dec, y = 0 tot 100% realisatie t.o.v. begroting (dus 1 lijn begroting stippel de rest in kleurtjes
-# met in legenda eronder de absolute getallen in realisatie
-
 
 class Report(Controller):
     def __init__(self):
@@ -134,7 +128,7 @@ class Report(Controller):
             data[group.name] = {}
             for year in self.years:
                 data[group.name][year] = {}
-                for tiepe in ['begroot', 'plan', 'resultaat', 'realisatie', 'realisatie_perc']:
+                for tiepe in ['begroot', 'plan', 'resultaat', 'realisatie']:
                     data[group.name][year][tiepe] = 0
 
                     # add subgroup values
@@ -146,6 +140,11 @@ class Report(Controller):
                     for order in group.orders:
                         if tiepe in data[order][year]:
                             data[group.name][year][tiepe] += data[order][year][tiepe]
+
+                if data[group.name][year]['plan'] != 0:
+                    data[group.name][year]['realisatie_perc'] = data[group.name][year]['realisatie'] / data[group.name][year]['plan'] * 100
+                else:
+                    data[group.name][year]['realisatie_perc'] = 0
 
         return data
 
@@ -182,7 +181,7 @@ class Report(Controller):
         return self.webrender.settings(form_settings)
 
     def render_java_scripts(self):
-        expand_items = self.orders
+        expand_items = []
         ordergroup_list = self.ordergroup.list_groups()
         for group in ordergroup_list:
             expand_items.append(group.name)

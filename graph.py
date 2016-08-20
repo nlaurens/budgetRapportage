@@ -26,6 +26,10 @@ TODO
 # fig3:
     y-labels kleurtje geven (want als niet begroot is, is ie sowieso rood..)
 
+#overview: 1 kolom extra in elke tabel en daarin het grafiekje van de jaren zetten zodat het goed te zien is
+# grafiek: x = jan/dec, y = 0 tot 100% realisatie t.o.v. begroting (dus 1 lijn begroting stippel de rest in kleurtjes
+# met in legenda eronder de absolute getallen in realisatie
+
 """
 import web
 web.config.debug = False #must be done before the rest.
