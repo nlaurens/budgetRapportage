@@ -81,7 +81,10 @@ class Report(Controller):
             totals[year]['id'] = '%s-%s' % (year, self.ordergroup.name)
             totals[year]['graph'] = self.url_graph(year, 'realisatie', self.ordergroup.name)
 
-        settings = self.webrender.summary(totals)
+        totals['name'] = self.ordergroup.descr
+        totals['id'] = self.ordergroup.name
+        totals['graph_overview'] = self.url_graph(self.years[-1], 'overview', self.ordergroup.name)
+        settings = self.webrender.summary(totals, self.years)
         return settings
 
     def create_bread_crums(self):
@@ -89,7 +92,7 @@ class Report(Controller):
         bread_crum = [{'title': groep.descr, 'url': groep.name, 'class': 'active'}]
         while groep.parent:
             groep = groep.parent
-            link = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup_file, groep.name)
+            link = self.url({'ordergroep': self.ordergroup_file, 'subgroep': groep.name})
             bread_crum.append({'title': groep.descr, 'url': link, 'class': ''})
         self.breadCrum = reversed(bread_crum)
 
@@ -202,7 +205,9 @@ class Report(Controller):
     def render_top_table(self, ordergroup, data):
         header = {}
         header['name'] = ordergroup.descr
-        header['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup_file, ordergroup.name)
+        header['link'] = self.url({'ordergroep': self.ordergroup_file, 'subgroep': ordergroup.name})
+        header['id'] = ordergroup.name
+        header['graph_overview'] = self.url_graph(self.years[-1], 'overview', ordergroup.name)
 
         rows = []
         rows = self.group_to_rows(ordergroup, data)
@@ -220,12 +225,12 @@ class Report(Controller):
         group_rows = []
         for subgroup in ordergroup.children:
             row = {}
-            row['link'] = '%s?ordergroep=%s&subgroep=%s' % (self.url(), self.ordergroup_file, subgroup.name)
+            row['link'] = self.url({'ordergroep': self.ordergroup_file, 'subgroep': subgroup.name})
             row['name'] = subgroup.descr
             row['order'] = None
             row['subgroup'] = 'SUBGROUP'  # replace by self.render_group_table
             #TODO
-            row['graph_overview'] = self.url_graph(2012, 'realisatie', subgroup.name)
+            row['graph_overview'] = self.url_graph(self.years[-1], 'realisatie', subgroup.name)
             row['id'] = subgroup.name
 
             for year in self.years:
@@ -246,8 +251,10 @@ class Report(Controller):
             row = {}
             row['link'] = '/view/%s?order=%s' % (self.userHash, order)
             row['name'] = descr
-            row['order'] = order
-            row['graph_overview'] = self.url_graph(2012, 'realisatie', order)
+            row['order'] = None
+            if self.flat:
+                row['order'] = order
+            row['graph_overview'] = self.url_graph(self.years[-1], 'overview', order)
             row['id'] = order
 
             for year in self.years:

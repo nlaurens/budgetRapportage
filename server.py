@@ -62,7 +62,7 @@ urls = (
     '/report/(.+)', 'Report',
     '/salaris/(.+)', 'Salaris',
     '/admin/(.+)', 'Admin',
-    '/graph/(.+)/(.+)/(.+).png', 'Graph',  
+    '/graph/(.+)/(.+)/(.+)/(.+).png', 'Graph',  
     '/index/(.+)', 'Index',
 )
 

@@ -1,6 +1,8 @@
 import web
-from config import config
+import urllib
 from web import form
+
+from config import config
 
 import model.regels
 import model.ordergroup
@@ -94,8 +96,12 @@ class Controller(object):
         return groups
 
     # used for creating links in the submodule
-    def url(self):
-        return '/%s/%s' % (self.module, self.userHash)
+    def url(self, params=None):
+        if params:
+            param_str = urllib.urlencode(params)
+            return '/%s/%s?%s' % (self.module, self.userHash, param_str)
+        else:
+            return '/%s/%s' % (self.module, self.userHash)
 
     # Checks if IP is allowed
     # If not imidialty sends a 404 and stops all processing
@@ -142,8 +148,15 @@ class Controller(object):
         return self.mainRender.simple(self.title, self.msg, form_redirect, redirect)
 
     # Creates url to graph
-    # tiepes: realisatie, bars, pie
-    # names: anything from group orders to order numbers.
-    def url_graph(self, jaar, tiepe, name):
-        return '/graph/%s/%s/%s/%s.png' % (self.userHash, jaar, tiepe, name)
+    # graph_type: realisatie, bars, pie, etc.
+    # graph_name: anything from group orders to order numbers.
+    # params_list:   {param: value, ..} 
+    # returns: /graph/<user_hash>/<graph_type>/<graph_name>.png?[params]
+    def url_graph(self, year, graph_type, name, params=None):
+
+        if params:
+            param_str = urllib.ulrencode(params)
+            return '/graph/%s/%s/%s/%s.png?%s' % (self.userHash, year, graph_type, name, param_strs)
+        else:
+            return '/graph/%s/%s/%s/%s.png' % (self.userHash, year, graph_type, name)
 

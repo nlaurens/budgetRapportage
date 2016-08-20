@@ -2,6 +2,18 @@ $def with(years, rows, totals, header)
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <a href=$:header['link']>$header['name']</a>
+                            <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph_overview$header['id']">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </button>
+                            <div id="graph_overview$header['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-body">
+                                            <img src="$:header['graph_overview']" class="img-responsive">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                     </div>
                     <div class="panel-body">
                         <div class="table-responsive">
@@ -32,7 +44,6 @@ $def with(years, rows, totals, header)
                                                     <a href="$row['link']">$row['name']</a>
                                                     $if row['order']:
                                                         ($row['order'])
-                                                        
                                                 </td>
 
                                                 $for year in years:

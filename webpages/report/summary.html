@@ -1,47 +1,66 @@
-$def with (totals)
-
-<div class="table-responsive">
-    <table class="table table-condensed">
-        <thead><tr>
-                <th class="text-right"></th>
-                $for year in totals:
-                    <th class="text-right">$year
-                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph$totals[year]['id']">
-                            <span class="glyphicon glyphicon-stats"></span>
-                        </button>
-                        <div id="graph$totals[year]['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-body">
-                                        <img src="$:totals[year]['graph']" class="img-responsive">
-                                    </div>
+$def with (totals, years)
+          <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4>$totals['name']
+                    <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph_overview$totals['id']">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </button>
+                    <div id="graph_overview$totals['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <img src="$:totals['graph_overview']" class="img-responsive">
                                 </div>
                             </div>
                         </div>
-                    </t>
-        </tr></thead>
-        <tbody>
-            <tr>
-                <td class="text-right">Begroot:</td>
-                $for year in totals:
-                    <td class="text-right">$totals[year]['plan']</td>
-            </tr>
-            <tr>
-                <td class="text-right">Realisatie:</td>
-                $for year in totals:
-                    <td class="text-right">$totals[year]['realisatie']</td>
-            </tr>
-            <tr>
-                <td class="text-right"></td>
-                $for year in totals:
-                    <td class="text-right">$totals[year]['realisatie_perc']%</td>
-            </tr>
-            <tr>
-                <td class="text-right">Resultaat:</td>
-                $for year in totals:
-                    <td class="text-right">$totals[year]['resultaat']</td>
-            </tr>
-        </body>
-    </table>
-</div>
+                    </div>
+                </h4>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-condensed">
+                        <thead><tr>
+                                <th class="text-right"></th>
+                                $for year in years:
+                                    <th class="text-right">$year
+                                        <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph$totals[year]['id']">
+                                            <span class="glyphicon glyphicon-stats"></span>
+                                        </button>
+                                        <div id="graph$totals[year]['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-body">
+                                                        <img src="$:totals[year]['graph']" class="img-responsive">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </th>
+                        </tr></thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-right">Begroot:</td>
+                                $for year in years:
+                                    <td class="text-right">$totals[year]['plan']</td>
+                            </tr>
+                            <tr>
+                                <td class="text-right">Realisatie:</td>
+                                $for year in years:
+                                    <td class="text-right">$totals[year]['realisatie']</td>
+                            </tr>
+                            <tr>
+                                <td class="text-right"></td>
+                                $for year in years:
+                                    <td class="text-right">$totals[year]['realisatie_perc']%</td>
+                            </tr>
+                            <tr>
+                                <td class="text-right">Resultaat:</td>
+                                $for year in years:
+                                    <td class="text-right">$totals[year]['resultaat']</td>
+                            </tr>
+                        </body>
+        </table>
+    </div>
 
+            </div>
+          </div>
