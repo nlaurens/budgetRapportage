@@ -3,9 +3,13 @@
 BUGS
 
 
+
 TODO
 
 Remove hardcoded 'geboekt', 'obligo', etc. from all model/controller - grep
+
+Graph
+    - graph groups should be named: <ordergroup_file_name><ordergroup_name> 
 
 Model
     - model.users

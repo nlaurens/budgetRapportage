@@ -73,11 +73,13 @@ class Report(Controller):
     def render_summary(self, totals):
         for year in self.years:
             totals[year]['id'] = '%s-%s' % (year, self.ordergroup.name)
-            totals[year]['graph'] = self.url_graph(year, 'realisatie', self.ordergroup.name)
+            graph_name = '%s-%s' % (self.ordergroup_file, self.ordergroup.name)
+            totals[year]['graph'] = self.url_graph(year, 'realisatie', graph_name)
 
         totals['name'] = self.ordergroup.descr
         totals['id'] = self.ordergroup.name
-        totals['graph_overview'] = self.url_graph(self.years[-1], 'overview', self.ordergroup.name)
+        graph_name = '%s-%s' % (self.ordergroup_file, self.ordergroup.name)
+        totals['graph_overview'] = self.url_graph(self.years[-1], 'overview', graph_name)
         settings = self.webrender.summary(totals, self.years)
         return settings
 
@@ -227,15 +229,14 @@ class Report(Controller):
             row['link'] = self.url({'ordergroep': self.ordergroup_file, 'subgroep': subgroup.name})
             row['name'] = subgroup.descr
             row['order'] = None
-            row['subgroup'] = 'SUBGROUP'  # replace by self.render_group_table
-            #TODO
-            row['graph_overview'] = self.url_graph(self.years[-1], 'realisatie', subgroup.name)
+            graph_name = '%s-%s' % (self.ordergroup_file, subgroup.name)
+            row['graph_overview'] = self.url_graph(self.years[-1], 'overview', graph_name)
             row['id'] = subgroup.name
 
             for year in self.years:
                 row[year] = {}
                 row[year]['id'] = '%s-%s' % (year, subgroup.name)
-                row[year]['graph'] = self.url_graph(year, 'realisatie', subgroup.name)
+                row[year]['graph'] = self.url_graph(year, 'realisatie', graph_name)
                 row[year]['plan'] = data[subgroup.name][year]['plan']
                 row[year]['realisatie'] = data[subgroup.name][year]['realisatie']
                 row[year]['realisatie_perc'] = data[subgroup.name][year]['realisatie_perc']
