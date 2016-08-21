@@ -54,16 +54,12 @@ def save_fig(plt, year, tiepe, name):
     plt.savefig(graphPath + '%s.png' % str(name), bbox_inches='tight')
 
 
+#TODO shouldn't we use money fmt and assume everything is a decimal?
 def value_to_table_string(value):
     if value == 0 or np.abs(value) < 0.5:
         return ''
     else:
         return ('%.f' % value)
-
-
-def construct_data_orders(years, regels, orders):
-    data = {}
-    return data
 
 
 def construct_data_groups(years, data_orders, orders):
@@ -76,24 +72,17 @@ def get_colors(steps):
     colors_baten = plt.cm.BuGn(np.linspace(0.75, 0.1, steps['baten']))
     return np.concatenate((colors_lasten, colors_baten), axis=0)
 
-def graph_realisatie(title_plot, data):
-    # DUMMY
-    begroting = 100 # np.cumsum(self.begroot['totaal'])
-    data_y_resultaat = np.arange(10,22)
-    lasten = {'lasten1':np.array([1,1,1,1,1,1,1,1,1,1,1,1])}
-    baten = {'baten1': np.array([2,2,2,2,2,2,2,2,2,2,2,2])}
+# TODO moet het echt numpy arrays zijn? of is het wellicht gewoon hanidger om lists te gebruiken. 
+def graph_realisatie(data):
 
-    # setup data
     data_x = np.arange(1,13)
     data_x_begroting = np.array([1, 12])
-    data_y_begroting = np.array([0, begroting])
-    #data_y_baten = baten
-    #data_y_lasten = lasten
-    #data_y_resultaat = resultaat
+    data_y_begroting = np.array([0, data['begroting']])
+    data_y_resultaat = data['resultaat']
 
     # Layout figure
     plt.figure(figsize=(12, 9))
-    plt.title(title_plot, loc='right', fontsize=12)
+    plt.title(data['title'], loc='right', fontsize=12)
 
     ax = plt.subplot(111)
     ax.spines["top"].set_visible(False)
@@ -101,8 +90,10 @@ def graph_realisatie(title_plot, data):
 
     ax.get_xaxis().tick_bottom()
     plt.xticks(np.arange(0, 13, 1.0), fontsize=16)
-    plt.xlabel("Month", fontsize=18)
     plt.xlim(0.5, 12.51)
+    plt.xticks([])
+    plt.xlabel("")
+    plt.axhline(0, color='black')
 
     ax.get_yaxis().tick_left()
     plt.yticks(fontsize=14)
@@ -112,8 +103,7 @@ def graph_realisatie(title_plot, data):
     legend['data'] = []
     legend['keys'] = []
 
-    colors = get_colors({'lasten':len(lasten), 'baten':len(baten)})
-    #TODO
+    colors = get_colors({'lasten':len(data['lasten']), 'baten':len(data['baten'])})
 
     #Plot data
     plot_resultaat = plt.plot(data_x, data_y_resultaat, 'ro-', lw=2) 
@@ -124,124 +114,96 @@ def graph_realisatie(title_plot, data):
     legend['data'].append(plot_resultaat[0])
     legend['keys'].append("Realisatie (%s keur)" % data_y_resultaat[-1])
     legend['data'].append(plot_begroting[0])
-    legend['keys'].append("Begroting (%s keur)" % data_y_begroting[1])
+    legend['keys'].append("Begroting (%s keur)" % data['begroting'])
     legend['data'].append(Rectangle( (0,0),0,0, alpha=0.0))
-    overschot = begroting - data_y_resultaat[-1]
+    overschot = data['begroting'] - data_y_resultaat[-1]
     if overschot>0:
         legend['keys'].append("Te besteden (%s keur)" % overschot)
     else:
         legend['keys'].append("Overbesteed: (%s keur)" % overschot)
 
-    # place legend in upper left or lower left
     leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
     if data_y_resultaat[-1] < 0:
         leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=3)
     leg.get_frame().set_linewidth(0.0)
 
     # Plot bars of baten/lasten!
-    totaalbars = len(baten)+len(lasten)
+    totaalbars = len(data['baten'])+len(data['lasten'])
     width= 1./(totaalbars+1)
     offset = (1-totaalbars*width)/2
     bar_nr = 0
-    for name, Y in lasten.iteritems():
-        plot_lasten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, Y,  width, color=colors[bar_nr])
+    for name, data_y in data['lasten'].iteritems():
+        plot_lasten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y,  width, color=colors[bar_nr])
         bar_nr += 1
 
-    for name, Y in baten.iteritems():
-        plot_baten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, Y,  width, color=colors[bar_nr])
+    for name, data_y in data['baten'].iteritems():
+        plot_baten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y,  width, color=colors[bar_nr])
         bar_nr += 1
 
     # add table below the graph
-    if False:
-        cell_text = []
-        text = []
-        cell_vals = []
-        vals = []
-        #Realisatie, begroting en R-B:
-        for value in resultaat:
-            text.append(self.value_to_table_string(value))
-            vals.append(value)
-        cell_text.append(text)
-        cell_vals.append(vals)
-        text = []
+    values = []
+    values.append(data_y_resultaat)
+    values.extend(data['lasten'].values())
+    values.extend(data['baten'].values())
 
-        for key, line in lasten.iteritems():
-            vals = []
-            text = []
-            total = 0
-            for value in line:
-                if params['show_table_cumsum']:
-                    total = total + value
-                else:
-                    total = value
-                text.append(self.value_to_table_string(total))
-                vals.append(total)
+    label_columns = (["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
 
-            cell_text.append(text)
-            cell_vals.append(vals)
+    label_rows = []
+    label_rows.extend(["Totaal"])
+    label_rows.extend(data['lasten'].keys())
+    label_rows.extend(data['baten'].keys())
 
-        for key, line in baten.iteritems():
-            vals = []
-            text = []
-            total = 0
-            for value in line:
-                if params['show_table_cumsum']:
-                    total = total + value
-                else:
-                    total = value
-                text.append(self.value_to_table_string(total))
-                vals.append(total)
+    colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure color realisatie
 
-            cell_text.append(text)
-            cell_vals.append(vals)
+    the_table = plt.table(cellText=values, rowLabels=label_rows, rowColours=colors,
+                          colLabels=label_columns, loc='bottom')
+    the_table.set_fontsize(14)
+    the_table.scale(1,2)
 
-        columns = (["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
-        rows = []
-        rows.extend(["Totaal"])
-        rows.extend(lasten.keys())
-        rows.extend(baten.keys())
-        colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure color realisatie
-        the_table = plt.table(cellText=cell_text,
-                        rowLabels=rows,
-                        rowColours=colors,
-                        colLabels=columns,
-                        loc='bottom')
-        the_table.set_fontsize(14)
-        the_table.scale(1,2)
-
-        #Add y-lines:
-        for i in range(0,15):
-            plt.axvline(i+0.5, color='grey', ls=':')
-        plt.axhline(0, color='black')
-        plt.xticks([])
-        plt.xlabel("")
+    #Add y-lines:
+    for i in range(0,15):
+        plt.axvline(i+0.5, color='grey', ls=':')
 
     return plt
 
+
+def construct_data_orders(years, regels, orders):
+    data = {} 
+    for order in orders:
+        data[order] = {}
+        for year in years:
+            data[order][year] = {}
+            data[order][year]['begroting'] = 100
+            data[order][year]['baten'] = {'lasten1':np.array([1,1,1,1,1,1,1,1,1,1,1,1])}
+            data[order][year]['lasten']= {'lasten1': np.array([2,2,2,2,2,2,2,2,2,2,2,2])}
+            data[order][year]['resultaat'] = np.arange(10,22)
+            data[order][year]['title'] = 'DUMMY POLOT TITLE'  # TODO plot title
+
+    return data
+
+
 def build_graphs(years):
     # load data
-    orders = [2008502040] # orders = model.regels.orders() TODO remove dummy orders
+    orders = [2008502040]#model.regels.orders() 
     groups = model.ordergroup.available()
     regels = model.regels.load(years_load=years, orders_load=orders)
     data_orders = construct_data_orders(years, regels, orders)  # load all orders in regels
     data_groups = construct_data_groups(years, data_orders, groups)  # loads all ordergroups
 
-    print data_orders
-    print data_groups
 
     # build graphs
+    total_graphs = float(len(years)*len(orders))
+    count = 0 
     for order in orders:
         #build_overview(order, data_orders)
+
+        # realisatie graphs:
         for year in years:
-            data = {} # TODO select data for the graph
-            title = 'DUMMY POLOT TITLE'  # TODO plot title
-            plt = graph_realisatie(title, data)
-            #TODO:
-            print 'saving fig'
+            plt = graph_realisatie(data_orders[order][year])
+            count += 1
+            print 'rendered %s year %s (%.2f%%)' % (order, year, (count/total_graphs)*100.)
             save_fig(plt, year, 'realisatie', order)
             plt.close()
-
-            exit()
 
     #for group in groups:
     #    build_overview(group, data_groups)
