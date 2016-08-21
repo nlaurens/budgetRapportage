@@ -667,54 +667,43 @@ def create_ordergroep_graphs(OG, params):
     merged.title = root.name + ' - ' + root.descr
     merged.create_figs(root.name, params)
 
-if __name__ == "__main__":
-    # todo: move to graph 'realisatie' 'overview' class
-    #params = {}
-    #params['show_prognose'] = False
-    #params['show_cumsum'] = False
-    #params['show_details_flat'] = True
-    #params['show_details_stack'] = False
-    #params['show_table'] = True
-    #params['show_table_cumsum'] = False
-    #params['detailed'] = True
-    #params['ignore_obligos'] = False
+################################
+# NEW
+################################
 
-    # Run it: $python server.py <year>/*
-    valid_input = False
-    if len(sys.argv) == 2:
-        years_available = model.regels.years()
-        year = sys.argv[1] 
-        if year == '*':
-            years = years_available
-            valid_input = True
-        else:
-            if year in years_available:
-                years = [year]
-                valid_input = True
+def construct_data_orders(years, regels, orders):
+    data = {}
+    return data
 
-    if valid_input:
-        build_graphs(years)
-    else: 
-        print 'error in arguments'
-        print 'use graph.py <jaar>'
-        print '* for all years'
+def construct_data_groups(years, data_orders, orders):
+    data = {}
+    return data
+
+def graph_realisatie(order, year, data_orders):
+    print 'yayay building graph'
+    exit()
 
 def build_graphs(years):
+    # load data
     orders = model.regels.orders()
     groups = model.ordergroup.available()
     regels = model.regels.load(years_load=years, orders_load=orders)
-    data_orders = load_orders(years, regels, orders)  # load all orders in regels
-    data_groups = load_groups(years, data_orders, groups)  # loads all ordergroups
+    data_orders = construct_data_orders(years, regels, orders)  # load all orders in regels
+    data_groups = construct_data_groups(years, data_orders, groups)  # loads all ordergroups
 
+    print data_orders
+    print data_groups
+
+    # build graphs
     for order in orders:
-        build_overview(order, data_orders)
+        #build_overview(order, data_orders)
         for year in years:
-            build_realisatie(order, year, data_orders)
+            graph_realisatie(order, year, data_orders)
 
     for group in groups:
         build_overview(group, data_groups)
         for year in years:
-            build_realisatie(group, data_groups)
+            graph_realisatie(group, data_groups)
 
     exit()
 
@@ -785,3 +774,37 @@ def build_graphs(years):
         print 'ERROR Unkown input ' + target
     else:
         print 'great succes!'
+
+
+
+if __name__ == "__main__":
+    # todo: move to graph 'realisatie' 'overview' class
+    #params = {}
+    #params['show_prognose'] = False
+    #params['show_cumsum'] = False
+    #params['show_details_flat'] = True
+    #params['show_details_stack'] = False
+    #params['show_table'] = True
+    #params['show_table_cumsum'] = False
+    #params['detailed'] = True
+    #params['ignore_obligos'] = False
+
+    # Run it: $python server.py <year>/*
+    valid_input = False
+    if len(sys.argv) == 2:
+        years_available = model.regels.years()
+        year = sys.argv[1] 
+        if year == '*':
+            years = years_available
+            valid_input = True
+        else:
+            if year in years_available:
+                years = [year]
+                valid_input = True
+
+    if valid_input:
+        build_graphs(years)
+    else: 
+        print 'error in arguments'
+        print 'use graph.py <jaar>'
+        print '* for all years'
