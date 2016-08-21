@@ -1,3 +1,5 @@
+#TODO remove regels from this class. Has no business here
+# should be done in the controller
 class KostensoortGroup:
     def __init__(self, name, descr, level, parent):
         self.name = name
@@ -85,10 +87,10 @@ class KostensoortGroup:
         elif self.children:
             for child in self.children:
                 result = child.find(name)
-                if result != '':
+                if result is not None:
                     return result
         else:
-            return ''
+            return None
 
     # Assings regellist to all the children
     def assign_regels_recursive(self, regels):
