@@ -75,7 +75,7 @@ def format_table_row(row):
         if value == 0 or np.abs(value) < 0.5:
             str_row.append('')
         else:
-            str_row.append('%.f' % value)
+            str_row.append(moneyfmt(value))
 
     return str_row
 
@@ -184,7 +184,12 @@ def construct_data_orders(years, regels_plan, regels_geboekt_obligo, orders):
     # kostensoort groups
     ksgroup_root = model.ksgroup.load('BFRE15')
     ks_map = {}
+    #TODO to 1 function that uses 'baten': [bfre, xx.], 'lasten;[BFRExx,..']
     for child in ksgroup_root.find('BFRE15BT00').children:
+        for ks in child.get_ks_recursive():
+            ks_map[ks] = ('baten', child.descr)
+
+    for child in ksgroup_root.find('BFRE15E02').children:
         for ks in child.get_ks_recursive():
             ks_map[ks] = ('baten', child.descr)
 
@@ -198,24 +203,29 @@ def construct_data_orders(years, regels_plan, regels_geboekt_obligo, orders):
         for year in years:
             data[order][year] = {}
             data[order][year]['title'] = '%s-%s' % ('dummy descr', order)  # TODO plot title
-            data[order][year]['begroting'] = float(plandict[order][year].total())
+            try: 
+                data[order][year]['begroting'] = float(plandict[order][year].total())
+            except:
+                data[order][year]['begroting'] = 0
             data[order][year]['baten'] = {}
             data[order][year]['lasten'] = {}
             data[order][year]['resultaat'] = np.zeros(12)
 
-            for ks, regels_periode in regelsdict[order][year].iteritems():
-                key = ks_map[ks][0]
-                name = ks_map[ks][1]
+            if order in regelsdict:
+                if year in regelsdict[order]:
+                    for ks, regels_periode in regelsdict[order][year].iteritems():
+                        key = ks_map[ks][0]
+                        name = ks_map[ks][1]
 
-                if name not in data[order][year][key]:
-                    data[order][year][key][name] = np.zeros(12)
+                        if name not in data[order][year][key]:
+                            data[order][year][key][name] = np.zeros(12)
 
-                for periode, regels in regels_periode.iteritems():
-                    if periode > 12:
-                        periode = 12
-                    total = float(regels.total())
-                    data[order][year][key][name][periode-1] += total
-                    data[order][year]['resultaat'][periode-1] += total
+                        for periode, regels in regels_periode.iteritems():
+                            if periode > 12:
+                                periode = 12
+                            total = float(regels.total())
+                            data[order][year][key][name][periode-1] += total
+                            data[order][year]['resultaat'][periode-1] += total
 
             data[order][year]['resultaat'] = np.cumsum(data[order][year]['resultaat'])
 
