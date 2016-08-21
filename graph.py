@@ -38,6 +38,8 @@ import model.regels
 import model.ordergroup
 import model.ksgroup
 
+from controller.functions import moneyfmt
+
 import os
 from config import config
 import numpy as np
@@ -55,14 +57,6 @@ def save_fig(plt, year, tiepe, name):
     plt.savefig(graphPath + '%s.png' % str(name), bbox_inches='tight')
 
 
-#TODO shouldn't we use money fmt and assume everything is a decimal?
-def value_to_table_string(value):
-    if value == 0 or np.abs(value) < 0.5:
-        return ''
-    else:
-        return ('%.f' % value)
-
-
 def construct_data_groups(years, data_orders, orders):
     data = {}
     return data
@@ -73,13 +67,25 @@ def get_colors(steps):
     colors_baten = plt.cm.BuGn(np.linspace(0.75, 0.1, steps['baten']))
     return np.concatenate((colors_lasten, colors_baten), axis=0)
 
-# TODO moet het echt numpy arrays zijn? of is het wellicht gewoon hanidger om lists te gebruiken. 
+
+#TODO shouldn't we use money fmt and assume everything is a decimal?
+def format_table_row(row):
+    str_row = []
+    for value in row:
+        if value == 0 or np.abs(value) < 0.5:
+            str_row.append('')
+        else:
+            str_row.append('%.f' % value)
+
+    return str_row
+
+
 def graph_realisatie(data):
 
     data_x = np.arange(1,13)
     data_x_begroting = np.array([1, 12])
-    data_y_begroting = np.array([0, data['begroting']])
-    data_y_resultaat = data['resultaat']
+    data_y_begroting = np.array([0, data['begroting']/1000])
+    data_y_resultaat = data['resultaat']/1000
 
     # Layout figure
     plt.figure(figsize=(12, 9))
@@ -113,15 +119,15 @@ def graph_realisatie(data):
     # setup legend
 #TODO moneyfmt values in legend
     legend['data'].append(plot_resultaat[0])
-    legend['keys'].append("Realisatie (%s keur)" % data_y_resultaat[-1])
+    legend['keys'].append("Realisatie (%s keur)" % moneyfmt(data_y_resultaat[-1]))
     legend['data'].append(plot_begroting[0])
-    legend['keys'].append("Begroting (%s keur)" % data['begroting'])
+    legend['keys'].append("Begroting (%s keur)" % moneyfmt(data['begroting'], keur=True))
     legend['data'].append(Rectangle( (0,0),0,0, alpha=0.0))
-    overschot = data['begroting'] - data_y_resultaat[-1]
+    overschot = data['begroting']/1000 - data_y_resultaat[-1]
     if overschot>0:
-        legend['keys'].append("Te besteden (%s keur)" % overschot)
+        legend['keys'].append("Te besteden (%s keur)" % moneyfmt(overschot))
     else:
-        legend['keys'].append("Overbesteed: (%s keur)" % overschot)
+        legend['keys'].append("Overbesteed: (%s keur)" % moneyfmt(overschot))
 
     leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
     if data_y_resultaat[-1] < 0:
@@ -134,30 +140,33 @@ def graph_realisatie(data):
     offset = (1-totaalbars*width)/2
     bar_nr = 0
     for name, data_y in data['lasten'].iteritems():
-        plot_lasten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y,  width, color=colors[bar_nr])
+        plot_lasten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y/1000,  width, color=colors[bar_nr])
         bar_nr += 1
 
     for name, data_y in data['baten'].iteritems():
-        plot_baten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y,  width, color=colors[bar_nr])
+        plot_baten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y/1000,  width, color=colors[bar_nr])
         bar_nr += 1
 
     # add table below the graph
     values = []
-    values.append(data_y_resultaat)
-    values.extend(data['lasten'].values())
-    values.extend(data['baten'].values())
+    values.append(format_table_row(data_y_resultaat))
+
+    for data_key in ['baten', 'lasten']:
+        for key, row in data[data_key].iteritems():
+            data[data_key][key] = row / 1000
+            values.append(format_table_row(data[data_key][key]))
 
     label_columns = (["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
 
     label_rows = []
     label_rows.extend(["Totaal"])
-    label_rows.extend(data['lasten'].keys())
     label_rows.extend(data['baten'].keys())
+    label_rows.extend(data['lasten'].keys())
 
     colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure color realisatie
 
     the_table = plt.table(cellText=values, rowLabels=label_rows, rowColours=colors,
-                          colLabels=label_columns, loc='bottom')
+                          colLabels=label_columns, loc='bottom', rowLoc='right')
     the_table.set_fontsize(14)
     the_table.scale(1,2)
 
@@ -208,14 +217,14 @@ def construct_data_orders(years, regels_plan, regels_geboekt_obligo, orders):
                     data[order][year][key][name][periode-1] += total
                     data[order][year]['resultaat'][periode-1] += total
 
-            data[order][year]['resultaat'] = CUMSUM!
+            data[order][year]['resultaat'] = np.cumsum(data[order][year]['resultaat'])
 
     return data
 
 
 def build_graphs(years):
     # load data
-    orders = [2008502040]#model.regels.orders() 
+    orders = model.regels.orders() 
     groups = model.ordergroup.available()
     regels_plan = model.regels.load(years_load=years, orders_load=orders, table_names_load=['plan'])
     regels_geboekt_obligo = model.regels.load(years_load=years, orders_load=orders, table_names_load=['geboekt', 'obligo'])
@@ -244,17 +253,7 @@ def build_graphs(years):
 
 
 if __name__ == "__main__":
-    # todo: move to graph 'realisatie' 'overview' class
-    #params = {}
-    #params['show_prognose'] = False
-    #params['show_cumsum'] = False
-    #params['show_details_flat'] = True
-    #params['show_details_stack'] = False
-    #params['show_table'] = True
-    #params['show_table_cumsum'] = False
-    #params['detailed'] = True
-    #params['ignore_obligos'] = False
-
+    #from controller import functions
     # Run it: $python server.py <year>/*
     valid_input = False
     if len(sys.argv) == 2:
