@@ -170,20 +170,18 @@ def graph_realisatie(data):
 
 def construct_data_orders(years, regels_plan, regels_geboekt_obligo, orders):
     plandict = regels_plan.split(['ordernummer', 'jaar'])
-    regelsdict = regels_geboekt_obligo.split(['ordernummer', 'jaar', 'kostensoort'])
+    regelsdict = regels_geboekt_obligo.split(['ordernummer', 'jaar', 'kostensoort', 'periode'])
 
     # kostensoort groups
-    ksgroup = model.ksgroup.load('BFRE15')
-    print ksgroup.find('BFRE15BT00')
-    print ksgroup.find('BFRE15B01')
-    print ksgroup.find('BFRE15LTPL')
-    print ksgroup.find('BFRE15DN')
-    error in the ksgroup loading!
-    exit()
-    ks = {}
-    ks['baten'] = ksgroup.find('BFRE15BT00').get_ks_recursive()
-    ks['lasten'] = ksgroup.find('BFRE15LT00').get_ks_recursive()
-    exit()
+    ksgroup_root = model.ksgroup.load('BFRE15')
+    ks_map = {}
+    for child in ksgroup_root.find('BFRE15BT00').children:
+        for ks in child.get_ks_recursive():
+            ks_map[ks] = ('baten', child.descr)
+
+    for child in ksgroup_root.find('BFRE15LT00').children:
+        for ks in child.get_ks_recursive():
+            ks_map[ks] = ('lasten', child.descr)
 
     data = {} 
     for order in orders:
@@ -191,12 +189,26 @@ def construct_data_orders(years, regels_plan, regels_geboekt_obligo, orders):
         for year in years:
             data[order][year] = {}
             data[order][year]['title'] = '%s-%s' % ('dummy descr', order)  # TODO plot title
-            data[order][year]['begroting'] = plandict[order][year].total()
+            data[order][year]['begroting'] = float(plandict[order][year].total())
+            data[order][year]['baten'] = {}
+            data[order][year]['lasten'] = {}
+            data[order][year]['resultaat'] = np.zeros(12)
 
-            data[order][year]['baten'] = {'lasten1':np.array([1,1,1,1,1,1,1,1,1,1,1,1])}
-            data[order][year]['lasten']= {'lasten1': np.array([2,2,2,2,2,2,2,2,2,2,2,2])}
+            for ks, regels_periode in regelsdict[order][year].iteritems():
+                key = ks_map[ks][0]
+                name = ks_map[ks][1]
 
-            data[order][year]['resultaat'] = np.arange(10,22)
+                if name not in data[order][year][key]:
+                    data[order][year][key][name] = np.zeros(12)
+
+                for periode, regels in regels_periode.iteritems():
+                    if periode > 12:
+                        periode = 12
+                    total = float(regels.total())
+                    data[order][year][key][name][periode-1] += total
+                    data[order][year]['resultaat'][periode-1] += total
+
+            data[order][year]['resultaat'] = CUMSUM!
 
     return data
 
@@ -247,11 +259,11 @@ if __name__ == "__main__":
     valid_input = False
     if len(sys.argv) == 2:
         years_available = model.regels.years()
-        year = int(sys.argv[1])
-        if year == '*':
+        if str(sys.argv[1]) == '*':
             years = years_available
             valid_input = True
         else:
+            year = int(sys.argv[1])
             if year in years_available:
                 years = [year]
                 valid_input = True
