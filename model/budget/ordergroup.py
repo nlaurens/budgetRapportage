@@ -118,14 +118,20 @@ class OrderGroup:
 
         return
 
-    # returns: [OrderGroup, ..] for all groepen in nodes
-    def list_groups(self, inverted=True):
+    # returns: [OrderGroup, ..] for all groepen in nodes up to maxDepth
+    def list_groups(self, depth=0, maxdepth=None, inverted=True):
         groepen = [self]
+
+        if maxdepth is not None:
+            if depth >= maxdepth:
+                return groepen
+
         for child in self.children:
             if inverted:
-                groepen = child.list_groups() + groepen
+                groepen = child.list_groups(depth=(depth+1), maxdepth=maxdepth, inverted=inverted) + groepen
             else:
-                groepen = groepen + child.list_groups() 
+                groepen = groepen + child.list_groups(depth=(depth+1), maxdepth=maxdepth, inverted=inverted) 
+
         return groepen
 
     # return [ {descr:name} ] for all orders in nodes

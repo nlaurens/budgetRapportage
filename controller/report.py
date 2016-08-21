@@ -124,32 +124,71 @@ class Report(Controller):
                 else:
                     data[order][year]['realisatie_perc'] = 0
 
-        # load data for all groups:
-        # TODO we should only go 2 levels deep and on the deepest level get all orders instead of
-        # just the orders in that group
-        ordergroups = self.ordergroup.list_groups()
-        for group in ordergroups:
-            data[group.name] = {}
+        # load data for all subgroups, including groups in subgroups
+        for subgroup in self.ordergroup.children:
+            data[subgroup.name] = {}
+            for child in subgroup.children:
+                data[child.name] = {}
+                for year in self.years:
+                    data[child.name][year] = {}
+                    if year not in data[subgroup.name]:
+                        data[subgroup.name][year] = {}
+                    for tiepe in ['begroot', 'plan', 'resultaat', 'realisatie']:
+                        data[child.name][year][tiepe] = 0
+                        if tiepe not in data[subgroup.name][year]:
+                            data[subgroup.name][year][tiepe] = 0
+
+                        # add all orders in child and the remaining groups in child
+                        for order in child.list_orders_recursive():
+                            if tiepe in data[order][year]:
+                                data[child.name][year][tiepe] += data[order][year][tiepe]
+                                data[subgroup.name][year][tiepe] += data[order][year][tiepe]
+
+                    # set realisatie percentage for each year and child
+                    if data[child.name][year]['plan'] != 0:
+                        data[child.name][year]['realisatie_perc'] = data[child.name][year]['realisatie'] / data[child.name][year]['plan'] * 100
+                    else:
+                        data[child.name][year]['realisatie_perc'] = 0
+
+            # add groups in subgroup
             for year in self.years:
-                data[group.name][year] = {}
-                for tiepe in ['begroot', 'plan', 'resultaat', 'realisatie']:
-                    data[group.name][year][tiepe] = 0
+                if not year in data[subgroup.name]:
+                    data[subgroup.name][year] = {}
+                    for tiepe in ['begroot', 'plan', 'resultaat', 'realisatie']:
+                        data[subgroup.name][year][tiepe] = 0
 
-                    # add subgroup values
-                    for subgroup in group.children:
-                        if tiepe in data[subgroup.name][year]:
-                            data[group.name][year][tiepe] += data[subgroup.name][year][tiepe]
-
-                    # add orders from this grop
-                    for order in group.orders:
+                for order in subgroup.orders:
+                    for tiepe in ['begroot', 'plan', 'resultaat', 'realisatie']:
                         if tiepe in data[order][year]:
-                            data[group.name][year][tiepe] += data[order][year][tiepe]
+                            data[subgroup.name][year][tiepe] += data[order][year][tiepe]
 
-
-                if data[group.name][year]['plan'] != 0:
-                    data[group.name][year]['realisatie_perc'] = data[group.name][year]['realisatie'] / data[group.name][year]['plan'] * 100
+                if data[subgroup.name][year]['plan'] != 0:
+                    data[subgroup.name][year]['realisatie_perc'] = data[subgroup.name][year]['realisatie'] / data[subgroup.name][year]['plan'] * 100
                 else:
-                    data[group.name][year]['realisatie_perc'] = 0
+                    data[subgroup.name][year]['realisatie_perc'] = 0
+
+        # Load data for main group
+        data[self.ordergroup.name] = {}
+        for year in self.years:
+            data[self.ordergroup.name][year] = {}
+            for tiepe in ['begroot', 'plan', 'resultaat', 'realisatie']:
+                data[self.ordergroup.name][year][tiepe] = 0
+
+                # add all orders in main group
+                for order in self.ordergroup.orders:
+                    if tiepe in data[order][year]:
+                        data[self.ordergroup.name][year][tiepe] += data[order][year][tiepe]
+
+                # add all subgroups:
+                for child in self.ordergroup.children:
+                    if tiepe in data[child.name][year]:
+                        data[self.ordergroup.name][year][tiepe] += data[child.name][year][tiepe]
+
+            # set realisatie percentage for main group per year
+            if data[self.ordergroup.name][year]['plan'] != 0:
+                data[self.ordergroup.name][year]['realisatie_perc'] = data[self.ordergroup.name][year]['realisatie'] / data[self.ordergroup.name][year]['plan'] * 100
+            else:
+                data[self.ordergroup.name][year]['realisatie_perc'] = 0
 
         return data
 

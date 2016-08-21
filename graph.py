@@ -34,9 +34,9 @@ TODO
 import web
 web.config.debug = False #must be done before the rest.
 
-import model
-import webpage
-import budget
+import model.regels
+import model.ordergroup
+
 import os
 from config import config
 import numpy as np
@@ -48,7 +48,7 @@ from matplotlib.patches import Rectangle
 
 
 
-class Graph:
+class Graph_old:
     def __init__(self):
         self.title = ''
         self.resultaat = None #totaal resultaat for whole year
@@ -477,14 +477,14 @@ class Graph:
         return dictionary
 
     def load_order(self, order, params):
-        sapdatum = model.last_update()
+        sapdatum = model.regels.last_update()
 
         resultaat = []
         begroot = {}
         baten = {}
         lasten = {}
 
-        regels = model.get_regellist_per_table(['geboekt', 'obligo', 'plan'], jaar=[params['jaar']], orders=[order])
+        regels = model.regels.load(years_load=[params['jaar']], orders_load=[order])
         root = GrootBoek.load('BFRE15')
         root.assign_regels_recursive(regels)
         root.set_totals()
@@ -668,39 +668,63 @@ def create_ordergroep_graphs(OG, params):
     merged.create_figs(root.name, params)
 
 if __name__ == "__main__":
-    params = {}
-    params['show_prognose'] = False
-    params['show_cumsum'] = False
-    params['show_details_flat'] = True
-    params['show_details_stack'] = False
-    params['show_table'] = True
-    params['show_table_cumsum'] = False
-    params['detailed'] = True
-    params['ignore_obligos'] = False
+    # todo: move to graph 'realisatie' 'overview' class
+    #params = {}
+    #params['show_prognose'] = False
+    #params['show_cumsum'] = False
+    #params['show_details_flat'] = True
+    #params['show_details_stack'] = False
+    #params['show_table'] = True
+    #params['show_table_cumsum'] = False
+    #params['detailed'] = True
+    #params['ignore_obligos'] = False
 
-    found = False
-    if len(sys.argv) <2:
-        print 'error no arguments given'
-        print 'use graph.py <order/group> <jaar>'
-        print '* for all orders'
+    # Run it: $python server.py <year>/*
+    valid_input = False
+    if len(sys.argv) == 2:
+        years_available = model.regels.years()
+        year = sys.argv[1] 
+        if year == '*':
+            years = years_available
+            valid_input = True
+        else:
+            if year in years_available:
+                years = [year]
+                valid_input = True
 
-    try:
-        target  = sys.argv[1]
-    except:
-        pass
+    if valid_input:
+        build_graphs(years)
+    else: 
+        print 'error in arguments'
+        print 'use graph.py <jaar>'
+        print '* for all years'
 
-    year = config["currentYear"]
-    try:
-        year = sys.argv[2]
-    except:
-        pass
+def build_graphs(years):
+    orders = model.regels.orders()
+    groups = model.ordergroup.available()
+    regels = model.regels.load(years_load=years, orders_load=orders)
+    data_orders = load_orders(years, regels, orders)  # load all orders in regels
+    data_groups = load_groups(years, data_orders, groups)  # loads all ordergroups
 
-    orders_available = model.get_orders()
-    years = model.get_years_available()
+    for order in orders:
+        build_overview(order, data_orders)
+        for year in years:
+            build_realisatie(order, year, data_orders)
+
+    for group in groups:
+        build_overview(group, data_groups)
+        for year in years:
+            build_realisatie(group, data_groups)
+
+    exit()
+
+
+
+    orders = model.regels.orders()
+    years = model.regels.years()
     if target == '*':
         found = True
         print 'creating graphs of all orders'
-        orders = model.get_orders()
         graph = Graph()
         if year == '*':
             for year in years:
@@ -724,7 +748,7 @@ if __name__ == "__main__":
     except:
         targetInt = 0
         pass
-    if targetInt in orders_available:
+    if targetInt in orders:
         if year == '*':
             for year in years:
                 params['jaar'] = year
@@ -743,7 +767,7 @@ if __name__ == "__main__":
             graph.title = str(targetInt) + ' - <UNKNOWN>'
             graph.create_figs(str(targetInt), params)
     else:
-        groepen = model.loadOrderGroepen()
+        groepen = model.ordergroup.available()
         if target in groepen:
             if year == '*':
                 for year in years:
