@@ -36,6 +36,7 @@ web.config.debug = False #must be done before the rest.
 
 import model.regels
 import model.ordergroup
+import model.ksgroup
 
 import os
 from config import config
@@ -167,17 +168,35 @@ def graph_realisatie(data):
     return plt
 
 
-def construct_data_orders(years, regels, orders):
+def construct_data_orders(years, regels_plan, regels_geboekt_obligo, orders):
+    plandict = regels_plan.split(['ordernummer', 'jaar'])
+    regelsdict = regels_geboekt_obligo.split(['ordernummer', 'jaar', 'kostensoort'])
+
+    # kostensoort groups
+    ksgroup = model.ksgroup.load('BFRE15')
+    print ksgroup.find('BFRE15BT00')
+    print ksgroup.find('BFRE15B01')
+    print ksgroup.find('BFRE15LTPL')
+    print ksgroup.find('BFRE15DN')
+    error in the ksgroup loading!
+    exit()
+    ks = {}
+    ks['baten'] = ksgroup.find('BFRE15BT00').get_ks_recursive()
+    ks['lasten'] = ksgroup.find('BFRE15LT00').get_ks_recursive()
+    exit()
+
     data = {} 
     for order in orders:
         data[order] = {}
         for year in years:
             data[order][year] = {}
-            data[order][year]['begroting'] = 100
+            data[order][year]['title'] = '%s-%s' % ('dummy descr', order)  # TODO plot title
+            data[order][year]['begroting'] = plandict[order][year].total()
+
             data[order][year]['baten'] = {'lasten1':np.array([1,1,1,1,1,1,1,1,1,1,1,1])}
             data[order][year]['lasten']= {'lasten1': np.array([2,2,2,2,2,2,2,2,2,2,2,2])}
+
             data[order][year]['resultaat'] = np.arange(10,22)
-            data[order][year]['title'] = 'DUMMY POLOT TITLE'  # TODO plot title
 
     return data
 
@@ -186,8 +205,9 @@ def build_graphs(years):
     # load data
     orders = [2008502040]#model.regels.orders() 
     groups = model.ordergroup.available()
-    regels = model.regels.load(years_load=years, orders_load=orders)
-    data_orders = construct_data_orders(years, regels, orders)  # load all orders in regels
+    regels_plan = model.regels.load(years_load=years, orders_load=orders, table_names_load=['plan'])
+    regels_geboekt_obligo = model.regels.load(years_load=years, orders_load=orders, table_names_load=['geboekt', 'obligo'])
+    data_orders = construct_data_orders(years, regels_plan, regels_geboekt_obligo, orders)  # load all orders in regels
     data_groups = construct_data_groups(years, data_orders, groups)  # loads all ordergroups
 
 
@@ -227,7 +247,7 @@ if __name__ == "__main__":
     valid_input = False
     if len(sys.argv) == 2:
         years_available = model.regels.years()
-        year = sys.argv[1] 
+        year = int(sys.argv[1])
         if year == '*':
             years = years_available
             valid_input = True
