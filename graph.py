@@ -89,7 +89,7 @@ class Graph:
         count = 0 
         print 'start rendering graphs - total: %s' % total_graphs
 
-        for order in orders:
+        for order in self.orders:
             # TODO
             #build_overview(order, data_orders)
 
@@ -108,7 +108,7 @@ class Graph:
                 for year in self.years:
                     plt = self.graph_realisatie(data_groups[name][group.name][year])
                     count += 1
-                    print 'rendered %s year %s (%.2f%%)' % (group.name, year, (count/total_graphs)*100.)
+                    print 'rendered %s-%s year %s (%.2f%%)' % (name, group.name, year, (count/total_graphs)*100.)
                     self.save_fig(plt, year, 'realisatie', '%s-%s' % (name, group.name))
                     plt.close()
 
@@ -292,7 +292,7 @@ class Graph:
                         for key in ['baten', 'lasten']:
                             for ksgroup, row in data[name][subgroup.name][year][key].iteritems():
                                 if ksgroup not in data[name][group.name][year][key]:
-                                    data[name][group.name][year][key][ksgroup] = row
+                                    data[name][group.name][year][key][ksgroup] = row.copy()
                                 else:
                                     data[name][group.name][year][key][ksgroup] += row
 
@@ -305,7 +305,7 @@ class Graph:
                             for key in ['baten', 'lasten']:
                                 for ksgroup, row in data_orders[order][year][key].iteritems():
                                     if ksgroup not in data[name][group.name][year][key]:
-                                        data[name][group.name][year][key][ksgroup] = row
+                                        data[name][group.name][year][key][ksgroup] = row.copy()
                                     else:
                                         data[name][group.name][year][key][ksgroup] += row
         return data
