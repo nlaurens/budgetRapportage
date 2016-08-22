@@ -57,7 +57,7 @@ class Graph:
         self.regels = regels  # {'plan':<regellist>, 'realisatie':<regellist>}
         self.last_update = model.regels.last_update()
 
-        # TODO naar config
+        # TODO naar config and also define colors there! So each cat. has always the same color!!
         ksgroup_root = model.ksgroup.load('BFRE15')
         ks_map = {}
         #TODO to 1 function that uses 'baten': [bfre, xx.], 'lasten;[BFRExx,..']
@@ -181,7 +181,7 @@ class Graph:
         legend['keys'] = []
 
         colors = self.get_colors({'lasten':len(data['lasten']), 'baten':len(data['baten'])})
-
+    
         #Plot data
         plot_resultaat = plt.plot(data_x, data_y_resultaat, 'ro-', lw=2) 
         plot_begroting = plt.plot(data_x_begroting, data_y_begroting, 'k--')
@@ -209,13 +209,14 @@ class Graph:
         width= 1./(totaalbars+1)
         offset = (1-totaalbars*width)/2
         bar_nr = 0
+        for name, data_y in data['baten'].iteritems():
+            plot_baten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y/1000,  width, color=colors[bar_nr])
+            bar_nr += 1
+
         for name, data_y in data['lasten'].iteritems():
             plot_lasten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y/1000,  width, color=colors[bar_nr])
             bar_nr += 1
 
-        for name, data_y in data['baten'].iteritems():
-            plot_baten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y/1000,  width, color=colors[bar_nr])
-            bar_nr += 1
 
         # add table below the graph
         values = []
@@ -264,9 +265,9 @@ class Graph:
         plt.savefig(path_graph + '%s.png' % str(name), bbox_inches='tight')
 
     def get_colors(self, steps):
-        colors_lasten = plt.cm.BuPu(np.linspace(0.75, 0.1, steps['lasten']))
         colors_baten = plt.cm.BuGn(np.linspace(0.75, 0.1, steps['baten']))
-        return np.concatenate((colors_lasten, colors_baten), axis=0)
+        colors_lasten = plt.cm.BuPu(np.linspace(0.75, 0.1, steps['lasten']))
+        return np.concatenate((colors_baten, colors_lasten), axis=0)
 
 
     def construct_data_groups(self, data_orders):
