@@ -72,11 +72,42 @@ class Graph:
         self.ks_map = ks_map
 
 
-    def test_graphs(self):
+    def render_test_graphs(self):
         # load 'data' of a two order with all ksgroups set random for 2 years
         # load 3 groups: 1 that contains both subgroups and each subgroup containing the test order
         # render the graphs of the two orders and three groups in 2 years (2*(2+3) = 10 graphs)
-        pass
+
+        data = {}
+        data['test'] = {}
+        for year in self.years:
+            data['test'][year] = {}
+            data['test'][year]['title'] = '%s-%s-%s' % ('dummy descr', 'test', year)  # TODO plot title
+            data['test'][year]['begroting'] = float(100000)
+            data['test'][year]['baten'] = {}
+            data['test'][year]['lasten'] = {}
+            data['test'][year]['resultaat'] = np.zeros(12)
+
+            for key in ['baten', 'lasten']:
+                for name in self.color_map[key].keys():
+                    if name not in data['test'][year][key]:
+                        data['test'][year][key][name] = np.zeros(12)
+
+                    for periode in range (1, 13):
+                        total = 1000
+                        data['test'][year][key][name][periode-1] += total
+                        data['test'][year]['resultaat'][periode-1] += total
+
+            data['test'][year]['resultaat'] = np.cumsum(data['test'][year]['resultaat'])
+
+        # realisatie graphs:
+        total_graphs = 10
+        count = 0
+        for year in self.years:
+            plt = self.graph_realisatie(data['test'][year])
+            count += 1
+            print 'rendered %s year %s (%.2f%%)' % ('test', year, (count/total_graphs)*100.)
+            self.save_fig(plt, year, 'realisatie', 'test')
+            plt.close()
 
     def render_graphs(self):
 
@@ -87,7 +118,6 @@ class Graph:
 
         count = 0
         print 'start rendering graphs - total: %s' % total_graphs
-
         for order in self.orders:
             # TODO
             #build_overview(order, self.data_orders)
@@ -119,7 +149,7 @@ class Graph:
         data = {}
         for order in orders:
             data[order] = {}
-            for year in years:
+            for year in self.years:
                 data[order][year] = {}
                 data[order][year]['title'] = '%s-%s-%s' % ('dummy descr', order, year)  # TODO plot title
                 try:
@@ -326,6 +356,9 @@ class Graph:
         return data
 
 if __name__ == "__main__":
+    # used for testing graphs:
+    test = False
+
     #from controller import functions
     # Run it: $python server.py <year>/*
     valid_input = False
@@ -333,6 +366,10 @@ if __name__ == "__main__":
         years_available = model.regels.years()
         if str(sys.argv[1]) == '*':
             years = years_available
+            valid_input = True
+        elif str(sys.argv[1]) == 'TEST':
+            years = years_available
+            test = True
             valid_input = True
         else:
             year = int(sys.argv[1])
@@ -352,14 +389,16 @@ if __name__ == "__main__":
         regels['plan'] = model.regels.load(years_load=years, orders_load=orders, table_names_load=['plan'])
         regels['resultaat'] = model.regels.load(years_load=years, orders_load=orders, table_names_load=['geboekt', 'obligo'])
 
+
         graph = Graph(years, orders, ordergroups, regels)
         # construct data dicts
         print 'start building data structures'
-        graph.tests_graphs()
-        exit()
         graph.construct_data_orders()
         graph.construct_data_groups()
-        graph.render_graphs()
+        if test:
+            graph.render_test_graphs()
+        else:
+            graph.render_graphs()
     else:
         print 'error in arguments'
         print 'use graph.py <jaar>'
