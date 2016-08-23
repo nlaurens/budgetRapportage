@@ -1,30 +1,13 @@
 """"
 Usage
-    $ python graph.py <order/group>
-    use * for all orders
+    $ python graph.py <year>
+    use * for all years
 
 NOTES
 
     only shows >|500| euro in table
 
 TODO
-
-# Bij het maken van een enkele graph de naam van de order uit een config tabel halen (bestaat nog niet!)
-# Kijken naar de if/else structuur van de argv parser. Als je geen argumenten geeft krijg je fout melding .
-# Afronding: alleen doen bij visualisatie, niet in export naar files en totalen niet optellen uit afgeronde cijfers.
-# Algemeen
-    Jaaroverzicht maken -> per jaar doorlinken naar de onderstaande rapportages.
-    Hash alle plaatjes met username om te voorkomen dat je ze zo van elkaar kan zien
-    Als ordergroep geen groepen eronder heeft gaat het mis. (dus b.v. 2008A3 zo uitdraaien)
-# Allow the script to accept 'year' as an input param so we can build any year as well
-# Store figs in the proper directory 'static/xxx'
-# fig1:
-
-# fig2:
-    remove_pieces: check of er slechts 1 piece verwijdert wordt. Want dan kan je hem beter laten staan!
-    Als het totaal 0 is moet je toch een pie chart maken met 1 piecie.
-# fig3:
-    y-labels kleurtje geven (want als niet begroot is, is ie sowieso rood..)
 
 #overview: 1 kolom extra in elke tabel en daarin het grafiekje van de jaren zetten zodat het goed te zien is
 # grafiek: x = jan/dec, y = 0 tot 100% realisatie t.o.v. begroting (dus 1 lijn begroting stippel de rest in kleurtjes
@@ -60,42 +43,58 @@ class Graph:
         # TODO naar config and also define colors there! So each cat. has always the same color!!
         ksgroup_root = model.ksgroup.load('BFRE15')
         ks_map = {}
+        color_map = {'baten': {}, 'lasten': {}}
         #TODO to 1 function that uses 'baten': [bfre, xx.], 'lasten;[BFRExx,..']
         for child in ksgroup_root.find('BFRE15BT00').children:
+            color_map['baten'][child.descr] = {}
             for ks in child.get_ks_recursive():
                 ks_map[ks] = ('baten', child.descr)
 
         for child in ksgroup_root.find('BFRE15E02').children:
+            color_map['baten'][child.descr] = {}
             for ks in child.get_ks_recursive():
                 ks_map[ks] = ('baten', child.descr)
 
         for child in ksgroup_root.find('BFRE15LT00').children:
+            color_map['lasten'][child.descr] = {}
             for ks in child.get_ks_recursive():
                 ks_map[ks] = ('lasten', child.descr)
 
+        colors_baten = plt.cm.BuGn(np.linspace(0.75, 0.1, len(color_map['baten'])))
+        for i, key in enumerate(color_map['baten']):
+            color_map['baten'][key] = colors_baten[i]
+
+        colors_lasten = plt.cm.BuPu(np.linspace(0.75, 0.1, len(color_map['lasten'])))
+        for i, key in enumerate(color_map['lasten']):
+            color_map['lasten'][key] = colors_lasten[i]
+
+        self.color_map = color_map
         self.ks_map = ks_map
 
-    def build_graphs(self):
-        # construct data dicts
-        print 'start building data structures'
-        data_orders = self.construct_data_orders()  
-        data_groups = self.construct_data_groups(data_orders) 
+
+    def test_graphs(self):
+        # load 'data' of a two order with all ksgroups set random for 2 years
+        # load 3 groups: 1 that contains both subgroups and each subgroup containing the test order
+        # render the graphs of the two orders and three groups in 2 years (2*(2+3) = 10 graphs)
+        pass
+
+    def render_graphs(self):
 
         # build graphs
-        total_graphs = float(len(self.years)*len(self.orders)) 
+        total_graphs = float(len(self.years)*len(self.orders))
         for name, ordergroup in self.ordergroups.iteritems():
             total_graphs += float(len(self.years)*len(ordergroup.list_groups()))
 
-        count = 0 
+        count = 0
         print 'start rendering graphs - total: %s' % total_graphs
 
         for order in self.orders:
             # TODO
-            #build_overview(order, data_orders)
+            #build_overview(order, self.data_orders)
 
             # realisatie graphs:
             for year in self.years:
-                plt = self.graph_realisatie(data_orders[order][year])
+                plt = self.graph_realisatie(self.data_orders[order][year])
                 count += 1
                 print 'rendered %s year %s (%.2f%%)' % (order, year, (count/total_graphs)*100.)
                 self.save_fig(plt, year, 'realisatie', order)
@@ -104,9 +103,9 @@ class Graph:
         for name, ordergroup in self.ordergroups.iteritems():
             for group in ordergroup.list_groups():
                 #TODO
-                #build_overview(group, data_groups)
+                #build_overview(group, self.data_groups)
                 for year in self.years:
-                    plt = self.graph_realisatie(data_groups[name][group.name][year])
+                    plt = self.graph_realisatie(self.data_groups[name][group.name][year])
                     count += 1
                     print 'rendered %s-%s year %s (%.2f%%)' % (name, group.name, year, (count/total_graphs)*100.)
                     self.save_fig(plt, year, 'realisatie', '%s-%s' % (name, group.name))
@@ -117,13 +116,13 @@ class Graph:
         plan_dict = self.regels['plan'].split(['ordernummer', 'jaar'])
         regels_dict = self.regels['resultaat'].split(['ordernummer', 'jaar', 'kostensoort', 'periode'])
 
-        data = {} 
+        data = {}
         for order in orders:
             data[order] = {}
             for year in years:
                 data[order][year] = {}
                 data[order][year]['title'] = '%s-%s-%s' % ('dummy descr', order, year)  # TODO plot title
-                try: 
+                try:
                     data[order][year]['begroting'] = float(plan_dict[order][year].total())
                 except:
                     data[order][year]['begroting'] = 0
@@ -149,7 +148,13 @@ class Graph:
 
                 data[order][year]['resultaat'] = np.cumsum(data[order][year]['resultaat'])
 
-        return data
+        self.data_orders = data
+
+    def get_colors(self, steps):
+        colors_baten = plt.cm.BuGn(np.linspace(0.75, 0.1, steps['baten']))
+        colors_lasten = plt.cm.BuPu(np.linspace(0.75, 0.1, steps['lasten']))
+        return np.concatenate((colors_baten, colors_lasten), axis=0)
+
 
     def graph_realisatie(self, data):
         data_x = np.arange(1,13)
@@ -180,14 +185,11 @@ class Graph:
         legend['data'] = []
         legend['keys'] = []
 
-        colors = self.get_colors({'lasten':len(data['lasten']), 'baten':len(data['baten'])})
-    
         #Plot data
-        plot_resultaat = plt.plot(data_x, data_y_resultaat, 'ro-', lw=2) 
+        plot_resultaat = plt.plot(data_x, data_y_resultaat, 'ro-', lw=2)
         plot_begroting = plt.plot(data_x_begroting, data_y_begroting, 'k--')
-        
+
         # setup legend
-    #TODO moneyfmt values in legend
         legend['data'].append(plot_resultaat[0])
         legend['keys'].append("Realisatie (%s keur)" % moneyfmt(data_y_resultaat[-1]))
         legend['data'].append(plot_begroting[0])
@@ -210,11 +212,11 @@ class Graph:
         offset = (1-totaalbars*width)/2
         bar_nr = 0
         for name, data_y in data['baten'].iteritems():
-            plot_baten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y/1000,  width, color=colors[bar_nr])
+            plot_baten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y/1000,  width, color=self.color_map['baten'][name])
             bar_nr += 1
 
         for name, data_y in data['lasten'].iteritems():
-            plot_lasten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y/1000,  width, color=colors[bar_nr])
+            plot_lasten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y/1000,  width, color=self.color_map['lasten'][name])
             bar_nr += 1
 
 
@@ -234,7 +236,21 @@ class Graph:
         label_rows.extend(data['baten'].keys())
         label_rows.extend(data['lasten'].keys())
 
-        colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure color realisatie
+        colors = []
+        for key in data['baten'].keys():
+            colors.extend([self.color_map['baten'][key]])
+
+        for key in data['lasten'].keys():
+            colors.extend([self.color_map['lasten'][key]])
+
+        for key in data['baten'].keys():
+            colors.extend([self.color_map['baten'][key]])
+
+        if colors:
+            colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure color realisatie
+        else:
+            colors = [[1,1,1,1]]
+
 
         the_table = plt.table(cellText=values, rowLabels=label_rows, rowColours=colors,
                             colLabels=label_columns, loc='bottom', rowLoc='right')
@@ -247,7 +263,6 @@ class Graph:
 
         return plt
 
-    #TODO shouldn't we use money fmt and assume everything is a decimal?
     def format_table_row(self, row):
         str_row = []
         for value in row:
@@ -264,13 +279,12 @@ class Graph:
             os.makedirs(path_graph)
         plt.savefig(path_graph + '%s.png' % str(name), bbox_inches='tight')
 
-    def get_colors(self, steps):
-        colors_baten = plt.cm.BuGn(np.linspace(0.75, 0.1, steps['baten']))
-        colors_lasten = plt.cm.BuPu(np.linspace(0.75, 0.1, steps['lasten']))
-        return np.concatenate((colors_baten, colors_lasten), axis=0)
 
 
-    def construct_data_groups(self, data_orders):
+    def construct_data_groups(self):
+        assert self.data_orders is not None, "graph.data_orders not set"
+
+        data_orders = self.data_orders
         data = {}
 
         for name, ordergroup in self.ordergroups.iteritems():
@@ -328,7 +342,7 @@ if __name__ == "__main__":
 
     if valid_input:
         print 'start loading regels'
-        orders = model.regels.orders() 
+        orders = model.regels.orders()
 
         ordergroups = {}
         for name in model.ordergroup.available():
@@ -339,8 +353,14 @@ if __name__ == "__main__":
         regels['resultaat'] = model.regels.load(years_load=years, orders_load=orders, table_names_load=['geboekt', 'obligo'])
 
         graph = Graph(years, orders, ordergroups, regels)
-        graph.build_graphs()
-    else: 
+        # construct data dicts
+        print 'start building data structures'
+        graph.tests_graphs()
+        exit()
+        graph.construct_data_orders()
+        graph.construct_data_groups()
+        graph.render_graphs()
+    else:
         print 'error in arguments'
         print 'use graph.py <jaar>'
         print '* for all years'
