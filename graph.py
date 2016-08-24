@@ -41,6 +41,12 @@ class Graph:
         self.last_update = model.regels.last_update()
 
         # TODO naar config and also define colors there! So each cat. has always the same color!!
+        # furthermore below should be 1 function that walks through that config
+        # + sometimes you don't want to load the children but just the group iteslf
+        # options: create 2 ksgroup files BATEN, LASTEN
+        #          create a list of groups that need to be loaded as baten/lasten (so no children)
+        #          only load converetd ks files and no longer work with the weird SAP export format
+        #               and use all the top groups of this file <-- preferred
         ksgroup_root = model.ksgroup.load('BFRE15')
         ks_map = {}
         color_map = {'baten': {}, 'lasten': {}}
@@ -64,7 +70,7 @@ class Graph:
         for i, key in enumerate(color_map['baten']):
             color_map['baten'][key] = colors_baten[i]
 
-        colors_lasten = plt.cm.BuPu(np.linspace(0.75, 0.1, len(color_map['lasten'])))
+        colors_lasten = plt.cm.BuPu(np.linspace(0.75, 0.1, len(color_map['lasten'])+2))  # hack 
         for i, key in enumerate(color_map['lasten']):
             color_map['lasten'][key] = colors_lasten[i]
 
