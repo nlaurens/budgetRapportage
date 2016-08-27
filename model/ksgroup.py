@@ -6,8 +6,8 @@ from budget import KostensoortGroup
 from model.functions import first_item_in_list as first_item_in_list
 
 """
-.available() 
-    input: None 
+.available()
+    input: None
     output: names of kostensoortgroups as a list of str
 """
 
@@ -27,6 +27,7 @@ def available():
 """
 
 def load(ks_group_name):
+    path = '%s\%s' % (config['ksGroupsPath'], ks_group_name)
     return None
 
 
@@ -35,9 +36,8 @@ def load(ks_group_name):
     input: name as str
     returns: KostenSoortGroup
 """
-def load_sap(ks_group_name):
-    path = '%s\%s' % (config['ksGroupsPath'], ks_group_name)
-    f = open(path, 'r')
+def load_sap(ks_group_file):
+    f = open(ks_group_file, 'r')
     group = None
     ksgroup = None
     for line in f:
@@ -45,7 +45,7 @@ def load_sap(ks_group_name):
         line = line.replace('--', '')
         line = line.split(' ')
         level, item = first_item_in_list(line)
-        item = item.strip()
+        item = ''.join(e for e in item if e.isalnum()).strip()
         descr = ' '.join(line[level + 1:]).strip()
 
         if item != '':

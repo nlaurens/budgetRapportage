@@ -6,8 +6,8 @@ from budget import OrderGroup
 from model.functions import first_item_in_list
 
 """
-.available() 
-    input: None 
+.available()
+    input: None
     output: names of ordergroups as a list of str
 """
 
@@ -77,7 +77,7 @@ def load_sap(file_path):
         line = line.replace('--', '')
         line = line.split(' ')
         level, item = first_item_in_list(line)
-        item = item.strip()
+        item = ''.join(e for e in item if e.isalnum()).strip()
         descr = ' '.join(line[level + 1:]).strip()
 
         if item != '':
@@ -88,7 +88,6 @@ def load_sap(file_path):
                 group = OrderGroup(item, descr, level, '')
                 ordergroup = group
             else:
-                print 'GROUP %s - %s (%s)' % (level, item, descr)
                 parent = group.lower_level_parent(level)
                 group = OrderGroup(item, descr, level, parent)
                 parent.add_child(group)
