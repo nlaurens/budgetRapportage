@@ -26,8 +26,16 @@ def available():
     returns: KostenSoortGroup
 """
 
-
 def load(ks_group_name):
+    return None
+
+
+"""
+.load_sap( name )
+    input: name as str
+    returns: KostenSoortGroup
+"""
+def load_sap(ks_group_name):
     path = '%s\%s' % (config['ksGroupsPath'], ks_group_name)
     f = open(path, 'r')
     group = None

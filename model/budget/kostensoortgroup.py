@@ -218,3 +218,19 @@ class KostensoortGroup:
 
         ks.update(self.kostenSoorten)
         return ks
+
+    def save_as_txt(self, filehandle):
+        lvl = self.level + 1
+        sp = (lvl - 1) * '    '
+        head = lvl * '#'
+
+        filehandle.write(sp + head + self.name + ' ' + self.descr + '\n')
+        if self.kostenSoorten:
+            for ks, descr in self.kostenSoorten.iteritems():
+                filehandle.write(sp + ' ' + str(ks) + ' ' + descr + '\n')
+
+        filehandle.write('\n')
+
+        for child in self.children:
+            child.save_as_txt(filehandle)
+
