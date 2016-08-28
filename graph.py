@@ -49,9 +49,12 @@ class Graph:
                 for ks in child.get_ks_recursive():
                     ks_map[ks] = (tiepe, child.descr)
 
-            colors = plt.cm.BuGn(np.linspace(0.75, 0.1, len(color_map[tiepe])))
+            colors_amount = max(len(color_map[tiepe]), 3)  # prevent white colors
+            colors = {}
+            colors['baten'] = plt.cm.BuPu(np.linspace(0.75, 0.1, colors_amount))
+            colors['lasten'] = plt.cm.BuGn(np.linspace(0.75, 0.1, colors_amount))
             for i, key in enumerate(color_map[tiepe]):
-                color_map[tiepe][key] = colors[i]
+                color_map[tiepe][key] = colors[tiepe][i]
 
         self.color_map = color_map
         self.ks_map = ks_map
