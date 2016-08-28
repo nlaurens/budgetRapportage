@@ -28,7 +28,36 @@ def available():
 
 def load(ks_group_name):
     path = '%s\%s' % (config['ksGroupsPath'], ks_group_name)
-    return None
+    f = open(path, 'r')
+
+    group = None
+    ksgroup = None
+    for line in f:
+        line = line.strip()
+        if line != '':
+            if line[0] == '#':
+                level = 0
+                while line[level] == '#':
+                    level += 1
+
+                level -= 1
+                sp = line.index(' ')
+                name = line[level + 1:sp]
+                descr = line[sp + 1:]
+                if group is None:
+                    group = KostensoortGroup(name, descr, level, '')
+                    ksgroup = group
+                else:
+                    parent = group.lower_level_parent(level)
+                    group = KostensoortGroup(name, descr, level, parent)
+                    parent.add_child(group)
+            else:
+                sp = line.index(' ')
+                name = line[:sp]
+                descr = line[sp + 1:]
+                group.add_kostensoort(int(name), descr)
+
+    return ksgroup
 
 
 """

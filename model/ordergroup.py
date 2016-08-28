@@ -10,8 +10,6 @@ from model.functions import first_item_in_list
     input: None
     output: names of ordergroups as a list of str
 """
-
-
 def available():
     order_groups = []
     for path in glob.glob("%s\*" % config['orderGroupsPath']):
@@ -25,8 +23,6 @@ def available():
     input: name as str
     returns: OrderGroup
 """
-
-
 def load(order_group_name):
     path = '%s\%s' % (config['orderGroupsPath'], order_group_name)
     f = open(path, 'r')
@@ -66,8 +62,6 @@ def load(order_group_name):
     input: file_path as str
     returns: OrderGroup
 """
-
-
 def load_sap(file_path):
     f = open(file_path, 'r')
     group = None
