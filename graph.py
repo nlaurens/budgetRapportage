@@ -9,9 +9,6 @@ NOTES
 
 TODO
 
-#overview: 1 kolom extra in elke tabel en daarin het grafiekje van de jaren zetten zodat het goed te zien is
-# grafiek: x = jan/dec, y = 0 tot 100% realisatie t.o.v. begroting (dus 1 lijn begroting stippel de rest in kleurtjes
-# met in legenda eronder de absolute getallen in realisatie
 
 """
 import web
@@ -97,6 +94,9 @@ class Graph:
             self.save_fig(plt, year, 'realisatie', 'test')
             plt.close()
 
+        self.graph_overview(data['test'])
+        print 'rendered overview'
+
     def render_graphs(self):
 
         # build graphs
@@ -168,10 +168,60 @@ class Graph:
 
         self.data_orders = data
 
-    def get_colors(self, steps):
-        colors_baten = plt.cm.BuGn(np.linspace(0.75, 0.1, steps['baten']))
-        colors_lasten = plt.cm.BuPu(np.linspace(0.75, 0.1, steps['lasten']))
-        return np.concatenate((colors_baten, colors_lasten), axis=0)
+    #overview: 1 kolom extra in elke tabel en daarin het grafiekje van de jaren zetten zodat het goed te zien is
+    # grafiek: x = jan/dec, y = 0 tot 100% realisatie t.o.v. begroting (dus 1 lijn begroting stippel de rest in kleurtjes
+    # met in legenda eronder de absolute getallen in realisatie
+    def graph_overview(self, data):
+        data_x = np.arange(1,13)
+        data_y = {}
+        for year in self.years:
+            data_y[year] = data[year]['resultaat']/data[year]['begroting'] 
+            title = data[year]['title']  # TODO title bevat nog jaartal, er uit
+
+        # Layout figure
+        plt.figure(figsize=(12, 9))
+        plt.title(title, loc='right', fontsize=12)
+
+        ax = plt.subplot(111)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+        ax.get_xaxis().tick_bottom()
+        plt.xticks(np.arange(0, 13, 1.0), fontsize=16)
+        plt.xlim(0.5, 12.51)
+        plt.xticks([])
+        plt.xlabel("")
+        plt.axhline(0, color='black')
+
+        ax.get_yaxis().tick_left()
+        plt.yticks(fontsize=14)
+        plt.ylabel("Realisatie (%)", fontsize=18)
+
+        legend = {}
+        legend['data'] = []
+        legend['keys'] = []
+
+        #Plot data
+        plot_resultaat = {}
+        plot_begroting = plt.plot(np.array([1,12]), np.array([0,100]), 'k--')  # dashed line 0, 100
+        for year in self.years:
+            plot_resultaat[year] = plt.plot(data_x, data_y[year], 'ro-', lw=2) #TODO COLORS
+
+        # setup legend
+        #legend['data'].append(plot_resultaat[0])
+        #legend['keys'].append("Realisatie (%s keur)" % moneyfmt(data_y_resultaat[-1]))
+        #legend['data'].append(plot_begroting[0])
+        #legend['keys'].append("Begroting (%s keur)" % moneyfmt(data['begroting'], keur=True))
+        #legend['data'].append(Rectangle( (0,0),0,0, alpha=0.0))
+
+        #leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
+        #if data_y_resultaat[-1] < 0:
+        #    leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=3)
+        #leg.get_frame().set_linewidth(0.0)
+
+
+        return plt
+
 
 
     def graph_realisatie(self, data):
@@ -236,7 +286,6 @@ class Graph:
         for name, data_y in data['lasten'].iteritems():
             plot_lasten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y/1000,  width, color=self.color_map['lasten'][name])
             bar_nr += 1
-
 
         # add table below the graph
         values = []
