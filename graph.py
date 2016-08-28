@@ -78,7 +78,7 @@ class Graph:
                         data['test'][year][key][name] = np.zeros(12)
 
                     for periode in range (1, 13):
-                        total = 1000
+                        total = np.random.randint(1666)  # 12*<0-1666> = 100k
                         data['test'][year][key][name][periode-1] += total
                         data['test'][year]['resultaat'][periode-1] += total
 
@@ -94,7 +94,9 @@ class Graph:
             self.save_fig(plt, year, 'realisatie', 'test')
             plt.close()
 
-        self.graph_overview(data['test'])
+        plt = self.graph_overview(data['test'])
+        self.save_fig(plt, config['currentYear'], 'overview', 'test')
+        plt.close()
         print 'rendered overview'
 
     def render_graphs(self):
@@ -175,7 +177,8 @@ class Graph:
         data_x = np.arange(1,13)
         data_y = {}
         for year in self.years:
-            data_y[year] = data[year]['resultaat']/data[year]['begroting'] 
+            
+            data_y[year] = data[year]['resultaat']/data[year]['begroting']*100
             title = data[year]['title']  # TODO title bevat nog jaartal, er uit
 
         # Layout figure
