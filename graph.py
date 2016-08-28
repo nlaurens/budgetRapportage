@@ -40,39 +40,18 @@ class Graph:
         self.regels = regels  # {'plan':<regellist>, 'realisatie':<regellist>}
         self.last_update = model.regels.last_update()
 
-        # TODO naar config and also define colors there! So each cat. has always the same color!!
-        # furthermore below should be 1 function that walks through that config
-        # + sometimes you don't want to load the children but just the group iteslf
-        # options: create 2 ksgroup files BATEN, LASTEN
-        #          create a list of groups that need to be loaded as baten/lasten (so no children)
-        #          only load converetd ks files and no longer work with the weird SAP export format
-        #               and use all the top groups of this file <-- preferred
-        ksgroup_root = model.ksgroup.load('BFRE15')
+        ksgroup_root = model.ksgroup.load(config['graphs']['ksgroup'])
         ks_map = {}
         color_map = {'baten': {}, 'lasten': {}}
-        #TODO to 1 function that uses 'baten': [bfre, xx.], 'lasten;[BFRExx,..']
-        for child in ksgroup_root.find('BFRE15BT00').children:
-            color_map['baten'][child.descr] = {}
-            for ks in child.get_ks_recursive():
-                ks_map[ks] = ('baten', child.descr)
+        for tiepe in ['baten', 'lasten']:
+            for child in ksgroup_root.find(config['graphs'][tiepe]).children:
+                color_map[tiepe][child.descr] = {}
+                for ks in child.get_ks_recursive():
+                    ks_map[ks] = (tiepe, child.descr)
 
-        for child in ksgroup_root.find('BFRE15E02').children:
-            color_map['baten'][child.descr] = {}
-            for ks in child.get_ks_recursive():
-                ks_map[ks] = ('baten', child.descr)
-
-        for child in ksgroup_root.find('BFRE15LT00').children:
-            color_map['lasten'][child.descr] = {}
-            for ks in child.get_ks_recursive():
-                ks_map[ks] = ('lasten', child.descr)
-
-        colors_baten = plt.cm.BuGn(np.linspace(0.75, 0.1, len(color_map['baten'])))
-        for i, key in enumerate(color_map['baten']):
-            color_map['baten'][key] = colors_baten[i]
-
-        colors_lasten = plt.cm.BuPu(np.linspace(0.75, 0.1, len(color_map['lasten'])+2))  # hack 
-        for i, key in enumerate(color_map['lasten']):
-            color_map['lasten'][key] = colors_lasten[i]
+            colors = plt.cm.BuGn(np.linspace(0.75, 0.1, len(color_map[tiepe])))
+            for i, key in enumerate(color_map[tiepe]):
+                color_map[tiepe][key] = colors[i]
 
         self.color_map = color_map
         self.ks_map = ks_map
@@ -310,7 +289,7 @@ class Graph:
         return str_row
 
     def save_fig(self, plt, year, tiepe, name):
-        path_graph = config['graphPath'] + '%s/%s/' % (year, tiepe)
+        path_graph = config['graphs']['path'] + '%s/%s/' % (year, tiepe)
         if not os.path.isdir(path_graph):
             os.makedirs(path_graph)
         plt.savefig(path_graph + '%s.png' % str(name), bbox_inches='tight')
@@ -409,3 +388,4 @@ if __name__ == "__main__":
         print 'error in arguments'
         print 'use graph.py <jaar>'
         print '* for all years'
+        print 'or TEST for just a test graph'
