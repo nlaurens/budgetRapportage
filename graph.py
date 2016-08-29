@@ -192,7 +192,8 @@ class Graph:
         ax.get_xaxis().tick_bottom()
         plt.xticks(np.arange(0, 13, 1.0), fontsize=16)
         plt.xlim(0.5, 12.51)
-        plt.xlabel("Periode")
+        plt.xticks([])
+        plt.xlabel("")
         plt.axhline(0, color='black')
 
         ax.get_yaxis().tick_left()
@@ -204,11 +205,13 @@ class Graph:
         legend['keys'] = []
 
         #Plot data and legend
+        table_data = []
         plot_resultaat = {}
         plot_begroting = plt.plot(np.array([0,12]), np.array([0,100]), 'k--')  # dashed line 0, 100
         legend['data'].append(plot_begroting[0])
         legend['keys'].append("Begroting")
         for year in self.years:
+            table_data.append([year,data[year]['begroting'],data[year]['resultaat'][-1],data[year]['begroting']-data[year]['resultaat'][-1]])
             plot_resultaat[year] = plt.plot(data_x, data_y[year], 'o-', lw=2)
             legend['data'].append(plot_resultaat[year][0])
             legend['keys'].append("%s (%.f%%)" % (year, data_y[year][-1]))
@@ -217,11 +220,12 @@ class Graph:
         leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
         leg.get_frame().set_linewidth(0.0)
 
-
-
+        table_labels=("Year", "Budget", "Spent", "+/-")
+        #table_data = np.random.random((10,4))
+        the_table = plt.table(cellText=table_data,colLabels=table_labels,loc='bottom', rowLoc='right')
+        the_table.set_fontsize(14)
+        the_table.scale(1,2)
         return plt
-
-
 
     def graph_realisatie(self, data):
         data_x = np.arange(1,13)
@@ -322,6 +326,7 @@ class Graph:
                             colLabels=label_columns, loc='bottom', rowLoc='right')
         the_table.set_fontsize(14)
         the_table.scale(1,2)
+
 
         #Add y-lines:
         for i in range(0,15):
