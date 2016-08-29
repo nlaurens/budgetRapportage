@@ -177,7 +177,7 @@ class Graph:
         data_x = np.arange(1,13)
         data_y = {}
         for year in self.years:
-            
+
             data_y[year] = data[year]['resultaat']/data[year]['begroting']*100
             title = data[year]['title']  # TODO title bevat nog jaartal, er uit
 
@@ -192,8 +192,7 @@ class Graph:
         ax.get_xaxis().tick_bottom()
         plt.xticks(np.arange(0, 13, 1.0), fontsize=16)
         plt.xlim(0.5, 12.51)
-        plt.xticks([])
-        plt.xlabel("")
+        plt.xlabel("Periode")
         plt.axhline(0, color='black')
 
         ax.get_yaxis().tick_left()
@@ -204,23 +203,20 @@ class Graph:
         legend['data'] = []
         legend['keys'] = []
 
-        #Plot data
+        #Plot data and legend
         plot_resultaat = {}
-        plot_begroting = plt.plot(np.array([1,12]), np.array([0,100]), 'k--')  # dashed line 0, 100
+        plot_begroting = plt.plot(np.array([0,12]), np.array([0,100]), 'k--')  # dashed line 0, 100
+        legend['data'].append(plot_begroting[0])
+        legend['keys'].append("Begroting")
         for year in self.years:
-            plot_resultaat[year] = plt.plot(data_x, data_y[year], 'ro-', lw=2) #TODO COLORS
+            plot_resultaat[year] = plt.plot(data_x, data_y[year], 'o-', lw=2)
+            legend['data'].append(plot_resultaat[year][0])
+            legend['keys'].append("%s (%.f%%)" % (year, data_y[year][-1]))
 
-        # setup legend
-        #legend['data'].append(plot_resultaat[0])
-        #legend['keys'].append("Realisatie (%s keur)" % moneyfmt(data_y_resultaat[-1]))
-        #legend['data'].append(plot_begroting[0])
-        #legend['keys'].append("Begroting (%s keur)" % moneyfmt(data['begroting'], keur=True))
-        #legend['data'].append(Rectangle( (0,0),0,0, alpha=0.0))
 
-        #leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
-        #if data_y_resultaat[-1] < 0:
-        #    leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=3)
-        #leg.get_frame().set_linewidth(0.0)
+        leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
+        leg.get_frame().set_linewidth(0.0)
+
 
 
         return plt
@@ -229,7 +225,7 @@ class Graph:
 
     def graph_realisatie(self, data):
         data_x = np.arange(1,13)
-        data_x_begroting = np.array([1, 12])
+        data_x_begroting = np.array([0, 12])
         data_y_begroting = np.array([0, data['begroting']/1000])
         data_y_resultaat = data['resultaat']/1000
 
