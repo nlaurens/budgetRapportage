@@ -16,7 +16,8 @@ def available():
         reader = csv.reader(f, delimiter="\t")
         for row in reader:
             if row[0].isdigit():
-                orders[int(row[0])] = row[1]
-
+                order = int(row[0])
+                descr = ''.join(e for e in row[1] if e.isalnum() or e ==' ').strip()
+                orders[order] = descr
     return orders
 
