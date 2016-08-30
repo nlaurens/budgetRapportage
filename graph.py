@@ -103,7 +103,7 @@ class Graph:
         # build graphs
         total_graphs = float(len(self.years)*len(self.orders)) * 2  # overview/realisatie
         for name, ordergroup in self.ordergroups.iteritems():
-            total_graphs += float(len(self.years)*len(ordergroup.list_groups()))
+            total_graphs += float(len(self.years)*len(ordergroup.list_groups()))*2
 
         count = 0
         print 'start rendering graphs - total: %s' % total_graphs
