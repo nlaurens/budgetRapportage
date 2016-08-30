@@ -7,9 +7,10 @@ BUGS
 TODO
 
 Remove hardcoded 'geboekt', 'obligo', etc. from all model/controller - grep
+    - model.orders maken die dict retourned met order name from mysql and excel import
 
 Graph
-    - graph groups should be named: <ordergroup_file_name><ordergroup_name> 
+    - graph groups should be named: <ordergroup_file_name><ordergroup_name>
 
 Model
     - model.users
@@ -66,7 +67,7 @@ urls = (
     '/report/(.+)', 'Report',
     '/salaris/(.+)', 'Salaris',
     '/admin/(.+)', 'Admin',
-    '/graph/(.+)/(.+)/(.+)/(.+).png', 'Graph',  
+    '/graph/(.+)/(.+)/(.+)/(.+).png', 'Graph',
     '/index/(.+)', 'Index',
 )
 

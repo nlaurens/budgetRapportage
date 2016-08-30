@@ -17,6 +17,7 @@ web.config.debug = False #must be done before the rest.
 import model.regels
 import model.ordergroup
 import model.ksgroup
+import model.orders
 
 from controller.functions import moneyfmt
 
@@ -36,6 +37,7 @@ class Graph:
         self.ordergroups = ordergroups   # { <name>:<regellist>, ..}
         self.regels = regels  # {'plan':<regellist>, 'realisatie':<regellist>}
         self.last_update = model.regels.last_update()
+        self.order_names = model.orders.available()
 
         ksgroup_root = model.ksgroup.load(config['graphs']['ksgroup'])
         ks_map = {}
@@ -58,10 +60,6 @@ class Graph:
 
 
     def render_test_graphs(self):
-        # load 'data' of a two order with all ksgroups set random for 2 years
-        # load 3 groups: 1 that contains both subgroups and each subgroup containing the test order
-        # render the graphs of the two orders and three groups in 2 years (2*(2+3) = 10 graphs)
-
         data = {}
         data['test'] = {}
         for year in self.years:
@@ -111,11 +109,11 @@ class Graph:
         print 'start rendering graphs - total: %s' % total_graphs
         for order in self.orders:
             for year in self.years:
-        #        plt = self.graph_realisatie(self.data_orders[order][year])
-        #        count += 1
-        #        print 'rendered %s realisatie - year %s (%.2f%%)' % (order, year, (count/total_graphs)*100.)
-        #        self.save_fig(plt, year, 'realisatie', order)
-        #        plt.close()
+                plt = self.graph_realisatie(self.data_orders[order][year])
+                count += 1
+                print 'rendered %s realisatie - year %s (%.2f%%)' % (order, year, (count/total_graphs)*100.)
+                self.save_fig(plt, year, 'realisatie', order)
+                plt.close()
 
                 plt = self.graph_overview(year, self.data_orders[order])
                 count += 1
@@ -127,11 +125,11 @@ class Graph:
         for name, ordergroup in self.ordergroups.iteritems():
             for group in ordergroup.list_groups():
                 for year in self.years:
-                    #plt = self.graph_realisatie(self.data_groups[name][group.name][year])
-                    #count += 1
-                    #print 'rendered %s-%s realisatie - year %s (%.2f%%)' % (name, group.name, year, (count/total_graphs)*100.)
-                    #self.save_fig(plt, year, 'realisatie', '%s-%s' % (name, group.name))
-                    #plt.close()
+                    plt = self.graph_realisatie(self.data_groups[name][group.name][year])
+                    count += 1
+                    print 'rendered %s-%s realisatie - year %s (%.2f%%)' % (name, group.name, year, (count/total_graphs)*100.)
+                    self.save_fig(plt, year, 'realisatie', '%s-%s' % (name, group.name))
+                    plt.close()
 
                     plt = self.graph_overview(year, self.data_groups[name][group.name])
                     count += 1
@@ -233,7 +231,7 @@ class Graph:
                 color = colors[color_count]
                 color_count += 1
                 plot_resultaat[year] = plt.plot(data_x, data_y[year], 'o-', lw=2, color=color)
-                plot_begroting[year] = plt.plot(np.array([0,12]), np.array(begroting), '--', color=color)  
+                plot_begroting[year] = plt.plot(np.array([0,12]), np.array(begroting), '--', color=color)
                 legend['data'].append(plot_resultaat[year][0])
                 legend['keys'].append("%s" % (year))
 

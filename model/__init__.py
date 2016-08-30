@@ -1,4 +1,4 @@
-""" 
+"""
 .ksgroup
     .available() -> list of ksgroups as str
     .load( name as str ) -> KostensoortGroup
@@ -25,4 +25,4 @@
     TODO
 
 """
-__ALL__ = ['ksgroup', 'ordergroup', 'regels']
+__ALL__ = ['ksgroup', 'ordergroup', 'regels', 'orders']
