@@ -8,19 +8,6 @@ $def with(years, rows, totals, header)
                         </button>
                         <a href=$:header['link']>$header['name']</a>
 
-                        <button type="button" class="btn btn-default btn-xs pull-right" data-toggle="modal" data-target="#graph_overview$header['id']">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </button>
-                        <div id="graph_overview$header['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-body">
-                                        <img src="$:header['graph_overview']" class="img-responsive">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         $for year in reversed(years):
                             <div class="label label-default pull-right label-as-badge">$year: $totals[year]['realisatie'] ($totals[year]['realisatie_perc']%)</div>
 
@@ -116,6 +103,16 @@ $def with(years, rows, totals, header)
                                                     <button type="button" class="btn btn-default btn-xs pull-right" data-toggle="modal" data-target="#graph_overview$header['id']">
                                                         <span class="glyphicon glyphicon-calendar"></span>
                                                     </button>
+                                                    <div id="graph_overview$header['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-body">
+                                                                    <img src="$:header['graph_overview']" class="img-responsive">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
                                                 </td>
                                             </tr>
                                         </tbody>
