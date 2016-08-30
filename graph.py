@@ -111,11 +111,11 @@ class Graph:
         print 'start rendering graphs - total: %s' % total_graphs
         for order in self.orders:
             for year in self.years:
-                plt = self.graph_realisatie(self.data_orders[order][year])
-                count += 1
-                print 'rendered %s realisatie - year %s (%.2f%%)' % (order, year, (count/total_graphs)*100.)
-                self.save_fig(plt, year, 'realisatie', order)
-                plt.close()
+        #        plt = self.graph_realisatie(self.data_orders[order][year])
+        #        count += 1
+        #        print 'rendered %s realisatie - year %s (%.2f%%)' % (order, year, (count/total_graphs)*100.)
+        #        self.save_fig(plt, year, 'realisatie', order)
+        #        plt.close()
 
                 plt = self.graph_overview(year, self.data_orders[order])
                 count += 1
@@ -127,11 +127,11 @@ class Graph:
         for name, ordergroup in self.ordergroups.iteritems():
             for group in ordergroup.list_groups():
                 for year in self.years:
-                    plt = self.graph_realisatie(self.data_groups[name][group.name][year])
-                    count += 1
-                    print 'rendered %s-%s realisatie - year %s (%.2f%%)' % (name, group.name, year, (count/total_graphs)*100.)
-                    self.save_fig(plt, year, 'realisatie', '%s-%s' % (name, group.name))
-                    plt.close()
+                    #plt = self.graph_realisatie(self.data_groups[name][group.name][year])
+                    #count += 1
+                    #print 'rendered %s-%s realisatie - year %s (%.2f%%)' % (name, group.name, year, (count/total_graphs)*100.)
+                    #self.save_fig(plt, year, 'realisatie', '%s-%s' % (name, group.name))
+                    #plt.close()
 
                     plt = self.graph_overview(year, self.data_groups[name][group.name])
                     count += 1
@@ -186,13 +186,7 @@ class Graph:
         data_y = {}
         for year in self.years:
             if year <= render_year:
-                if data[year]['begroting'] > 0:
-                    data_y[year] = data[year]['resultaat']/data[year]['begroting']*100
-                else:
-                    data_y[year] = np.zeros(12)
-                    if np.any(data[year]['resultaat']):  # tetst non empty results
-                        data_y[year] = data_y[year] + 100
-                    #TODO put a warning somewhere in the label if this occurs!
+                data_y[year] = data[year]['resultaat']/1000
 
         # title graph
         title = data[render_year]['title']
@@ -214,7 +208,7 @@ class Graph:
 
         ax.get_yaxis().tick_left()
         plt.yticks(fontsize=14)
-        plt.ylabel("Realisatie (%)", fontsize=18)
+        plt.ylabel("Spent (keur)", fontsize=18)
 
         legend = {}
         legend['data'] = []
@@ -223,9 +217,9 @@ class Graph:
         #Plot data and legend
         table_data = []
         plot_resultaat = {}
-        plot_begroting = plt.plot(np.array([0,12]), np.array([0,100]), 'k--')  # dashed line 0, 100
-        legend['data'].append(plot_begroting[0])
-        legend['keys'].append("Begroting")
+        plot_begroting = {}
+        color_count = 0
+        colors = ['b', 'g', 'r', 'c', 'm', 'y']
         for year in self.years:
             if year <= render_year:
                 table_data.append([
@@ -234,16 +228,20 @@ class Graph:
                     moneyfmt(data[year]['resultaat'][-1], keur=True),
                     moneyfmt(data[year]['begroting']-data[year]['resultaat'][-1], keur=True),
                     ])
-                plot_resultaat[year] = plt.plot(data_x, data_y[year], 'o-', lw=2)
+                begroting = np.array([data[year]['begroting']/1000,data[year]['begroting']/1000])
+
+                color = colors[color_count]
+                color_count += 1
+                plot_resultaat[year] = plt.plot(data_x, data_y[year], 'o-', lw=2, color=color)
+                plot_begroting[year] = plt.plot(np.array([0,12]), np.array(begroting), '--', color=color)  
                 legend['data'].append(plot_resultaat[year][0])
-                legend['keys'].append("%s (%.f%%)" % (year, data_y[year][-1]))
+                legend['keys'].append("%s" % (year))
 
 
         leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
         leg.get_frame().set_linewidth(0.0)
 
         table_labels=("Year", "Budget", "Spent", "+/-")
-        #table_data = np.random.random((10,4))
         the_table = plt.table(cellText=table_data,colLabels=table_labels,loc='bottom', rowLoc='right')
         the_table.set_fontsize(14)
         the_table.scale(1,2)
@@ -272,7 +270,7 @@ class Graph:
 
         ax.get_yaxis().tick_left()
         plt.yticks(fontsize=14)
-        plt.ylabel("K euro", fontsize=18)
+        plt.ylabel("Spent (keur)", fontsize=18)
 
         legend = {}
         legend['data'] = []
