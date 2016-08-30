@@ -64,7 +64,7 @@ class Graph:
         data['test'] = {}
         for year in self.years:
             data['test'][year] = {}
-            data['test'][year]['title'] = '%s-%s-%s' % ('dummy descr', 'test', year)  # TODO plot title
+            data['test'][year]['title'] = '%s-%s-%s' % (self.order_names['test'], 'test', year)
             data['test'][year]['begroting'] = float(100000)
             data['test'][year]['baten'] = {}
             data['test'][year]['lasten'] = {}
@@ -147,7 +147,10 @@ class Graph:
             data[order] = {}
             for year in self.years:
                 data[order][year] = {}
-                data[order][year]['title'] = '%s-%s-%s' % ('dummy descr', order, year)  # TODO plot title
+                if order not in self.order_names:
+                    data[order][year]['title'] = '%s-%s-%s' % (order, order, year)
+                else:
+                    data[order][year]['title'] = '%s-%s-%s' % (self.order_names[order], order, year)
                 try:
                     data[order][year]['begroting'] = float(plan_dict[order][year].total())
                 except:

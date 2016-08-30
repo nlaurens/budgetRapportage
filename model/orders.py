@@ -9,13 +9,14 @@ import os
 """
 def available():
     orders = {}
-    orders['TEST'] = 'dit is een test order'
+    orders['test'] = 'dit is een test order'
 
     import csv
     with open('data/tmp-orders.dat', 'r') as f:
         reader = csv.reader(f, delimiter="\t")
         for row in reader:
-            orders[row[0]] = row[1]
+            if row[0].isdigit():
+                orders[int(row[0])] = row[1]
 
     return orders
 
