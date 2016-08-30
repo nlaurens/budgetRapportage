@@ -12,6 +12,7 @@ Installation
 
 Todo/Bugs
 ---------
+* update readme ;)
 * Maybe one day for wbs: http://jsfiddle.net/jhfrench/GpdgF/
 
 

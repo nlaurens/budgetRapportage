@@ -12,7 +12,7 @@ def available():
     orders['TEST'] = 'dit is een test order'
 
     import csv
-    with open('tmp-orders.dat', 'r') as f:
+    with open('data/tmp-orders.dat', 'r') as f:
         reader = csv.reader(f, delimiter="\t")
         for row in reader:
             orders[row[0]] = row[1]
