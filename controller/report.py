@@ -209,7 +209,8 @@ class Report(Controller):
         header['name'] = ordergroup.descr
         header['link'] = self.url({'ordergroep': self.ordergroup_file, 'subgroep': ordergroup.name})
         header['id'] = ordergroup.name
-        header['graph_overview'] = self.url_graph(self.years[-1], 'overview', ordergroup.name)
+        graph_name = '%s-%s' % (self.ordergroup_file, ordergroup.name)
+        header['graph_overview'] = self.url_graph(self.years[-1], 'overview', graph_name)
 
         rows = []
         rows = self.group_to_rows(ordergroup, data)
@@ -218,7 +219,8 @@ class Report(Controller):
         totals = data[ordergroup.name]
         for year in self.years:
             totals[year]['id'] = '%s-%s' % (year, ordergroup.name)
-            totals[year]['graph'] = self.url_graph(year, 'realisatie', ordergroup.name)
+            graph_name = '%s-%s' % (self.ordergroup_file, ordergroup.name)
+            totals[year]['graph'] = self.url_graph(year, 'realisatie', graph_name)
 
         top_table = self.webrender.table(self.years, rows, totals, header)
         return top_table

@@ -113,18 +113,9 @@ $def with(years, rows, totals, header)
                                                             </div>
                                                     </td>
                                                 <td class="text-center">
-                                                    <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph_overview$row['id']">
+                                                    <button type="button" class="btn btn-default btn-xs pull-right" data-toggle="modal" data-target="#graph_overview$header['id']">
                                                         <span class="glyphicon glyphicon-calendar"></span>
                                                     </button>
-                                                    <div id="graph_overview$row['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                                                        <div class="modal-dialog">
-                                                            <div class="modal-content">
-                                                                <div class="modal-body">
-                                                                    <img src="$:row['graph_overview']" class="img-responsive">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
                                                 </td>
                                             </tr>
                                         </tbody>
