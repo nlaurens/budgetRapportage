@@ -110,13 +110,12 @@ class Graph:
         for order in self.orders:
             for year in self.years:
                 plt = self.graph_realisatie(self.data_orders[order][year])
-                count += 1
-                print 'rendered %s realisatie - year %s (%.2f%%)' % (order, year, (count/total_graphs)*100.)
                 self.save_fig(plt, year, 'realisatie', order)
                 plt.close()
+                count += 1
+                print 'rendered %s realisatie - year %s (%.2f%%)' % (order, year, (count/total_graphs)*100.)
 
                 plt = self.graph_overview(year, self.data_orders[order])
-                count += 1
                 self.save_fig(plt, year, 'overview', order)
                 plt.close()
                 count += 1
@@ -126,17 +125,16 @@ class Graph:
             for group in ordergroup.list_groups():
                 for year in self.years:
                     plt = self.graph_realisatie(self.data_groups[name][group.name][year])
-                    count += 1
-                    print 'rendered %s-%s realisatie - year %s (%.2f%%)' % (name, group.name, year, (count/total_graphs)*100.)
                     self.save_fig(plt, year, 'realisatie', '%s-%s' % (name, group.name))
                     plt.close()
+                    count += 1
+                    print 'rendered %s-%s realisatie - year %s (%.2f%%)' % (name, group.name, year, (count/total_graphs)*100.)
 
                     plt = self.graph_overview(year, self.data_groups[name][group.name])
-                    count += 1
                     self.save_fig(plt, year, 'overview', '%s-%s' % (name, group.name))
                     plt.close()
+                    count += 1
                     print 'rendered %s-%s overview   - year %s (%.2f%%)' % (name, group.name, year, (count/total_graphs)*100.)
-
 
     def construct_data_orders(self):
         plan_dict = self.regels['plan'].split(['ordernummer', 'jaar'])
