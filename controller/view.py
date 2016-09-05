@@ -74,11 +74,40 @@ class View(Controller):
         return
 
     def construct_data(self):
-        data = {}
-        regels['plan'] = model.regels.load(years_load=[self.year], orders_load=[self.order], table_names_load=['plan'])
-        regels['resultaat'] = model.regels.load(years_load=[self.year], orders_load=[self.order], table_names_load=['geboekt', 'obligo'])
+        regels = {}
+        regels = model.regels.load(years_load=[self.year], orders_load=[self.order])
+        
+        #TODO self.periodes in init
+        self.periodes = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+        regels.filter_regels_by_attribute('periode', self.periodes)
 
-        # BUILD regellist per ksgroup in de self.ksmap and create totals 'baten', 'lasten', 'plan'.
+        regels_dict = regels.split(['tiepe', 'kostensoort'])
+
+        data = {}
+        for tiepe, regels_ks in regels_dict.iteritems():
+            data[tiepe] = {}
+            for ks, regels in regels_ks.iteritems():
+                ks_group = self.ks_map[ks]
+                if ks_group not in data[tiepe]:
+                    data[tiepe][ks_group] = regels
+                else:
+                    data[tiepe][ks_group].extend(regels)
+
+        # sort new regellist and 
+        for tiepe in data.keys():
+            print tiepe
+            totals = {}
+            totals['total'] = 0
+
+            for ks_group, regels in data[tiepe].iteritems():
+                regels.sort_by_attribute('periode')
+
+                totals[ks_group] = regels.total()
+                totals['total'] += totals[ks_group]
+
+            data[tiepe]['totals'] = totals
+
+        # BUILD regellist per ksgroup in de self.ksmap and create totals 'baten', 'lasten', 'plan'. 
 
         # data['baten'/'lasten/plan']['ksgroup']['ks'] = regellist
 

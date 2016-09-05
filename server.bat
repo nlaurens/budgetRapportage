@@ -1,2 +1,2 @@
-python server.py 8081
+python -B server.py 8081
 pause()

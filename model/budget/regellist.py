@@ -54,6 +54,15 @@ class RegelList:
     def extend(self, regelListToAdd):
         self.regels = self.regels + regelListToAdd.regels
 
+    def sort_by_attribute(self, attribute):
+        print 'TODO regellist.sort_by_attribute()'
+        new_regels = []
+        for regel in self.regels:
+            new_regels.append(regel)
+
+        self.regels = new_regels
+        return self
+
     def filter_regels_by_attribute(self, attribute, list_allowed):
         new_regels = []
         for regel in self.regels:
