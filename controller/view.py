@@ -73,7 +73,8 @@ class View(Controller):
         return
 
     def construct_data(self):
-        # data = { <name of ks_group>: { 'geboekt/obligo/plan': regellist, 'totals': {'geboekt/obligo/totals':<total>} }}
+        # data = { <name of ks_group>: { 'kosten/begroot': regellist}
+        # totals {'geboekt/obligo/totals':<total>} 
         regels = {}
         regels = model.regels.load(years_load=[self.year], orders_load=[self.order])
         
@@ -83,31 +84,47 @@ class View(Controller):
 
         regels_dict = regels.split(['kostensoort', 'tiepe'])
 
+        totals = {}
+        totals['total'] = {}
+        totals['total']['geboekt'] = 0
+        totals['total']['obligo'] = 0
+        totals['total']['plan'] = 0
+
         data = {}
         for ks, regels_tiepe in regels_dict.iteritems():
             ks_group = self.ks_map[ks][1]
-            data[ks_group] = {}
-            for tiepe, regels in regels_tiepe.iteritems():
-                if tiepe not in data[ks_group]:
-                    data[ks_group][tiepe] = regels
-                else:
-                    data[ks_group][tiepe].extend(regels)
 
-        totals = {}
-        totals['total'] = {}
-        for tiepe in ['geboekt', 'obligo', 'plan']:
-            totals['total'][tiepe] = 0
-
-        for ks_group in data.keys():
             totals[ks_group] = {}
-            for tiepe in ['geboekt', 'obligo', 'plan']:
-                totals[ks_group][tiepe] = 0
+            totals[ks_group]['geboekt'] = 0
+            totals[ks_group]['obligo'] = 0
+            totals[ks_group]['plan'] = 0
 
-                if tiepe in data[ks_group]:
-                    regels = data[ks_group][tiepe]
-                    regels.sort_by_attribute('periode')
-                    totals[ks_group][tiepe] = regels.total()
+            data[ks_group] = {}
+            data[ks_group]['kosten'] = None
+            data[ks_group]['begroot'] = None
+
+            for tiepe in ['geboekt', 'obligo']:
+                if tiepe in regels_tiepe:
+                    if data[ks_group]['kosten'] is None:
+                        data[ks_group]['kosten'] = regels_tiepe[tiepe]
+                    else:
+                        data[ks_group]['kosten'].extend(regels_tiepe[tiepe])
+
+                    totals[ks_group][tiepe] = regels_tiepe[tiepe].total()
                     totals['total'][tiepe] += totals[ks_group][tiepe] 
+
+            if 'plan' in regels_tiepe:
+                if data[ks_group]['begroot'] is None:
+                    data[ks_group]['begroot'] = regels_tiepe['plan']
+                else:
+                    data[ks_group]['begroot'].extend(regels_tiepe['plan'])
+
+        # sort regels in regellist by 'periode' for view:
+        for ks_group in data.keys():
+            for key in data[ks_group]:
+                if data[ks_group][key] is not None:
+                    data[ks_group][key].sort('periode')
+
 
         #TODO remove debug printing
         import pprint
@@ -133,12 +150,12 @@ class View(Controller):
 
     def render_tables(self, data, totals):
         tables = []
-        for ks_group, regels_tiepe in data.iteritems():
+        for ks_group, regels in data.iteritems():
             header = {}
             header['name'] = ks_group #TODO
             header['id'] = hash(ks_group)
 
-            table = self.webrender.table(regels_tiepe, header, totals)
+            table = self.webrender.table(regels['kosten'].regels, header, totals)
             tables.append(table)
 
         return tables
