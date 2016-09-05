@@ -74,10 +74,10 @@ class View(Controller):
 
     def construct_data(self):
         # data = { <name of ks_group>: { 'kosten/begroot': regellist}
-        # totals {'geboekt/obligo/totals':<total>} 
+        # totals {'geboekt/obligo/totals':<total>}
         regels = {}
         regels = model.regels.load(years_load=[self.year], orders_load=[self.order])
-        
+
         #TODO self.periodes in init
         self.periodes = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
         regels.filter_regels_by_attribute('periode', self.periodes)
@@ -111,7 +111,7 @@ class View(Controller):
                         data[ks_group]['kosten'].extend(regels_tiepe[tiepe])
 
                     totals[ks_group][tiepe] = regels_tiepe[tiepe].total()
-                    totals['total'][tiepe] += totals[ks_group][tiepe] 
+                    totals['total'][tiepe] += totals[ks_group][tiepe]
 
             if 'plan' in regels_tiepe:
                 if data[ks_group]['begroot'] is None:
@@ -125,15 +125,23 @@ class View(Controller):
                 if data[ks_group][key] is not None:
                     data[ks_group][key].sort('periode')
 
-
-        #TODO remove debug printing
         import pprint
         pprint.pprint(data)
         pprint.pprint(totals)
-
         return data, totals
 
     def convert_data_to_str(self, data, totals):
+        for ks_group, data_dict in data.iteritems():
+            for tiepe, regels in data_dict.iteritems():
+                if regels is not None:
+                    for regel in regels.regels:
+                        regel.kosten = moneyfmt(regel.kosten)
+
+        print totals
+        for ks_group, data_dict in totals.iteritems():
+            for tiepe, total in data_dict.iteritems():
+                totals[ks_group][tiepe] = moneyfmt(total)
+
         return data, totals
 
     def render_summary(self, data):
@@ -159,94 +167,3 @@ class View(Controller):
             tables.append(table)
 
         return tables
-# TODO settings forms invullen
-        # KSgroepen = model.loadKSgroepen()
-        # fill_dropdowns(form, settings, KSgroepen)
-
-        regels = model.regels.load(years_load=[self.jaar], orders_load=[self.order])
-# TODO replace with param/CONFIG
-        ksgroup = model.ksgroup.load('WNMODEL4')
-        ksgroup.assign_regels_recursive(regels)
-        ksgroup.set_totals()
-# TODO replace with param
-        root_baten = ksgroup.find('WNTBA')
-        root_lasten = ksgroup.find('WNTL')
-
-        if self.clean:
-            root_baten.clean_empty_nodes()
-            root_lasten.clean_empty_nodes()
-
-        totaal = {}
-        totaal['order'] = self.order
-        totaal['begroting'] = ksgroup.totaalTree['plan']
-        totaal['baten'] = root_baten.totaalTree['geboekt'] + root_baten.totaalTree['obligo']
-        totaal['lasten'] = root_lasten.totaalTree['geboekt'] + root_lasten.totaalTree['obligo']
-
-        # TODO implment reserves
-        totaal['reserve'] = 0
-
-        if totaal['reserve'] < 0:
-            totaal['ruimte'] = -1*(ksgroup.totaalTree['geboekt'] + ksgroup.totaalTree['obligo']) + totaal['begroting'] + totaal['reserve']
-        else:
-            totaal['ruimte'] = -1*(ksgroup.totaalTree['geboekt'] + ksgroup.totaalTree['obligo']) + totaal['begroting']
-
-        totaal['reserve'] = moneyfmt(totaal['reserve'])
-        totaal['ruimte'] = moneyfmt(totaal['ruimte'])
-        totaal['baten'] = moneyfmt(totaal['baten'])
-        totaal['lasten'] = moneyfmt(totaal['lasten'])
-        totaal['begroting'] = moneyfmt(totaal['begroting'])
-
-        htmlgrootboek = []
-        for child in ksgroup.children:
-            htmlgrootboek.append(self.html_tree(child, 0))
-
-        self.body = self.webrender.view(self.settings_simple_form, 'dummy sap datum', htmlgrootboek, totaal)
-
-    def html_tree(self, root, depth):
-        depth += 1
-
-        groups = []
-        for child in root.children:
-            groups.append(self.html_tree(child, depth))
-
-        unfolded = False  # Never show the details
-
-        regelshtml = []
-        totals_node = {}  #Always initialize all to 0 to prevent render problems
-        totals_node['geboekt'] = root.totaalTree['geboekt']
-        totals_node['obligo'] = root.totaalTree['obligo']
-        totals_node['plan'] = root.totaalTree['plan']
-
-# TODO import should be moving
-        from model.budget import RegelList
-        regels_per_ks_per_tiepe = RegelList()  # Create 1 regellist and not a dict per type
-        for key, regelsPerTiepe in root.regels.iteritems():
-            regels_per_ks_per_tiepe.extend(regelsPerTiepe)
-
-        regels_per_ks_per_tiepe = regels_per_ks_per_tiepe.split(['kostensoort', 'tiepe'])
-        for kostenSoort, regelsPerTiepe in regels_per_ks_per_tiepe.iteritems():
-
-# TODO Already in kostensoortgroup!
-            totals_ks = {}
-            totals_ks['geboekt'] = 0
-            totals_ks['obligo'] = 0
-            totals_ks['plan'] = 0
-            for tiepe, regellist in regelsPerTiepe.iteritems():
-                totals_ks[tiepe] = regellist.total()
-
-                for regel in regellist.regels:
-                    regel.kosten = moneyfmt(regel.kosten, places=2, dp='.')
-
-                ks_name = root.kostenSoorten[kostenSoort]
-                ks_name = str(kostenSoort) + ' - ' + ks_name.decode('ascii', 'replace').encode('utf-8')
-                regelshtml.append(self.webrender.regels(root.name, kostenSoort, ks_name, totals_ks, regellist.regels, unfolded))
-
-        if depth <= self.maxdepth:
-            unfolded = True
-        else:
-            unfolded = False
-
-        for key, amount in totals_node.iteritems():
-            totals_node[key] = moneyfmt(amount, places=2, dp='.')
-
-        return self.webrender.grootboekgroep(root.name, root.descr, groups, regelshtml, unfolded, totals_node, depth)

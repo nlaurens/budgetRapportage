@@ -55,9 +55,7 @@ class RegelList:
         self.regels = self.regels + regelListToAdd.regels
 
     def sort(self, attribute):
-        print self.regels
-        print type(self.regels)
-        return self
+        self.regels.sort(key=lambda x: getattr(x, attribute), reverse=True)
 
     def filter_regels_by_attribute(self, attribute, list_allowed):
         new_regels = []
