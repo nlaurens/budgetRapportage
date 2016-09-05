@@ -1,0 +1,67 @@
+$def with(rows, header)
+
+            <div class="panel-group" id="accordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <button data-toggle="collapse" data-target="#collapse$header['id']" class="accordion-toggle btn btn-default btn-xs">
+                            <span id="plusminus$header['id']" class="glyphicon glyphicon-minus"></span>
+                        </button>
+                        $header['name']
+
+                    </div>
+                    <div id="collapse$header['id']" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="table table-condensed table-hover">
+                                        <thead>
+                                                <tr>
+                                                    <th class="text-right"></th><!-- order/group name -->
+
+                                                    <th class="text-right">Budget</th>
+                                                    <th class="text-center" colspan=2>Spent</th>
+                                                    <th class="text-right">+/-</th>
+                                                    <th></th><!-- graph -->
+
+                                                    <th></th><!-- graph all years -->
+                                                </tr>
+                                        </thead>
+                                        <tbody>
+                                            $for row in rows:
+                                                <tr>
+                                                    <td class="text-right">
+                                                        <a href="$row['link']">$row['name']</a>
+                                                        $if row['order']:
+                                                            ($row['order'])
+                                                    </td>
+
+                                                    <td class="text-right">$row['plan']</td>
+                                                    <td class="text-right">$row['realisatie']</td>
+                                                    <td class="text-right">$row['realisatie_perc']%</td>
+                                                    <td class="text-right">$row['resultaat']</td>
+                                                    <td>
+                                                        graph
+                                                    </td>
+                                                    <td class="text-center">
+                                                        graph2?
+                                                    </td>
+                                                </tr>
+                                            <tr>
+                                                <th>Totals</th>
+                                                <td class="text-right"><B>totals['plan']</B></td>
+                                                <td class="text-right"><B>totals['realisatie']</B></td>
+                                                <td class="text-right"><B>totals['realisatie_perc']%</B></td>
+                                                <td class="text-right"><B>totals['resultaat']</B></td>
+                                                <td>
+                                                    graph
+                                                </td>
+                                                <td class="text-center">
+                                                    graph2?
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                </table> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>

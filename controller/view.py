@@ -61,7 +61,6 @@ class View(Controller):
         self.ks_map = ks_map
 
     def process_sub(self):
-
         data = self.construct_data()
         self.convert_data_to_str(data)
 
@@ -87,7 +86,7 @@ class View(Controller):
         for tiepe, regels_ks in regels_dict.iteritems():
             data[tiepe] = {}
             for ks, regels in regels_ks.iteritems():
-                ks_group = self.ks_map[ks]
+                ks_group = self.ks_map[ks][1]
                 if ks_group not in data[tiepe]:
                     data[tiepe][ks_group] = regels
                 else:
@@ -107,14 +106,9 @@ class View(Controller):
 
             data[tiepe]['totals'] = totals
 
-        # BUILD regellist per ksgroup in de self.ksmap and create totals 'baten', 'lasten', 'plan'. 
 
-        # data['baten'/'lasten/plan']['ksgroup']['ks'] = regellist
-
-        # data['baten'/'lasten/plan']['ksgroup']['ks'][totals] = float
-        # data['baten'/'lasten/plan']['ksgroup'][totals] = float
-        # data['baten'/'lasten/plan'][totals] = float
-
+        import pprint
+        pprint.pprint(data)
         return data
 
     def convert_data_to_str(self, data):
@@ -133,7 +127,18 @@ class View(Controller):
         return self.webrender.settings(form_settings)
 
     def render_tables(self, data):
-        return ['dummy 1', 'dummy2']
+        tables = []
+        #for each table:
+        for ks_group in ['a', 'b','c']: #TODO
+            header = {}
+            header['name'] = ks_group #TODO
+            header['id'] = 'tmp_ks_group_id' #TODO
+
+            rows = [] #TODO 
+            table = self.webrender.table(rows, header)
+            tables.append(table)
+
+        return tables
 # TODO settings forms invullen
         # KSgroepen = model.loadKSgroepen()
         # fill_dropdowns(form, settings, KSgroepen)
