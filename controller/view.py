@@ -62,12 +62,13 @@ class View(Controller):
 
     def process_sub(self):
         data, totals = self.construct_data()
-        self.convert_data_to_str(data, totals)
-
         view = {}
         view['title'] = model.orders.get_name(self.order) + ' ' + str(self.order)
         view['summary'] = self.render_summary(totals)
         view['settings'] = self.render_settings()
+        view['javaScripts'] = self.render_java_scripts(data)
+
+        self.convert_data_to_str(data, totals)
         view['tables'] = self.render_tables(data, totals)
         self.body = self.webrender.view(view)
         return
@@ -111,7 +112,7 @@ class View(Controller):
                         data[ks_group]['kosten'].extend(regels_tiepe[tiepe])
 
                     totals[ks_group][tiepe] = regels_tiepe[tiepe].total()
-                    totals['total'][tiepe] += totals[ks_group][tiepe]
+                    totals['total'][tiepe] += regels_tiepe[tiepe].total()
 
             if 'plan' in regels_tiepe:
                 if data[ks_group]['begroot'] is None:
@@ -125,9 +126,6 @@ class View(Controller):
                 if data[ks_group][key] is not None:
                     data[ks_group][key].sort('periode')
 
-        import pprint
-        pprint.pprint(data)
-        pprint.pprint(totals)
         return data, totals
 
     def convert_data_to_str(self, data, totals):
@@ -137,19 +135,28 @@ class View(Controller):
                     for regel in regels.regels:
                         regel.kosten = moneyfmt(regel.kosten)
 
-        print totals
         for ks_group, data_dict in totals.iteritems():
             for tiepe, total in data_dict.iteritems():
                 totals[ks_group][tiepe] = moneyfmt(total)
 
         return data, totals
 
-    def render_summary(self, data):
+    def render_summary(self, totals):
+        import pprint
+        pprint.pprint(totals)
         summary = {}
-        summary['begroting'] = 100
-        summary['baten'] = 50
-        summary['lasten'] = 50
-        summary['ruimte'] = 50
+        summary['begroting'] = totals['total']['plan']
+        if 'Baten' in totals:
+            summary['baten'] = totals['Baten']['geboekt'] + totals['Baten']['obligo']
+        else:
+            summary['baten'] = 0
+
+        summary['lasten'] = totals['total']['geboekt'] + totals['total']['obligo'] - summary['baten']
+        summary['ruimte'] = summary['begroting'] - summary['baten'] - summary['lasten']
+
+        for key in summary.keys():
+            summary[key]  = moneyfmt(summary[key])
+
         return self.webrender.summary(summary)
 
     def render_settings(self):
@@ -160,10 +167,23 @@ class View(Controller):
         tables = []
         for ks_group, regels in data.iteritems():
             header = {}
-            header['name'] = ks_group #TODO
+            header['name'] = ks_group
             header['id'] = hash(ks_group)
 
-            table = self.webrender.table(regels['kosten'].regels, header, totals)
+            print regels
+            if regels['kosten'] is not None:
+                regels = regels['kosten'].regels
+            else:
+                regels = []
+
+            table = self.webrender.table(regels, header, totals)
             tables.append(table)
 
         return tables
+
+    def render_java_scripts(self, data):
+        expand_items = []
+        for ks_group in data.keys():
+            expand_items.append(hash(ks_group))
+
+        return self.webrender.javascripts(expand_items)
