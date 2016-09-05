@@ -7,6 +7,7 @@ from functions import moneyfmt
 
 import model.ksgroup
 import model.ordergroup
+import model.orders
 import model.regels
 
 #TODO: fig page.. now what do we do with the years?
@@ -80,8 +81,8 @@ class Report(Controller):
         totals['id'] = self.ordergroup.name
         graph_name = '%s-%s' % (self.ordergroup_file, self.ordergroup.name)
         totals['graph_overview'] = self.url_graph(self.years[-1], 'overview', graph_name)
-        settings = self.webrender.summary(totals, self.years)
-        return settings
+        summary = self.webrender.summary(totals, self.years)
+        return summary
 
     def create_bread_crums(self):
         groep = self.ordergroup
@@ -187,7 +188,7 @@ class Report(Controller):
         expand_items = []
         for child in self.ordergroup.children:
             expand_items.append(child.name)
-            
+
         return self.webrender.javascripts(expand_items)
 
     def render_tables(self, data):

@@ -26,24 +26,48 @@ class View(Controller):
 
         # Forms
 # TODO dropdowns!
-        self.settings_simple_form = form.Form(
+        self.form_settings_simple = form.Form(
+#TODO use config params and years form model
             form.Dropdown('jaar', [(2016, '2016'), (2015, '2015'), (2014, '2014'), (2013, '2013'), (2012, '2012')], class_="btn btn-default btn-sm"),
             form.Dropdown('periode', [(0, 'All'), (1, 'Jan'), (2, 'Feb'), (3, 'March'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'), (9, 'Sep'), (10, 'Okt'), (11, 'Nov'), (12, 'Dec')], class_="btn btn-default btn-sm"),
-            form.Hidden('maxdepth', [(0, '1. Totals'), (1, '2. Subtotals'), (10, '3. Details')]),
-            form.Hidden('ksgroep', []),
-            form.Hidden('clean'),
-            form.Button('Update', 'update', class_="btn btn-default btn-sm"),
-        )
-        self.settings_expert_form = form.Form(
-            form.Dropdown('jaar', [(2016, '2016'), (2015, '2015'), (2014, '2014'), (2013, '2013'), (2012, '2012')]),
-            form.Dropdown('periode', [('', 'all')]),
-            form.Dropdown('maxdepth', [(0, '1. Totals'), (1, '2. Subtotals'), (10, '3. Details')]),
             form.Dropdown('ksgroep', []),
-            form.Checkbox('clean'),
-            form.Button('Update', 'update'),
+            form.Button('Update', 'update', class_="btn btn-default btn-sm"),
         )
 
     def process_sub(self):
+
+        data = self.construct_data()
+        self.convert_data_to_str(data)
+
+        view = {}
+        view['title'] = model.orders.get_name(self.order) + ' ' + str(self.order)
+        view['summary'] = self.render_summary(data)
+        view['settings'] = self.render_settings()
+        view['tables'] = self.render_tables(data)
+        self.body = self.webrender.view(view)
+        return
+
+    def construct_data(self):
+        data = {}
+        return data
+
+    def convert_data_to_str(self, data):
+        return data
+
+    def render_summary(self, data):
+        summary = {}
+        summary['begroting'] = 100
+        summary['baten'] = 50
+        summary['lasten'] = 50
+        summary['ruimte'] = 50
+        return self.webrender.summary(summary)
+
+    def render_settings(self):
+        form_settings = self.form_settings_simple
+        return self.webrender.settings(form_settings)
+
+    def render_tables(self, data):
+        return ['dummy 1', 'dummy2']
 # TODO settings forms invullen
         # KSgroepen = model.loadKSgroepen()
         # fill_dropdowns(form, settings, KSgroepen)

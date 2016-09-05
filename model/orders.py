@@ -21,3 +21,11 @@ def available():
                 orders[order] = descr
     return orders
 
+def get_name(order_search):
+    for order, descr in available().iteritems():
+        if order == order_search:
+            return descr
+
+    return 'name not found'
+
+

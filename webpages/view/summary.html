@@ -1,0 +1,17 @@
+$def with (summary)
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4>Summary</h4>
+            </div>
+            <div class="panel-body">
+              <p>
+                  Begroting: &euro;$summary['begroting']<br>
+                  Totale baten: &euro;$summary['baten']<br>
+                  Totale Lasten: &euro;$summary['lasten']<br>
+                  $if summary['ruimte'] > 0:
+                    Nog te besteden: &euro;$summary['ruimte']<br>
+                  $else:
+                    Tekort: &euro;$summary['ruimte']<br>
+              </p>
+            </div>
+          </div>

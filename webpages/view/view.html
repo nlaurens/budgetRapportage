@@ -1,4 +1,4 @@
-$def with (form, sapDatum, tree, order)
+$def with (view)
 
     <div class="container">
       <div class="row">
@@ -8,53 +8,20 @@ $def with (form, sapDatum, tree, order)
           </h1>
         </div>
         <div class="col-xs-6 text-right">
-          <h1>$order['order']
+          <h1>$view['title']
           </h1>
         </div>
       </div>
       <div class="row">
         <div class="col-xs-5">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h4>Summary</h4>
-            </div>
-            <div class="panel-body">
-              <p>
-                  Begroting: &euro;$order['begroting']<br>
-                  Totale baten: &euro;$order['baten']<br>
-                  Totale Lasten: &euro;$order['lasten']<br>
-                  $if order['ruimte'] > 0:
-                    Nog te besteden: &euro;$order['ruimte']<br>
-                  $else:
-                    Tekort: &euro;$order['ruimte']<br>
-                  Last update was on: $sapDatum<br>
-              </p>
-            </div>
-          </div>
+            $:view['summary']
         </div>
         <div class="col-xs-5 col-xs-offset-2 text-right">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h4>Settings</h4>
-            </div>
-            <div class="panel-body">
-                <form name="main" method="post">
-                    <div class="form-group">
-                        $:form.render()
-                    </div>
-                </form>
-                <a href="/logout">
-                    <button type="button" class="btn btn-default btn-sm">
-                    Logout
-                    </button>
-                </a>                
-            </div>
-          </div>
+            $:view['settings']
         </div>
       </div>
 
-
-    $for a in tree:
-        $:a
+      $for table in view['tables']:
+        $:table
 
     </div>
