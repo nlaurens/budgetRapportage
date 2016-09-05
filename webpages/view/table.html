@@ -1,4 +1,4 @@
-$def with(rows, header)
+$def with(regels_tiepe, header, totals)
 
             <div class="panel-group" id="accordion">
                 <div class="panel panel-default">
@@ -7,59 +7,39 @@ $def with(rows, header)
                             <span id="plusminus$header['id']" class="glyphicon glyphicon-minus"></span>
                         </button>
                         $header['name']
+                        <span class="badge pull-right">Kosten: &euro;$totals[header['name']]['geboekt']</span>
+                        <span class="badge pull-right">Gereserveerd: &euro;$totals[header['name']]['obligo']</span>
+                        <span class="badge pull-right">Begroot: &euro;$totals[header['name']]['plan']</span>
 
                     </div>
                     <div id="collapse$header['id']" class="panel-collapse collapse in">
                         <div class="panel-body">
                             <div class="table-responsive">
-                                <table class="table table-condensed table-hover">
+
+                                $for tiepe, regels in regels_tiepe.iteritems():
+                                    $tiepe
+                                    <table class="table table-condensed table-hover">
                                         <thead>
-                                                <tr>
-                                                    <th class="text-right"></th><!-- order/group name -->
-
-                                                    <th class="text-right">Budget</th>
-                                                    <th class="text-center" colspan=2>Spent</th>
-                                                    <th class="text-right">+/-</th>
-                                                    <th></th><!-- graph -->
-
-                                                    <th></th><!-- graph all years -->
-                                                </tr>
+                                        <tr>
+                                            <th>Doc#</th>
+                                            <th>Date</th>
+                                            <th>Omschrijving</th>
+                                            <th>Bedrag</th>
+                                        </tr>
                                         </thead>
                                         <tbody>
-                                            $for row in rows:
-                                                <tr>
-                                                    <td class="text-right">
-                                                        <a href="$row['link']">$row['name']</a>
-                                                        $if row['order']:
-                                                            ($row['order'])
-                                                    </td>
 
-                                                    <td class="text-right">$row['plan']</td>
-                                                    <td class="text-right">$row['realisatie']</td>
-                                                    <td class="text-right">$row['realisatie_perc']%</td>
-                                                    <td class="text-right">$row['resultaat']</td>
-                                                    <td>
-                                                        graph
-                                                    </td>
-                                                    <td class="text-center">
-                                                        graph2?
-                                                    </td>
-                                                </tr>
+                                        $for regel in regels.regels:
                                             <tr>
-                                                <th>Totals</th>
-                                                <td class="text-right"><B>totals['plan']</B></td>
-                                                <td class="text-right"><B>totals['realisatie']</B></td>
-                                                <td class="text-right"><B>totals['realisatie_perc']%</B></td>
-                                                <td class="text-right"><B>totals['resultaat']</B></td>
-                                                <td>
-                                                    graph
-                                                </td>
-                                                <td class="text-center">
-                                                    graph2?
-                                                </td>
+                                                <td>$regel.documentnummer</td>
+                                                <td>$regel.jaar - $regel.periode</td>
+                                                <td>$regel.omschrijving</td>
+                                                <td>&euro;$regel.kosten</td>
                                             </tr>
                                         </tbody>
-                                </table> 
+                                    </table>
+
+
                             </div>
                         </div>
                     </div>

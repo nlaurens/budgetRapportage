@@ -61,18 +61,19 @@ class View(Controller):
         self.ks_map = ks_map
 
     def process_sub(self):
-        data = self.construct_data()
-        self.convert_data_to_str(data)
+        data, totals = self.construct_data()
+        self.convert_data_to_str(data, totals)
 
         view = {}
         view['title'] = model.orders.get_name(self.order) + ' ' + str(self.order)
-        view['summary'] = self.render_summary(data)
+        view['summary'] = self.render_summary(totals)
         view['settings'] = self.render_settings()
-        view['tables'] = self.render_tables(data)
+        view['tables'] = self.render_tables(data, totals)
         self.body = self.webrender.view(view)
         return
 
     def construct_data(self):
+        # data = { <name of ks_group>: { 'geboekt/obligo/plan': regellist, 'totals': {'geboekt/obligo/totals':<total>} }}
         regels = {}
         regels = model.regels.load(years_load=[self.year], orders_load=[self.order])
         
@@ -80,39 +81,43 @@ class View(Controller):
         self.periodes = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
         regels.filter_regels_by_attribute('periode', self.periodes)
 
-        regels_dict = regels.split(['tiepe', 'kostensoort'])
+        regels_dict = regels.split(['kostensoort', 'tiepe'])
 
         data = {}
-        for tiepe, regels_ks in regels_dict.iteritems():
-            data[tiepe] = {}
-            for ks, regels in regels_ks.iteritems():
-                ks_group = self.ks_map[ks][1]
-                if ks_group not in data[tiepe]:
-                    data[tiepe][ks_group] = regels
+        for ks, regels_tiepe in regels_dict.iteritems():
+            ks_group = self.ks_map[ks][1]
+            data[ks_group] = {}
+            for tiepe, regels in regels_tiepe.iteritems():
+                if tiepe not in data[ks_group]:
+                    data[ks_group][tiepe] = regels
                 else:
-                    data[tiepe][ks_group].extend(regels)
+                    data[ks_group][tiepe].extend(regels)
 
-        # sort new regellist and 
-        for tiepe in data.keys():
-            print tiepe
-            totals = {}
-            totals['total'] = 0
+        totals = {}
+        totals['total'] = {}
+        for tiepe in ['geboekt', 'obligo', 'plan']:
+            totals['total'][tiepe] = 0
 
-            for ks_group, regels in data[tiepe].iteritems():
-                regels.sort_by_attribute('periode')
+        for ks_group in data.keys():
+            totals[ks_group] = {}
+            for tiepe in ['geboekt', 'obligo', 'plan']:
+                totals[ks_group][tiepe] = 0
 
-                totals[ks_group] = regels.total()
-                totals['total'] += totals[ks_group]
+                if tiepe in data[ks_group]:
+                    regels = data[ks_group][tiepe]
+                    regels.sort_by_attribute('periode')
+                    totals[ks_group][tiepe] = regels.total()
+                    totals['total'][tiepe] += totals[ks_group][tiepe] 
 
-            data[tiepe]['totals'] = totals
-
-
+        #TODO remove debug printing
         import pprint
         pprint.pprint(data)
-        return data
+        pprint.pprint(totals)
 
-    def convert_data_to_str(self, data):
-        return data
+        return data, totals
+
+    def convert_data_to_str(self, data, totals):
+        return data, totals
 
     def render_summary(self, data):
         summary = {}
@@ -126,16 +131,14 @@ class View(Controller):
         form_settings = self.form_settings_simple
         return self.webrender.settings(form_settings)
 
-    def render_tables(self, data):
+    def render_tables(self, data, totals):
         tables = []
-        #for each table:
-        for ks_group in ['a', 'b','c']: #TODO
+        for ks_group, regels_tiepe in data.iteritems():
             header = {}
             header['name'] = ks_group #TODO
-            header['id'] = 'tmp_ks_group_id' #TODO
+            header['id'] = hash(ks_group)
 
-            rows = [] #TODO 
-            table = self.webrender.table(rows, header)
+            table = self.webrender.table(regels_tiepe, header, totals)
             tables.append(table)
 
         return tables
