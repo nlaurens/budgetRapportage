@@ -58,7 +58,6 @@ class Graph:
         self.color_map = color_map
         self.ks_map = ks_map
 
-
     def render_test_graphs(self):
         data = {}
         data['test'] = {}

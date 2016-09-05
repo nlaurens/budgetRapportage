@@ -5,7 +5,6 @@ import numpy as np
 from controller import Controller
 from functions import moneyfmt
 
-import model.ksgroup
 import model.ordergroup
 import model.orders
 import model.regels

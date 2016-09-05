@@ -1,10 +1,13 @@
+from config import config
 from controller import Controller
 import web
 from web import form
 
+import numpy as np
 import model.regels
 import model.ksgroup
 from functions import moneyfmt
+from matplotlib import cm
 
 
 class View(Controller):
@@ -17,10 +20,11 @@ class View(Controller):
         self.webrender = web.template.render('webpages/view/')
 
         # View specific:
+#TODO to config params
         self.order = int(web.input(order=2008502040)['order'])
         self.maxdepth = int(web.input(maxdepth=1)['maxdepth'])
         self.KSgroep = int(web.input(ksgroep=0)['ksgroep'])
-        self.jaar = int(web.input(jaar=self.config["currentYear"])['jaar'])
+        self.year = int(web.input(jaar=self.config["currentYear"])['jaar'])
         self.periode = int(web.input(periode=0)['periode'])
         self.clean = web.input().has_key('clean')
 
@@ -33,6 +37,28 @@ class View(Controller):
             form.Dropdown('ksgroep', []),
             form.Button('Update', 'update', class_="btn btn-default btn-sm"),
         )
+
+#TODO this is copied from graph.py. Double code, refactor! Perhaps do the mapping in model.ksgroups?
+# and load the color scheme from config.
+# It really feels like we made the model.budget.ksgroup object redundant with the regellist and ksgroup hashmap
+        ksgroup_root = model.ksgroup.load(config['graphs']['ksgroup'])
+        ks_map = {}
+        color_map = {'baten': {}, 'lasten': {}}
+        for tiepe in ['baten', 'lasten']:
+            for child in ksgroup_root.find(config['graphs'][tiepe]).children:
+                color_map[tiepe][child.descr] = {}
+                for ks in child.get_ks_recursive():
+                    ks_map[ks] = (tiepe, child.descr)
+
+            colors_amount = max(len(color_map[tiepe]), 3)  # prevent white colors
+            colors = {}
+            colors['baten'] = cm.BuPu(np.linspace(0.75, 0.1, colors_amount))
+            colors['lasten'] =cm.BuGn(np.linspace(0.75, 0.1, colors_amount))
+            for i, key in enumerate(color_map[tiepe]):
+                color_map[tiepe][key] = colors[tiepe][i]
+
+        self.color_map = color_map
+        self.ks_map = ks_map
 
     def process_sub(self):
 
@@ -49,6 +75,17 @@ class View(Controller):
 
     def construct_data(self):
         data = {}
+        regels['plan'] = model.regels.load(years_load=[self.year], orders_load=[self.order], table_names_load=['plan'])
+        regels['resultaat'] = model.regels.load(years_load=[self.year], orders_load=[self.order], table_names_load=['geboekt', 'obligo'])
+
+        # BUILD regellist per ksgroup in de self.ksmap and create totals 'baten', 'lasten', 'plan'.
+
+        # data['baten'/'lasten/plan']['ksgroup']['ks'] = regellist
+
+        # data['baten'/'lasten/plan']['ksgroup']['ks'][totals] = float
+        # data['baten'/'lasten/plan']['ksgroup'][totals] = float
+        # data['baten'/'lasten/plan'][totals] = float
+
         return data
 
     def convert_data_to_str(self, data):
