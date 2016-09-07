@@ -21,20 +21,34 @@ class View(Controller):
 
         # View specific:
 #TODO to config params
-        self.order = int(web.input(order=2008502040)['order'])
-        self.maxdepth = int(web.input(maxdepth=1)['maxdepth'])
-        self.KSgroep = int(web.input(ksgroep=0)['ksgroep'])
-        self.year = int(web.input(jaar=self.config["currentYear"])['jaar'])
-        self.periode = int(web.input(periode=0)['periode'])
+        self.order = int(web.input(order=0)['order'])
+        self.year = int(web.input(year=self.config["currentYear"])['year'])
         self.clean = web.input().has_key('clean')
-
+        periode = (web.input(periode='ALL')['periode'])
+#TODO to controller masterclass as a parse function
+        if periode.isdigit():
+            if periode == 12:
+                self.periodes = [12,13,14,15,16]
+            else:
+                self.periodes = [int(periode)]
+        elif periode == 'ALL':
+            self.periodes = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+        elif periode == 'Q1':
+            self.periodes = [0,1,2,3]
+        elif periode == 'Q2':
+            self.periodes = [4,5,6]
+        elif periode == 'Q3':
+            self.periodes = [7,8,9]
+        elif periode == 'Q4':
+            self.periodes = [10,11,12,13,14,15,16]
+        
         # Forms
 # TODO dropdowns!
+        dropdown_options = self.dropdown_options()
         self.form_settings_simple = form.Form(
 #TODO use config params and years form model
-            form.Dropdown('jaar', [(2016, '2016'), (2015, '2015'), (2014, '2014'), (2013, '2013'), (2012, '2012')], class_="btn btn-default btn-sm"),
-            form.Dropdown('periode', [(0, 'All'), (1, 'Jan'), (2, 'Feb'), (3, 'March'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'), (9, 'Sep'), (10, 'Okt'), (11, 'Nov'), (12, 'Dec')], class_="btn btn-default btn-sm"),
-            form.Dropdown('ksgroep', []),
+            form.Dropdown('year', dropdown_options['years'], value=self.year, class_="btn btn-default btn-sm"),
+            form.Dropdown('periode', dropdown_options['periode_all'], value=periode, class_="btn btn-default btn-sm"),
             form.Button('Update', 'update', class_="btn btn-default btn-sm"),
         )
 
@@ -79,8 +93,6 @@ class View(Controller):
         regels = {}
         regels = model.regels.load(years_load=[self.year], orders_load=[self.order])
 
-        #TODO self.periodes in init
-        self.periodes = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
         regels.filter_regels_by_attribute('periode', self.periodes)
 
         regels_dict = regels.split(['kostensoort', 'tiepe'])
@@ -93,7 +105,10 @@ class View(Controller):
 
         data = {}
         for ks, regels_tiepe in regels_dict.iteritems():
+            print ks
+            print regels_tiepe
             ks_group = self.ks_map[ks][1]
+            print ks_group
 
             if ks_group not in totals:
                 totals[ks_group] = {}
@@ -121,6 +136,9 @@ class View(Controller):
                 else:
                     data[ks_group]['begroot'].extend(regels_tiepe['plan'])
 
+                totals[ks_group]['plan'] += regels_tiepe['plan'].total()
+                totals['total']['plan'] += regels_tiepe['plan'].total()
+
         # sort regels in regellist by 'periode' for view:
         for ks_group in data.keys():
             for key in data[ks_group]:
@@ -143,8 +161,6 @@ class View(Controller):
         return data, totals
 
     def render_summary(self, totals):
-        import pprint
-        pprint.pprint(totals)
         summary = {}
         summary['begroting'] = totals['total']['plan']
         if 'Baten' in totals:
@@ -154,9 +170,10 @@ class View(Controller):
 
         summary['lasten'] = totals['total']['geboekt'] + totals['total']['obligo'] - summary['baten']
         summary['ruimte'] = summary['begroting'] - summary['baten'] - summary['lasten']
-
         for key in summary.keys():
             summary[key]  = moneyfmt(summary[key])
+
+        summary['graph_realisatie'] = self.url_graph(self.year, 'realisatie', self.order)
 
         return self.webrender.summary(summary)
 
@@ -171,7 +188,6 @@ class View(Controller):
             header['name'] = ks_group
             header['id'] = hash(ks_group)
 
-            print regels
             if regels['kosten'] is not None:
                 regels = regels['kosten'].regels
             else:

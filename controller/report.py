@@ -45,7 +45,7 @@ class Report(Controller):
         self.orders = self.ordergroup.list_orders_recursive().keys()
 
         # Forms
-        dropdown_options = self. dropdown_options()
+        dropdown_options = self.dropdown_options()
         self.form_settings_simple = form.Form(
             form.Dropdown('year_start', dropdown_options['years'],
                           description='From', value=year_start),
