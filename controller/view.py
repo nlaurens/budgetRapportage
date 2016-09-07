@@ -95,14 +95,15 @@ class View(Controller):
         for ks, regels_tiepe in regels_dict.iteritems():
             ks_group = self.ks_map[ks][1]
 
-            totals[ks_group] = {}
-            totals[ks_group]['geboekt'] = 0
-            totals[ks_group]['obligo'] = 0
-            totals[ks_group]['plan'] = 0
+            if ks_group not in totals:
+                totals[ks_group] = {}
+                totals[ks_group]['geboekt'] = 0
+                totals[ks_group]['obligo'] = 0
+                totals[ks_group]['plan'] = 0
 
-            data[ks_group] = {}
-            data[ks_group]['kosten'] = None
-            data[ks_group]['begroot'] = None
+                data[ks_group] = {}
+                data[ks_group]['kosten'] = None
+                data[ks_group]['begroot'] = None
 
             for tiepe in ['geboekt', 'obligo']:
                 if tiepe in regels_tiepe:
@@ -111,7 +112,7 @@ class View(Controller):
                     else:
                         data[ks_group]['kosten'].extend(regels_tiepe[tiepe])
 
-                    totals[ks_group][tiepe] = regels_tiepe[tiepe].total()
+                    totals[ks_group][tiepe] += regels_tiepe[tiepe].total()
                     totals['total'][tiepe] += regels_tiepe[tiepe].total()
 
             if 'plan' in regels_tiepe:
