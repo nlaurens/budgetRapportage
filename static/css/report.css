@@ -10,3 +10,8 @@
   background-color: #eee;
   font-weight: normal;
 }
+@media print {
+  a[href]:after {
+    content: none !important;
+  }
+}
