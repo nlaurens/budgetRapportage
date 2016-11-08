@@ -19,6 +19,8 @@ Model
     - regels
         * write validator for input that can be re-used (tablename in config[''] etc.)
         * add reserve to db
+    - orderlist
+        * add (merge it with regels)
 
 Config
     - config module maken waar ook alle data in zit en users
