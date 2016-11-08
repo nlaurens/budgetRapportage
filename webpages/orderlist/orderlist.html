@@ -9,10 +9,31 @@ $def with (orderlist)
         </div>
       </div>
 
-      $for item in orderlist['items']:
-        $:item['order']
-        $:item['budgethouder']
-        $:item['omschrijving']
-        <BR>
+      <div class="panel-body">
+        <div class="table-responsive">
+            <table class="table">
+            <thead>
+                <tr>
+                <th class="text-right">Ordernummer</th>
+                <th class="text-right">Omschrijving</th>
+                <th class="text-right">Budgethouder</th>
+                <th class="text-right">Activiteitenhouder</th>
+                <th class="text-right">Subactiviteit code</th>
+                </tr>
+            </thead>
 
+            <tbody>
+            $for item in orderlist['items']:
+                <tr>
+                    <th class="text-right">$:item['order']</th>
+                    <th class="text-right">$:item['omschrijving']</th>
+                    <th class="text-right">$:item['budgethouder']</th>
+                    <th class="text-right">$:item['activiteitenhouder']</th>
+                    <th class="text-right">$:item['sub.act.code']</th>
+                </tr>
+
+            </tbody>
+            </table>
+        </div>
+      </div>
     </div>
