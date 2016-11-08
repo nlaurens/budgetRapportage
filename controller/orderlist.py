@@ -21,17 +21,7 @@ class Orderlist(Controller):
 
     def process_sub(self):
         orderlist = {}
-        orderlist['items'] = []
-        orderlist['items'].append({'order':'2008150', 'budgethouder':'Niels', 'omschrijving':'sapnummer voor bla', 'sub.act.code':'A2', 'activiteitenhouder':'Henk'})
-        orderlist['items'].append({'order':'2008150', 'budgethouder':'Niels', 'omschrijving':'sapnummer voor bla', 'sub.act.code':'A2', 'activiteitenhouder':'Henk'})
-        orderlist['items'].append({'order':'2008150', 'budgethouder':'Niels', 'omschrijving':'sapnummer voor bla', 'sub.act.code':'A2', 'activiteitenhouder':'Henk'})
-        orderlist['items'].append({'order':'2008150', 'budgethouder':'Niels', 'omschrijving':'sapnummer voor bla', 'sub.act.code':'A2', 'activiteitenhouder':'Henk'})
-        orderlist['items'].append({'order':'2008150', 'budgethouder':'Niels', 'omschrijving':'sapnummer voor bla', 'sub.act.code':'A2', 'activiteitenhouder':'Henk'})
-        orderlist['items'].append({'order':'2008150', 'budgethouder':'Niels', 'omschrijving':'sapnummer voor bla', 'sub.act.code':'A2', 'activiteitenhouder':'Henk'})
-        orderlist['items'].append({'order':'2008150', 'budgethouder':'Niels', 'omschrijving':'sapnummer voor bla', 'sub.act.code':'A2', 'activiteitenhouder':'Henk'})
-        orderlist['items'].append({'order':'2008150', 'budgethouder':'Niels', 'omschrijving':'sapnummer voor bla', 'sub.act.code':'A2', 'activiteitenhouder':'Henk'})
-        orderlist['items'].append({'order':'2008150', 'budgethouder':'Niels', 'omschrijving':'sapnummer voor bla', 'sub.act.code':'A2', 'activiteitenhouder':'Henk'})
-        orderlist['items'].append({'order':'2008150', 'budgethouder':'Niels', 'omschrijving':'sapnummer voor bla', 'sub.act.code':'A2', 'activiteitenhouder':'Henk'})
+        orderlist['items'] = model.orderlist.load()
         self.body = self.webrender.orderlist(orderlist)
         return
 
