@@ -1,0 +1,18 @@
+$def with (orderlist)
+
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-6">
+          <h1>
+            Orderlist
+          </h1>
+        </div>
+      </div>
+
+      $for item in orderlist['items']:
+        $:item['order']
+        $:item['budgethouder']
+        $:item['omschrijving']
+        <BR>
+
+    </div>

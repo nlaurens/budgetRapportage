@@ -59,7 +59,7 @@ Controller & Webpages
 """
 import web
 web.config.debug = True  # Set to False for no ouput! Must be done before the rest
-from controller import Index, Report, Admin, Login, Logout, Graph, View, Salaris
+from controller import Index, Report, Admin, Login, Logout, Graph, View, Salaris, Orderlist
 
 ### Url mappings
 urls = (
@@ -68,6 +68,7 @@ urls = (
     '/logout/(.+)', 'Logout',
     '/report/(.+)', 'Report',
     '/salaris/(.+)', 'Salaris',
+    '/orderlist/(.+)', 'Orderlist',
     '/admin/(.+)', 'Admin',
     '/graph/(.+)/(.+)/(.+)/(.+).png', 'Graph',
     '/index/(.+)', 'Index',

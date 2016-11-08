@@ -6,3 +6,4 @@ from .logout import Logout
 from .graph import Graph
 from .view import View
 from .salaris import Salaris
+from .orderlist import Orderlist
