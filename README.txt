@@ -116,6 +116,8 @@ Export SAP posten
     * Alle kolommen even breed
     * Exporteer naar Excel: Lijst -> Exporteren -> Spreadsheet -> XXL -> tabel
 
+* Orderlijst - Y_R3T_98000026
+
 Import SAP posten in MySQL
 --------------------------
 http://localhost:8081/admin
