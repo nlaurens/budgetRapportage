@@ -28,7 +28,7 @@ class Admin(Controller):
                           form.notnull, description='Table to remove from: '),
             form.Button('submit', value='removeRegels')
         )
-        self.form_upload_regels = form.Form(
+        self.form_upload = form.Form(
                 form.File(name='upload1'),
                 form.Dropdown('type1', drop_down_options['empty_tables']),
                 form.File(name='upload2'),
@@ -76,7 +76,7 @@ class Admin(Controller):
 
         rendered['forms'] = []
         rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
-        rendered['forms'].append(self.webrender.form('Upload Regels to DB', self.form_upload_regels))
+        rendered['forms'].append(self.webrender.form('Upload File', self.form_upload))
         rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap_date))
         rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
 
@@ -123,7 +123,7 @@ class Admin(Controller):
             msg.extend(self.parse_remove_regels())
             valid_form = True
 
-        if form_used == 'uploadRegels' and self.form_upload_regels.validates():
+        if form_used == 'uploadRegels' and self.form_upload.validates():
             msg.extend(self.parse_upload_form())
             valid_form = True
 
@@ -187,14 +187,21 @@ class Admin(Controller):
                 file_handle = eval("file_handles.upload%s" % i)
             except Exception:
                 file_handle = None
-            table = eval("self.form_upload_regels['type%s'].value" % i)
+            table = eval("self.form_upload['type%s'].value" % i)
 
             if file_handle is not None and table in self.config['mysql']['tables']['regels'].values():
-                msg.extend(self.upload_and_process_file(table, file_handle))
+                msg.extend(self.upload_file(table, file_handle))
+                msg_process, fields, rows = self.process_file(table)
+                msg.extend(msg_process)
+                model.regels.add(table, fields, rows)
+                self.clean_upload(table)
+
+            # TODO 
+            #if file_handle is not None and table == self.config['mysql']['tables']['orderlijst']:
 
         return msg
 
-    def upload_and_process_file(self, table, file_handle):
+    def upload_file(self, table, file_handle):
         msg = ['Starting upload']
         allowed = ['.xlsx']
         msg.append('Uploading file.')
@@ -212,7 +219,10 @@ class Admin(Controller):
             return msg
         msg.append('upload succes')
 
-        msg.append('Preparing to process data for table: ' + table)
+        return msg
+
+    def process_file(self, table):
+        msg = ['Preparing to process data for table: ' + table]
         xlsx2csv = Xlsx2csv(table+'.xlsx')
         xlsx2csv.convert(str(table)+'.csv', sheetid=1)
         if not os.path.isfile(table+'.csv'):
@@ -254,17 +264,13 @@ class Admin(Controller):
             rownumber += 1
         f.close()
 
-        model.regels.add(table, fields, rows)
-
-        # clean up
-        msg.append('Cleaning up files')
-
         del xlsx2csv
+        return msg, fields, rows
+
+    def clean_upload(self, table):
         os.remove(table+'.xlsx')  # BUG.. xlsx2csv seems to block the file handle.
         os.remove(table+'.csv')
-        msg.append('')
 
-        return msg
 
     def run_tests(self):
         success = False
