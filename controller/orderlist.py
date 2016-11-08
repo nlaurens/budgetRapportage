@@ -4,8 +4,7 @@ import web
 from web import form
 
 import numpy as np
-import model.regels
-import model.ksgroup
+import model.orders
 from functions import moneyfmt
 from matplotlib import cm
 
@@ -20,8 +19,12 @@ class Orderlist(Controller):
         self.webrender = web.template.render('webpages/orderlist/')
 
     def process_sub(self):
+        orderlist = model.orders.load()
+        orderlist_per_actcode = orderlist.split(['subactiviteitencode'])
+        orderlist_per_actcode.druk_af()
+
         orderlist = {}
-        orderlist['items'] = model.orderlist.load()
-        self.body = self.webrender.orderlist(orderlist)
+        self.body = 'TODO' 
+        #self.body = self.webrender.orderlist(orderlist)
         return
 

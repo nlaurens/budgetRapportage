@@ -1,3 +1,11 @@
+import web
+from config import config
+
+db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"],
+                  host=config["mysql"]["host"])
+
+
+
 def first_item_in_list(lst):
     i = next(i for i, j in enumerate(lst) if j)
     return i, lst[i]

@@ -115,7 +115,7 @@ def count():
     output: last sap update from db as a string
 """
 def last_update(newdate=''):
-    if not functions.check_table_exists('config'):
+    if not check_table_exists('config'):
         sql = "CREATE TABLE `config` ( `key` varchar(255), `value` varchar(255) );"
         results = db.query(sql)
         print results

@@ -7,7 +7,7 @@ import web
 from web import form
 import model.regels
 import model.ksgroup
-import model.orderlist
+import model.orders
 
 
 class Admin(Controller):
@@ -203,7 +203,7 @@ class Admin(Controller):
                 msg_process, fields, rows = self.process_file(table)
                 msg.extend(msg_process)
                 if fields is not None and rows is not None:
-                    model.orderlist.add(table, fields, rows)
+                    model.orders.add(table, fields, rows)
                 self.clean_upload(table)
 
         return msg
