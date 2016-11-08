@@ -14,6 +14,7 @@ Todo/Bugs
 ---------
 * update readme ;)
 * Maybe one day for wbs: http://jsfiddle.net/jhfrench/GpdgF/
+* Add config and orderlijst table to database status in admin panel
 
 
 Usage
