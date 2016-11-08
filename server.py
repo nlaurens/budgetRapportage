@@ -21,6 +21,8 @@ Model
         * add reserve to db
     - orderlist
         * add (merge it with regels)
+        * make model.budget.orderlist class that behavious similar to other budget classes
+        * sort orderlist on act. code and show them in different collapsoable tables.
 
 Config
     - config module maken waar ook alle data in zit en users
