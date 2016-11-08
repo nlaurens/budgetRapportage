@@ -7,6 +7,7 @@ import web
 from web import form
 import model.regels
 import model.ksgroup
+import model.orderlist
 
 
 class Admin(Controller):
@@ -193,11 +194,17 @@ class Admin(Controller):
                 msg.extend(self.upload_file(table, file_handle))
                 msg_process, fields, rows = self.process_file(table)
                 msg.extend(msg_process)
-                model.regels.add(table, fields, rows)
+                if fields is not None and rows is not None:
+                    model.regels.add(table, fields, rows)
                 self.clean_upload(table)
 
-            # TODO 
-            #if file_handle is not None and table == self.config['mysql']['tables']['orderlijst']:
+            if file_handle is not None and table == self.config['mysql']['tables']['orderlijst']:
+                msg.extend(self.upload_file(table, file_handle))
+                msg_process, fields, rows = self.process_file(table)
+                msg.extend(msg_process)
+                if fields is not None and rows is not None:
+                    model.orderlist.add(table, fields, rows)
+                self.clean_upload(table)
 
         return msg
 
@@ -227,7 +234,7 @@ class Admin(Controller):
         xlsx2csv.convert(str(table)+'.csv', sheetid=1)
         if not os.path.isfile(table+'.csv'):
             msg.append('xlsx to csv convertion failed')
-            return msg
+            return msg, None, None
         msg.append('xlsx to csv convertion succes')
 
         msg.append('Reading headers from CSV')
@@ -243,12 +250,12 @@ class Admin(Controller):
             else:
                 msg.append('Unknown field in excel: ' + header)
                 msg.append('Import stopped!')
-                return msg
+                return msg, None, None
 
         for attribute, SAPkey in self.config["SAPkeys"][table].iteritems():
             if attribute not in fields:
                 msg.append('Required field not in excel: ' + attribute)
-                return msg
+                return msg, None, None
 
         # Fill table from CSV
         msg.append('Inserting data into table')
