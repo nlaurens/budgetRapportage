@@ -1,20 +1,10 @@
 import web
 from config import config
 from budget import Regel, RegelList
+from functions import check_table_exists
 
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"],
                   host=config["mysql"]["host"])
-
-"""
-.check_table_exists(table)
-    input: table as str
-    output: Boolean
-"""
-def check_table_exists(table):
-    results = db.query("SHOW TABLES LIKE '" + table + "'")
-    if len(results) == 0:
-        return False
-    return True
 
 
 """
@@ -125,7 +115,7 @@ def count():
     output: last sap update from db as a string
 """
 def last_update(newdate=''):
-    if not check_table_exists('config'):
+    if not functions.check_table_exists('config'):
         sql = "CREATE TABLE `config` ( `key` varchar(255), `value` varchar(255) );"
         results = db.query(sql)
         print results
@@ -230,7 +220,7 @@ def delete(years_delete=None, table_names_delete=None):
     output: msg-queue as list of str
 """
 def add(table, fields, rows):
-    if not check_table_exists(table):
+    if not functions.check_table_exists(table):
         fields_and_type = []
         for field in fields:
             sql_type = config["SAPkeys"]["types"][field]

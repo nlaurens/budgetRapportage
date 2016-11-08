@@ -6,7 +6,6 @@ from controller import Controller
 from functions import moneyfmt
 
 import model.ordergroup
-import model.orders
 import model.regels
 
 #TODO: fig page.. now what do we do with the years?

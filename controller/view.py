@@ -77,7 +77,7 @@ class View(Controller):
     def process_sub(self):
         data, totals = self.construct_data()
         view = {}
-        view['title'] = model.orders.get_name(self.order) + ' ' + str(self.order)
+        view['title'] = 'TODO' #model.orders.get_name(self.order) + ' ' + str(self.order)
         view['summary'] = self.render_summary(totals)
         view['settings'] = self.render_settings()
         view['javaScripts'] = self.render_java_scripts(data)

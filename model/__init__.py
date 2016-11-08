@@ -21,6 +21,9 @@
     .delete(years=[], tableNames=[]) -> total regels deleted from db as int
     .add TODO
 
+.orders
+    .TODO
+
 .user
     TODO
 
