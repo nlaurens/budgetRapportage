@@ -73,7 +73,8 @@ class Admin(Controller):
 
         rendered = {}
         rendered['userAccess'] = self.webrender.user_access(self.authList)
-        rendered['dbStatus'] = self.webrender.db_status(self.db_status())
+        status_regels, status_other_tables = self.db_status()
+        rendered['dbStatus'] = self.webrender.db_status(status_regels, status_other_tables)
 
         rendered['forms'] = []
         rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
@@ -85,18 +86,18 @@ class Admin(Controller):
 
     def db_status(self):
         # construct dict with total regels per table
-        db_status = {}
+        status_regels = {}
 
         regel_count = model.regels.count()
         table_names = regel_count.keys()
         years = model.regels.years()
 
         # create vars for render
-        db_status['headers'] = ['table', 'status']
+        status_regels['headers'] = ['table', 'status']
         for year in years:
-            db_status['headers'].append(str(year))
+            status_regels['headers'].append(str(year))
 
-        db_status['body'] = []
+        status_regels['body'] = []
         for table in table_names:
             if model.regels.check_table_exists(table):
                 regel = [table, '']
@@ -104,16 +105,25 @@ class Admin(Controller):
                 regel = [table, 'ERROR']
             for year in years:
                 regel.append(regel_count[table][year])
-            db_status['body'].append(regel)
+            status_regels['body'].append(regel)
 
-        db_status['totals'] = ['Total', '']
+        status_regels['totals'] = ['Total', '']
         for year in years:
             total = 0
             for table in table_names:
                 total += int(regel_count[table][year])
-            db_status['totals'].append(total)
+            status_regels['totals'].append(total)
 
-        return db_status
+        status_other_tables = {}
+        status_other_tables['headers'] = ['table', '# entries']
+        status_other_tables['body'] = []
+        #TODO replace dummy vars with real count/error messages on no table
+        # Stick to all the tables from the config that are not regels
+        status_other_tables['body'].append(['dummy1' , '15'])
+        status_other_tables['body'].append(['dummy2' , '25'])
+        status_other_tables['body'].append(['dummy3' , '115'])
+
+        return status_regels, status_other_tables
 
     def parse_forms(self):
         valid_form = False
