@@ -37,7 +37,7 @@ class Graph:
         self.ordergroups = ordergroups   # { <name>:<regellist>, ..}
         self.regels = regels  # {'plan':<regellist>, 'realisatie':<regellist>}
         self.last_update = model.regels.last_update()
-        self.order_names = model.orders.available()
+        self.orderListDict = model.orders.load().split(['ordernummer'])
 
         ksgroup_root = model.ksgroup.load(config['graphs']['ksgroup'])
         ks_map = {}
@@ -63,7 +63,7 @@ class Graph:
         data['test'] = {}
         for year in self.years:
             data['test'][year] = {}
-            data['test'][year]['title'] = '%s-%s-%s' % (self.order_names['test'], 'test', year)
+            data['test'][year]['title'] = '%s-%s-%s' % ('test', 'test', year)
             data['test'][year]['begroting'] = float(100000)
             data['test'][year]['baten'] = {}
             data['test'][year]['lasten'] = {}
@@ -144,10 +144,10 @@ class Graph:
             data[order] = {}
             for year in self.years:
                 data[order][year] = {}
-                if order not in self.order_names:
+                if order not in self.orderListDict:
                     data[order][year]['title'] = '%s-%s-%s' % (order, order, year)
                 else:
-                    data[order][year]['title'] = '%s-%s-%s' % (self.order_names[order], order, year)
+                    data[order][year]['title'] = '%s-%s-%s' % (self.orderListDict[order].orders[0].ordernaam, order, year)
                 try:
                     data[order][year]['begroting'] = float(plan_dict[order][year].total())
                 except:
