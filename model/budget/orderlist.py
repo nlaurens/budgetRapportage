@@ -41,7 +41,7 @@ class OrderList:
         # Replace the order list with a OrderList class
         orderListDict = {}
         for key, orders in orderDict.iteritems():
-            orderListDict[key] = orderList(orders)
+            orderListDict[key] = OrderList(orders)
 
         return orderListDict
 

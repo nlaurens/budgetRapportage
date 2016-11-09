@@ -20,11 +20,12 @@ class Orderlist(Controller):
 
     def process_sub(self):
         orderlist = model.orders.load()
-        orderlist_per_actcode = orderlist.split(['subactiviteitencode'])
-        orderlist_per_actcode.druk_af()
+        #TODO add option to sort by budgethouder as well.
+        orderlist_per_actcode = orderlist.split(['activiteitencode'])
+        tables = []
+        for code, orderlist_dict in orderlist_per_actcode.iteritems():
+            tables.append(code)
 
-        orderlist = {}
-        self.body = 'TODO' 
-        #self.body = self.webrender.orderlist(orderlist)
+        self.body = self.webrender.orderlist(tables)
         return
 

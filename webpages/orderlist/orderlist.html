@@ -1,4 +1,4 @@
-$def with (orderlist)
+$def with (tables)
 
     <div class="container">
       <div class="row">
@@ -10,30 +10,9 @@ $def with (orderlist)
       </div>
 
       <div class="panel-body">
-        <div class="table-responsive">
-            <table class="table">
-            <thead>
-                <tr>
-                <th class="text-right">Ordernummer</th>
-                <th class="text-right">Omschrijving</th>
-                <th class="text-right">Budgethouder</th>
-                <th class="text-right">Activiteitenhouder</th>
-                <th class="text-right">Subactiviteit code</th>
-                </tr>
-            </thead>
-
-            <tbody>
-            $for item in orderlist['items']:
-                <tr>
-                    <th class="text-right">$:item['order']</th>
-                    <th class="text-right">$:item['omschrijving']</th>
-                    <th class="text-right">$:item['budgethouder']</th>
-                    <th class="text-right">$:item['activiteitenhouder']</th>
-                    <th class="text-right">$:item['sub.act.code']</th>
-                </tr>
-
-            </tbody>
-            </table>
-        </div>
+        $for table in tables:
+            <div class="table-responsive">
+                $:table
+            </div>
       </div>
     </div>
