@@ -1,22 +1,33 @@
+users = {
+    'niels': 'LION.*',
+    'test': 'LION.PL',
+    'test2': 'LION.PL-TP,PL-BP'
+}
 config = {
     "IpRanges": '127.0.0.0 127.255.255.255 10.0.0.1 10.255.255.255',
-    "globalPW": '<INSERT>',
-    "salt": '<INSERT>',
+    "globalPW": '...',
+    "salt": '...',
     "currentYear": 2016,
-    "graphPath": "graphs/",
+    "ksGroupsPath": 'data/ksgroups/',
+    "orderGroupsPath": 'data/ordergroups/',
+    "graphs":{
+        "path": 'graphs/',
+        "ksgroup": 'LION',
+        "baten": 'LION-B',
+        "lasten": 'LION-L',
+    },
     "mysql": {
-        "user": "<INSERT>",
-        "pass": "<INSERT>",
-        "db": "<INSERT>",
+        "user": "...",
+        "pass": "...",
+        "db": "...",
         "host": "",
         "tables": {
             "config": "config",
+            "orderlijst": "orderlijst",
             "regels":{
                 "geboekt": "geboekt",
                 "obligo": "obligo",
                 "plan": "plan",
-                "salaris_geboekt": "salaris_geboekt",
-                "salaris_plan": "salaris_plan",
             },
         },
     },
@@ -36,6 +47,12 @@ config = {
             "schaal": "varchar(255)",
             "trede": "int",
             "ordernaam": "varchar(255)",
+            "budgethouder": "varchar(255)",
+            "budgethoudervervanger": "varchar(255)",
+            "activiteitenhouder": "varchar(255)",
+            "activiteitenhoudervervanger": "varchar(255)",
+            "activiteitencode": "varchar(255)",
+            "subactiviteitencode": "varchar(255)",
         },
         "geboekt":{
             "ordernummer": "Order",
@@ -85,6 +102,16 @@ config = {
             "ordernummer": "Order",
             "schaal": "Schaal",
             "kosten": "Kosten",
+        },
+        "orderlijst":{
+            "ordernummer": "Order",
+            "ordernaam": "Korte tekst",
+            "budgethouder": "Naam budgethouder",
+            "activiteitenhouder": "Naam acth.",
+            "budgethoudervervanger": "Naam vervanger budgeth.",
+            "activiteitenhoudervervanger": "Naam vervanger acth.",
+            "activiteitencode": "Code",
+            "subactiviteitencode": "Sub activiteiten code",
         },
     }
 }
