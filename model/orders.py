@@ -21,10 +21,20 @@ def load():
     for dbOrder in db_select:
         order = Order()
         order.import_from_db_select(dbOrder)
-        orders.append(order)
+        modified_orders = __specific_rules(order)
+        for order in modified_orders:
+            orders.append(order)
 
     return OrderList(orders)
 
+#  .__specific_rules(order)
+#  modification of order can be done here
+#  note this changes per setup
+def __specific_rules(order):
+    modified_orders = [order]
+
+
+    return modified_orders
 
 """
 .add(table, fields, rows)
