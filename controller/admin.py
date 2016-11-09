@@ -213,7 +213,9 @@ class Admin(Controller):
                 msg_process, fields, rows = self.process_file(table)
                 msg.extend(msg_process)
                 if fields is not None and rows is not None:
-                    model.orders.add(table, fields, rows)
+                    #TODO add 'clear/inserting in db' msg to msg quque
+                    model.orders.clear()  # every upload should be the whole list
+                    model.orders.add(fields, rows)
                 self.clean_upload(table)
 
         return msg

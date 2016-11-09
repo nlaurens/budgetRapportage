@@ -118,11 +118,9 @@ def last_update(newdate=''):
     if not check_table_exists('config'):
         sql = "CREATE TABLE `config` ( `key` varchar(255), `value` varchar(255) );"
         results = db.query(sql)
-        print results
 
         sql = "INSERT INTO `config` ( `key`, `value`) VALUES ( 'sapdate', 'no date set' );"
         results = db.query(sql)
-        print results
 
     if newdate == '':
         sqlwhere = "`key` = 'sapdate'"

@@ -41,7 +41,6 @@ def add_items_to_db(table, fields, rows):
 
         sql = "CREATE TABLE " + table + " (" + ', '.join(fields_and_type) + ");"
         results = db.query(sql)
-        print results
 
     row_chunks = __chunk_rows(rows, 10000)
     for rows in row_chunks:

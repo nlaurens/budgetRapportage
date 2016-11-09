@@ -31,5 +31,20 @@ def load():
     input: table as str, fields as list of str, rows as list of str
     output: msg-queue as list of str
 """
-def add(table, fields, rows):
-    add_items_to_db(table, fields, rows)
+def add(fields, rows):
+    add_items_to_db(config["mysql"]["tables"]["orderlijst"], fields, rows)
+
+
+"""
+.clear()
+    input: none
+    output: total amount of regels deleted as int
+"""
+def clear():
+    sql_where = '1'
+    try:
+        deleted = db.delete(config["mysql"]["tables"]["orderlijst"], where=sql_where)
+    except Exception:
+        deleted = 0
+
+    return deleted
