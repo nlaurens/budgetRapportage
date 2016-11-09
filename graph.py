@@ -310,7 +310,11 @@ class Graph:
 
         # add table below the graph
         values = []
-        values.append(self.format_table_row(data_y_resultaat))
+        values.append(self.format_table_row(data_y_resultaat))  # totaal
+
+        begroting_per_maand = data['begroting']/12000
+        residue_begroting_per_maand = data_y_resultaat - np.linspace(begroting_per_maand, 12*begroting_per_maand, num=12)
+        values.append(self.format_table_row(residue_begroting_per_maand)) 
 
         for data_key in ['baten', 'lasten']:
             for key, row in data[data_key].iteritems():
@@ -321,6 +325,7 @@ class Graph:
 
         label_rows = []
         label_rows.extend(["Totaal"])
+        label_rows.extend(["+/- Begroting"])
         label_rows.extend(data['baten'].keys())
         label_rows.extend(data['lasten'].keys())
 
@@ -336,8 +341,9 @@ class Graph:
 
         if colors:
             colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure color realisatie
+            colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure color realisatie
         else:
-            colors = [[1,1,1,1]]
+            colors = [[1,1,1,1], [1,1,1,1]]
 
 
         the_table = plt.table(cellText=values, rowLabels=label_rows, rowColours=colors,
@@ -427,7 +433,7 @@ if __name__ == "__main__":
             years = years_available
             valid_input = True
         elif str(sys.argv[1]) == 'TEST':
-            years = years_available
+            years = ['2016'] 
             test = True
             valid_input = True
         else:
