@@ -1,7 +1,7 @@
 import web
 from config import config
 from budget import Regel, RegelList
-from functions import check_table_exists
+from functions import check_table_exists, add_items_to_db
 
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"],
                   host=config["mysql"]["host"])
@@ -220,4 +220,4 @@ def delete(years_delete=None, table_names_delete=None):
     output: msg-queue as list of str
 """
 def add(table, fields, rows):
-    functions.add_regels_to_db(table, field, rows)
+    add_items_to_db(table, fields, rows)

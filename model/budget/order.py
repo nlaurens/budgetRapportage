@@ -11,8 +11,8 @@ class Order:
         self.activiteitenhouder = None
         self.activiteitenhoudervervanger = None
 
-        self.subactiviteitencode = None
         self.activiteitencode = None
+        self.subactiviteitencode = None
 
     def druk_af(self):
         print '* order'

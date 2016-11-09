@@ -32,7 +32,7 @@ def check_table_exists(table):
     input: table as str, fields as list of str, rows as list of str
     output: msg-queue as list of str
 """
-def add(table, fields, rows):
+def add_items_to_db(table, fields, rows):
     if not check_table_exists(table):
         fields_and_type = []
         for field in fields:

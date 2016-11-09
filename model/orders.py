@@ -1,7 +1,7 @@
 import web
 from config import config
 from budget import Order, OrderList
-from functions import check_table_exists
+from functions import add_items_to_db
 
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"],
                   host=config["mysql"]["host"])
@@ -32,4 +32,4 @@ def load():
     output: msg-queue as list of str
 """
 def add(table, fields, rows):
-    functions.add_regels_to_db(table, fields, rows)
+    add_items_to_db(table, fields, rows)
