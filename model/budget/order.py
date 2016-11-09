@@ -17,7 +17,10 @@ class Order:
     def druk_af(self):
         print '* order'
         for attribute, value in vars(self).iteritems():
-            print '  ' + attribute + ': ' + str(value)
+            try: 
+                print '  ' + attribute + ': ' + str(value)
+            except:
+                print '  ' + attribute + ': CANNOT DISPLAY ITEM'
         print ''
 
     def copy(self):
