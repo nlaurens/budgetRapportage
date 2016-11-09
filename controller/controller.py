@@ -96,12 +96,14 @@ class Controller(object):
         return groups
 
     # used for creating links in the submodule
-    def url(self, params=None):
+    def url(self, module=None, params=None):
+        if module is None:
+            module = self.module
         if params:
             param_str = urllib.urlencode(params)
-            return '/%s/%s?%s' % (self.module, self.userHash, param_str)
+            return '/%s/%s?%s' % (module, self.userHash, param_str)
         else:
-            return '/%s/%s' % (self.module, self.userHash)
+            return '/%s/%s' % (module, self.userHash)
 
     # Checks if IP is allowed
     # If not imidialty sends a 404 and stops all processing

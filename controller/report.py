@@ -87,7 +87,7 @@ class Report(Controller):
         bread_crum = [{'title': groep.descr, 'url': groep.name, 'class': 'active'}]
         while groep.parent:
             groep = groep.parent
-            link = self.url({'ordergroep': self.ordergroup_file, 'subgroep': groep.name})
+            link = self.url(params={'ordergroep': self.ordergroup_file, 'subgroep': groep.name})
             bread_crum.append({'title': groep.descr, 'url': link, 'class': ''})
         self.breadCrum = reversed(bread_crum)
 
@@ -168,7 +168,7 @@ class Report(Controller):
             i = 0
             for order, descr in self.ordergroup.orders.iteritems():
                 graph = {}
-                graph['link'] = ('../view/' + self.userHash + '/' + str(order))
+                graph['link'] = self.url(module='view', params={'order':str(order)})
                 graph['png'] = self.url_graph(self.years[0], 'realisatie', order)
                 graphs.append(graph)
                 i += 1
@@ -206,7 +206,7 @@ class Report(Controller):
     def render_top_table(self, ordergroup, data):
         header = {}
         header['name'] = ordergroup.descr
-        header['link'] = self.url({'ordergroep': self.ordergroup_file, 'subgroep': ordergroup.name})
+        header['link'] = self.url(params={'ordergroep': self.ordergroup_file, 'subgroep': ordergroup.name})
         header['id'] = ordergroup.name
         graph_name = '%s-%s' % (self.ordergroup_file, ordergroup.name)
         header['graph_overview'] = self.url_graph(self.years[-1], 'overview', graph_name)
@@ -228,7 +228,7 @@ class Report(Controller):
         group_rows = []
         for subgroup in ordergroup.children:
             row = {}
-            row['link'] = self.url({'ordergroep': self.ordergroup_file, 'subgroep': subgroup.name})
+            row['link'] = self.url(params={'ordergroep': self.ordergroup_file, 'subgroep': subgroup.name})
             row['name'] = subgroup.descr
             row['order'] = None
             graph_name = '%s-%s' % (self.ordergroup_file, subgroup.name)
@@ -251,7 +251,7 @@ class Report(Controller):
         order_rows = []
         for order, descr in ordergroup.orders.iteritems():
             row = {}
-            row['link'] = '/view/%s?order=%s' % (self.userHash, order)
+            row['link'] = self.url(module='view', params={'order':order})
             row['name'] = descr
             row['order'] = None
             if self.flat:
