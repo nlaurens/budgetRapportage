@@ -1,0 +1,23 @@
+$def with(ids)
+<script>
+// use the callback function e to stop propagation
+// to parent divs
+$for id in ids:
+  $$("#collapse$:id").on('show.bs.collapse', function(e){
+    $$("#plusminus$:id").removeClass('glyphicon glyphicon-plus').addClass('glyphicon glyphicon-minus');
+    e.stopPropagation();
+  });
+  $$("#collapse$:id").on('hide.bs.collapse', function(e) {
+    $$("#plusminus$:id").removeClass('glyphicon glyphicon-minus').addClass('glyphicon glyphicon-plus');
+    e.stopPropagation();
+  });
+
+$$('.closeall').click(function(){
+  $$('.panel-collapse.in')
+    .collapse('hide');
+});
+$$('.openall').click(function(){
+  $$('.panel-collapse:not(".in")')
+    .collapse('show');
+});
+</script>

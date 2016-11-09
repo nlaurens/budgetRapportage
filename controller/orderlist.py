@@ -23,9 +23,22 @@ class Orderlist(Controller):
         #TODO add option to sort by budgethouder as well.
         orderlist_per_actcode = orderlist.split(['activiteitencode'])
         tables = []
-        for code, orderlist_dict in orderlist_per_actcode.iteritems():
-            tables.append(code)
+        for code, orderlist_per_code in orderlist_per_actcode.iteritems():
+            header = {'id':code, 'name':'Activiteiten code '+ str(code)}
+            table_items = []
+            for order in orderlist_per_code.orders:
+                item = {}
+                item['order'] = order.ordernummer
+                item['omschrijving'] = order.ordernaam
+                item['budgethouder'] = order.budgethouder
+                item['activiteitenhouder'] = order.activiteitenhouder
+                item['sub.act.code'] = order.subactiviteitencode
+                table_items.append(item)
 
-        self.body = self.webrender.orderlist(tables)
+            tables.append(self.webrender.table(table_items, header))
+
+        #TODO javascripts for +/- collapse button
+        javascripts = self.webrender.javascripts(orderlist_per_actcode.keys())
+        self.body = self.webrender.orderlist(tables, javascripts)
         return
 

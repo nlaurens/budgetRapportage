@@ -1,23 +1,42 @@
-$def with (orderlist)
-            <table class="table">
-            <thead>
-                <tr>
-                <th class="text-right">Ordernummer</th>
-                <th class="text-right">Omschrijving</th>
-                <th class="text-right">Budgethouder</th>
-                <th class="text-right">Activiteitenhouder</th>
-                <th class="text-right">Subactiviteit code</th>
-                </tr>
-            </thead>
-            <tbody>
-            $for item in orderlist['items']:
-                <tr>
-                    <th class="text-right">$:item['order']</th>
-                    <th class="text-right">$:item['omschrijving']</th>
-                    <th class="text-right">$:item['budgethouder']</th>
-                    <th class="text-right">$:item['activiteitenhouder']</th>
-                    <th class="text-right">$:item['sub.act.code']</th>
-                </tr>
+$def with (orderlist, header)
 
-            </tbody>
-            </table>
+            <div class="panel-group" id="accordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <button data-toggle="collapse" data-target="#collapse$header['id']" class="accordion-toggle btn btn-default btn-xs">
+                            <span id="plusminus$header['id']" class="glyphicon glyphicon-minus"></span>
+                        </button>
+                        $header['name']
+
+                    </div>
+                    <div id="collapse$header['id']" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="table table-condensed table-hover">
+
+                                <thead>
+                                    <tr>
+                                    <th class="text-right">Ordernummer</th>
+                                    <th class="text-right">Omschrijving</th>
+                                    <th class="text-right">Budgethouder</th>
+                                    <th class="text-right">Activiteitenhouder</th>
+                                    <th class="text-right">Subactiviteit code</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                $for item in orderlist:
+                                    <tr>
+                                        <td class="text-right">$:item['order']</td>
+                                        <td class="text-right">$:item['omschrijving']</td>
+                                        <td class="text-right">$:item['budgethouder']</td>
+                                        <td class="text-right">$:item['activiteitenhouder']</td>
+                                        <td class="text-right">$:item['sub.act.code']</td>
+                                    </tr>
+
+                                </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
