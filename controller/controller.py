@@ -98,7 +98,7 @@ class Controller(object):
     # used for creating links in the submodule
     def url(self, module=None, params=None):
         if module is None:
-            module = self.module
+            :odule = self.module
         if params:
             param_str = urllib.urlencode(params)
             return '/%s/%s?%s' % (module, self.userHash, param_str)
