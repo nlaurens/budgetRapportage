@@ -16,11 +16,28 @@ class Salaris(Controller):
         # Salaris specific:
 
     def process_sub(self):
-        self.body = 'dummy salaris'
-        return  # dummy stop
-        # OLD
-        salaris = websalaris.groep_report(userHash, render, groep, jaar)
-        self.body = self.webrender.salaris(salaris)
+        #orders_allowed = orders_in_grootboekgroep(groepstr)
+        #regels = get_HR_regels(jaar, orders_allowed)
+
+        #matchpersoneelsnummers, no_match_per_order = correlate_personeelsnummers(regels['salaris_plan'], regels['salaris_geboekt'])
+
+        #body, totals = table_html(render, regels, matchpersoneelsnummers, no_match_per_order)
+        #settings = settings_html(render, jaar)
+        #java_scripts = java_scripts(render, regels['salaris_geboekt'], regels['salaris_plan'])
+        #summary = get_summary(render, totals)
+
+        settings = 'settings' 
+        summary = ' summary' 
+        body = 'body'
+        java_scripts = 'java_scripts'
+
+        report = {}
+        report['settings'] = settings
+        report['summary'] = summary
+        report['body'] = body
+        report['javaScripts'] = java_scripts
+
+        self.body = self.webrender.salaris(report)
 
 def table_string(value):
     value /= 1000
@@ -210,26 +227,6 @@ def get_summary(render,totals):
     return render.salaris_summary(html)
 
 
-def groep_report(userID, render, groepstr, jaar):
-    global userHash
-    userHash = userID
-
-    orders_allowed = orders_in_grootboekgroep(groepstr)
-    regels = get_HR_regels(jaar, orders_allowed)
-
-    matchpersoneelsnummers, no_match_per_order = correlate_personeelsnummers(regels['salaris_plan'], regels['salaris_geboekt'])
-
-    body, totals = table_html(render, regels, matchpersoneelsnummers, no_match_per_order)
-    settings = settings_html(render, jaar)
-    java_scripts = java_scripts(render, regels['salaris_geboekt'], regels['salaris_plan'])
-    summary = get_summary(render, totals)
-
-    report = {}
-    report['settings'] = settings
-    report['summary'] = summary
-    report['body'] = body
-    report['javaScripts'] = java_scripts
-    return report
 
 
 def orders_in_grootboekgroep(groepstr):
