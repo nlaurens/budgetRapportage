@@ -200,11 +200,12 @@ class Admin(Controller):
                 file_handle = None
             table = eval("self.form_upload['type%s'].value" % i)
 
-            if file_handle is not None and table in self.config['mysql']['tables']['regels'].values():
+            if file_handle is not None and table in self.config['mysql']['tables']['regels'].keys():
                 msg.extend(self.upload_file(table, file_handle))
                 msg_process, fields, rows = self.process_file(table)
                 msg.extend(msg_process)
                 if fields is not None and rows is not None:
+                    print 'jaaaa'
                     model.regels.add(table, fields, rows)
                 self.clean_upload(table)
 
