@@ -9,6 +9,8 @@ import model.regels
 import model.ksgroup
 import model.orders
 
+from config import config
+
 
 class Admin(Controller):
     def __init__(self):
@@ -100,7 +102,7 @@ class Admin(Controller):
         status_regels['body'] = []
         for table in table_names:
             if model.regels.check_table_exists(table):
-                regel = [table, '']
+                regel = [table, 'OK']
             else:
                 regel = [table, 'ERROR']
             for year in years:
@@ -208,7 +210,7 @@ class Admin(Controller):
                     model.regels.add(table, fields, rows)
                 self.clean_upload(table)
 
-            if file_handle is not None and table == self.config['mysql']['tables']['orderlijst']:
+            if file_handle is not None and table == 'orderlijst':
                 msg.extend(self.upload_file(table, file_handle))
                 msg_process, fields, rows = self.process_file(table)
                 msg.extend(msg_process)

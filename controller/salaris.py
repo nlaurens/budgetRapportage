@@ -1,7 +1,11 @@
-from controller import Controller
 import web
-
 import numpy as np
+from web import form
+
+from controller import Controller
+
+import model.ordergroup
+import model.regels
 
 
 class Salaris(Controller):
@@ -14,12 +18,22 @@ class Salaris(Controller):
         self.webrender = web.template.render('webpages/salaris/')
 
         # Salaris specific:
+        self.ordergroup_file = str(web.input(ordergroep='LION')['ordergroep'])
+        ordergroup = model.ordergroup.load(self.ordergroup_file)
+        self.ordergroup = ordergroup.find(str(web.input(subgroep='TOTAAL')['subgroep']))
+        self.orders = self.ordergroup.list_orders_recursive().keys()
 
     def process_sub(self):
         #orders_allowed = orders_in_grootboekgroep(groepstr)
         #regels = get_HR_regels(jaar, orders_allowed)
 
-        #matchpersoneelsnummers, no_match_per_order = correlate_personeelsnummers(regels['salaris_plan'], regels['salaris_geboekt'])
+        regels = model.regels.load(table_names_load=['salaris_plan', 'salaris_geboekt'],orders_load=self.orders)
+        #regels.druk_af()
+        #print regels
+        #regels_tiepe_order_persnr = regels.split(['tiepe', 'personeelsnummer'])
+
+        #print regels_tiepe_persnr
+        #matchpersoneelsnummers, no_match_per_order = self.correlate_personeelsnummers(regels_tiepe_pernr)
 
         #body, totals = table_html(render, regels, matchpersoneelsnummers, no_match_per_order)
         #settings = settings_html(render, jaar)
@@ -38,6 +52,38 @@ class Salaris(Controller):
         report['javaScripts'] = java_scripts
 
         self.body = self.webrender.salaris(report)
+
+
+    def correlate_personeelsnummers(self, regels_tiepe_pernr):
+    # Cross personeelsnummers begroting -> boekingsnummers
+        begroot = regels_begroot.split_by_regel_attributes(['personeelsnummer'])
+        kosten = regels_geboekt.split_by_regel_attributes(['personeelsnummer'])
+
+        matchpersoneelsnummers = {} # personeelsnummer in kosten: { regels begroot}
+        no_match_per_order = {} # order : {regelList met regels}
+        for begrootpersoneelsnummer, begroot_regels_list in begroot.iteritems():
+
+            matchfound = False
+            if begrootpersoneelsnummer:
+                #convert 2xx -> 9xxx, 1xxx -> 8xxxx
+                if 10000000 <= begrootpersoneelsnummer < 20000000:
+                    begrootpersoneelsnummer += 70000000
+                elif 20000000 <= begrootpersoneelsnummer < 30000000:
+                    begrootpersoneelsnummer += 70000000
+
+                if begrootpersoneelsnummer in kosten.keys():
+                    matchpersoneelsnummers[begrootpersoneelsnummer] = begroot_regels_list
+                    matchfound = True
+
+            if not matchfound or not begrootpersoneelsnummer:
+                begroot_regels_dict_per_order = begroot_regels_list.split_by_regel_attributes(['ordernummer'])
+                for order, begroot_regels_list in begroot_regels_dict_per_order.iteritems():
+                    if order not in no_match_per_order:
+                        no_match_per_order[order] = begroot_regels_list
+                    else:
+                        no_match_per_order[order].extend(begroot_regels_list)
+
+        return matchpersoneelsnummers, no_match_per_order
 
 def table_string(value):
     value /= 1000
@@ -248,34 +294,4 @@ def get_HR_regels(jaar, orders):
 
     return regels
 
-def correlate_personeelsnummers(regels_begroot, regels_geboekt):
-# Cross personeelsnummers begroting -> boekingsnummers
-    begroot = regels_begroot.split_by_regel_attributes(['personeelsnummer'])
-    kosten = regels_geboekt.split_by_regel_attributes(['personeelsnummer'])
-
-    matchpersoneelsnummers = {} # personeelsnummer in kosten: { regels begroot}
-    no_match_per_order = {} # order : {regelList met regels}
-    for begrootpersoneelsnummer, begroot_regels_list in begroot.iteritems():
-
-        matchfound = False
-        if begrootpersoneelsnummer:
-            #convert 2xx -> 9xxx, 1xxx -> 8xxxx
-            if 10000000 <= begrootpersoneelsnummer < 20000000:
-                begrootpersoneelsnummer += 70000000
-            elif 20000000 <= begrootpersoneelsnummer < 30000000:
-                begrootpersoneelsnummer += 70000000
-
-            if begrootpersoneelsnummer in kosten.keys():
-                matchpersoneelsnummers[begrootpersoneelsnummer] = begroot_regels_list
-                matchfound = True
-
-        if not matchfound or not begrootpersoneelsnummer:
-            begroot_regels_dict_per_order = begroot_regels_list.split_by_regel_attributes(['ordernummer'])
-            for order, begroot_regels_list in begroot_regels_dict_per_order.iteritems():
-                if order not in no_match_per_order:
-                    no_match_per_order[order] = begroot_regels_list
-                else:
-                    no_match_per_order[order].extend(begroot_regels_list)
-
-    return matchpersoneelsnummers, no_match_per_order
 
