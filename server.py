@@ -19,6 +19,7 @@ Model
     - regels
         * write validator for input that can be re-used (tablename in config[''] etc.)
         * add reserve to db
+
     - orderlist
         * add (merge it with regels)
         * make model.budget.orderlist class that behavious similar to other budget classes
@@ -40,6 +41,7 @@ Controller & Webpages
         * forms layout doen (attributen van webpy forms setten)
         * create test that looks if there are orders in db not in any ordergroup
           (and perhaps also look at the GS)
+        * add 'year' field in table for salaris geboekt based on the boekingsdate.
 
     - login
         * bij password verkeerd invullen post form leegmaken.
