@@ -7,7 +7,6 @@ from controller import Controller
 import model.ordergroup
 import model.regels
 
-
 class Salaris(Controller):
     def __init__(self):
         Controller.__init__(self)
@@ -23,41 +22,29 @@ class Salaris(Controller):
         self.ordergroup = ordergroup.find(str(web.input(subgroep='TOTAAL')['subgroep']))
         self.orders = self.ordergroup.list_orders_recursive().keys()
 
+
     def process_sub(self):
-        #orders_allowed = orders_in_grootboekgroep(groepstr)
-        #regels = get_HR_regels(jaar, orders_allowed)
-
         regels = model.regels.load(table_names_load=['salaris_plan', 'salaris_geboekt'],orders_load=self.orders)
-        #regels.druk_af()
-        #print regels
-        #regels_tiepe_order_persnr = regels.split(['tiepe', 'personeelsnummer'])
+        regels_tiepe_persnr = regels.split(['tiepe', 'personeelsnummer'])
 
-        #print regels_tiepe_persnr
-        #matchpersoneelsnummers, no_match_per_order = self.correlate_personeelsnummers(regels_tiepe_pernr)
-
-        #body, totals = table_html(render, regels, matchpersoneelsnummers, no_match_per_order)
-        #settings = settings_html(render, jaar)
+        matchpersoneelsnummers, no_match_per_order = self.correlate_personeelsnummers(regels_tiepe_persnr)
+        #body, totals = self.table_html(regels_tiepe_persnr, matchpersoneelsnummers, no_match_per_order)
         #java_scripts = java_scripts(render, regels['salaris_geboekt'], regels['salaris_plan'])
         #summary = get_summary(render, totals)
 
-        settings = 'settings' 
-        summary = ' summary' 
-        body = 'body'
-        java_scripts = 'java_scripts'
-
         report = {}
-        report['settings'] = settings
-        report['summary'] = summary
+        report['settings'] = self.render_settings()
+        report['summary'] = self.render_summary()
         report['body'] = body
-        report['javaScripts'] = java_scripts
+        report['javaScripts'] = self.render_java_scripts()
 
         self.body = self.webrender.salaris(report)
 
 
-    def correlate_personeelsnummers(self, regels_tiepe_pernr):
-    # Cross personeelsnummers begroting -> boekingsnummers
-        begroot = regels_begroot.split_by_regel_attributes(['personeelsnummer'])
-        kosten = regels_geboekt.split_by_regel_attributes(['personeelsnummer'])
+    def correlate_personeelsnummers(self, regels):
+        # Cross personeelsnummers begroting -> boekingsnummers
+        begroot = regels['salaris_plan']
+        kosten = regels['salaris_geboekt']
 
         matchpersoneelsnummers = {} # personeelsnummer in kosten: { regels begroot}
         no_match_per_order = {} # order : {regelList met regels}
@@ -76,7 +63,7 @@ class Salaris(Controller):
                     matchfound = True
 
             if not matchfound or not begrootpersoneelsnummer:
-                begroot_regels_dict_per_order = begroot_regels_list.split_by_regel_attributes(['ordernummer'])
+                begroot_regels_dict_per_order = begroot_regels_list.split(['ordernummer'])
                 for order, begroot_regels_list in begroot_regels_dict_per_order.iteritems():
                     if order not in no_match_per_order:
                         no_match_per_order[order] = begroot_regels_list
@@ -84,6 +71,46 @@ class Salaris(Controller):
                         no_match_per_order[order].extend(begroot_regels_list)
 
         return matchpersoneelsnummers, no_match_per_order
+
+
+    def table_html(self, regels, matchpersoneelsnummers, no_match_per_order):
+        # Parse all orders & begrote kosten:
+        kosten_dict = regels['salaris_geboekt'].split(['ordernummer', 'personeelsnummer'])
+        obligo_dict = regels['salaris_plan'].split(['ordernummer'])
+        total = {}
+        total['begroot'] = 0
+        total['geboekt'] = 0
+        total['obligo'] = 0
+        parsed_orders = []
+        for order in kosten_dict.keys():
+            html_order, total_order = parse_order(render, order, kosten_dict, obligo_dict, matchpersoneelsnummers, no_match_per_order)
+            total['begroot'] += total_order['begroot']
+            total['geboekt'] += total_order['geboekt']
+            total['obligo'] += total_order['obligo']
+            parsed_orders.append(html_order)
+
+        # Begroot maar geen kosten
+        empty_orders = []
+        for order, regelList in no_match_per_order.iteritems():
+            html_order, total_order_begroot = parse_empty_order(render, order, regelList)
+            total['begroot'] += total_order_begroot
+            empty_orders.append(html_order)
+
+        return self.webrender.salaris_body(parsed_orders, empty_orders), total
+
+    def render_settings(self):
+        # TODO add settings form
+        form_settings = 'todo form met optie'
+        return self.webrender.salaris_settings(form_settings)
+
+
+    def render_summary(self):
+        return 'dummy'
+
+
+    def render_java_scripts(self):
+        return 'dummy'
+
 
 def table_string(value):
     value /= 1000
@@ -221,35 +248,7 @@ def parse_empty_order(render, order, regel_list):
     return html_table, total_order_begroot
 
 
-def table_html(render, regels, matchpersoneelsnummers, no_match_per_order):
-    # Parse all orders & begrote kosten:
-    kosten_dict = regels['salaris_geboekt'].split_by_regel_attributes(['ordernummer', 'personeelsnummer'])
-    obligo_dict = regels['salaris_plan'].split_by_regel_attributes(['ordernummer'])
-    total = {}
-    total['begroot'] = 0
-    total['geboekt'] = 0
-    total['obligo'] = 0
-    parsed_orders = []
-    for order in kosten_dict.keys():
-        html_order, total_order = parse_order(render, order, kosten_dict, obligo_dict, matchpersoneelsnummers, no_match_per_order)
-        total['begroot'] += total_order['begroot']
-        total['geboekt'] += total_order['geboekt']
-        total['obligo'] += total_order['obligo']
-        parsed_orders.append(html_order)
 
-    # Begroot maar geen kosten
-    empty_orders = []
-    for order, regelList in no_match_per_order.iteritems():
-        html_order, total_order_begroot = parse_empty_order(render, order, regelList)
-        total['begroot'] += total_order_begroot
-        empty_orders.append(html_order)
-
-    return render.salaris_body(parsed_orders, empty_orders), total
-
-def settings_html(render, jaar):
-    form_settings = 'todo form met optie'
-    lastupdate = model.regels.last_update()
-    return render.salaris_settings(lastupdate, form_settings)
 
 def java_scripts(render, regels_geboekt, regels_begroot):
     orders_geboekt = regels_geboekt.split_by_regel_attributes(['ordernummer']).keys()

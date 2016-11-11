@@ -25,7 +25,10 @@ class Regel:
     def druk_af(self):
         print '* regel'
         for attribute, value in vars(self).iteritems():
-            print '  ' + attribute + ': ' + str(value)
+            try:
+                print '  ' + attribute + ': ' + str(value)
+            except Exception:
+                print '  ' + attribute + ': <not printable>'
         print ''
 
     def copy(self):
