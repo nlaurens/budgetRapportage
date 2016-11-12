@@ -3,6 +3,7 @@ import numpy as np
 from web import form
 
 from controller import Controller
+from functions import table_string
 
 import model.ordergroup
 import model.regels
@@ -25,10 +26,10 @@ class Salaris(Controller):
 
     def process_sub(self):
         regels = model.regels.load(table_names_load=['salaris_plan', 'salaris_geboekt'],orders_load=self.orders)
-        regels_tiepe_persnr = regels.split(['tiepe', 'personeelsnummer'])
+        regels_per_tiepe = regels.split(['tiepe'])
 
-        matchpersoneelsnummers, no_match_per_order = self.correlate_personeelsnummers(regels_tiepe_persnr)
-        #body, totals = self.table_html(regels_tiepe_persnr, matchpersoneelsnummers, no_match_per_order)
+        matchpersoneelsnummers, no_match_per_order = self.correlate_personeelsnummers(regels_per_tiepe)
+        body, totals = self.table_html(regels_per_tiepe, matchpersoneelsnummers, no_match_per_order)
         #java_scripts = java_scripts(render, regels['salaris_geboekt'], regels['salaris_plan'])
         #summary = get_summary(render, totals)
 
@@ -41,10 +42,10 @@ class Salaris(Controller):
         self.body = self.webrender.salaris(report)
 
 
-    def correlate_personeelsnummers(self, regels):
+    def correlate_personeelsnummers(self, regels_per_tiepe):
         # Cross personeelsnummers begroting -> boekingsnummers
-        begroot = regels['salaris_plan']
-        kosten = regels['salaris_geboekt']
+        begroot = regels_per_tiepe['salaris_plan'].split(['personeelsnummer'])
+        kosten = regels_per_tiepe['salaris_geboekt'].split(['personeelsnummer'])
 
         matchpersoneelsnummers = {} # personeelsnummer in kosten: { regels begroot}
         no_match_per_order = {} # order : {regelList met regels}
@@ -73,17 +74,19 @@ class Salaris(Controller):
         return matchpersoneelsnummers, no_match_per_order
 
 
-    def table_html(self, regels, matchpersoneelsnummers, no_match_per_order):
+    def table_html(self, regels_per_tiepe, matchpersoneelsnummers, no_match_per_order):
         # Parse all orders & begrote kosten:
-        kosten_dict = regels['salaris_geboekt'].split(['ordernummer', 'personeelsnummer'])
-        obligo_dict = regels['salaris_plan'].split(['ordernummer'])
+        obligo_dict = regels_per_tiepe['salaris_plan'].split(['ordernummer'])
+        kosten_dict = regels_per_tiepe['salaris_geboekt'].split(['ordernummer', 'personeelsnummer'])
+
         total = {}
         total['begroot'] = 0
         total['geboekt'] = 0
         total['obligo'] = 0
         parsed_orders = []
         for order in kosten_dict.keys():
-            html_order, total_order = parse_order(render, order, kosten_dict, obligo_dict, matchpersoneelsnummers, no_match_per_order)
+            #TODO dis-en-tangle html and analysis
+            html_order, total_order = self.parse_order(order, kosten_dict, obligo_dict, matchpersoneelsnummers, no_match_per_order)
             total['begroot'] += total_order['begroot']
             total['geboekt'] += total_order['geboekt']
             total['obligo'] += total_order['obligo']
@@ -92,11 +95,139 @@ class Salaris(Controller):
         # Begroot maar geen kosten
         empty_orders = []
         for order, regelList in no_match_per_order.iteritems():
-            html_order, total_order_begroot = parse_empty_order(render, order, regelList)
+            html_order, total_order_begroot = self.parse_empty_order(order, regelList)
             total['begroot'] += total_order_begroot
             empty_orders.append(html_order)
 
         return self.webrender.salaris_body(parsed_orders, empty_orders), total
+
+
+    def parse_order(self, order, kosten_dict, obligo_dict, matchpersoneelsnummers, no_match_per_order):
+        order_rows = []
+        begroot = 0
+        total_order = {}
+        total_order['geboekt'] = 0
+        total_order['begroot'] = 0
+        total_order['resultaat'] = 0
+        total_order['obligo'] = 0
+
+        #Geboekte kosten + eventueel begroting
+        for personeelsnummer, regelsGeboekt in kosten_dict[order].iteritems():
+            ordernaam = regelsGeboekt.regels[0].ordernaam
+            naam_geboekt = regelsGeboekt.regels[0].personeelsnaam
+            geboekt = regelsGeboekt.total()
+
+            naam_begroot = '' # Reset begroot to not found
+            begroot = 0
+            if personeelsnummer in matchpersoneelsnummers:
+                persoonbegroot = matchpersoneelsnummers[personeelsnummer].split(['ordernummer'])
+                if order in persoonbegroot:
+                    begroot = persoonbegroot[order].total()
+                    naam_begroot = persoonbegroot[order].regels[0].personeelsnaam
+            row = {}
+            row['personeelsnummer'] = personeelsnummer
+            row['naam'] = naam_geboekt
+            row['resultaat_perc'] = 0
+            row['begroot'] = begroot
+            row['geboekt'] = geboekt
+            row['resultaat'] = begroot - geboekt
+            row['td_class'] = 'danger'
+            if naam_begroot != '' and begroot > 0:
+                row['naam'] = naam_begroot
+                row['resultaat_perc'] = (row['geboekt'] / begroot) * 100
+                row['td_class'] = 'success'
+
+            total_order['geboekt'] +=  row['geboekt']
+            total_order['begroot'] +=  row['begroot']
+            total_order['resultaat'] += row['resultaat']
+            order_rows.append(self.personeel_regel_to_html(row))
+
+        # Begrote personen zonder daadwerkelijke kosten
+        if order in no_match_per_order:
+            for regel in no_match_per_order[order].regels:
+                total_order['begroot'] += regel.kosten
+                row = {}
+                row['personeelsnummer'] = regel.personeelsnummer
+                row['naam'] = regel.personeelsnaam
+                row['begroot'] = regel.kosten
+                row['geboekt'] = 0
+                row['resultaat'] = regel.kosten
+                row['resultaat_perc'] = 0
+                row['td_class'] = 'danger'
+                order_rows.append(self.personeel_regel_to_html(row))
+            del no_match_per_order[order] #Remove so we end up with a list of remaining begrotingsposten
+
+        #Obligos
+        if order in obligo_dict:
+            for regel in obligo_dict[order].regels:
+                if regel.kosten > 0:
+                    row = {}
+                    row['personeelsnummer'] = 'Obligos'
+    #TODO omschrijving obligo invullen
+                    row['naam'] = 'TODO'
+                    row['begroot'] = 0
+                    row['geboekt'] = regel.kosten
+                    row['resultaat'] = - regel.kosten
+                    row['resultaat_perc'] = 0
+                    row['td_class'] = ''
+                    order_rows.append(self.personeel_regel_to_html(row))
+                    total_order['obligo'] += regel.kosten
+
+        header = {}
+        header['id'] = order
+        header['userHash'] = 'todo USERHASH'
+        header['img'] = '../static/figs/TODO.png'
+        header['name'] = ordernaam + ' - ' + str(order)
+        header['ordernaam'] = ordernaam
+        header['begroot'] = table_string(total_order['begroot'])
+        header['geboekt'] = table_string(total_order['geboekt'])
+        header['obligo'] = table_string(total_order['obligo'])
+        header['resultaat'] = table_string(total_order['resultaat'])
+        html_table = self.webrender.salaris_table_order(order_rows, header)
+        return html_table, total_order
+
+
+    def personeel_regel_to_html(self, row):
+        html = row.copy()
+        html['personeelsnummer'] = row['personeelsnummer']
+        html['name'] = row['naam']
+        html['begroot'] = table_string(row['begroot'])
+        html['geboekt'] =  table_string(row['geboekt'])
+        html['resultaat'] = table_string(row['resultaat'])
+        html['resultaat_perc'] = '%.f' % row['resultaat_perc'] + '%'
+        html['td_class'] = row['td_class']
+        return self.webrender.salaris_personeel_regel(html)
+
+
+    def parse_empty_order(self, order, regel_list):
+        order_rows = []
+        total_order_begroot = 0
+        for regel in regel_list.regels:
+            row = {}
+            row['personeelsnummer'] = regel.personeelsnummer
+            row['naam'] = regel.personeelsnaam
+            row['begroot'] = regel.kosten
+            row['geboekt'] = 0
+            row['obligo'] = 0
+            row['resultaat'] = regel.kosten
+            row['resultaat_perc'] = 0
+            row['td_class'] = 'danger'
+            order_rows.append(self.personeel_regel_to_html(row))
+            total_order_begroot += regel.kosten
+
+        header = {}
+        header['id'] = order
+        header['userHash'] = 'todo UhserHASH'
+        header['img'] = '../static/figs/TODO.png'
+        header['name'] = order
+        header['ordernaam'] = 'todo order naam'
+        header['begroot'] = table_string(total_order_begroot)
+        header['geboekt'] = table_string(0)
+        header['obligo'] = 0
+        header['resultaat'] = table_string(-total_order_begroot)
+        html_table = self.webrender.salaris_table_order(order_rows, header)
+        return html_table, total_order_begroot
+
 
     def render_settings(self):
         # TODO add settings form
@@ -112,150 +243,12 @@ class Salaris(Controller):
         return 'dummy'
 
 
-def table_string(value):
-    value /= 1000
-    if value == 0 or np.abs(value) < 0.5:
-        return '&nbsp;'
-    else:
-        return '%.f' % value
-
-
-def personeel_regel_to_html(row, render):
-    html = row.copy()
-    html['personeelsnummer'] = row['personeelsnummer']
-    html['name'] = row['naam']
-    html['begroot'] = table_string(row['begroot'])
-    html['geboekt'] =  table_string(row['geboekt'])
-    html['resultaat'] = table_string(row['resultaat'])
-    html['resultaat_perc'] = '%.f' % row['resultaat_perc'] + '%'
-    html['td_class'] = row['td_class']
-    return render.salaris_personeel_regel(html)
-
-
-def parse_order(render, order, kosten_dict, obligo_dict, matchpersoneelsnummers, no_match_per_order):
-    order_rows = []
-    begroot = 0
-    total_order = {}
-    total_order['geboekt'] = 0
-    total_order['begroot'] = 0
-    total_order['resultaat'] = 0
-    total_order['obligo'] = 0
-
-
-    #Geboekte kosten + eventueel begroting
-    for personeelsnummer, regelsGeboekt in kosten_dict[order].iteritems():
-        ordernaam = regelsGeboekt.regels[0].ordernaam
-        naam_geboekt = regelsGeboekt.regels[0].personeelsnaam
-        geboekt = regelsGeboekt.total()
-
-        naam_begroot = '' # Reset begroot to not found
-        begroot = 0
-        if personeelsnummer in matchpersoneelsnummers:
-            persoonbegroot = matchpersoneelsnummers[personeelsnummer].split_by_regel_attributes(['ordernummer'])
-            if order in persoonbegroot:
-                begroot = persoonbegroot[order].total()
-                naam_begroot = persoonbegroot[order].regels[0].personeelsnaam
-        row = {}
-        row['personeelsnummer'] = personeelsnummer
-        row['naam'] = naam_geboekt
-        row['resultaat_perc'] = 0
-        row['begroot'] = begroot
-        row['geboekt'] = geboekt
-        row['resultaat'] = begroot - geboekt
-        row['td_class'] = 'danger'
-        if naam_begroot != '' and begroot > 0:
-            row['naam'] = naam_begroot
-            row['resultaat_perc'] = (row['geboekt'] / begroot) * 100
-            row['td_class'] = 'success'
-
-        total_order['geboekt'] +=  row['geboekt']
-        total_order['begroot'] +=  row['begroot']
-        total_order['resultaat'] += row['resultaat']
-        order_rows.append(personeel_regel_to_html(row, render))
-
-    # Begrote personen zonder daadwerkelijke kosten
-    if order in no_match_per_order:
-        for regel in no_match_per_order[order].regels:
-            total_order['begroot'] += regel.kosten
-            row = {}
-            row['personeelsnummer'] = regel.personeelsnummer
-            row['naam'] = regel.personeelsnaam
-            row['begroot'] = regel.kosten
-            row['geboekt'] = 0
-            row['resultaat'] = regel.kosten
-            row['resultaat_perc'] = 0
-            row['td_class'] = 'danger'
-            order_rows.append(personeel_regel_to_html(row, render))
-        del no_match_per_order[order] #Remove so we end up with a list of remaining begrotingsposten
-
-    #Obligos
-    if order in obligo_dict:
-        for regel in obligo_dict[order].regels:
-            if regel.kosten > 0:
-                row = {}
-                row['personeelsnummer'] = 'Obligos'
-#TODO omschrijving obligo invullen
-                row['naam'] = 'TODO'
-                row['begroot'] = 0
-                row['geboekt'] = regel.kosten
-                row['resultaat'] = - regel.kosten
-                row['resultaat_perc'] = 0
-                row['td_class'] = ''
-                order_rows.append(personeel_regel_to_html(row, render))
-                total_order['obligo'] += regel.kosten
-
-    header = {}
-    header['id'] = order
-    header['userHash'] = userHash
-    header['img'] = '../static/figs/TODO.png'
-    header['name'] = ordernaam + ' - ' + str(order)
-    header['ordernaam'] = ordernaam
-    header['begroot'] = table_string(total_order['begroot'])
-    header['geboekt'] = table_string(total_order['geboekt'])
-    header['obligo'] = table_string(total_order['obligo'])
-    header['resultaat'] = table_string(total_order['resultaat'])
-    html_table = render.salaris_table_order(order_rows, header)
-    return html_table, total_order
-
-
-def parse_empty_order(render, order, regel_list):
-    order_rows = []
-    total_order_begroot = 0
-    for regel in regel_list.regels:
-        row = {}
-        row['personeelsnummer'] = regel.personeelsnummer
-        row['naam'] = regel.personeelsnaam
-        row['begroot'] = regel.kosten
-        row['geboekt'] = 0
-        row['obligo'] = 0
-        row['resultaat'] = regel.kosten
-        row['resultaat_perc'] = 0
-        row['td_class'] = 'danger'
-        order_rows.append(personeel_regel_to_html(row, render))
-        total_order_begroot += regel.kosten
-
-    header = {}
-    header['id'] = order
-    header['userHash'] = userHash
-    header['img'] = '../static/figs/TODO.png'
-    header['name'] = order
-    header['ordernaam'] = 'todo order naam'
-    header['begroot'] = table_string(total_order_begroot)
-    header['geboekt'] = table_string(0)
-    header['obligo'] = 0
-    header['resultaat'] = table_string(-total_order_begroot)
-    html_table = render.salaris_table_order(order_rows, header)
-    return html_table, total_order_begroot
-
-
-
-
 def java_scripts(render, regels_geboekt, regels_begroot):
     orders_geboekt = regels_geboekt.split_by_regel_attributes(['ordernummer']).keys()
     orders_begroot = regels_begroot.split_by_regel_attributes(['ordernummer']).keys()
     orders = set(orders_geboekt + orders_begroot)
 
-    return render.salaris_javascripts(orders)
+    return self.webrender.salaris_javascripts(orders)
 
 
 def get_summary(render,totals):
@@ -269,28 +262,4 @@ def get_summary(render,totals):
     html['resultaat'] = table_string(resultaat)
     html['totaalkosten'] = table_string(kosten)
 
-    return render.salaris_summary(html)
-
-
-
-
-def orders_in_grootboekgroep(groepstr):
-#TODO in variable voor andere ordergroepen
-    if groepstr != '':
-        root = rootOrderGroep.load('LION')
-        root = root.find(groepstr)
-    else:
-        root = OrderGroep.load('LION')
-
-    orders_allowed = root.list_orders_recursive()
-
-    return orders_allowed
-
-def get_HR_regels(jaar, orders):
-#TODO selecteren op jaar. maar db heeft nu nog geen jaar. moet tijdens importeren aangepast worden.
-    table_names = ['salaris_geboekt', 'salaris_plan', 'salaris_plan']
-    regels = model.get_regellist_per_table(table_names, orders=orders)
-
-    return regels
-
-
+    return self.webrender.salaris_summary(html)
