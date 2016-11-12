@@ -30,14 +30,12 @@ class Salaris(Controller):
 
         matchpersoneelsnummers, no_match_per_order = self.correlate_personeelsnummers(regels_per_tiepe)
         body, totals = self.table_html(regels_per_tiepe, matchpersoneelsnummers, no_match_per_order)
-        #java_scripts = java_scripts(render, regels['salaris_geboekt'], regels['salaris_plan'])
-        #summary = get_summary(render, totals)
 
         report = {}
         report['settings'] = self.render_settings()
-        report['summary'] = self.render_summary()
+        report['summary'] = self.get_summary(totals)
         report['body'] = body
-        report['javaScripts'] = self.render_java_scripts()
+        report['javaScripts'] = self.java_scripts(regels_per_tiepe)
 
         self.body = self.webrender.salaris(report)
 
@@ -235,31 +233,26 @@ class Salaris(Controller):
         return self.webrender.salaris_settings(form_settings)
 
 
-    def render_summary(self):
-        return 'dummy'
+    def java_scripts(self, regels):
+        regels_geboekt = regels['salaris_plan']
+        regels_begroot = regels['salaris_geboekt']
+
+        orders_geboekt = regels_geboekt.split(['ordernummer']).keys()
+        orders_begroot = regels_begroot.split(['ordernummer']).keys()
+        orders = set(orders_geboekt + orders_begroot)
+
+        return self.webrender.salaris_javascripts(orders)
 
 
-    def render_java_scripts(self):
-        return 'dummy'
+    def get_summary(self, totals):
+        kosten = totals['geboekt'] + totals['obligo']
+        resultaat = totals['begroot'] - kosten
 
+        html = {}
+        html['begroot'] = table_string(totals['begroot'])
+        html['geboekt'] = table_string(totals['geboekt'])
+        html['obligo'] = table_string(totals['obligo'])
+        html['resultaat'] = table_string(resultaat)
+        html['totaalkosten'] = table_string(kosten)
 
-def java_scripts(render, regels_geboekt, regels_begroot):
-    orders_geboekt = regels_geboekt.split_by_regel_attributes(['ordernummer']).keys()
-    orders_begroot = regels_begroot.split_by_regel_attributes(['ordernummer']).keys()
-    orders = set(orders_geboekt + orders_begroot)
-
-    return self.webrender.salaris_javascripts(orders)
-
-
-def get_summary(render,totals):
-    kosten = totals['geboekt'] + totals['obligo']
-    resultaat = totals['begroot'] - kosten
-
-    html = {}
-    html['begroot'] = table_string(totals['begroot'])
-    html['geboekt'] = table_string(totals['geboekt'])
-    html['obligo'] = table_string(totals['obligo'])
-    html['resultaat'] = table_string(resultaat)
-    html['totaalkosten'] = table_string(kosten)
-
-    return self.webrender.salaris_summary(html)
+        return self.webrender.salaris_summary(html)
