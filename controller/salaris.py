@@ -74,7 +74,7 @@ class Salaris(Controller):
 
     def table_html(self, regels_per_tiepe, matchpersoneelsnummers, no_match_per_order):
         # Parse all orders & begrote kosten:
-        obligo_dict = regels_per_tiepe['salaris_plan'].split(['ordernummer'])
+        obligo_dict = {} #regels_per_tiepe['salaris_plan'].split(['ordernummer'])  # TODO use real obligo here
         kosten_dict = regels_per_tiepe['salaris_geboekt'].split(['ordernummer', 'personeelsnummer'])
 
         total = {}

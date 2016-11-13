@@ -12,9 +12,10 @@ class Regel:
         self.jaar = None
         self.periode = None
 
-        # specific for 'salaris'
+        # specific for salaris-plan/obligo/geboekt
         self.personeelsnummer = None
         self.personeelsnaam = None
+        self.payrollnummer = None
         self.schaal = None
         self.trede = None
 
