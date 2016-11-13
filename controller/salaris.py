@@ -25,7 +25,7 @@ class Salaris(Controller):
 
 
     def process_sub(self):
-        regels = model.regels.load(table_names_load=['salaris_plan', 'salaris_geboekt'],orders_load=self.orders)
+        regels = model.regels.load(table_names_load=['salaris_plan', 'salaris_geboekt', 'salaris_obligo'],orders_load=self.orders)
         regels_per_tiepe = regels.split(['tiepe'])
 
         matchpersoneelsnummers, no_match_per_order = self.correlate_personeelsnummers(regels_per_tiepe)
@@ -44,6 +44,7 @@ class Salaris(Controller):
         # Cross personeelsnummers begroting -> boekingsnummers
         begroot = regels_per_tiepe['salaris_plan'].split(['personeelsnummer'])
         kosten = regels_per_tiepe['salaris_geboekt'].split(['personeelsnummer'])
+        obligo = regels_per_tiepe['salaris_obligos'].split(['personeelsnummer'])
 
         matchpersoneelsnummers = {} # personeelsnummer in kosten: { regels begroot}
         no_match_per_order = {} # order : {regelList met regels}
