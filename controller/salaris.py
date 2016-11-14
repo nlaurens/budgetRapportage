@@ -348,11 +348,21 @@ class Salaris(Controller):
             header['obligo'] = table_string(data['orders'][order]['totals']['salaris_obligo'])
             header['resultaat'] = table_string(data['orders'][order]['totals']['resultaat'])
 
-            table_items = []  # TODO 
+            table_items = []
+            for key in data['orders'][order].keys():
+                html = {}
+                html['naam'] = 'dummy'# row['personeelsnummer']
+                html['personeelsnummer'] = 'dummy'# row['personeelsnummer']
+                html['name'] =  'dummy'#row['naam']
+                html['begroot'] =  'dummy'#table_string(row['begroot'])
+                html['geboekt'] =   'dummy'#table_string(row['geboekt'])
+                html['resultaat'] =  'dummy'#table_string(row['resultaat'])
+                html['resultaat_perc'] =  'dummy'#'%.f' % row['resultaat_perc'] + '%'
+                html['td_class'] =  'dummy'#row['td_class']
+                table_items.append(self.webrender.salaris_personeel_regel(html))
 
             order_tables.append(self.webrender.salaris_table_order(table_items, header))
 
-        order_tables = None
         person_tables = None
         return self.webrender.salaris_body(order_tables, person_tables)
 
