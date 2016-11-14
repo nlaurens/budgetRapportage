@@ -30,6 +30,14 @@ class Salaris(Controller):
         data = self.create_data_structure(regels)
         #data = self.format_data(data)
         #body = self.render_body(data)
+        report = {}
+        report['settings'] = self.render_settings()
+        report['summary'] = self.get_summary(data)
+        report['body'] = self.render_body(data)
+        report['javaScripts'] = self.java_scripts(regels)
+
+        self.body = self.webrender.salaris(report)
+        return
         
         ######################################
         #OLD
@@ -70,7 +78,7 @@ class Salaris(Controller):
 
     """
     def create_data_structure(self, regels):
-        data = { 'totals':{} }  
+        data = { 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0} }  
 
         obligo = regels.split(['tiepe', 'personeelsnummer'])['salaris_obligo'] 
         payroll_map = self.payroll_map(obligo)
@@ -98,34 +106,29 @@ class Salaris(Controller):
                 data[order][payrollnr]['match'] = match or data[order][payrollnr]['match']  # once it is true it should stay true
                 data[order][payrollnr][regel.tiepe] += regel.kosten
                 data[order][payrollnr]['resultaat'] = data[order][payrollnr]['salaris_plan'] - data[order][payrollnr]['salaris_geboekt'] - data[order][payrollnr]['salaris_obligo']
+                if data[order][payrollnr]['salaris_plan'] > 0:
+                    data[order][payrollnr]['resultaat_perc'] = data[order][payrollnr]['salaris_geboekt'] / data[order][payrollnr]['salaris_plan']
+                else:
+                    data[order][payrollnr]['resultaat_perc'] = 0
 
                 # data - order - totals
+                data[order]['totals'][regel.tiepe] += regel.kosten
+                data[order]['totals']['resultaat'] = data[order]['totals']['salaris_plan'] - data[order]['totals']['salaris_geboekt'] - data[order]['totals']['salaris_obligo']
 
                 # data - totals
+                data['totals'][regel.tiepe] += regel.kosten
+                data['totals']['resultaat'] = data['totals']['salaris_plan'] - data['totals']['salaris_geboekt'] - data['totals']['salaris_obligo']
 
                 # data - payroll
-
-
-#            matchfound = False
-#            if begrootpersoneelsnummer:
-#                #convert 2xx -> 9xxx, 1xxx -> 8xxxx
-#                if 10000000 <= begrootpersoneelsnummer < 20000000:
-#                    begrootpersoneelsnummer += 70000000
-#                elif 20000000 <= begrootpersoneelsnummer < 30000000:
-#                    begrootpersoneelsnummer += 70000000
-#
-#                if begrootpersoneelsnummer in kosten.keys():
-#                    matchpersoneelsnummers[begrootpersoneelsnummer] = begroot_regels_list
-#                    matchfound = True
-#
-#            if not matchfound or not begrootpersoneelsnummer:
-#                begroot_regels_dict_per_order = begroot_regels_list.split(['ordernummer'])
-#                for order, begroot_regels_list in begroot_regels_dict_per_order.iteritems():
-#                    if order not in no_match_per_order:
-#                        no_match_per_order[order] = begroot_regels_list
-#                    else:
-#                        no_match_per_order[order].extend(begroot_regels_list)
-#
+                if payrollnr not in data:
+                    data[payrollnr] = {'naam':regel.personeelsnaam, 'match':match, 'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}
+                data[payrollnr]['match'] = match or data[payrollnr]['match']  # once it is true it should stay true
+                data[payrollnr][regel.tiepe] += regel.kosten
+                data[payrollnr]['resultaat'] = data[payrollnr]['salaris_plan'] - data[payrollnr]['salaris_geboekt'] - data[payrollnr]['salaris_obligo']
+                if data[payrollnr]['salaris_plan'] > 0:
+                    data[payrollnr]['resultaat_perc'] = data[payrollnr]['salaris_geboekt'] / data[payrollnr]['salaris_plan']
+                else:
+                    data[payrollnr]['resultaat_perc'] = 0
 
         return data
 
@@ -357,14 +360,17 @@ class Salaris(Controller):
         return self.webrender.salaris_javascripts(orders)
 
 
-    def get_summary(self, totals):
-        kosten = totals['geboekt'] + totals['obligo']
-        resultaat = totals['begroot'] - kosten
+    def get_summary(self, data):
+        begroot = data['totals']['salaris_plan']
+        geboekt =  data['totals']['salaris_geboekt']
+        obligo = data['totals']['salaris_obligo']
+        kosten = data['totals']['salaris_geboekt']
+        resultaat = data['totals']['resultaat']
 
         html = {}
-        html['begroot'] = table_string(totals['begroot'])
-        html['geboekt'] = table_string(totals['geboekt'])
-        html['obligo'] = table_string(totals['obligo'])
+        html['begroot'] = table_string(begroot)
+        html['geboekt'] = table_string(geboekt)
+        html['obligo'] = table_string(obligo)
         html['resultaat'] = table_string(resultaat)
         html['totaalkosten'] = table_string(kosten)
 
