@@ -1,4 +1,4 @@
-$def with(orderrows, html)
+$def with(table_items, html)
 <tr>
     <td>
         <button data-toggle="collapse" data-target="#collapse$html['id']" class="accordion-toggle btn btn-default btn-xs">
@@ -30,7 +30,7 @@ $def with(orderrows, html)
 <tr class="hiddenRow accordian-body collapse" id="collapse$html['id']">
     <td colspan="12">
         <h4>$:html['ordernaam']</h4>
-        $if orderrows:
+        $if table_items:
             <table class="table table-bordered table-condensed">
                     <thead>
                             <tr class="warning">
@@ -43,7 +43,7 @@ $def with(orderrows, html)
                             </tr>
                     </thead>
                     <tbody>
-                    $for row in orderrows:
+                    $for row in table_items:
                     <tr>
                         $:row
                     </tr>

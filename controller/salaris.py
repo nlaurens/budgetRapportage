@@ -335,7 +335,26 @@ class Salaris(Controller):
 
 
     def render_body(self, data):
-        return 'TODO'
+        order_tables = []
+        for order in data['orders'].keys():
+            header = {}
+            header['id'] = order
+            header['userHash'] = 'todo USERHASH'
+            header['img'] = '../static/figs/TODO.png'
+            header['name'] = data['orders'][order]['naam'] + ' - ' + str(order)
+            header['ordernaam'] = data['orders'][order]['naam']
+            header['begroot'] = table_string(data['orders'][order]['totals']['salaris_plan'])
+            header['geboekt'] = table_string(data['orders'][order]['totals']['salaris_geboekt'])
+            header['obligo'] = table_string(data['orders'][order]['totals']['salaris_obligo'])
+            header['resultaat'] = table_string(data['orders'][order]['totals']['resultaat'])
+
+            table_items = []  # TODO 
+
+            order_tables.append(self.webrender.salaris_table_order(table_items, header))
+
+        order_tables = None
+        person_tables = None
+        return self.webrender.salaris_body(order_tables, person_tables)
 
     def render_settings(self):
         # TODO add settings form
