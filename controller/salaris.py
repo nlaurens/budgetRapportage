@@ -26,9 +26,18 @@ class Salaris(Controller):
 
     def process_sub(self):
         regels = model.regels.load(table_names_load=['salaris_plan', 'salaris_geboekt', 'salaris_obligo'],orders_load=self.orders)
-        regels_per_tiepe = regels.split(['tiepe'])
 
+        data = self.create_data_structure(regels)
+        #data = self.format_data(data)
+        #body = self.render_body(data)
+        
+        ######################################
+        #OLD
+        ######################################
+        regels_per_tiepe = regels.split(['tiepe'])
         matchpersoneelsnummers, no_match_per_order = self.correlate_personeelsnummers(regels_per_tiepe)
+        print matchpersoneelsnummers
+        print no_match_per_order
         body, totals = self.table_html(regels_per_tiepe, matchpersoneelsnummers, no_match_per_order)
 
         report = {}
@@ -40,11 +49,88 @@ class Salaris(Controller):
         self.body = self.webrender.salaris(report)
 
 
+    """
+    Returns 'data' (dict) needed to build the webpage.
+
+    data-structure for total overview:
+      data['totals']           = {'begroot/realisatie/obligo/resultaat' as decimal, ..}
+      data['totals'][<persnr>] = {'begroot/realisatie/obligo/resultaat' as decimal,
+                                   'naam' as string, 'realiatie-perc' as decimal, 
+                                   'match' as Boolean that is True if begroot/realisatie could be coupled via payroll/persnr}
+
+    data-structure for overview per order:
+      data[<ordernummer> = {'naam' as string, ..}
+      data[<ordernummer>]['totals'] = {'begroot/realisatie/obligo/resultaat' as decimal'}
+
+      data[<ordernummer>][<persnr>] = {'match' as Boolean (True if begroot and realisatie/obligo on the correct order),
+                                       'begroot/realisatie/obligo/resultaat' as decimal, 
+                                        'naam' as string, 'realiatie-perc' as decimal}
+
+    """
+    def create_data_structure(self, regels):
+        data = { 'totals':{ 'begroot':0, 'realisatie':0, 'obligo':0} }  
+
+        obligo = regels.split(['tiepe', 'personeelsnummer'])['salaris_obligo'] 
+        pers_payroll_map = self.create_persnr_payroll_map(obligo)
+
+#            matchfound = False
+#            if begrootpersoneelsnummer:
+#                #convert 2xx -> 9xxx, 1xxx -> 8xxxx
+#                if 10000000 <= begrootpersoneelsnummer < 20000000:
+#                    begrootpersoneelsnummer += 70000000
+#                elif 20000000 <= begrootpersoneelsnummer < 30000000:
+#                    begrootpersoneelsnummer += 70000000
+#
+#                if begrootpersoneelsnummer in kosten.keys():
+#                    matchpersoneelsnummers[begrootpersoneelsnummer] = begroot_regels_list
+#                    matchfound = True
+#
+#            if not matchfound or not begrootpersoneelsnummer:
+#                begroot_regels_dict_per_order = begroot_regels_list.split(['ordernummer'])
+#                for order, begroot_regels_list in begroot_regels_dict_per_order.iteritems():
+#                    if order not in no_match_per_order:
+#                        no_match_per_order[order] = begroot_regels_list
+#                    else:
+#                        no_match_per_order[order].extend(begroot_regels_list)
+#
+
+        return data
+
+    """
+    construct hash_map for payroll and personeelsnummers 
+    """ 
+    def create_persnr_payroll_map(self, regels_obligo):
+        # { 'persnr': [payrollnummer, payrollnummer, ..] }
+        pers_map = {}
+        for persnr, regelList in regels_obligo.iteritems():
+            if persnr not in pers_map:
+                pers_map[persnr] = []
+
+            for regel in regelList.regels:
+                if regel.payrollnummer not in pers_map[persnr]:
+                    pers_map[persnr].append(regel.payrollnummer)
+
+        # add { 'payrollnummer': [persnr, persnr..] }
+        payroll_map = {}
+        for persnr, payrollnummers in pers_map.iteritems():
+            for payrollnummer in payrollnummers:
+                if payrollnummer not in payroll_map:
+                    payroll_map[payrollnummer] = []
+
+                payroll_map[payrollnummer].append(persnr)
+
+        pers_payroll_map = pers_map.copy()
+        pers_payroll_map.update(payroll_map)
+        print pers_payroll_map
+
+        return pers_payroll_map
+
+
     def correlate_personeelsnummers(self, regels_per_tiepe):
         # Cross personeelsnummers begroting -> boekingsnummers
         begroot = regels_per_tiepe['salaris_plan'].split(['personeelsnummer'])
         kosten = regels_per_tiepe['salaris_geboekt'].split(['personeelsnummer'])
-        obligo = regels_per_tiepe['salaris_obligos'].split(['personeelsnummer'])
+        obligo = regels_per_tiepe['salaris_obligo'].split(['personeelsnummer'])
 
         matchpersoneelsnummers = {} # personeelsnummer in kosten: { regels begroot}
         no_match_per_order = {} # order : {regelList met regels}
