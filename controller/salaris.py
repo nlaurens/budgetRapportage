@@ -26,10 +26,8 @@ class Salaris(Controller):
 
     def process_sub(self):
         regels = model.regels.load(table_names_load=['salaris_plan', 'salaris_geboekt', 'salaris_obligo'],orders_load=self.orders)
-
         data = self.create_data_structure(regels)
-        #data = self.format_data(data)
-        #body = self.render_body(data)
+
         report = {}
         report['settings'] = self.render_settings()
         report['summary'] = self.render_summary(data)
@@ -39,11 +37,11 @@ class Salaris(Controller):
         ######################################
         #OLD
         ######################################
-        regels_per_tiepe = regels.split(['tiepe'])
-        matchpersoneelsnummers, no_match_per_order = self.correlate_personeelsnummers(regels_per_tiepe)
-        body, totals = self.table_html(regels_per_tiepe, matchpersoneelsnummers, no_match_per_order)
+        #regels_per_tiepe = regels.split(['tiepe'])
+        #matchpersoneelsnummers, no_match_per_order = self.correlate_personeelsnummers(regels_per_tiepe)
+        #body, totals = self.table_html(regels_per_tiepe, matchpersoneelsnummers, no_match_per_order)
 
-        report['body-old'] = body
+        #report['body-old'] = body
 
         self.body = self.webrender.salaris(report)
 
@@ -63,9 +61,9 @@ class Salaris(Controller):
       data['orders'][<ordernummer>] = {'naam' as string, ..}
       data['orders'][<ordernummer>]['totals'] = {'begroot/realisatie/obligo/resultaat' as decimal'}
 
-      data['orders'][<ordernummer>][<payrollnr>] = {'match' as Boolean (True if begroot and realisatie/obligo on the correct order),
-                                                    'begroot/realisatie/obligo/resultaat' as decimal, 
-                                                     'naam' as string, 'realiatie-perc' as decimal}
+      data['orders'][<ordernummer>]['payrollnrs'][<payrollnr>] = {'match' as Boolean (True if begroot and realisatie/obligo on the correct order),
+                                                                  'begroot/realisatie/obligo/resultaat' as decimal, 
+                                                                  'naam' as string, 'realiatie-perc' as decimal}
 
     """
     def create_data_structure(self, regels):
@@ -78,7 +76,7 @@ class Salaris(Controller):
         payrollnr_new = 0  # used for unkown payroll <-> persnrs
         for order, regelList in regels_per_order.iteritems():
             if order not in data['orders']:
-                data['orders'][order] = { 'naam':'TODO NAAM ORDER', 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0} }  
+                data['orders'][order] = { 'naam':'TODO NAAM ORDER', 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}, 'payrollnrs':{} }  
 
             for regel in regelList.regels:
                 match = False
@@ -92,15 +90,15 @@ class Salaris(Controller):
                     payrollnr = regel.payrollnummer
 
                 # data - order - payroll
-                if payrollnr not in data['orders'][order]:
-                    data['orders'][order][payrollnr] = {'naam':regel.personeelsnaam, 'match':match, 'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}
-                data['orders'][order][payrollnr]['match'] = match or data['orders'][order][payrollnr]['match']  # once it is true it should stay true
-                data['orders'][order][payrollnr][regel.tiepe] += regel.kosten
-                data['orders'][order][payrollnr]['resultaat'] = data['orders'][order][payrollnr]['salaris_plan'] - data['orders'][order][payrollnr]['salaris_geboekt'] - data['orders'][order][payrollnr]['salaris_obligo']
-                if data['orders'][order][payrollnr]['salaris_plan'] > 0:
-                    data['orders'][order][payrollnr]['resultaat_perc'] = data['orders'][order][payrollnr]['salaris_geboekt'] / data['orders'][order][payrollnr]['salaris_plan']
+                if payrollnr not in data['orders'][order]['payrollnrs']:
+                    data['orders'][order]['payrollnrs'][payrollnr] = {'naam':regel.personeelsnaam, 'match':match, 'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}
+                data['orders'][order]['payrollnrs'][payrollnr]['match'] = match or data['orders'][order]['payrollnrs'][payrollnr]['match']  # once it is true it should stay true
+                data['orders'][order]['payrollnrs'][payrollnr][regel.tiepe] += regel.kosten
+                data['orders'][order]['payrollnrs'][payrollnr]['resultaat'] = data['orders'][order]['payrollnrs'][payrollnr]['salaris_plan'] - data['orders'][order]['payrollnrs'][payrollnr]['salaris_geboekt'] - data['orders'][order]['payrollnrs'][payrollnr]['salaris_obligo']
+                if data['orders'][order]['payrollnrs'][payrollnr]['salaris_plan'] > 0:
+                    data['orders'][order]['payrollnrs'][payrollnr]['resultaat_perc'] = data['orders'][order]['payrollnrs'][payrollnr]['salaris_geboekt'] / data['orders'][order]['payrollnrs'][payrollnr]['salaris_plan']
                 else:
-                    data['orders'][order][payrollnr]['resultaat_perc'] = 0
+                    data['orders'][order]['payrollnrs'][payrollnr]['resultaat_perc'] = 0
 
                 # data - order - totals
                 data['orders'][order]['totals'][regel.tiepe] += regel.kosten
@@ -349,16 +347,16 @@ class Salaris(Controller):
             header['resultaat'] = table_string(data['orders'][order]['totals']['resultaat'])
 
             table_items = []
-            for key in data['orders'][order].keys():
+            for key in data['orders'][order]['payrollnrs'].keys():
+                row = data['orders'][order]['payrollnrs'][key]
                 html = {}
-                html['naam'] = 'dummy'# row['personeelsnummer']
-                html['personeelsnummer'] = 'dummy'# row['personeelsnummer']
-                html['name'] =  'dummy'#row['naam']
-                html['begroot'] =  'dummy'#table_string(row['begroot'])
-                html['geboekt'] =   'dummy'#table_string(row['geboekt'])
-                html['resultaat'] =  'dummy'#table_string(row['resultaat'])
-                html['resultaat_perc'] =  'dummy'#'%.f' % row['resultaat_perc'] + '%'
-                html['td_class'] =  'dummy'#row['td_class']
+                html['naam'] = row['naam']
+                html['personeelsnummer'] = key  #TODO: on mouseover show all personeelsnummers that are linked to this number
+                html['begroot'] = table_string(row['salaris_plan'])
+                html['geboekt'] = table_string(row['salaris_geboekt'])
+                html['resultaat'] = table_string(row['resultaat'])
+                html['resultaat_perc'] = '%.f' % row['resultaat_perc'] + '%'
+                html['td_class'] = 'success' if row['match'] else 'danger'
                 table_items.append(self.webrender.salaris_personeel_regel(html))
 
             order_tables.append(self.webrender.salaris_table_order(table_items, header))
