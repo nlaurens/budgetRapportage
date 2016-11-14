@@ -36,23 +36,14 @@ class Salaris(Controller):
         report['body'] = self.render_body(data)
         report['javaScripts'] = self.webrender.salaris_javascripts(data['orders'].keys())
 
-        self.body = self.webrender.salaris(report)
-        return
-        
         ######################################
         #OLD
         ######################################
         regels_per_tiepe = regels.split(['tiepe'])
         matchpersoneelsnummers, no_match_per_order = self.correlate_personeelsnummers(regels_per_tiepe)
-        print matchpersoneelsnummers
-        print no_match_per_order
         body, totals = self.table_html(regels_per_tiepe, matchpersoneelsnummers, no_match_per_order)
 
-        report = {}
-        report['settings'] = self.render_settings()
-        report['summary'] = self.get_summary(totals)
-        report['body'] = body
-        report['javaScripts'] = self.java_scripts(regels_per_tiepe)
+        report['body-old'] = body
 
         self.body = self.webrender.salaris(report)
 
