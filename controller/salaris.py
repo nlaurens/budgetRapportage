@@ -34,7 +34,7 @@ class Salaris(Controller):
         report['settings'] = self.render_settings()
         report['summary'] = self.render_summary(data)
         report['body'] = self.render_body(data)
-        report['javaScripts'] = self.java_scripts(regels)
+        report['javaScripts'] = self.webrender.salaris_javascripts(data['orders'].keys())
 
         self.body = self.webrender.salaris(report)
         return
@@ -350,18 +350,6 @@ class Salaris(Controller):
         # TODO add settings form
         form_settings = 'todo form met optie'
         return self.webrender.salaris_settings(form_settings)
-
-
-    def java_scripts(self, data):
-        regels_per_tiepe = regels.split(['tiepe'])
-        regels_geboekt = regels['salaris_plan']
-        regels_begroot = regels['salaris_geboekt']
-
-        orders_geboekt = regels_geboekt.split(['ordernummer']).keys()
-        orders_begroot = regels_begroot.split(['ordernummer']).keys()
-        orders = set(orders_geboekt + orders_begroot)
-
-        return self.webrender.salaris_javascripts(orders)
 
 
     def render_summary(self, data):
