@@ -56,12 +56,12 @@ class Salaris(Controller):
 
     data-structure for total overview:
       data['totals']           = {'begroot/realisatie/obligo/resultaat' as decimal, ..}
-      data['totals'][<payrollnr>] = {'begroot/realisatie/obligo/resultaat' as decimal,
+      data[<payrollnr>] = {'begroot/realisatie/obligo/resultaat' as decimal,
                                    'naam' as string, 'realiatie-perc' as decimal, 
                                    'match' as Boolean that is True if begroot/realisatie could be coupled via payroll/persnr}
 
     data-structure for overview per order:
-      data[<ordernummer> = {'naam' as string, ..}
+      data[<ordernummer>] = {'naam' as string, ..}
       data[<ordernummer>]['totals'] = {'begroot/realisatie/obligo/resultaat' as decimal'}
 
       data[<ordernummer>][<payrollnr>] = {'match' as Boolean (True if begroot and realisatie/obligo on the correct order),
@@ -70,7 +70,7 @@ class Salaris(Controller):
 
     """
     def create_data_structure(self, regels):
-        data = { 'totals':{ 'begroot':0, 'realisatie':0, 'obligo':0, 'resultaat':0} }  
+        data = { 'totals':{} }  
 
         obligo = regels.split(['tiepe', 'personeelsnummer'])['salaris_obligo'] 
         payroll_map = self.payroll_map(obligo)
@@ -79,21 +79,31 @@ class Salaris(Controller):
         payrollnr_new = 0  # used for unkown payroll <-> persnrs
         for order, regelList in regels_per_order.iteritems():
             if order not in data:
-                data[order] = { 'naam':'TODO NAAM ORDER', 'totals':{ 'begroot':0, 'realisatie':0, 'obligo':0, 'resultaat':0} }  
+                data[order] = { 'naam':'TODO NAAM ORDER', 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0} }  
 
             for regel in regelList.regels:
+                match = False
                 if regel.tiepe == 'salaris_geboekt' or regel.tiepe == 'salaris_plan':  
                     if regel.personeelsnummer in payroll_map:
                         payrollnr = payroll_map[regel.personeelsnummer]
+                        match = True
                     else:
                         payrollnr = payrollnr_new + 1
                 else:
                     payrollnr = regel.payrollnummer
 
+                # data - order - payroll
                 if payrollnr not in data[order]:
-                    data[order][payrollnr] = { 'naam':regel.personeelsnaam, 'totals':{ 'begroot':0, 'realisatie':0, 'obligo':0, 'resultaat':0} }  
+                    data[order][payrollnr] = {'naam':regel.personeelsnaam, 'match':match, 'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}
+                data[order][payrollnr]['match'] = match or data[order][payrollnr]['match']  # once it is true it should stay true
+                data[order][payrollnr][regel.tiepe] += regel.kosten
+                data[order][payrollnr]['resultaat'] = data[order][payrollnr]['salaris_plan'] - data[order][payrollnr]['salaris_geboekt'] - data[order][payrollnr]['salaris_obligo']
 
+                # data - order - totals
 
+                # data - totals
+
+                # data - payroll
 
 
 #            matchfound = False
