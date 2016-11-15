@@ -66,7 +66,7 @@ class Salaris(Controller):
         regels_per_order = regels.split(['ordernummer'])
         for order, regelList in regels_per_order.iteritems():
             if order not in data['orders']:
-                data['orders'][order] = { 'naam':'TODO NAAM ORDER', 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}, 'payrollnrs':{} }  
+                data['orders'][order] = { 'naam':'TODO', 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}, 'payrollnrs':{} }  
 
             for regel in regelList.regels:
                 match = False
@@ -78,6 +78,8 @@ class Salaris(Controller):
                         payrollnr = regel.personeelsnummer
                 else:
                     payrollnr = regel.payrollnummer
+                    if regel.tiepe == 'salaris_obligo' and regel.periode < 10:  # only allow obligos that are yet to come
+                        continue
 
                 # data - order - payroll
                 if payrollnr not in data['orders'][order]['payrollnrs']:
@@ -156,8 +158,9 @@ class Salaris(Controller):
                 html['personeelsnummer'] = key  #TODO: on mouseover show all personeelsnummers that are linked to this number
                 html['begroot'] = table_string(row['salaris_plan'])
                 html['geboekt'] = table_string(row['salaris_geboekt'])
+                html['obligo'] = table_string(row['salaris_obligo'])
                 html['resultaat'] = table_string(row['resultaat'])
-                html['resultaat_perc'] = '%.f' % row['resultaat_perc'] + '%'
+                html['resultaat_perc'] = '%.f' % (row['resultaat_perc']*100) + '%'
                 html['td_class'] = 'success' if row['match'] else 'danger'
                 table_items.append(self.webrender.salaris_personeel_regel(html))
 
