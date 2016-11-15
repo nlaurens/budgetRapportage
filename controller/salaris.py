@@ -27,6 +27,8 @@ class Salaris(Controller):
     def process_sub(self):
         regels = model.regels.load(table_names_load=['salaris_plan', 'salaris_geboekt', 'salaris_obligo'],orders_load=self.orders)
         data = self.create_data_structure(regels)
+        import pprint as pprint
+        pprint.pprint(data)
 
         report = {}
         report['settings'] = self.render_settings()
@@ -58,12 +60,13 @@ class Salaris(Controller):
 
     """
     def create_data_structure(self, regels):
-        data = { 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}, 'orders':{}, 'payrollnrs':{} }  
 
         obligo = regels.split(['tiepe', 'personeelsnummer'])['salaris_obligo'] 
-        payroll_map = self.payroll_map(obligo)
-
         regels_per_order = regels.split(['ordernummer'])
+        payroll_map = self.payroll_map(obligo)
+        last_periode = model.regels.last_periode()
+
+        data = { 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}, 'orders':{}, 'payrollnrs':{} }  
         for order, regelList in regels_per_order.iteritems():
             if order not in data['orders']:
                 data['orders'][order] = { 'naam':'TODO', 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}, 'payrollnrs':{} }  
@@ -78,7 +81,7 @@ class Salaris(Controller):
                         payrollnr = regel.personeelsnummer
                 else:
                     payrollnr = regel.payrollnummer
-                    if regel.tiepe == 'salaris_obligo' and regel.periode < 10:  # only allow obligos that are yet to come
+                    if regel.tiepe == 'salaris_obligo' and regel.periode < last_periode:  # only allow obligos that are yet to come
                         continue
 
                 # data - order - payroll

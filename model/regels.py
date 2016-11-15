@@ -106,6 +106,8 @@ def count():
 
     return count_regels
 
+#TODO merge .last_update and .last_periode to a general 
+# config param read/write model 
 
 """
 .last_update(newdate='')
@@ -120,6 +122,9 @@ def last_update(newdate=''):
         sql = "INSERT INTO `config` ( `key`, `value`) VALUES ( 'sapdate', 'no date set' );"
         results = db.query(sql)
 
+        sql = "INSERT INTO `config` ( `key`, `value`) VALUES ( 'lastperiode', '0' );"
+        results = db.query(sql)
+
     if newdate == '':
         sqlwhere = "`key` = 'sapdate'"
         results = db.select('config', where=sqlwhere)
@@ -129,6 +134,37 @@ def last_update(newdate=''):
         sapdate = newdate
 
     return sapdate
+
+
+"""
+.last_periode(newperiode='')
+    input: newperiode to be written in the db as str
+    output: last periode salaris was booked from db as int
+"""
+def last_periode(newperiode=''):
+    if not check_table_exists('config'):
+        sql = "CREATE TABLE `config` ( `key` varchar(255), `value` varchar(255) );"
+        results = db.query(sql)
+
+        sql = "INSERT INTO `config` ( `key`, `value`) VALUES ( 'lastperiode', '0' );"
+        results = db.query(sql)
+
+        sql = "INSERT INTO `config` ( `key`, `value`) VALUES ( 'sapdate', 'no date set' );"
+        results = db.query(sql)
+
+    if newperiode == '':
+        sqlwhere = "`key` = 'lastperiode'"
+        results = db.select('config', where=sqlwhere)
+        try: 
+            lastperiode = int(results[0]['value'])
+        except:
+            lastperiode = 0
+    else:
+        newperiode = int(newperiode)
+        db.update('config', where="`key` = 'lastperiode'", value=newperiode)
+        lastperiode = newperiode
+
+    return lastperiode
 
 
 """

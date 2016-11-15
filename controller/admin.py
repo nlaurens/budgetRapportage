@@ -20,7 +20,8 @@ class Admin(Controller):
         self.title = 'Admin Panel'
         self.module = 'admin'
         self.webrender = web.template.render('webpages/admin/')
-
+        self.lastperiode = model.regels.last_periode()  # gives subclass__init__ access
+        
         # Forms
         drop_down_options = self.dropdown_options()
 
@@ -44,10 +45,12 @@ class Admin(Controller):
                 form.Dropdown('type5', drop_down_options['empty_tables']),
                 form.Button('submit', value='uploadRegels')
         )
-        self.form_update_sap_date = form.Form(
+        self.form_update_sap = form.Form(
                 form.Textbox('sapdate', form.notnull, value=self.SAPupdate,
                              description='Date last SAP regels are uploaded'),
-                form.Button('submit', value='updateSapDate')
+                form.Dropdown('sapperiode', drop_down_options['months'], value=self.lastperiode,
+                               description='Last periode obligo/salarissen updated'),
+                form.Button('submit', value='updateSapDates')
         )
         self.form_rebuild_graphs = form.Form(
                 form.Textbox('target', form.notnull, description='Order/groep/*'),
@@ -81,7 +84,7 @@ class Admin(Controller):
         rendered['forms'] = []
         rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
         rendered['forms'].append(self.webrender.form('Upload File', self.form_upload))
-        rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap_date))
+        rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap))
         rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
 
         self.body = self.webrender.admin(self.msg, rendered)
@@ -140,9 +143,10 @@ class Admin(Controller):
             msg.extend(self.parse_upload_form())
             valid_form = True
 
-        if form_used == 'updateSapDate' and self.form_update_sap_date.validates():
+        if form_used == 'updateSapDates' and self.form_update_sap.validates():
             msg.append('Updating last sap update date')
-            model.regels.last_update(self.form_update_sap_date['sapdate'].value)
+            model.regels.last_update(self.form_update_sap['sapdate'].value)
+            model.regels.last_periode(self.form_update_sap['sapperiode'].value)
             valid_form = True
 
         if form_used == 'rebuildGraphs' and self.form_rebuild_graphs.validates():
