@@ -27,13 +27,12 @@ class Salaris(Controller):
     def process_sub(self):
         regels = model.regels.load(table_names_load=['salaris_plan', 'salaris_geboekt', 'salaris_obligo'],orders_load=self.orders)
         data = self.create_data_structure(regels)
-        import pprint as pprint
-        pprint.pprint(data)
 
         report = {}
         report['settings'] = self.render_settings()
         report['summary'] = self.render_summary(data)
         report['body'] = self.render_body(data)
+        # TODO add ids per persoon tables
         report['javaScripts'] = self.webrender.salaris_javascripts(data['orders'].keys())
 
         self.body = self.webrender.salaris(report)
@@ -104,7 +103,7 @@ class Salaris(Controller):
                 data['totals']['resultaat'] = data['totals']['salaris_plan'] - data['totals']['salaris_geboekt'] - data['totals']['salaris_obligo']
 
                 # data - payroll
-                if payrollnr not in data:
+                if payrollnr not in data['payrollnrs']:
                     data['payrollnrs'][payrollnr] = {'naam':regel.personeelsnaam, 'match':match, 'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}
                 data['payrollnrs'][payrollnr]['match'] = match or data['payrollnrs'][payrollnr]['match']  # once it is true it should stay true
                 data['payrollnrs'][payrollnr][regel.tiepe] += regel.kosten
@@ -114,6 +113,8 @@ class Salaris(Controller):
                 else:
                     data['payrollnrs'][payrollnr]['resultaat_perc'] = 0
 
+        import pprint as pprint
+        pprint.pprint(data['payrollnrs'])
         return data
 
     """
@@ -169,8 +170,11 @@ class Salaris(Controller):
 
             order_tables.append(self.webrender.salaris_table_order(table_items, header))
 
+        #TODO do the sorting in data structure not here!
+        person_tables = []
         table_match_items = []
         table_nomatch_items = []
+        table_nokosten_items = []
         for payrollnr in data['payrollnrs'].keys():
             row = data['payrollnrs'][payrollnr]
             html = {}
@@ -183,35 +187,50 @@ class Salaris(Controller):
             html['resultaat_perc'] = '%.f' % (row['resultaat_perc']*100) + '%'
             html['td_class'] = 'success' if row['match'] else 'danger'
             if row['match']:
-                table_match_items.append(self.webrender.salaris_personeel_regel(html))
+                if row['salaris_geboekt'] > 0:
+                    table_match_items.append(self.webrender.salaris_personeel_regel(html))
+                else:
+                    table_nokosten_items.append(self.webrender.salaris_personeel_regel(html))
             else:
                 table_nomatch_items.append(self.webrender.salaris_personeel_regel(html))
 
         header_match = {}
-        header_match['id'] = order
+        header_match['id'] = 'payrollnr_matched' 
         header_match['userHash'] = 'todo USERHASH'
         header_match['img'] = '../static/figs/TODO.png'
-        header_match['name'] = data['orders'][order]['naam'] + ' - ' + str(order)
-        header_match['ordernaam'] = data['orders'][order]['naam']
-        header_match['begroot'] = table_string(data['orders'][order]['totals']['salaris_plan'])
-        header_match['geboekt'] = table_string(data['orders'][order]['totals']['salaris_geboekt'])
-        header_match['obligo'] = table_string(data['orders'][order]['totals']['salaris_obligo'])
-        header_match['resultaat'] = table_string(data['orders'][order]['totals']['resultaat'])
+        header_match['name'] = 'Begroot en gerealiseerd'
+        header_match['ordernaam'] = 'Begroot en gerealiseerd' 
+        header_match['begroot'] = 'todo'
+        header_match['geboekt'] = 'todo'
+        header_match['obligo'] = 'todo'
+        header_match['resultaat'] = 'todo'
 
         header_nomatch = {}
-        header_nomatch['id'] = order
+        header_nomatch['id'] = 'payrollnr_nomatch'
         header_nomatch['userHash'] = 'todo USERHASH'
         header_nomatch['img'] = '../static/figs/TODO.png'
-        header_nomatch['name'] = data['orders'][order]['naam'] + ' - ' + str(order)
-        header_nomatch['ordernaam'] = data['orders'][order]['naam']
-        header_nomatch['begroot'] = table_string(data['orders'][order]['totals']['salaris_plan'])
-        header_nomatch['geboekt'] = table_string(data['orders'][order]['totals']['salaris_geboekt'])
-        header_nomatch['obligo'] = table_string(data['orders'][order]['totals']['salaris_obligo'])
-        header_nomatch['resultaat'] = table_string(data['orders'][order]['totals']['resultaat'])
+        header_nomatch['name'] = 'Niet begroot wel kosten'
+        header_nomatch['ordernaam'] = 'Niet begroot wel kosten'
+        header_nomatch['begroot'] = 'todo'
+        header_nomatch['geboekt'] = 'todo'
+        header_nomatch['obligo'] = 'todo'
+        header_nomatch['resultaat'] = 'todo'
 
-        #TODO headers aanpasssen en dan renderen en in de body render gooien
-        match_table = self.webrender.salaris_table_order(table_match_items, header_match)
-        no_match_table = self.webrender.salaris_table_order(table_nomatch_items, header_nomatch)
+        header_nokosten = {}
+        header_nokosten['id'] = 'payrollnr_nokosten'
+        header_nokosten['userHash'] = 'todo USERHASH'
+        header_nokosten['img'] = '../static/figs/TODO.png'
+        header_nokosten['name'] = 'Wel begroot geen kosten'
+        header_nokosten['ordernaam'] = 'Wel begroot geen kosten'
+        header_nokosten['begroot'] = 'todo'
+        header_nokosten['geboekt'] = 'todo'
+        header_nokosten['obligo'] = 'todo'
+        header_nokosten['resultaat'] = 'todo'
+
+        person_tables.append(self.webrender.salaris_table_order(table_match_items, header_match))
+        person_tables.append(self.webrender.salaris_table_order(table_nomatch_items, header_nomatch))
+        person_tables.append(self.webrender.salaris_table_order(table_nokosten_items, header_nokosten))
+
         return self.webrender.salaris_body(order_tables, person_tables)
 
     def render_settings(self):
