@@ -45,6 +45,8 @@ class Salaris(Controller):
 
     data-structure for total overview:
       data['totals']           = {'begroot/realisatie/obligo/resultaat' as decimal, ..}
+
+    data-structure for view per payrollnr:
       data['payrollnrs'][<payrollnr>] = {'begroot/realisatie/obligo/resultaat' as decimal,
                                          'naam' as string, 'realiatie-perc' as decimal, 
                                          'match' as Boolean that is True if begroot/realisatie could be coupled via payroll/persnr}
@@ -56,6 +58,13 @@ class Salaris(Controller):
       data['orders'][<ordernummer>]['payrollnrs'][<payrollnr>] = {'match' as Boolean (True if begroot and realisatie/obligo on the correct order),
                                                                   'begroot/realisatie/obligo/resultaat' as decimal, 
                                                                   'naam' as string, 'realiatie-perc' as decimal}
+    data-structure for overview per tiepe (match/nomatch/nokosten):
+      data['tiepe'][<tiepe>] = {'naam' as string, ..}
+      data['tiepe'][<tiepe>]['totals'] = {'begroot/realisatie/obligo/resultaat' as decimal'}
+
+      data['tiepe'][<tiepe>]['payrollnrs'][<payrollnr>] = {'match' as Boolean (True if begroot and realisatie/obligo on the correct order),
+                                                                  'begroot/realisatie/obligo/resultaat' as decimal, 
+                                                                  'naam' as string, 'realiatie-perc' as decimal}
 
     """
     def create_data_structure(self, regels):
@@ -65,7 +74,9 @@ class Salaris(Controller):
         payroll_map = self.payroll_map(obligo)
         last_periode = model.regels.last_periode()
 
-        data = { 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}, 'orders':{}, 'payrollnrs':{} }  
+        #TODO refactor initiate with deepcopy of an empty total dictionary etc.
+        data = { 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}, 'orders':{}, 'payrollnrs':{}, 'match':{'payrollnrs':{}, 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}}, 'nomatch':{'payrollnrs':{}, 'totals':{'salaris_plan':0, 'salaris_obligo':0,
+            'salaris_geboekt':0, 'resultaat':0}}, 'nokosten':{'payrollnrs':{}, 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}} }  
         for order, regelList in regels_per_order.iteritems():
             if order not in data['orders']:
                 data['orders'][order] = { 'naam':'TODO', 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}, 'payrollnrs':{} }  
@@ -98,10 +109,6 @@ class Salaris(Controller):
                 data['orders'][order]['totals'][regel.tiepe] += regel.kosten
                 data['orders'][order]['totals']['resultaat'] = data['orders'][order]['totals']['salaris_plan'] - data['orders'][order]['totals']['salaris_geboekt'] - data['orders'][order]['totals']['salaris_obligo']
 
-                # data - totals
-                data['totals'][regel.tiepe] += regel.kosten
-                data['totals']['resultaat'] = data['totals']['salaris_plan'] - data['totals']['salaris_geboekt'] - data['totals']['salaris_obligo']
-
                 # data - payroll
                 if payrollnr not in data['payrollnrs']:
                     data['payrollnrs'][payrollnr] = {'naam':regel.personeelsnaam, 'match':match, 'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}
@@ -112,9 +119,28 @@ class Salaris(Controller):
                     data['payrollnrs'][payrollnr]['resultaat_perc'] = data['payrollnrs'][payrollnr]['salaris_geboekt'] / data['payrollnrs'][payrollnr]['salaris_plan']
                 else:
                     data['payrollnrs'][payrollnr]['resultaat_perc'] = 0
+#TODO
+
+        # data - match/nomatch/nokosten - ..
+        for payrollnr, row in data['payrollnrs'].iteritems():
+            if row['match']:
+                tiepe = 'match'
+            elif row['salaris_geboekt'] > 0:
+                tiepe = 'nomatch'
+            else:
+                tiepe = 'nokosten'
+
+            # data - match/nomatch/nokosten - payroll
+            data[tiepe]['payrollnrs'][payrollnr] = row
+
+            # data - match/nomatch/nokosten - totals
+            # data - totals
+            for kosten_tiepe in ['salaris_plan', 'salaris_geboekt', 'salaris_obligo', 'resultaat']:
+                data[tiepe]['totals'][kosten_tiepe] += row[kosten_tiepe]
+                data['totals'][kosten_tiepe] += row[kosten_tiepe]
 
         import pprint as pprint
-        pprint.pprint(data['payrollnrs'])
+        pprint.pprint(data)
         return data
 
     """
