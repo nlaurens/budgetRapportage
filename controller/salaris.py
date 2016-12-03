@@ -119,7 +119,6 @@ class Salaris(Controller):
                     data['payrollnrs'][payrollnr]['resultaat_perc'] = data['payrollnrs'][payrollnr]['salaris_geboekt'] / data['payrollnrs'][payrollnr]['salaris_plan']
                 else:
                     data['payrollnrs'][payrollnr]['resultaat_perc'] = 0
-#TODO
 
         # data - match/nomatch/nokosten - ..
         for payrollnr, row in data['payrollnrs'].iteritems():
@@ -197,29 +196,29 @@ class Salaris(Controller):
 
             order_tables.append(self.webrender.salaris_table_order(table_items, header))
 
-        #TODO do the sorting in data structure not here!
         person_tables = []
         table_match_items = []
         table_nomatch_items = []
         table_nokosten_items = []
-        for payrollnr in data['payrollnrs'].keys():
-            row = data['payrollnrs'][payrollnr]
-            html = {}
-            html['naam'] = row['naam']
-            html['personeelsnummer'] = payrollnr  #TODO: on mouseover show all personeelsnummers that are linked to this number
-            html['begroot'] = table_string(row['salaris_plan'])
-            html['geboekt'] = table_string(row['salaris_geboekt'])
-            html['obligo'] = table_string(row['salaris_obligo'])
-            html['resultaat'] = table_string(row['resultaat'])
-            html['resultaat_perc'] = '%.f' % (row['resultaat_perc']*100) + '%'
-            html['td_class'] = 'success' if row['match'] else 'danger'
-            if row['match']:
-                if row['salaris_geboekt'] > 0:
+        for tiepe in ['match', 'nomatch', 'nokosten']:
+            for payrollnr in data[tiepe]['payrollnrs'].keys():
+                row = data[tiepe]['payrollnrs'][payrollnr]
+                html = {}
+                html['naam'] = row['naam']
+                html['personeelsnummer'] = payrollnr  #TODO: on mouseover show all personeelsnummers that are linked to this number
+                html['begroot'] = table_string(row['salaris_plan'])
+                html['geboekt'] = table_string(row['salaris_geboekt'])
+                html['obligo'] = table_string(row['salaris_obligo'])
+                html['resultaat'] = table_string(row['resultaat'])
+                html['resultaat_perc'] = '%.f' % (row['resultaat_perc']*100) + '%'
+                html['td_class'] = 'success' if row['match'] else 'danger'
+
+                if tiepe == 'match':
                     table_match_items.append(self.webrender.salaris_personeel_regel(html))
-                else:
+                elif tiepe == 'nomatch':
+                    table_nomatch_items.append(self.webrender.salaris_personeel_regel(html))
+                elif tiepe == 'nokosten':
                     table_nokosten_items.append(self.webrender.salaris_personeel_regel(html))
-            else:
-                table_nomatch_items.append(self.webrender.salaris_personeel_regel(html))
 
         header_match = {}
         header_match['id'] = 'payrollnr_matched' 
