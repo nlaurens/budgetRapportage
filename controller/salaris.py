@@ -192,7 +192,7 @@ class Salaris(Controller):
                 html['td_class'] = 'success' if row['match'] else 'danger'
                 table_items.append(self.webrender.salaris_personeel_regel(html))
 
-            order_tables.append(self.webrender.salaris_table_order(table_items, header))
+            order_tables.append(self.webrender.salaris_table_order(table_items, header, 'order'))
 
         person_tables = []
         table_match_items = []
@@ -251,9 +251,9 @@ class Salaris(Controller):
         header_nokosten['obligo'] = table_string(data['nokosten']['totals']['salaris_obligo'])
         header_nokosten['resultaat'] = table_string(data['nokosten']['totals']['resultaat'])
 
-        person_tables.append(self.webrender.salaris_table_order(table_match_items, header_match))
-        person_tables.append(self.webrender.salaris_table_order(table_nomatch_items, header_nomatch))
-        person_tables.append(self.webrender.salaris_table_order(table_nokosten_items, header_nokosten))
+        person_tables.append(self.webrender.salaris_table_order(table_match_items, header_match, 'persoon'))
+        person_tables.append(self.webrender.salaris_table_order(table_nomatch_items, header_nomatch, 'persoon'))
+        person_tables.append(self.webrender.salaris_table_order(table_nokosten_items, header_nokosten, 'persoon'))
 
         return self.webrender.salaris_body(order_tables, person_tables)
 
