@@ -125,10 +125,11 @@ class Salaris(Controller):
         for payrollnr, row in data['payrollnrs'].iteritems():
             if row['match']:
                 tiepe = 'match'
-            elif row['salaris_geboekt'] > 0:
+            elif row['salaris_geboekt'] > 0 or row['salaris_obligo'] > 0:
                 tiepe = 'nomatch'
             else:
                 tiepe = 'nokosten'
+
 
             # data - match/nomatch/nokosten - payroll
             data[tiepe]['payrollnrs'][payrollnr] = row
