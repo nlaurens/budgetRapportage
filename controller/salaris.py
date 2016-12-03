@@ -139,8 +139,6 @@ class Salaris(Controller):
                 data[tiepe]['totals'][kosten_tiepe] += row[kosten_tiepe]
                 data['totals'][kosten_tiepe] += row[kosten_tiepe]
 
-        import pprint as pprint
-        pprint.pprint(data)
         return data
 
     """
