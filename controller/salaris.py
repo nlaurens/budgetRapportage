@@ -32,7 +32,6 @@ class Salaris(Controller):
         report['settings'] = self.render_settings()
         report['summary'] = self.render_summary(data)
         report['body'] = self.render_body(data)
-        # TODO add ids per persoon tables
         report['javaScripts'] = self.webrender.salaris_javascripts(data['orders'].keys() + ['payrollnr_nomatch', 'payrollnr_nokosten','payrollnr_matched'])
 
         self.body = self.webrender.salaris(report)
@@ -73,13 +72,15 @@ class Salaris(Controller):
         regels_per_order = regels.split(['ordernummer'])
         payroll_map = self.payroll_map(obligo)
         last_periode = model.regels.last_periode()
+        order_list = model.orders.load().split(['ordernummer'])
 
         #TODO refactor initiate with deepcopy of an empty total dictionary etc.
         data = { 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}, 'orders':{}, 'payrollnrs':{}, 'match':{'payrollnrs':{}, 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}}, 'nomatch':{'payrollnrs':{}, 'totals':{'salaris_plan':0, 'salaris_obligo':0,
             'salaris_geboekt':0, 'resultaat':0}}, 'nokosten':{'payrollnrs':{}, 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}} }  
         for order, regelList in regels_per_order.iteritems():
             if order not in data['orders']:
-                data['orders'][order] = { 'naam':'TODO', 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}, 'payrollnrs':{} }  
+                name = order_list[order].orders[0].ordernaam
+                data['orders'][order] = { 'naam':name, 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}, 'payrollnrs':{} }  
 
             for regel in regelList.regels:
                 match = False
