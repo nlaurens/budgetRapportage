@@ -33,7 +33,7 @@ class Salaris(Controller):
         report['summary'] = self.render_summary(data)
         report['body'] = self.render_body(data)
         # TODO add ids per persoon tables
-        report['javaScripts'] = self.webrender.salaris_javascripts(data['orders'].keys())
+        report['javaScripts'] = self.webrender.salaris_javascripts(data['orders'].keys() + ['payrollnr_nomatch', 'payrollnr_nokosten','payrollnr_matched'])
 
         self.body = self.webrender.salaris(report)
 
@@ -224,10 +224,10 @@ class Salaris(Controller):
         header_match['img'] = '../static/figs/TODO.png'
         header_match['name'] = 'Begroot en gerealiseerd'
         header_match['ordernaam'] = 'Begroot en gerealiseerd' 
-        header_match['begroot'] = 'todo'
-        header_match['geboekt'] = 'todo'
-        header_match['obligo'] = 'todo'
-        header_match['resultaat'] = 'todo'
+        header_match['begroot'] = table_string(data['match']['totals']['salaris_plan'])
+        header_match['geboekt'] = table_string(data['match']['totals']['salaris_geboekt'])
+        header_match['obligo'] = table_string(data['match']['totals']['salaris_obligo'])
+        header_match['resultaat'] = table_string(data['match']['totals']['resultaat'])
 
         header_nomatch = {}
         header_nomatch['id'] = 'payrollnr_nomatch'
@@ -235,10 +235,10 @@ class Salaris(Controller):
         header_nomatch['img'] = '../static/figs/TODO.png'
         header_nomatch['name'] = 'Niet begroot wel kosten'
         header_nomatch['ordernaam'] = 'Niet begroot wel kosten'
-        header_nomatch['begroot'] = 'todo'
-        header_nomatch['geboekt'] = 'todo'
-        header_nomatch['obligo'] = 'todo'
-        header_nomatch['resultaat'] = 'todo'
+        header_nomatch['begroot'] = table_string(data['nomatch']['totals']['salaris_plan'])
+        header_nomatch['geboekt'] = table_string(data['nomatch']['totals']['salaris_geboekt'])
+        header_nomatch['obligo'] = table_string(data['nomatch']['totals']['salaris_obligo'])
+        header_nomatch['resultaat'] = table_string(data['nomatch']['totals']['resultaat'])
 
         header_nokosten = {}
         header_nokosten['id'] = 'payrollnr_nokosten'
@@ -246,16 +246,17 @@ class Salaris(Controller):
         header_nokosten['img'] = '../static/figs/TODO.png'
         header_nokosten['name'] = 'Wel begroot geen kosten'
         header_nokosten['ordernaam'] = 'Wel begroot geen kosten'
-        header_nokosten['begroot'] = 'todo'
-        header_nokosten['geboekt'] = 'todo'
-        header_nokosten['obligo'] = 'todo'
-        header_nokosten['resultaat'] = 'todo'
+        header_nokosten['begroot'] = table_string(data['nokosten']['totals']['salaris_plan'])
+        header_nokosten['geboekt'] = table_string(data['nokosten']['totals']['salaris_geboekt'])
+        header_nokosten['obligo'] = table_string(data['nokosten']['totals']['salaris_obligo'])
+        header_nokosten['resultaat'] = table_string(data['nokosten']['totals']['resultaat'])
 
         person_tables.append(self.webrender.salaris_table_order(table_match_items, header_match))
         person_tables.append(self.webrender.salaris_table_order(table_nomatch_items, header_nomatch))
         person_tables.append(self.webrender.salaris_table_order(table_nokosten_items, header_nokosten))
 
         return self.webrender.salaris_body(order_tables, person_tables)
+
 
     def render_settings(self):
         # TODO add settings form
