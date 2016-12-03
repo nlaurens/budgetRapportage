@@ -268,7 +268,7 @@ class Salaris(Controller):
         begroot = data['totals']['salaris_plan']
         geboekt =  data['totals']['salaris_geboekt']
         obligo = data['totals']['salaris_obligo']
-        kosten = data['totals']['salaris_geboekt']
+        kosten = data['totals']['salaris_geboekt'] + data['totals']['salaris_obligo']
         resultaat = data['totals']['resultaat']
 
         html = {}
