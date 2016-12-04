@@ -32,7 +32,7 @@ class Salaris(Controller):
         report['settings'] = self.render_settings()
         report['summary'] = self.render_summary(data)
         report['body'] = self.render_body(data)
-        report['javaScripts'] = self.webrender.salaris_javascripts(data['orders'].keys() + ['payrollnr_nomatch', 'payrollnr_nokosten','payrollnr_matched'])
+        report['javaScripts'] = self.webrender.salaris_javascripts(data['orders'].keys() + ['payrollnr_nomatch', 'payrollnr_nokosten','payrollnr_match'])
 
         self.body = self.webrender.salaris(report)
 
@@ -130,7 +130,6 @@ class Salaris(Controller):
             else:
                 tiepe = 'nokosten'
 
-
             # data - match/nomatch/nokosten - payroll
             data[tiepe]['payrollnrs'][payrollnr] = row
 
@@ -139,6 +138,8 @@ class Salaris(Controller):
             for kosten_tiepe in ['salaris_plan', 'salaris_geboekt', 'salaris_obligo', 'resultaat']:
                 data[tiepe]['totals'][kosten_tiepe] += row[kosten_tiepe]
                 data['totals'][kosten_tiepe] += row[kosten_tiepe]
+
+        #TODO data per naam
 
         return data
 
@@ -179,10 +180,23 @@ class Salaris(Controller):
 
     def render_tiepe_tables(self, data):
         tiepe_tables = []
-        table_match_items = []
-        table_nomatch_items = []
-        table_nokosten_items = []
+        headers = {}
+        headers['names'] = { 'match':'Begroot en kosten', 'nomatch':'Niet begroot wel kosten', 'nokosten':'Wel begroot geen kosten'}
+
         for tiepe in ['match', 'nomatch', 'nokosten']:
+            table = []
+
+            headers[tiepe] = {}
+            headers[tiepe]['id'] = 'payrollnr_' + tiepe
+            headers[tiepe]['userHash'] = 'todo USERHASH'
+            headers[tiepe]['img'] = '../static/figs/TODO.png'
+            headers[tiepe]['name'] = headers['names'][tiepe]
+            headers[tiepe]['ordernaam'] = headers['names'][tiepe]
+            headers[tiepe]['begroot'] = table_string(data[tiepe]['totals']['salaris_plan'])
+            headers[tiepe]['geboekt'] = table_string(data[tiepe]['totals']['salaris_geboekt'])
+            headers[tiepe]['obligo'] = table_string(data[tiepe]['totals']['salaris_obligo'])
+            headers[tiepe]['resultaat'] = table_string(data[tiepe]['totals']['resultaat'])
+
             for payrollnr in data[tiepe]['payrollnrs'].keys():
                 row = data[tiepe]['payrollnrs'][payrollnr]
                 html = {}
@@ -195,51 +209,13 @@ class Salaris(Controller):
                 html['resultaat_perc'] = '%.f' % (row['resultaat_perc']*100) + '%'
                 html['td_class'] = 'success' if row['match'] else 'danger'
 
-                if tiepe == 'match':
-                    table_match_items.append(self.webrender.salaris_personeel_regel(html))
-                elif tiepe == 'nomatch':
-                    table_nomatch_items.append(self.webrender.salaris_personeel_regel(html))
-                elif tiepe == 'nokosten':
-                    table_nokosten_items.append(self.webrender.salaris_personeel_regel(html))
+                table.append(self.webrender.salaris_personeel_regel(html))
 
-        header_match = {}
-        header_match['id'] = 'payrollnr_matched' 
-        header_match['userHash'] = 'todo USERHASH'
-        header_match['img'] = '../static/figs/TODO.png'
-        header_match['name'] = 'Begroot en gerealiseerd'
-        header_match['ordernaam'] = 'Begroot en gerealiseerd' 
-        header_match['begroot'] = table_string(data['match']['totals']['salaris_plan'])
-        header_match['geboekt'] = table_string(data['match']['totals']['salaris_geboekt'])
-        header_match['obligo'] = table_string(data['match']['totals']['salaris_obligo'])
-        header_match['resultaat'] = table_string(data['match']['totals']['resultaat'])
-
-        header_nomatch = {}
-        header_nomatch['id'] = 'payrollnr_nomatch'
-        header_nomatch['userHash'] = 'todo USERHASH'
-        header_nomatch['img'] = '../static/figs/TODO.png'
-        header_nomatch['name'] = 'Niet begroot wel kosten'
-        header_nomatch['ordernaam'] = 'Niet begroot wel kosten'
-        header_nomatch['begroot'] = table_string(data['nomatch']['totals']['salaris_plan'])
-        header_nomatch['geboekt'] = table_string(data['nomatch']['totals']['salaris_geboekt'])
-        header_nomatch['obligo'] = table_string(data['nomatch']['totals']['salaris_obligo'])
-        header_nomatch['resultaat'] = table_string(data['nomatch']['totals']['resultaat'])
-
-        header_nokosten = {}
-        header_nokosten['id'] = 'payrollnr_nokosten'
-        header_nokosten['userHash'] = 'todo USERHASH'
-        header_nokosten['img'] = '../static/figs/TODO.png'
-        header_nokosten['name'] = 'Wel begroot geen kosten'
-        header_nokosten['ordernaam'] = 'Wel begroot geen kosten'
-        header_nokosten['begroot'] = table_string(data['nokosten']['totals']['salaris_plan'])
-        header_nokosten['geboekt'] = table_string(data['nokosten']['totals']['salaris_geboekt'])
-        header_nokosten['obligo'] = table_string(data['nokosten']['totals']['salaris_obligo'])
-        header_nokosten['resultaat'] = table_string(data['nokosten']['totals']['resultaat'])
-
-        tiepe_tables.append(self.webrender.salaris_table_order(table_match_items, header_match, 'persoon'))
-        tiepe_tables.append(self.webrender.salaris_table_order(table_nomatch_items, header_nomatch, 'persoon'))
-        tiepe_tables.append(self.webrender.salaris_table_order(table_nokosten_items, header_nokosten, 'persoon'))
+            tiepe_tables.append(self.webrender.salaris_table_order(table, headers[tiepe], 'persoon'))
 
         return tiepe_tables
+
+
     def render_order_tables(self, data):
         order_tables = []
 
