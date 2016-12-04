@@ -166,36 +166,19 @@ class Salaris(Controller):
 
 
     def render_body(self, data):
-        order_tables = []
-        for order in data['orders'].keys():
-            header = {}
-            header['id'] = order
-            header['userHash'] = 'todo USERHASH'
-            header['img'] = '../static/figs/TODO.png'
-            header['name'] = data['orders'][order]['naam'] + ' - ' + str(order)
-            header['ordernaam'] = data['orders'][order]['naam']
-            header['begroot'] = table_string(data['orders'][order]['totals']['salaris_plan'])
-            header['geboekt'] = table_string(data['orders'][order]['totals']['salaris_geboekt'])
-            header['obligo'] = table_string(data['orders'][order]['totals']['salaris_obligo'])
-            header['resultaat'] = table_string(data['orders'][order]['totals']['resultaat'])
+        order_tables = self.render_order_tables(data)
+        person_tables = self.render_person_tables(data)
+        tiepe_tables = self.render_tiepe_tables(data)
 
-            table_items = []
-            for payrollnr in data['orders'][order]['payrollnrs'].keys():
-                row = data['orders'][order]['payrollnrs'][payrollnr]
-                html = {}
-                html['naam'] = row['naam']
-                html['personeelsnummer'] = payrollnr  #TODO: on mouseover show all personeelsnummers that are linked to this number
-                html['begroot'] = table_string(row['salaris_plan'])
-                html['geboekt'] = table_string(row['salaris_geboekt'])
-                html['obligo'] = table_string(row['salaris_obligo'])
-                html['resultaat'] = table_string(row['resultaat'])
-                html['resultaat_perc'] = '%.f' % (row['resultaat_perc']*100) + '%'
-                html['td_class'] = 'success' if row['match'] else 'danger'
-                table_items.append(self.webrender.salaris_personeel_regel(html))
+        return self.webrender.salaris_body(order_tables, person_tables, tiepe_tables)
 
-            order_tables.append(self.webrender.salaris_table_order(table_items, header, 'order'))
 
-        person_tables = []
+    def render_person_tables(self, data):
+        return []
+
+
+    def render_tiepe_tables(self, data):
+        tiepe_tables = []
         table_match_items = []
         table_nomatch_items = []
         table_nokosten_items = []
@@ -252,12 +235,43 @@ class Salaris(Controller):
         header_nokosten['obligo'] = table_string(data['nokosten']['totals']['salaris_obligo'])
         header_nokosten['resultaat'] = table_string(data['nokosten']['totals']['resultaat'])
 
-        person_tables.append(self.webrender.salaris_table_order(table_match_items, header_match, 'persoon'))
-        person_tables.append(self.webrender.salaris_table_order(table_nomatch_items, header_nomatch, 'persoon'))
-        person_tables.append(self.webrender.salaris_table_order(table_nokosten_items, header_nokosten, 'persoon'))
+        tiepe_tables.append(self.webrender.salaris_table_order(table_match_items, header_match, 'persoon'))
+        tiepe_tables.append(self.webrender.salaris_table_order(table_nomatch_items, header_nomatch, 'persoon'))
+        tiepe_tables.append(self.webrender.salaris_table_order(table_nokosten_items, header_nokosten, 'persoon'))
 
-        return self.webrender.salaris_body(order_tables, person_tables)
+        return tiepe_tables
+    def render_order_tables(self, data):
+        order_tables = []
 
+        for order in data['orders'].keys():
+            header = {}
+            header['id'] = order
+            header['userHash'] = 'todo USERHASH'
+            header['img'] = '../static/figs/TODO.png'
+            header['name'] = data['orders'][order]['naam'] + ' - ' + str(order)
+            header['ordernaam'] = data['orders'][order]['naam']
+            header['begroot'] = table_string(data['orders'][order]['totals']['salaris_plan'])
+            header['geboekt'] = table_string(data['orders'][order]['totals']['salaris_geboekt'])
+            header['obligo'] = table_string(data['orders'][order]['totals']['salaris_obligo'])
+            header['resultaat'] = table_string(data['orders'][order]['totals']['resultaat'])
+
+            table_items = []
+            for payrollnr in data['orders'][order]['payrollnrs'].keys():
+                row = data['orders'][order]['payrollnrs'][payrollnr]
+                html = {}
+                html['naam'] = row['naam']
+                html['personeelsnummer'] = payrollnr  #TODO: on mouseover show all personeelsnummers that are linked to this number
+                html['begroot'] = table_string(row['salaris_plan'])
+                html['geboekt'] = table_string(row['salaris_geboekt'])
+                html['obligo'] = table_string(row['salaris_obligo'])
+                html['resultaat'] = table_string(row['resultaat'])
+                html['resultaat_perc'] = '%.f' % (row['resultaat_perc']*100) + '%'
+                html['td_class'] = 'success' if row['match'] else 'danger'
+                table_items.append(self.webrender.salaris_personeel_regel(html))
+
+            order_tables.append(self.webrender.salaris_table_order(table_items, header, 'order'))
+
+        return order_tables
 
     def render_settings(self):
         # TODO add settings form
