@@ -47,10 +47,10 @@ Controller & Webpages
         * bij password verkeerd invullen post form leegmaken.
 
     - salaris
-        * Naam order uit andere db halen, salaris geeft korte namen.. (kostensoort groep?)
+        * Per tiepe tabel: voor elke regel/naam uitklapbare regels met daarin
+          op welke order wat staat (begroot/gepland/geboekt). Regels staan al in de HTML
+          alleen de 'data' var heeft nog geen lijst met deze informatie.
         * Plaatjes maken/koppelen
-        * Summary van alle totalen maken (totalOrderGeboekt, etc opvangen uit html_table)
-        * Obligos salarissen ECHT uit systeem halen (kan! ipv de HR-obligos per order!)
 
     - report
         * aantal voorgaande jaren in settings
