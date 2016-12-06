@@ -112,7 +112,8 @@ class Salaris(Controller):
 
                 # data - payroll
                 if payrollnr not in data['payrollnrs']:
-                    data['payrollnrs'][payrollnr] = {'naam':regel.personeelsnaam, 'match':match, 'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}
+                    data['payrollnrs'][payrollnr] = {'naam':regel.personeelsnaam, 'match':match, 'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0, 'orders':{}}
+
                 data['payrollnrs'][payrollnr]['match'] = match or data['payrollnrs'][payrollnr]['match']  # once it is true it should stay true
                 data['payrollnrs'][payrollnr][regel.tiepe] += regel.kosten
                 data['payrollnrs'][payrollnr]['resultaat'] = data['payrollnrs'][payrollnr]['salaris_plan'] - data['payrollnrs'][payrollnr]['salaris_geboekt'] - data['payrollnrs'][payrollnr]['salaris_obligo']
@@ -120,7 +121,13 @@ class Salaris(Controller):
                     data['payrollnrs'][payrollnr]['resultaat_perc'] = data['payrollnrs'][payrollnr]['salaris_geboekt'] / data['payrollnrs'][payrollnr]['salaris_plan']
                 else:
                     data['payrollnrs'][payrollnr]['resultaat_perc'] = 0
-                
+
+                if order not in data['payrollnrs'][payrollnr]['orders']:
+                    data['payrollnrs'][payrollnr]['orders'][order] = {'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}
+
+                data['payrollnrs'][payrollnr]['orders'][order][regel.tiepe] += regel.kosten
+                data['payrollnrs'][payrollnr]['orders'][order]['resultaat'] = data['payrollnrs'][payrollnr]['orders'][order]['salaris_plan'] - data['payrollnrs'][payrollnr]['orders'][order]['salaris_obligo'] - data['payrollnrs'][payrollnr]['orders'][order]['salaris_geboekt']
+
         # data - match/nomatch/nokosten - ..
         # We have to this this in sep. loop because we need the
         # plan/geboekt/obligo regels matched first.
