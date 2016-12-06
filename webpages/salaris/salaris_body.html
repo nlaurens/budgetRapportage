@@ -1,28 +1,5 @@
-$def with(order_tables, person_tables, tiepe_tables)
+$def with(order_tables, tiepe_tables)
 
-$if person_tables:
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h4>Per persoon</h4>
-        </div>
-        <div class="panel-body">
-            <table class="table table-condensed" style="border-collapse:collapse;">
-                <thead>
-                    <tr><th>&nbsp;</th>
-                        <th class="text-right"></th>
-                        <th class="text-right">Begroot</th>
-                        <th class="text-right">Realisatie</th>
-                        <th class="text-right">Obligo</th>
-                        <th class="text-right">Resultaat</th>
-                    </tr>                          
-                </thead>
-                <tbody>
-                $for person_table in person_tables:
-                    $:person_table
-                </tbody>
-            </table>
-        </div>
-    </div>
 
 $if tiepe_tables:
     <div class="panel panel-default">

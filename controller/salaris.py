@@ -120,8 +120,10 @@ class Salaris(Controller):
                     data['payrollnrs'][payrollnr]['resultaat_perc'] = data['payrollnrs'][payrollnr]['salaris_geboekt'] / data['payrollnrs'][payrollnr]['salaris_plan']
                 else:
                     data['payrollnrs'][payrollnr]['resultaat_perc'] = 0
-
+                
         # data - match/nomatch/nokosten - ..
+        # We have to this this in sep. loop because we need the
+        # plan/geboekt/obligo regels matched first.
         for payrollnr, row in data['payrollnrs'].iteritems():
             if row['match']:
                 tiepe = 'match'
@@ -168,14 +170,9 @@ class Salaris(Controller):
 
     def render_body(self, data):
         order_tables = self.render_order_tables(data)
-        person_tables = self.render_person_tables(data)
         tiepe_tables = self.render_tiepe_tables(data)
 
-        return self.webrender.salaris_body(order_tables, person_tables, tiepe_tables)
-
-
-    def render_person_tables(self, data):
-        return []
+        return self.webrender.salaris_body(order_tables, tiepe_tables)
 
 
     def render_tiepe_tables(self, data):
