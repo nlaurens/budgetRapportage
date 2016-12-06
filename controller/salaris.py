@@ -148,8 +148,6 @@ class Salaris(Controller):
                 data[tiepe]['totals'][kosten_tiepe] += row[kosten_tiepe]
                 data['totals'][kosten_tiepe] += row[kosten_tiepe]
 
-        #TODO data per naam
-
         return data
 
     """
@@ -202,18 +200,24 @@ class Salaris(Controller):
             headers[tiepe]['resultaat'] = table_string(data[tiepe]['totals']['resultaat'])
 
             for payrollnr in data[tiepe]['payrollnrs'].keys():
-                row = data[tiepe]['payrollnrs'][payrollnr]
-                html = {}
-                html['naam'] = row['naam']
-                html['personeelsnummer'] = payrollnr  #TODO: on mouseover show all personeelsnummers that are linked to this number
-                html['begroot'] = table_string(row['salaris_plan'])
-                html['geboekt'] = table_string(row['salaris_geboekt'])
-                html['obligo'] = table_string(row['salaris_obligo'])
-                html['resultaat'] = table_string(row['resultaat'])
-                html['resultaat_perc'] = '%.f' % (row['resultaat_perc']*100) + '%'
-                html['td_class'] = 'success' if row['match'] else 'danger'
+                item = data[tiepe]['payrollnrs'][payrollnr]
+                row = {}
+                row['naam'] = item['naam']
+                row['personeelsnummer'] = payrollnr  #TODO: on mouseover show all personeelsnummers that are linked to this number
+                row['begroot'] = table_string(item['salaris_plan'])
+                row['geboekt'] = table_string(item['salaris_geboekt'])
+                row['obligo'] = table_string(item['salaris_obligo'])
+                row['resultaat'] = table_string(item['resultaat'])
+                row['resultaat_perc'] = '%.f' % (item['resultaat_perc']*100) + '%'
+                row['td_class'] = 'success' if item['match'] else 'danger'
+                row['orders'] = [] 
+                for order in item['orders']:
+                    order_item = {'ordernummer':order}
+                    for key in ['salaris_plan', 'salaris_obligo', 'salaris_geboekt', 'resultaat']:
+                        order_item[key] = table_string(item['orders'][order][key])
+                    row['orders'].append(order_item)
 
-                table.append(self.webrender.salaris_personeel_regel(html))
+                table.append(self.webrender.salaris_personeel_regel(row))
 
             tiepe_tables.append(self.webrender.salaris_table_order(table, headers[tiepe], 'persoon'))
 
@@ -237,17 +241,18 @@ class Salaris(Controller):
 
             table_items = []
             for payrollnr in data['orders'][order]['payrollnrs'].keys():
-                row = data['orders'][order]['payrollnrs'][payrollnr]
-                html = {}
-                html['naam'] = row['naam']
-                html['personeelsnummer'] = payrollnr  #TODO: on mouseover show all personeelsnummers that are linked to this number
-                html['begroot'] = table_string(row['salaris_plan'])
-                html['geboekt'] = table_string(row['salaris_geboekt'])
-                html['obligo'] = table_string(row['salaris_obligo'])
-                html['resultaat'] = table_string(row['resultaat'])
-                html['resultaat_perc'] = '%.f' % (row['resultaat_perc']*100) + '%'
-                html['td_class'] = 'success' if row['match'] else 'danger'
-                table_items.append(self.webrender.salaris_personeel_regel(html))
+                item = data['orders'][order]['payrollnrs'][payrollnr]
+                row = {}
+                row['naam'] = item['naam']
+                row['personeelsnummer'] = payrollnr  #TODO: on mouseover show all personeelsnummers that are linked to this number
+                row['begroot'] = table_string(item['salaris_plan'])
+                row['geboekt'] = table_string(item['salaris_geboekt'])
+                row['obligo'] = table_string(item['salaris_obligo'])
+                row['resultaat'] = table_string(item['resultaat'])
+                row['resultaat_perc'] = '%.f' % (item['resultaat_perc']*100) + '%'
+                row['td_class'] = 'success' if item['match'] else 'danger'
+                row['orders'] = []  # Needed empty for the salaris_personeel_regel render
+                table_items.append(self.webrender.salaris_personeel_regel(row))
 
             order_tables.append(self.webrender.salaris_table_order(table_items, header, 'order'))
 
