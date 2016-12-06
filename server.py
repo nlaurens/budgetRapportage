@@ -47,9 +47,7 @@ Controller & Webpages
         * bij password verkeerd invullen post form leegmaken.
 
     - salaris
-        * Per tiepe tabel: voor elke regel/naam uitklapbare regels met daarin
-          op welke order wat staat (begroot/gepland/geboekt). Regels staan al in de HTML
-          alleen de 'data' var heeft nog geen lijst met deze informatie.
+        * settings maken
         * Plaatjes maken/koppelen
 
     - report
