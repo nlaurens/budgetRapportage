@@ -210,8 +210,10 @@ class Salaris(Controller):
                 row['resultaat'] = table_string(item['resultaat'])
                 row['resultaat_perc'] = '%.f' % (item['resultaat_perc']*100) + '%'
                 row['td_class'] = 'success' if item['match'] else 'danger'
+                row['details'] = False
                 row['orders'] = [] 
                 for order in item['orders']:
+                    row['details'] = True
                     order_item = {'ordernummer':order}
                     for key in ['salaris_plan', 'salaris_obligo', 'salaris_geboekt', 'resultaat']:
                         order_item[key] = table_string(item['orders'][order][key])
@@ -251,7 +253,7 @@ class Salaris(Controller):
                 row['resultaat'] = table_string(item['resultaat'])
                 row['resultaat_perc'] = '%.f' % (item['resultaat_perc']*100) + '%'
                 row['td_class'] = 'success' if item['match'] else 'danger'
-                row['orders'] = []  # Needed empty for the salaris_personeel_regel render
+                row['details'] = False  
                 table_items.append(self.webrender.salaris_personeel_regel(row))
 
             order_tables.append(self.webrender.salaris_table_order(table_items, header, 'order'))
