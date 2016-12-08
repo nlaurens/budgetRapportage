@@ -18,10 +18,18 @@ class Salaris(Controller):
         self.webrender = web.template.render('webpages/salaris/')
 
         # Salaris specific:
-        self.ordergroup_file = str(web.input(ordergroep='LION')['ordergroep'])
+        self.ordergroup_file = str(web.input(ordergroup='LION')['ordergroup'])
         ordergroup = model.ordergroup.load(self.ordergroup_file)
         self.ordergroup = ordergroup.find(str(web.input(subgroep='TOTAAL')['subgroep']))
         self.orders = self.ordergroup.list_orders_recursive().keys()
+
+        # Forms
+        dropdown_options = self.dropdown_options()
+        self.form_settings_simple = form.Form(
+                form.Dropdown('ordergroup', dropdown_options['ordergroups'], 
+                              description='Order Group', value=self.ordergroup_file),
+                form.Button('submit', value='salaris_settings')
+        )
 
 
     def process_sub(self):
@@ -261,8 +269,7 @@ class Salaris(Controller):
         return order_tables
 
     def render_settings(self):
-        # TODO add settings form
-        form_settings = 'todo form met optie'
+        form_settings = self.form_settings_simple
         return self.webrender.salaris_settings(form_settings)
 
 

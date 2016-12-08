@@ -142,6 +142,9 @@ class Controller(object):
         options['empty_tables'] = options['empty'] + options['tables']
         options['empty_tables_all'] = options['empty'] + options['tables'] + options['all']
 
+        ordergroups = model.ordergroup.available()
+        options['ordergroups'] = zip(ordergroups, ordergroups)
+
         return options
 
     # can be used in any class to display a msg or a form
