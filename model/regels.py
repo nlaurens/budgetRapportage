@@ -63,8 +63,12 @@ def __specific_rules(regel):
         # Prognose afschrijvingen omzetten in 1 obligo
         if regel.kostensoort == 432100 or regel.kostensoort == 411101:
             modified_regels = []  # Remove old regel from list, we will ad new ones
+            print regel.omschrijving
             digits = [int(s) for s in regel.omschrijving.split() if s.isdigit()]
-            periodeleft = range(digits[-2], digits[-1] + 1)
+            if len(digits) == 2: 
+                periodeleft = range(digits[-2], digits[-1] + 1)
+            elif len(digits) == 1:  # omschrijving in dec is : 'periode 12' niet 'periode xx t/m yy'
+                periodeleft = [12]
             bedrag = regel.kosten / len(periodeleft)
             omschrijving = regel.omschrijving.decode('ascii', 'replace').encode('utf-8')
             for periode in periodeleft:
