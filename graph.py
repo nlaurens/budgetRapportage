@@ -451,8 +451,8 @@ if __name__ == "__main__":
             ordergroups[name] = model.ordergroup.load(name)
 
         regels = {}
-        regels['plan'] = model.regels.load(years_load=years, orders_load=orders, table_names_load=['plan'])
-        regels['resultaat'] = model.regels.load(years_load=years, orders_load=orders, table_names_load=['geboekt', 'obligo'])
+        regels['plan'] = model.regels.load(['plan'], years_load=years, orders_load=orders)
+        regels['resultaat'] = model.regels.load(['geboekt', 'obligo'], years_load=years, orders_load=orders)
 
 
         graph = Graph(years, orders, ordergroups, regels)
