@@ -129,8 +129,8 @@ class Controller(object):
         options['empty'] = [('', '')]
         options['all'] = [('*','! ALL !')]
         options['years'] = zip(jaren_db, jaren_db)
-        options['tables'] = self.config['mysql']['tables']['regels'].items()
-        options['tables'].append(self.config['mysql']['tables']['orderlijst'])
+        options['tables'] = self.config['mysql']['tables']['regels'].keys()
+        options['tables'].append('orderlijst') 
 
         options['months'] = [(1, 'Jan'), (2, 'Feb'), (3, 'March'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'), (9, 'Sep'), (10, 'Okt'), (11, 'Nov'), (12, 'Dec')]
         options['Qs'] = [('Q1','Q1'), ('Q2','Q2'),('Q3','Q3'),('Q4','Q4')]
@@ -141,6 +141,9 @@ class Controller(object):
 
         options['empty_tables'] = options['empty'] + options['tables']
         options['empty_tables_all'] = options['empty'] + options['tables'] + options['all']
+
+        ordergroups = model.ordergroup.available()
+        options['ordergroups'] = zip(ordergroups, ordergroups)
 
         return options
 

@@ -91,7 +91,8 @@ class View(Controller):
         # data = { <name of ks_group>: { 'kosten/begroot': regellist}
         # totals {'geboekt/obligo/totals':<total>}
         regels = {}
-        regels = model.regels.load(years_load=[self.year], orders_load=[self.order])
+        tables = ['geboekt', 'obligo', 'plan']
+        regels = model.regels.load(tables, years_load=[self.year], orders_load=[self.order])
 
         regels.filter_regels_by_attribute('periode', self.periodes)
 

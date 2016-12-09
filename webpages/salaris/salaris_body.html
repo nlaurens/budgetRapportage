@@ -1,32 +1,34 @@
-$def with(parsed_orders, empty_orders)
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h4>Gemaakte salariskosten</h4>
-    </div>
-    <div class="panel-body">
-        <table class="table table-condensed" style="border-collapse:collapse;">
-            <thead>
-                <tr><th>&nbsp;</th>
-                    <th class="text-right">Order</th>
-                    <th class="text-right">Begroot</th>
-                    <th class="text-right">Realisatie</th>
-                    <th class="text-right">Obligo</th>
-                    <th class="text-right">Verwacht Resultaat</th>
-                </tr>                          
-            </thead>
-            <tbody>
-            $for order in parsed_orders:
-                $:order
+$def with(order_tables, tiepe_tables)
 
-            </tbody>
-        </table>
-    </div>
-</div>
 
-$if empty_orders:
+$if tiepe_tables:
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h4>Geen salariskosten</h4>
+            <h4>Per Tiepe</h4>
+        </div>
+        <div class="panel-body">
+            <table class="table table-condensed" style="border-collapse:collapse;">
+                <thead>
+                    <tr><th>&nbsp;</th>
+                        <th class="text-right"></th>
+                        <th class="text-right">Begroot</th>
+                        <th class="text-right">Realisatie</th>
+                        <th class="text-right">Obligo</th>
+                        <th class="text-right">Resultaat</th>
+                    </tr>                          
+                </thead>
+                <tbody>
+                $for table in tiepe_tables:
+                    $:table
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+$if order_tables:
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4>Per order</h4>
         </div>
         <div class="panel-body">
             <table class="table table-condensed" style="border-collapse:collapse;">
@@ -36,12 +38,13 @@ $if empty_orders:
                         <th class="text-right">Begroot</th>
                         <th class="text-right">Realisatie</th>
                         <th class="text-right">Obligo</th>
-                        <th class="text-right">Resultaat</th>
+                        <th class="text-right">Verwacht Resultaat</th>
                     </tr>                          
                 </thead>
                 <tbody>
-                $for order in empty_orders:
-                    $:order
+                $for order_table in order_tables:
+                    $:order_table
+
                 </tbody>
             </table>
         </div>

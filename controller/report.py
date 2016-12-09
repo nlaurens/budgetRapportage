@@ -99,7 +99,8 @@ class Report(Controller):
         }
     """
     def construct_data(self):
-        regels = model.regels.load(years_load=self.years, orders_load=self.orders)
+        tables = ['geboekt', 'obligo', 'plan']
+        regels = model.regels.load(tables, years_load=self.years, orders_load=self.orders)
         regels_order_tiepe = regels.split(['ordernummer', 'jaar', 'tiepe'])
 
         data = {}  # construct data dictand preload all possible keys

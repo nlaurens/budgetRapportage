@@ -9,20 +9,18 @@ db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["u
 
 """
 .load(years=[], periodes=[], orders=[], tablesNames=[], kostensoorten=[])
-    input: years as list of int,
+    input: tablesNames as list of str,
+    optional inputs:
+           years as list of int,
            periodes as list of int,
            orders as list of int,
-           tablesNames as list of str,
            kostensoorten as list of int
     output: RegelList
 """
-def load(years_load=None, periods_load=None, orders_load=None, table_names_load=None, kostensoorten_load=None):
-    if not table_names_load:
-        table_names_load = config["mysql"]["tables"]["regels"].keys()
-    else:
-        for name in table_names_load:
-            assert name in config["mysql"]["tables"][
-                "regels"], "unknown table in model.get_reggellist_per_table: " + name
+def load(table_names_load, years_load=None, periods_load=None, orders_load=None, kostensoorten_load=None):
+    for name in table_names_load:
+        assert name in config["mysql"]["tables"][
+            "regels"], "unknown table in model.get_reggellist_per_table: " + name
 
     regels = []
     for table_name in table_names_load:
@@ -89,7 +87,7 @@ def __specific_rules(regel):
             dict.key: tableName as str
 """
 def count():
-    table_names = config["mysql"]["tables"]["regels"].keys()
+    table_names = config["mysql"]["tables"]["regels"].values()
     years_in_db = years()
 
     count_regels = {}
@@ -108,6 +106,8 @@ def count():
 
     return count_regels
 
+#TODO merge .last_update and .last_periode to a general 
+# config param read/write model 
 
 """
 .last_update(newdate='')
@@ -122,6 +122,9 @@ def last_update(newdate=''):
         sql = "INSERT INTO `config` ( `key`, `value`) VALUES ( 'sapdate', 'no date set' );"
         results = db.query(sql)
 
+        sql = "INSERT INTO `config` ( `key`, `value`) VALUES ( 'lastperiode', '0' );"
+        results = db.query(sql)
+
     if newdate == '':
         sqlwhere = "`key` = 'sapdate'"
         results = db.select('config', where=sqlwhere)
@@ -131,6 +134,37 @@ def last_update(newdate=''):
         sapdate = newdate
 
     return sapdate
+
+
+"""
+.last_periode(newperiode='')
+    input: newperiode to be written in the db as str
+    output: last periode salaris was booked from db as int
+"""
+def last_periode(newperiode=''):
+    if not check_table_exists('config'):
+        sql = "CREATE TABLE `config` ( `key` varchar(255), `value` varchar(255) );"
+        results = db.query(sql)
+
+        sql = "INSERT INTO `config` ( `key`, `value`) VALUES ( 'lastperiode', '0' );"
+        results = db.query(sql)
+
+        sql = "INSERT INTO `config` ( `key`, `value`) VALUES ( 'sapdate', 'no date set' );"
+        results = db.query(sql)
+
+    if newperiode == '':
+        sqlwhere = "`key` = 'lastperiode'"
+        results = db.select('config', where=sqlwhere)
+        try: 
+            lastperiode = int(results[0]['value'])
+        except:
+            lastperiode = 0
+    else:
+        newperiode = int(newperiode)
+        db.update('config', where="`key` = 'lastperiode'", value=newperiode)
+        lastperiode = newperiode
+
+    return lastperiode
 
 
 """
@@ -168,7 +202,7 @@ def kostensoorten():
 # used by: years(), orders(), kostensoorten()
 def __select_distinct(regel_attribute):
     distinct = set()
-    table_names = config["mysql"]["tables"]["regels"].keys()
+    table_names = config["mysql"]["tables"]["regels"].values()
 
     for table_name in table_names:
         try:
@@ -190,7 +224,7 @@ def __select_distinct(regel_attribute):
 """
 def delete(years_delete=None, table_names_delete=None):
     if not table_names_delete:
-        table_names_delete = config["mysql"]["tables"]["regels"].keys()
+        table_names_delete = config["mysql"]["tables"]["regels"].values()
     else:
         for name in table_names_delete:
             assert name in config["mysql"]["tables"][
@@ -218,4 +252,4 @@ def delete(years_delete=None, table_names_delete=None):
     output: msg-queue as list of str
 """
 def add(table, fields, rows):
-    add_items_to_db(table, fields, rows)
+    add_items_to_db(config['mysql']['tables']['regels'][table], fields, rows)

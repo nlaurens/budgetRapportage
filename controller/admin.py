@@ -9,6 +9,8 @@ import model.regels
 import model.ksgroup
 import model.orders
 
+from config import config
+
 
 class Admin(Controller):
     def __init__(self):
@@ -18,7 +20,8 @@ class Admin(Controller):
         self.title = 'Admin Panel'
         self.module = 'admin'
         self.webrender = web.template.render('webpages/admin/')
-
+        self.lastperiode = model.regels.last_periode()  # gives subclass__init__ access
+        
         # Forms
         drop_down_options = self.dropdown_options()
 
@@ -42,10 +45,12 @@ class Admin(Controller):
                 form.Dropdown('type5', drop_down_options['empty_tables']),
                 form.Button('submit', value='uploadRegels')
         )
-        self.form_update_sap_date = form.Form(
+        self.form_update_sap = form.Form(
                 form.Textbox('sapdate', form.notnull, value=self.SAPupdate,
                              description='Date last SAP regels are uploaded'),
-                form.Button('submit', value='updateSapDate')
+                form.Dropdown('sapperiode', drop_down_options['months'], value=self.lastperiode,
+                               description='Last periode obligo/salarissen updated'),
+                form.Button('submit', value='updateSapDates')
         )
         self.form_rebuild_graphs = form.Form(
                 form.Textbox('target', form.notnull, description='Order/groep/*'),
@@ -79,7 +84,7 @@ class Admin(Controller):
         rendered['forms'] = []
         rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
         rendered['forms'].append(self.webrender.form('Upload File', self.form_upload))
-        rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap_date))
+        rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap))
         rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
 
         self.body = self.webrender.admin(self.msg, rendered)
@@ -100,7 +105,7 @@ class Admin(Controller):
         status_regels['body'] = []
         for table in table_names:
             if model.regels.check_table_exists(table):
-                regel = [table, '']
+                regel = [table, 'OK']
             else:
                 regel = [table, 'ERROR']
             for year in years:
@@ -138,9 +143,10 @@ class Admin(Controller):
             msg.extend(self.parse_upload_form())
             valid_form = True
 
-        if form_used == 'updateSapDate' and self.form_update_sap_date.validates():
+        if form_used == 'updateSapDates' and self.form_update_sap.validates():
             msg.append('Updating last sap update date')
-            model.regels.last_update(self.form_update_sap_date['sapdate'].value)
+            model.regels.last_update(self.form_update_sap['sapdate'].value)
+            model.regels.last_periode(self.form_update_sap['sapperiode'].value)
             valid_form = True
 
         if form_used == 'rebuildGraphs' and self.form_rebuild_graphs.validates():
@@ -200,7 +206,7 @@ class Admin(Controller):
                 file_handle = None
             table = eval("self.form_upload['type%s'].value" % i)
 
-            if file_handle is not None and table in self.config['mysql']['tables']['regels'].values():
+            if file_handle is not None and table in self.config['mysql']['tables']['regels'].keys():
                 msg.extend(self.upload_file(table, file_handle))
                 msg_process, fields, rows = self.process_file(table)
                 msg.extend(msg_process)
@@ -208,7 +214,7 @@ class Admin(Controller):
                     model.regels.add(table, fields, rows)
                 self.clean_upload(table)
 
-            if file_handle is not None and table == self.config['mysql']['tables']['orderlijst']:
+            if file_handle is not None and table == 'orderlijst':
                 msg.extend(self.upload_file(table, file_handle))
                 msg_process, fields, rows = self.process_file(table)
                 msg.extend(msg_process)

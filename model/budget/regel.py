@@ -12,9 +12,10 @@ class Regel:
         self.jaar = None
         self.periode = None
 
-        # specific for 'salaris'
+        # specific for salaris-plan/obligo/geboekt
         self.personeelsnummer = None
         self.personeelsnaam = None
+        self.payrollnummer = None
         self.schaal = None
         self.trede = None
 
@@ -25,7 +26,10 @@ class Regel:
     def druk_af(self):
         print '* regel'
         for attribute, value in vars(self).iteritems():
-            print '  ' + attribute + ': ' + str(value)
+            try:
+                print '  ' + attribute + ': ' + str(value)
+            except Exception:
+                print '  ' + attribute + ': <not printable>'
         print ''
 
     def copy(self):

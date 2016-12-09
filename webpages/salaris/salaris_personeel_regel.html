@@ -1,7 +1,26 @@
 $def with(row)
-<td class="text-right $:row['td_class']">$:row['personeelsnummer']</td>
-<td class="text-right">$:row['naam']</td>
-<td class="text-right">$:row['begroot']</td>
-<td class="text-right">$:row['geboekt']</td>
-<td class="text-right">$:row['resultaat']</td>
-<td class="text-right">$:row['resultaat_perc']</td>
+<tr>
+    <td class="text-right $:row['td_class']">$:row['personeelsnummer']</td>
+
+    $if row['details']:
+        <td class="text-right"><a href="#details-$:row['personeelsnummer']" data-toggle="collapse">$:row['naam']</a></td>
+    $else:
+        <td class="text-right">$:row['naam']</td>
+        
+    <td class="text-right">$:row['begroot']</td>
+    <td class="text-right">$:row['geboekt']</td>
+    <td class="text-right">$:row['obligo']</td>
+    <td class="text-right">$:row['resultaat']</td>
+    <td class="text-right">$:row['resultaat_perc']</td>
+</tr>
+$if row['details']:
+    $for order in row['orders']:
+        <tr class="hiddenRow accordian-body collapse" id="details-$:row['personeelsnummer']">
+            <td class="text-right"></td>
+            <td class="text-right">$order['ordernummer']</td>
+            <td class="text-right">$order['salaris_plan']</td>
+            <td class="text-right">$order['salaris_geboekt']</td>
+            <td class="text-right">$order['salaris_obligo']</td>
+            <td class="text-right">$order['resultaat']</td>
+            <td class="text-right"></td>
+        </tr>

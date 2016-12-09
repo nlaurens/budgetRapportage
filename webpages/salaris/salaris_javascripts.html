@@ -1,10 +1,12 @@
 $def with(orders)
 <script>
 $for order in orders:
-  $$("#collapse$:order").on('show.bs.collapse', function(){
+  $$("#collapse$:order").on('show.bs.collapse', function(e){
     $$("#plusminus$:order").removeClass('glyphicon glyphicon-plus').addClass('glyphicon glyphicon-minus');
+    e.stopPropagation();
   });
-  $$("#collapse$:order").on('hide.bs.collapse', function() {
+  $$("#collapse$:order").on('hide.bs.collapse', function(e) {
     $$("#plusminus$:order").removeClass('glyphicon glyphicon-minus').addClass('glyphicon glyphicon-plus');
+    e.stopPropagation();
   });
 </script>
