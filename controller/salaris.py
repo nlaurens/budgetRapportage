@@ -19,15 +19,17 @@ class Salaris(Controller):
 
         # Salaris specific:
         self.ordergroup_file = str(web.input(ordergroup='LION')['ordergroup'])
-        ordergroup = model.ordergroup.load(self.ordergroup_file)
-        self.ordergroup = ordergroup.find(str(web.input(subgroep='TOTAAL')['subgroep']))
+        self.ordergroup = model.ordergroup.load(self.ordergroup_file)
         self.orders = self.ordergroup.list_orders_recursive().keys()
+        if str(web.input(subgroup='')['subgroup']) != '':
+            self.subordergroup = self.ordergroup.find(str(web.input(subgroup='')['subgroup']))
+            self.orders = self.subordergroup.list_orders_recursive().keys()
 
         # Forms
         dropdown_options = self.dropdown_options()
         self.form_settings_simple = form.Form(
                 form.Dropdown('ordergroup', dropdown_options['ordergroups'], 
-                              description='Order Group', value=self.ordergroup_file),
+                            description='Order Group', value=self.ordergroup_file),
                 form.Button('submit', value='salaris_settings')
         )
 
@@ -222,7 +224,7 @@ class Salaris(Controller):
                 row['orders'] = [] 
                 for order in item['orders']:
                     row['details'] = True
-                    order_item = {'ordernummer':order}
+                    order_item = {'ordernummer':'%s - %s' % (data['orders'][order]['naam'], order) }
                     for key in ['salaris_plan', 'salaris_obligo', 'salaris_geboekt', 'resultaat']:
                         order_item[key] = table_string(item['orders'][order][key])
                     row['orders'].append(order_item)
