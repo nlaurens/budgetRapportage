@@ -6,13 +6,16 @@ from config import config
 
 import model.regels
 import model.ordergroup
-
+from model.functions import check_connection
 
 class Controller(object):
     def __init__(self):
 # TODO remove cache=False
         self.mainRender = web.template.render('webpages/', cache=False) 
         self.config = config
+        connected, error = check_connection()
+        if not connected:
+            raise web.notfound(error[1])
         self.SAPupdate = model.regels.last_update()  # gives subclass__init__ access
 
         # should be set in the subclass

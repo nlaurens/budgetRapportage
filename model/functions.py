@@ -16,6 +16,20 @@ def last_item_in_list(lst):
 
 
 """
+.check_connection():
+    input: none
+    output: True/False
+"""
+def check_connection():
+    try:
+        results = db.query("SELECT 1")
+    except Exception as e:
+        return (False, e)
+
+    return (True, '')
+
+
+"""
 .check_table_exists(table)
     input: table as str
     output: Boolean
