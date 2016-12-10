@@ -147,7 +147,8 @@ class Controller(object):
 
         ordergroups = model.ordergroup.available()
         options['ordergroups'] = zip(ordergroups, ordergroups)
-        options['ordergroups_all'] = options['all'] + options['ordergroups']
+        ordergroups_all = model.ordergroup.available(actcode_groups=True)
+        options['ordergroups_all'] = zip(ordergroups_all, ordergroups_all)
 
         return options
 

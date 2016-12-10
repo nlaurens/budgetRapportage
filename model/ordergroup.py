@@ -35,17 +35,32 @@ def load(order_group_name):
     if os.path.isfile(path):
         order_group = load_from_file(path)
     else:
-        order_group = None
+        order_group = load_from_orderlist(order_group_name)
 
     return order_group
 
 
 """
-    .load_from_file
+.load_from_orderlist
+    input: activiteitencode as str
+    output: model.budget.OrderGroup as instance
+"""
+def load_from_orderlist(act_code_load):
+
+    order_group = OrderGroup(act_code_load[-1], act_code_load, 0, '')
+    orders_dict = model.orders.load().split(['activiteitencode'])
+    print orders_dict
+    print orders_dict[act_code_load[-1]]
+    for order in orders_dict[act_code_load[-1]].orders:
+        order_group.add_order(int(order.ordernummer), order.ordernaam)
+
+    return order_group
+
+"""
+.load_from_file
     input: path to file as str
     output: model.budget.OrderGroup instance
 """
-
 def load_from_file(path):
     f = open(path, 'r')
 

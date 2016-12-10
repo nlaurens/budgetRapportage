@@ -37,7 +37,7 @@ def __select_distinct(regel_attribute):
 """
     .Load
     input: none
-    output: list of dict items
+    output: OrderList instance
 """
 def load():
     try:

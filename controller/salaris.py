@@ -28,7 +28,7 @@ class Salaris(Controller):
         # Forms
         dropdown_options = self.dropdown_options()
         self.form_settings_simple = form.Form(
-                form.Dropdown('ordergroup', dropdown_options['ordergroups'], 
+                form.Dropdown('ordergroup', dropdown_options['ordergroups_all'], 
                             description='Order Group', value=self.ordergroup_file),
                 form.Button('submit', value='salaris_settings')
         )
