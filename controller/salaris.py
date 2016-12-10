@@ -77,8 +77,11 @@ class Salaris(Controller):
 
     """
     def create_data_structure(self, regels):
+        try:  # not always are there obligo's around
+            obligo = regels.split(['tiepe', 'personeelsnummer'])['salaris_obligo'] 
+        except:
+            obligo = None
 
-        obligo = regels.split(['tiepe', 'personeelsnummer'])['salaris_obligo'] 
         regels_per_order = regels.split(['ordernummer'])
         payroll_map = self.payroll_map(obligo)
         last_periode = model.regels.last_periode()
@@ -167,18 +170,18 @@ class Salaris(Controller):
         a single payrollnumber
     """ 
     def payroll_map(self, regels_obligo):
-        # { 'persnr': payrollnummer }
-        payroll_map = {}
-        for persnr, regelList in regels_obligo.iteritems():
-            for regel in regelList.regels:
-                if persnr not in payroll_map:
-                    payroll_map[persnr] = regel.payrollnummer
-                else:
-                    if regel.payrollnummer != payroll_map[persnr]:
-                        print 'ERRROR, multiple payrollnumbers for a single personeelsnummer'
-                        print persnr
-                        print regel.payrollnummer
-                        exit()
+        payroll_map = {}  # { 'persnr': payrollnummer }
+        if regels_obligo:
+            for persnr, regelList in regels_obligo.iteritems():
+                for regel in regelList.regels:
+                    if persnr not in payroll_map:
+                        payroll_map[persnr] = regel.payrollnummer
+                    else:
+                        if regel.payrollnummer != payroll_map[persnr]:
+                            print 'ERRROR, multiple payrollnumbers for a single personeelsnummer'
+                            print persnr
+                            print regel.payrollnummer
+                            exit()
 
         return payroll_map
 
