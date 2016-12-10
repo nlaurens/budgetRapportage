@@ -4,16 +4,21 @@ import os
 from config import config
 from budget import OrderGroup
 from model.functions import first_item_in_list
+import model.orders
 
 """
 .available()
     input: None
-    output: names of ordergroups as a list of str
+    output: names of ordergroups as a list of str that are
+            in the 'data\ordergroups' dir AND
+            1 list per activiteitecode
 """
 def available():
     order_groups = []
     for path in glob.glob("%s\*" % config['orderGroupsPath']):
         order_groups.append(os.path.split(path)[1])
+
+    order_groups.extend(['Act.Code-%s'%(s) for s in model.orders.activiteitencodes()])
 
     return order_groups
 
@@ -25,6 +30,21 @@ def available():
 """
 def load(order_group_name):
     path = '%s\%s' % (config['orderGroupsPath'], order_group_name)
+    if os.path.isfile(path):
+        order_group = load_from_file(path)
+    else:
+        order_group = None
+
+    return order_group
+
+
+"""
+    .load_from_file
+    input: path to file as str
+    output: model.budget.OrderGroup instance
+"""
+
+def load_from_file(path):
     f = open(path, 'r')
 
     group = None

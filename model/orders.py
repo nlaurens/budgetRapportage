@@ -6,8 +6,36 @@ from functions import add_items_to_db
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"],
                   host=config["mysql"]["host"])
 
+"""
+    .activiteitencodes
+    input: None
+    output: List of unique activiteitencodes as str
+"""
+def activiteitencodes():
+    actcodes = list(map(str, __select_distinct('activiteitencode')))
+    return sorted(actcodes)
+
+
+# Returns a set of distinct values of the requested attribute
+# used by: years(), orders(), kostensoorten()
+def __select_distinct(regel_attribute):
+    distinct = set()
+    table_name = config["mysql"]["tables"]["orderlijst"]
+
+    try:
+        table = db.query("SELECT DISTINCT(`%s`) FROM `%s`" % (regel_attribute, table_name))
+    except Exception:
+        table = None
+
+    if table:
+        for db_row in table:
+            distinct.add(getattr(db_row, regel_attribute))
+
+    return distinct
+
 
 """
+    .Load
     input: none
     output: list of dict items
 """
