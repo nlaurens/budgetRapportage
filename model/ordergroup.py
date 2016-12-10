@@ -8,17 +8,19 @@ import model.orders
 
 """
 .available()
-    input: None
+    input: actcode_groups as Bool (optional). Adds 'virtual' groups
+           based on the activiteitencode of all the orders
     output: names of ordergroups as a list of str that are
             in the 'data\ordergroups' dir AND
             1 list per activiteitecode
 """
-def available():
+def available(actcode_groups=False):
     order_groups = []
     for path in glob.glob("%s\*" % config['orderGroupsPath']):
         order_groups.append(os.path.split(path)[1])
 
-    order_groups.extend(['Act.Code-%s'%(s) for s in model.orders.activiteitencodes()])
+    if actcode_groups:
+        order_groups.extend(['Act.Code-%s'%(s) for s in model.orders.activiteitencodes()])
 
     return order_groups
 
