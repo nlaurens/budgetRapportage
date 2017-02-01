@@ -8,7 +8,7 @@ Installation
   Copy config.py.example to config.py and fill out required fields (mysql)
 
 * Setup sap date and load data
-  open: http://localhost:8081/admin
+  open: http://localhost:8081/admin/1
 
 Todo/Bugs
 ---------
