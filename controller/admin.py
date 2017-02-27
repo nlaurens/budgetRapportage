@@ -1,6 +1,7 @@
 from xlsx2csv import Xlsx2csv
 import csv
 import os
+import tempfile
 
 from controller import Controller
 import web
@@ -215,9 +216,11 @@ class Admin(Controller):
                 self.clean_upload(table)
 
             if file_handle is not None and table == 'orderlijst':
-                msg.extend(self.upload_file(table, file_handle))
-                msg_process, fields, rows = self.process_file(table)
-                msg.extend(msg_process)
+                msg.extend(self.read_xlsx(file_handle))
+#TESTING NEW UPLOAD with tmp files
+                #msg.extend(self.upload_file(table, file_handle))
+                #msg_process, fields, rows = self.process_file(table)
+                #msg.extend(msg_process)
                 if fields is not None and rows is not None:
                     #TODO add 'clear/inserting in db' msg to msg quque
                     model.orders.clear()  # every upload should be the whole list
@@ -226,6 +229,15 @@ class Admin(Controller):
 
         return msg
 
+    # Uploads and reads xlsx file
+    # Returns fields and rows of the excel
+    def read_xlsx(self, file_handle):
+        msg = ['Starting uploading file']
+        fields = []
+        rows = []
+        return msg, fields, rows
+
+
     def upload_file(self, table, file_handle):
         msg = ['Starting upload']
         allowed = ['.xlsx']
@@ -233,6 +245,7 @@ class Admin(Controller):
         succes_upload = False
         pwd, filenamefull = os.path.split(file_handle.filename)
         filename, extension = os.path.splitext(filenamefull)
+
         if extension in allowed:
             fout = open(table+'.xlsx', 'wb')
             fout.write(file_handle.file.read())
