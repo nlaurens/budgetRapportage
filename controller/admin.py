@@ -208,106 +208,86 @@ class Admin(Controller):
             table = eval("self.form_upload['type%s'].value" % i)
 
             if file_handle is not None and table in self.config['mysql']['tables']['regels'].keys():
-                msg.extend(self.upload_file(table, file_handle))
-                msg_process, fields, rows = self.process_file(table)
-                msg.extend(msg_process)
+                msg_read_xlsx, fields, rows = self.read_xlsx(file_handle, table)
+                msg.extend(msg_read_xlsx)
                 if fields is not None and rows is not None:
                     model.regels.add(table, fields, rows)
-                self.clean_upload(table)
 
             if file_handle is not None and table == 'orderlijst':
-                msg.extend(self.read_xlsx(file_handle))
-#TESTING NEW UPLOAD with tmp files
-                #msg.extend(self.upload_file(table, file_handle))
-                #msg_process, fields, rows = self.process_file(table)
-                #msg.extend(msg_process)
+                msg_read_xlsx, fields, rows = self.read_xlsx(file_handle, table)
+                msg.extend(msg_read_xlsx)
                 if fields is not None and rows is not None:
                     #TODO add 'clear/inserting in db' msg to msg quque
                     model.orders.clear()  # every upload should be the whole list
                     model.orders.add(fields, rows)
-                self.clean_upload(table)
-
         return msg
 
     # Uploads and reads xlsx file
     # Returns fields and rows of the excel
-    def read_xlsx(self, file_handle):
+    def read_xlsx(self, file_handle, table):
         msg = ['Starting uploading file']
         fields = []
         rows = []
-        return msg, fields, rows
 
-
-    def upload_file(self, table, file_handle):
-        msg = ['Starting upload']
         allowed = ['.xlsx']
         msg.append('Uploading file.')
-        succes_upload = False
         pwd, filenamefull = os.path.split(file_handle.filename)
         filename, extension = os.path.splitext(filenamefull)
-
-        if extension in allowed:
-            fout = open(table+'.xlsx', 'wb')
-            fout.write(file_handle.file.read())
-            fout.close()
-            succes_upload = True
-
-        if not succes_upload:
-            msg.append('upload failed!')
+        if extension not in allowed:
+            msg.append('extension not allowed!')
             return msg
-        msg.append('upload succes')
 
-        return msg
+        with tempfile.NamedTemporaryFile(delete=False) as tmpxlsx:
+            tmpxlsx.write(file_handle.file.read())
+            tmpxlsx.flush()
+            msg.append('upload succes')
 
-    def process_file(self, table):
-        msg = ['Preparing to process data for table: ' + table]
-        xlsx2csv = Xlsx2csv(table+'.xlsx')
-        xlsx2csv.convert(str(table)+'.csv', sheetid=1)
-        if not os.path.isfile(table+'.csv'):
-            msg.append('xlsx to csv convertion failed')
-            return msg, None, None
-        msg.append('xlsx to csv convertion succes')
+            msg.append('Preparing to convert xlsx to csv')
+            with tempfile.NamedTemporaryFile(delete=False) as tmpcsv:
+                xlsx2csv = Xlsx2csv(tmpxlsx.name)
+                xlsx2csv.convert(tmpcsv.name, sheetid=1)
+                if not os.path.isfile(tmpcsv.name):
+                    msg.append('xlsx to csv convertion failed')
+                    return msg, None, None
+                msg.append('xlsx to csv convertion succes')
 
-        msg.append('Reading headers from CSV')
-        f = open(table+'.csv', 'rb')
-        reader = csv.reader(f)
-        headers = reader.next()
-        header_map = {y: x for x ,y in self.config["SAPkeys"][table].iteritems()}
+                msg.append('Reading headers from CSV')
+                f = open(tmpcsv.name, 'rb')
+                reader = csv.reader(f)
+                headers = reader.next()
+                header_map = {y: x for x ,y in self.config["SAPkeys"][table].iteritems()}
 
-        fields = []
-        for header in headers:
-            if header in header_map:
-                fields.append(header_map[header])
-            else:
-                msg.append('Unknown field in excel: ' + header)
-                msg.append('Import stopped!')
-                return msg, None, None
+                fields = []
+                for header in headers:
+                    if header in header_map:
+                        fields.append(header_map[header])
+                    else:
+                        msg.append('Unknown field in excel: ' + header)
+                        msg.append('Import stopped!')
+                        return msg, None, None
 
-        for attribute, SAPkey in self.config["SAPkeys"][table].iteritems():
-            if attribute not in fields:
-                msg.append('Required field not in excel: ' + attribute)
-                return msg, None, None
+                for attribute, SAPkey in self.config["SAPkeys"][table].iteritems():
+                    if attribute not in fields:
+                        msg.append('Required field not in excel: ' + attribute)
+                        return msg, None, None
 
-        # Fill table from CSV
-        msg.append('Inserting data into table')
-        rows = []
-        rownumber = 1
-        for row in reader:
-            row_empty_replaced = [element or '0' for element in row]
-            if row_empty_replaced != row:
-                empty_indexes = [i for i, item in enumerate(row) if item == '']
-                for index in empty_indexes:
-                    msg.append('WARNING empty %s in row #(%s)' % (fields[index], rownumber))
-            rows.append(dict(zip(fields, row_empty_replaced)))
-            rownumber += 1
-        f.close()
+                # Fill table from CSV
+                msg.append('Inserting data into table')
+                rows = []
+                rownumber = 1
+                for row in reader:
+                    row_empty_replaced = [element or '0' for element in row]
+                    if row_empty_replaced != row:
+                        empty_indexes = [i for i, item in enumerate(row) if item == '']
+                        for index in empty_indexes:
+                            msg.append('WARNING empty %s in row #(%s)' % (fields[index], rownumber))
+                    rows.append(dict(zip(fields, row_empty_replaced)))
+                    rownumber += 1
+                f.close()
 
-        del xlsx2csv
+                del xlsx2csv
+
         return msg, fields, rows
-
-    def clean_upload(self, table):
-        os.remove(table+'.xlsx')  # BUG.. xlsx2csv seems to block the file handle.
-        os.remove(table+'.csv')
 
 
     def run_tests(self):
