@@ -71,6 +71,7 @@ if app_path:
 from controller import Index, Report, Admin, Login, Logout, Graph, View, Salaris, Orderlist
 
 urls = (
+    '/', 'Index',
     '/index', 'Index',
     '/orderlist', 'Orderlist', 
     '/salaris', 'Salaris', 
@@ -84,15 +85,14 @@ urls = (
     '/logout/(.+)', 'Logout', #TODO rewrite using auth-mod
 )
 
-# with WSGI:
 app = web.application(urls, globals())
-if web.config.get('_session') is None:
-    session = web.session.Session(app, web.session.DiskStore('sessions'), {'count': 0})
-    web.config._session = session
-else:
-    session = web.config._session
+
+from auth import auth 
+from model.functions import db
+from config import config
+auth.init_app(app, db, **config["auth"]["settings"])
+
 application = app.wsgifunc()
 
-# withouth WSGI
 if __name__ == "__main__":
     app.run()
