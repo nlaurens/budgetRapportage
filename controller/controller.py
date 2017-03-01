@@ -30,17 +30,17 @@ class Controller(object):
                 form.Button('ok', value='redirect')
         )
 
+    # arg: 0 superclass inst., 1 subclass inst. 2. vars from url_map in a tupple
     def GET(*arg):
         self = arg[0]
         self.callType = 'GET'
-        return self.process_main(*arg[1:])  # remaining params
+        return self.process_main(*arg[2:])  # remaining params
 
     def POST(*arg):
         self = arg[0]
         self.callType = 'POST'
-        return self.process_main(*arg[1:])
+        return self.process_main(*arg[2:])
 
-    # arg: 0 superclass inst., 1 subclass inst. 2. vars from url_map in a tupple
     def process_main(self, *arg): 
         self.check_IP_allowed()  # Will terminate all non-auth. connections
 

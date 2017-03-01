@@ -74,14 +74,15 @@ urls = (
     '/index', 'Index',
     '/orderlist', 'Orderlist', 
     '/salaris', 'Salaris', 
+    '/report(.*)', 'Report', 
+    '/view(.*)', 'View', 
+
+    '/graph/(.+)/(.+)/(.+).png', 'Graph', 
 
     '/login/(.+)', 'Login', #TODO rewrite using auth-mod
     '/logout/(.+)', 'Logout', #TODO rewrite using auth-mod
 
-    '/view/(.+)', 'View', #TODO factor out UserHash
-    '/report/(.+)', 'Report', #TODO factor out UserHash
     '/admin/(.+)', 'Admin', #TODO factor out UserHash
-    '/graph/(.+)/(.+)/(.+)/(.+).png', 'Graph', #TODO factor out UserHash
 )
 
 # with WSGI:
