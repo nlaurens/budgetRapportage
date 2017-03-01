@@ -1,5 +1,4 @@
 """"
-
 BUGS
 
 
@@ -58,12 +57,20 @@ Controller & Webpages
 
 # TIPS
     - render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh
+
 """
+import sys,os
 import web
 web.config.debug = True  # Set to False for no ouput! Must be done before the rest
+
+# Apache WSGI requires path and working dir to be changed for importing own modules
+app_path= os.path.dirname(__file__)
+sys.path.append(app_path)
+if app_path:
+    os.chdir(app_path)
+
 from controller import Index, Report, Admin, Login, Logout, Graph, View, Salaris, Orderlist
 
-### Url mappings
 urls = (
     '/view/(.+)', 'View',
     '/login/(.+)', 'Login',
@@ -76,13 +83,15 @@ urls = (
     '/index/(.+)', 'Index',
 )
 
+# with WSGI:
 app = web.application(urls, globals())
 if web.config.get('_session') is None:
     session = web.session.Session(app, web.session.DiskStore('sessions'), {'count': 0})
     web.config._session = session
 else:
     session = web.config._session
+application = app.wsgifunc()
 
-
+# withouth WSGI
 if __name__ == "__main__":
     app.run()
