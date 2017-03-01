@@ -41,7 +41,8 @@ class Controller(object):
         self.callType = 'POST'
         return self.process_main(*arg[2:])
 
-    @auth.protected()
+    # TODO ENABLE THIS
+    #@auth.protected()
     def process_main(self, *arg): 
         self.process_sub(*arg)  # arg = remaining params
         
@@ -100,6 +101,7 @@ class Controller(object):
             return '/%s?%s' % (module, param_str)
         else:
             return '/%s' % (module)
+
 
     # Returns possible dropdown fills for web.py forms.
     def dropdown_options(self):
