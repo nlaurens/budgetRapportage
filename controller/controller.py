@@ -43,8 +43,6 @@ class Controller(object):
 
     @auth.protected()
     def process_main(self, *arg): 
-        self.check_IP_allowed()  # Will terminate all non-auth. connections
-
         self.process_sub(*arg)  # arg = remaining params
         
         return self.render_page()
@@ -102,22 +100,6 @@ class Controller(object):
             return '/%s?%s' % (module, param_str)
         else:
             return '/%s' % (module)
-
-    # Checks if IP is allowed
-    # If not imidialty sends a 404 and stops all processing
-    def check_IP_allowed(self):
-        from iptools import IpRangeList
-        ip = web.ctx['ip']
-        ip_ranges = self.config['IpRanges'].split()
-        start = ip_ranges[0:][::2]
-        stop = ip_ranges[1:][::2]
-
-        for start, stop in zip(start, stop):
-            ip_range = IpRangeList( (start, stop))
-            if ip in ip_range:
-                return
-
-        raise web.notfound()
 
     # Returns possible dropdown fills for web.py forms.
     def dropdown_options(self):

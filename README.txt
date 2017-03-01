@@ -2,7 +2,7 @@ Installation
 ------------
 
 * Requires 
-  web.py, mysqldb, iptools, xlsx2csv, 
+  web.py, mysqldb, xlsx2csv, 
   web.py-auth (https://github.com/galeo/web.py-auth v0.3)
  
 * Setup config
