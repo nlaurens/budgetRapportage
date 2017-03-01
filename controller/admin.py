@@ -91,7 +91,6 @@ class Admin(Controller):
         self.body = self.webrender.admin(self.msg, rendered)
 
 
-    #TODO order output
     def user_status(self):
         users = []
         user_db = model.users.get_users()
@@ -105,6 +104,7 @@ class Admin(Controller):
             permissions.append({'id':permission.permission_id, 'name':permission.permission_codename, 'descr':permission.permission_desc})
 
         return users, permissions
+
 
     def db_status(self):
         # construct dict with total regels per table

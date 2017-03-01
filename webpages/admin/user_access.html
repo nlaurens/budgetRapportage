@@ -2,30 +2,38 @@ $def with(users, permissions)
                 <table class="table table-condensed" style="border-collapse:collapse;">
                     <thead>
                         <tr>
-                            $for header in users[0].keys():
-                                <th class="text-right">$header</th>
+                            <th class="text-right">Name</th>
+                            <th class="text-right">ID</th>
+                            <th class="text-right">Status</th>
+                            <th class="text-right">Last Login</th>
+                            <th class="text-right">Permissions</th>
                         </tr>                          
                     </thead>
                     <tbody>
                     $for user in users:
                         <tr>
-                        $for value in user.values():
-                            <td class="text-right">$value</td>
+                            <td class="text-right">$user['name']</td>
+                            <td class="text-right">$user['id']</td>
+                            <td class="text-right">$user['status']</td>
+                            <td class="text-right">$user['last login']</td>
+                            <td class="text-right">$user['perms']</td>
                         </tr>
                     </tbody>
                 </table>
                 <table class="table table-condensed" style="border-collapse:collapse;">
                     <thead>
                         <tr>
-                            $for header in permissions[0].keys():
-                                <th class="text-right">$header</th>
+                            <th class="text-right">Name</th>
+                            <th class="text-right">ID</th>
+                            <th class="text-right">Description</th>
                         </tr>                          
                     </thead>
                     <tbody>
                     $for permission in permissions:
                         <tr>
-                        $for value in permission.values():
-                            <td class="text-right">$value</td>
+                            <td class="text-right">$permission['name']</td>
+                            <td class="text-right">$permission['id']</td>
+                            <td class="text-right">$permission['descr']</td>
                         </tr>
                     </tbody>
                 </table>
