@@ -8,7 +8,7 @@ $def with(table_items, html, tiepe)
             <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph$html['id']">
                 <span class="glyphicon glyphicon-paperclip"></span>
             </button>
-            <a class="btn btn-default btn-xs" href="/view/$:html['userHash']/$:html['id']" role="button">
+            <a class="btn btn-default btn-xs" href="/view?order=$:html['id']" role="button">
                 <span class="glyphicon glyphicon-zoom-in"></span>
             </a>
             <div id="graph$html['id']" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

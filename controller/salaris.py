@@ -203,7 +203,6 @@ class Salaris(Controller):
 
             headers[tiepe] = {}
             headers[tiepe]['id'] = 'payrollnr_' + tiepe
-            headers[tiepe]['userHash'] = 'todo USERHASH'
             headers[tiepe]['img'] = '../static/figs/TODO.png'
             headers[tiepe]['name'] = headers['names'][tiepe]
             headers[tiepe]['ordernaam'] = headers['names'][tiepe]
@@ -245,7 +244,6 @@ class Salaris(Controller):
         for order in data['orders'].keys():
             header = {}
             header['id'] = order
-            header['userHash'] = 'todo USERHASH'
             header['img'] = '../static/figs/TODO.png'
             header['name'] = data['orders'][order]['naam'] + ' - ' + str(order)
             header['ordernaam'] = data['orders'][order]['naam']

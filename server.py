@@ -73,13 +73,13 @@ from controller import Index, Report, Admin, Login, Logout, Graph, View, Salaris
 urls = (
     '/index', 'Index',
     '/orderlist', 'Orderlist', 
+    '/salaris', 'Salaris', 
 
     '/login/(.+)', 'Login', #TODO rewrite using auth-mod
     '/logout/(.+)', 'Logout', #TODO rewrite using auth-mod
 
     '/view/(.+)', 'View', #TODO factor out UserHash
     '/report/(.+)', 'Report', #TODO factor out UserHash
-    '/salaris/(.+)', 'Salaris', #TODO factor out UserHash
     '/admin/(.+)', 'Admin', #TODO factor out UserHash
     '/graph/(.+)/(.+)/(.+)/(.+).png', 'Graph', #TODO factor out UserHash
 )
