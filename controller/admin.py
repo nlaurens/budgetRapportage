@@ -11,7 +11,7 @@ import model.ksgroup
 import model.orders
 
 from config import config
-
+from model.functions import count_tables_other
 
 class Admin(Controller):
     def __init__(self):
@@ -121,12 +121,16 @@ class Admin(Controller):
             status_regels['totals'].append(total)
 
         status_other_tables = {}
-        status_other_tables['headers'] = ['table', '# entries']
+        status_other_tables['headers'] = ['table', 'status', '# entries']
         status_other_tables['body'] = []
 
         # Stick to all the tables from the config that are not regels
-        for table_name in config["mysql"]["tables_other"].values():
-            status_other_tables['body'].append([table_name , '15'])
+        for table, count in count_tables_other().iteritems():
+            status = 'OK'
+            if count == -1:
+                status = 'ERROR'
+                count = ''
+            status_other_tables['body'].append([table, status, count])
 
         return status_regels, status_other_tables
 

@@ -65,3 +65,27 @@ def __chunk_rows(rows, chunk_size):
     for i in xrange(0, len(rows), chunk_size):
         yield rows[i:i + chunk_size]
 
+"""
+.count_table_others()
+    input: None
+    output: dict.value: number of entries as int, | -1 if table does not exist
+            dict.key: tableName as str
+"""
+def count_tables_other():
+    count = {}
+    table_names = config["mysql"]["tables_other"].values()
+    for table in table_names:
+        if not check_table_exists(table):
+            count[table] = -1
+        else:
+            try:
+                results = db.query("SELECT COUNT(*) AS total_regels FROM %s" % (table))
+            except Exception:
+                results = None
+
+            if results:
+                count[table]= int(results[0].total_regels)
+            else:
+                count[table]= 0
+
+    return count
