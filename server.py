@@ -68,7 +68,7 @@ sys.path.append(app_path)
 if app_path:
     os.chdir(app_path)
 
-from controller import Index, Report, Admin, Login, Logout, Graph, View, Salaris, Orderlist
+from controller import Index, Report, Admin, Graph, View, Salaris, Orderlist
 
 urls = (
     '/', 'Index',
@@ -81,8 +81,8 @@ urls = (
 
     '/graph/(.+)/(.+)/(.+).png', 'Graph', 
 
-    '/login/(.+)', 'Login', #TODO rewrite using auth-mod
-    '/logout/(.+)', 'Logout', #TODO rewrite using auth-mod
+    #'/login/(.+)', 'Login', #TODO rewrite using auth-mod
+    #'/logout/(.+)', 'Logout', #TODO rewrite using auth-mod
 )
 
 app = web.application(urls, globals())
