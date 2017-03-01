@@ -1,6 +1,7 @@
 import web
 import urllib
 from web import form
+from auth import auth
 
 from config import config
 
@@ -10,8 +11,7 @@ from model.functions import check_connection
 
 class Controller(object):
     def __init__(self):
-# TODO remove cache=False
-        self.mainRender = web.template.render('webpages/', cache=False) 
+        self.mainRender = web.template.render('webpages/') 
         self.config = config
         connected, error = check_connection()
         if not connected:
@@ -30,26 +30,19 @@ class Controller(object):
                 form.Button('ok', value='redirect')
         )
 
+    # arg: 0 superclass inst., 1 subclass inst. 2. vars from url_map in a tupple
     def GET(*arg):
         self = arg[0]
-        self.userHash = arg[1]
         self.callType = 'GET'
         return self.process_main(*arg[2:])  # remaining params
 
     def POST(*arg):
         self = arg[0]
-        self.userHash = arg[1]
         self.callType = 'POST'
         return self.process_main(*arg[2:])
 
-    # arg: 0 superclass inst., 1 subclass inst. 2. vars from url_map in a tupple
+    @auth.protected()
     def process_main(self, *arg): 
-        self.check_IP_allowed()  # Will terminate all non-auth. connections
-
-# TODO re-implement this
-        # if not session.get('logged_in', False):
-            # TODO: determine the caller'
-            # raise web.seeother('/login/%s?caller=%s' %(userHash, caller))
         self.process_sub(*arg)  # arg = remaining params
         
         return self.render_page()
@@ -65,7 +58,7 @@ class Controller(object):
         for ordergroup in model.ordergroup.available():
             navgroups.append(self.navbar_group(ordergroup))
 
-        navbar = self.mainRender.navbar(self.userHash, self.breadCrum, navgroups)
+        navbar = self.mainRender.navbar(self.breadCrum, navgroups)
 
         return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
 
@@ -78,7 +71,7 @@ class Controller(object):
             navgroups.extend(self.list_nav_groups(og, child, str(i), 1))
 
         name = ordergroup.descr
-        link = '/report/%s?ordergroep=%s&subgroep=%s' % (self.userHash, og, ordergroup.name)
+        link = '/report?ordergroep=%s&subgroep=%s' % (og, ordergroup.name)
         padding = str(0)
         navgroups.insert(0, {'link': link, 'name': name, 'padding': padding})
 
@@ -93,7 +86,7 @@ class Controller(object):
             groups.extend(self.list_nav_groups(og, child, label_child, depth+1))
 
         name = '%s' % root.descr  # you can use: '%s. %s' % (label, root.descr) as numbered list
-        link = '/report/%s?ordergroep=%s&subgroep=%s' % (self.userHash, og, root.name)
+        link = '/report?ordergroep=%s&subgroep=%s' % (og, root.name)
         padding = str(depth*15)
         groups.insert(0, {'link': link, 'name': name, 'padding': padding})
         return groups
@@ -104,25 +97,10 @@ class Controller(object):
             module = self.module
         if params:
             param_str = urllib.urlencode(params)
-            return '/%s/%s?%s' % (module, self.userHash, param_str)
+            return '/%s?%s' % (module, param_str)
         else:
-            return '/%s/%s' % (module, self.userHash)
+            return '/%s' % (module)
 
-    # Checks if IP is allowed
-    # If not imidialty sends a 404 and stops all processing
-    def check_IP_allowed(self):
-        from iptools import IpRangeList
-        ip = web.ctx['ip']
-        ip_ranges = self.config['IpRanges'].split()
-        start = ip_ranges[0:][::2]
-        stop = ip_ranges[1:][::2]
-
-        for start, stop in zip(start, stop):
-            ip_range = IpRangeList( (start, stop))
-            if ip in ip_range:
-                return
-
-        raise web.notfound()
 
     # Returns possible dropdown fills for web.py forms.
     def dropdown_options(self):
@@ -156,7 +134,7 @@ class Controller(object):
     def render_simple(self):
         if hasattr(self, 'redirect'):
             form_redirect = self.form_redirect
-            redirect = '/%s/%s' % (self.redirect, self.userHash)
+            redirect = '/%s' % (self.redirect)
         else:
             form_redirect = ''
             redirect = ''
@@ -172,7 +150,7 @@ class Controller(object):
 
         if params:
             param_str = urllib.ulrencode(params)
-            return '/graph/%s/%s/%s/%s.png?%s' % (self.userHash, year, graph_type, name, param_strs)
+            return '/graph/%s/%s/%s.png?%s' % (year, graph_type, name, param_strs)
         else:
-            return '/graph/%s/%s/%s/%s.png' % (self.userHash, year, graph_type, name)
+            return '/graph/%s/%s/%s.png' % (year, graph_type, name)
 

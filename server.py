@@ -8,6 +8,9 @@ TODO
 Remove hardcoded 'geboekt', 'obligo', etc. from all model/controller - grep
     - model.orders maken die dict retourned met order name from mysql and excel import
 
+Auth
+    - add settings for table names (user, permission, user_permission as standard)
+
 Graph
     - graph groups should be named: <ordergroup_file_name><ordergroup_name>
 
@@ -41,6 +44,7 @@ Controller & Webpages
         * create test that looks if there are orders in db not in any ordergroup
           (and perhaps also look at the GS)
         * add 'year' field in table for salaris geboekt based on the boekingsdate.
+        * add simple create/modify user pages
 
     - login
         * bij password verkeerd invullen post form leegmaken.
@@ -53,7 +57,6 @@ Controller & Webpages
         * aantal voorgaande jaren in settings
 
     -graph
-        * userHash checken - alles staat nu op
 
 # TIPS
     - render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh
@@ -69,19 +72,25 @@ sys.path.append(app_path)
 if app_path:
     os.chdir(app_path)
 
-from controller import Index, Report, Admin, Login, Logout, Graph, View, Salaris, Orderlist
+from controller import Index, Report, Admin, Graph, View, Salaris, Orderlist
+from auth.handlers import Login, Logout
 
 urls = (
-    '/view/(.+)', 'View',
-    '/login/(.+)', 'Login',
-    '/logout/(.+)', 'Logout',
-    '/report/(.+)', 'Report',
-    '/salaris/(.+)', 'Salaris',
-    '/orderlist/(.+)', 'Orderlist',
-    '/admin/(.+)', 'Admin',
-    '/graph/(.+)/(.+)/(.+)/(.+).png', 'Graph',
-    '/index/(.+)', 'Index',
+    '/', 'Index',
+    '/index', 'Index',
+    '/orderlist', 'Orderlist', 
+    '/salaris', 'Salaris', 
+    '/report(.*)', 'Report', 
+    '/view(.*)', 'View', 
+    '/admin', 'Admin', 
+
+    '/graph/(.+)/(.+)/(.+).png', 'Graph', 
+
+    '/login', 'Login',  #uses auth.handlers.Login
+    '/logout', 'Logout', # auth.handlers.Logout
 )
+
+app = web.application(urls, globals())
 
 # with WSGI:
 app = web.application(urls, globals())
@@ -90,8 +99,23 @@ if web.config.get('_session') is None:
     web.config._session = session
 else:
     session = web.config._session
+
+from auth import auth 
+from model.functions import db
+from config import config
+auth.init_app(app, db, session, **config["auth"]["settings"])
+
 application = app.wsgifunc()
 
-# withouth WSGI
 if __name__ == "__main__":
-    app.run()
+    if sys.argv[-1] == '--init':
+        print 'creating tables'
+        for table in config['auth']['tables']:
+            db.query(table)
+        print 'creating permissions and users'
+        auth.create_permission('admin', 'Has access to admin panel')
+        auth.create_user('admin', password='123admin', perms=['admin'])
+        print 'done.'
+        exit()
+    else:
+        app.run()

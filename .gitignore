@@ -79,3 +79,6 @@ sessions/
 #Excel files
 *.xlsx
 *.xls
+
+# web.py-auth
+auth/

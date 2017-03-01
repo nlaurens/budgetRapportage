@@ -1,10 +1,4 @@
-users = {
-    'niels': 'LION.*',
-    'test': 'LION.PL',
-    'test2': 'LION.PL-TP,PL-BP'
-}
 config = {
-    "IpRanges": '127.0.0.0 127.255.255.255 10.0.0.1 10.255.255.255',
     "globalPW": '...',
     "salt": '...',
     "currentYear": 2016,
