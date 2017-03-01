@@ -41,8 +41,7 @@ class Controller(object):
         self.callType = 'POST'
         return self.process_main(*arg[2:])
 
-    # TODO ENABLE THIS
-    #@auth.protected()
+    @auth.protected()
     def process_main(self, *arg): 
         self.process_sub(*arg)  # arg = remaining params
         

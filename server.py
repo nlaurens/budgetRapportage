@@ -100,4 +100,14 @@ auth.init_app(app, db, **config["auth"]["settings"])
 application = app.wsgifunc()
 
 if __name__ == "__main__":
-    app.run()
+    if sys.argv[-1] == '--init':
+        print 'creating tables'
+        for table in config['auth']['tables']:
+            db.query(table)
+        print 'creating permissions and users'
+        auth.create_permission('admin', 'Has access to admin panel')
+        auth.create_user('admin', password='123admin', perms=['admin'])
+        print 'done.'
+        exit()
+    else:
+        app.run()
