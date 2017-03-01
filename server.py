@@ -53,7 +53,6 @@ Controller & Webpages
         * aantal voorgaande jaren in settings
 
     -graph
-        * userHash checken - alles staat nu op
 
 # TIPS
     - render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh
@@ -72,15 +71,15 @@ if app_path:
 from controller import Index, Report, Admin, Login, Logout, Graph, View, Salaris, Orderlist
 
 urls = (
-    '/view/(.+)', 'View',
-    '/login/(.+)', 'Login',
-    '/logout/(.+)', 'Logout',
-    '/report/(.+)', 'Report',
-    '/salaris/(.+)', 'Salaris',
-    '/orderlist/(.+)', 'Orderlist',
-    '/admin/(.+)', 'Admin',
-    '/graph/(.+)/(.+)/(.+)/(.+).png', 'Graph',
-    '/index/(.+)', 'Index',
+    '/index', 'Index',
+    '/view/(.+)', 'View', #TODO factor out UserHash
+    '/login/(.+)', 'Login', #TODO factor out UserHash
+    '/logout/(.+)', 'Logout', #TODO factor out UserHash
+    '/report/(.+)', 'Report', #TODO factor out UserHash
+    '/salaris/(.+)', 'Salaris', #TODO factor out UserHash
+    '/orderlist/(.+)', 'Orderlist', #TODO factor out UserHash
+    '/admin/(.+)', 'Admin', #TODO factor out UserHash
+    '/graph/(.+)/(.+)/(.+)/(.+).png', 'Graph', #TODO factor out UserHash
 )
 
 # with WSGI:

@@ -1,4 +1,4 @@
-$def with(userHash, breadcrumb, reportGroups)
+$def with(breadcrumb, reportGroups)
 <nav class="navbar navbar-default">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
@@ -9,14 +9,14 @@ $def with(userHash, breadcrumb, reportGroups)
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="/index/$userHash">Budget Rapportage</a>
+      <a class="navbar-brand" href="/index">Budget Rapportage</a>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li><a href="/orderlist/$userHash">Orderlist</a></li>
-        <li><a href="/salaris/$userHash">Salaris</a></li>
+        <li><a href="/orderlist">Orderlist</a></li>
+        <li><a href="/salaris">Salaris</a></li>
         <li><a>|</a></li>
           $for reportGroup in reportGroups:
                 <li class="dropdown">
@@ -29,8 +29,8 @@ $def with(userHash, breadcrumb, reportGroups)
       </ul>
 
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="/logout/$userHash">Sign out</a></li>
-        <li><a href="/admin/$userHash">Admin</a></li>
+        <li><a href="/logout">Sign out</a></li>
+        <li><a href="/admin">Admin</a></li>
       </ul>
 
     </div><!-- /.navbar-collapse -->

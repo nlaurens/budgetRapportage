@@ -32,15 +32,13 @@ class Controller(object):
 
     def GET(*arg):
         self = arg[0]
-        self.userHash = arg[1]
         self.callType = 'GET'
-        return self.process_main(*arg[2:])  # remaining params
+        return self.process_main(*arg[1:])  # remaining params
 
     def POST(*arg):
         self = arg[0]
-        self.userHash = arg[1]
         self.callType = 'POST'
-        return self.process_main(*arg[2:])
+        return self.process_main(*arg[1:])
 
     # arg: 0 superclass inst., 1 subclass inst. 2. vars from url_map in a tupple
     def process_main(self, *arg): 
@@ -65,7 +63,7 @@ class Controller(object):
         for ordergroup in model.ordergroup.available():
             navgroups.append(self.navbar_group(ordergroup))
 
-        navbar = self.mainRender.navbar(self.userHash, self.breadCrum, navgroups)
+        navbar = self.mainRender.navbar(self.breadCrum, navgroups)
 
         return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
 
@@ -78,7 +76,7 @@ class Controller(object):
             navgroups.extend(self.list_nav_groups(og, child, str(i), 1))
 
         name = ordergroup.descr
-        link = '/report/%s?ordergroep=%s&subgroep=%s' % (self.userHash, og, ordergroup.name)
+        link = '/report?ordergroep=%s&subgroep=%s' % (og, ordergroup.name)
         padding = str(0)
         navgroups.insert(0, {'link': link, 'name': name, 'padding': padding})
 
@@ -93,7 +91,7 @@ class Controller(object):
             groups.extend(self.list_nav_groups(og, child, label_child, depth+1))
 
         name = '%s' % root.descr  # you can use: '%s. %s' % (label, root.descr) as numbered list
-        link = '/report/%s?ordergroep=%s&subgroep=%s' % (self.userHash, og, root.name)
+        link = '/report?ordergroep=%s&subgroep=%s' % (og, root.name)
         padding = str(depth*15)
         groups.insert(0, {'link': link, 'name': name, 'padding': padding})
         return groups
@@ -104,9 +102,9 @@ class Controller(object):
             module = self.module
         if params:
             param_str = urllib.urlencode(params)
-            return '/%s/%s?%s' % (module, self.userHash, param_str)
+            return '/%s?%s' % (module, param_str)
         else:
-            return '/%s/%s' % (module, self.userHash)
+            return '/%s' % (module)
 
     # Checks if IP is allowed
     # If not imidialty sends a 404 and stops all processing
@@ -156,7 +154,7 @@ class Controller(object):
     def render_simple(self):
         if hasattr(self, 'redirect'):
             form_redirect = self.form_redirect
-            redirect = '/%s/%s' % (self.redirect, self.userHash)
+            redirect = '/%s' % (self.redirect)
         else:
             form_redirect = ''
             redirect = ''
@@ -172,7 +170,7 @@ class Controller(object):
 
         if params:
             param_str = urllib.ulrencode(params)
-            return '/graph/%s/%s/%s/%s.png?%s' % (self.userHash, year, graph_type, name, param_strs)
+            return '/graph/%s/%s/%s.png?%s' % (year, graph_type, name, param_strs)
         else:
-            return '/graph/%s/%s/%s/%s.png' % (self.userHash, year, graph_type, name)
+            return '/graph/%s/%s/%s.png' % (year, graph_type, name)
 
