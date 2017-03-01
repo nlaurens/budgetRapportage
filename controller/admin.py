@@ -77,7 +77,8 @@ class Admin(Controller):
 
 
         rendered = {}
-        rendered['userAccess'] = self.webrender.user_access(model.users.get_users())
+        users, permissions = self.user_status()
+        rendered['userAccess'] = self.webrender.user_access(users, permissions)
         status_regels, status_other_tables = self.db_status()
         rendered['dbStatus'] = self.webrender.db_status(status_regels, status_other_tables)
 
@@ -88,6 +89,20 @@ class Admin(Controller):
         rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
 
         self.body = self.webrender.admin(self.msg, rendered)
+
+
+    def user_status(self):
+        users = []
+        user_db = model.users.get_users()
+        for user in user_db:
+            perms = ', '.join(user.perms)
+            users.append({'id':user.user_id, 'name':user.user_login, 'status':user.user_status, 'last login':user.user_last_login, 'perms':perms })
+
+        permissions = []
+        permissions.append({'item': 'admin', 'descr':'Has access to admin panel'})
+        permissions.append({'item': 'eld', 'descr':'Has access to eld orders'})
+        permissions.append({'item': 'fmd', 'descr':'Has access to fmd orders'})
+        return users, permissions
 
     def db_status(self):
         # construct dict with total regels per table

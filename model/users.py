@@ -23,8 +23,4 @@ def protected(**pars):
     Returns a list of all users and their permissions/info
 """
 def get_users():
-    users = []
-    users.append({'username':'Niels', 'permissions':'admin, bfr', 'last_login':'yesterday', 'status':'Active'})
-    users.append({'username':'henk', 'permissions':'admin, bfr', 'last_login':'yesterday', 'status':'Active'})
-    users.append({'username':'piet', 'permissions':'admin, bfr', 'last_login':'yesterday', 'status':'Active'})
-    return users 
+    return auth.get_all_users()

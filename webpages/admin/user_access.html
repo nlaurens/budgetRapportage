@@ -1,4 +1,4 @@
-$def with(users)
+$def with(users, permissions)
                 <table class="table table-condensed" style="border-collapse:collapse;">
                     <thead>
                         <tr>
@@ -10,6 +10,21 @@ $def with(users)
                     $for user in users:
                         <tr>
                         $for value in user.values():
+                            <td class="text-right">$value</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-condensed" style="border-collapse:collapse;">
+                    <thead>
+                        <tr>
+                            $for header in permissions[0].keys():
+                                <th class="text-right">$header</th>
+                        </tr>                          
+                    </thead>
+                    <tbody>
+                    $for permission in permissions:
+                        <tr>
+                        $for value in permission.values():
                             <td class="text-right">$value</td>
                         </tr>
                     </tbody>
