@@ -69,6 +69,7 @@ if app_path:
     os.chdir(app_path)
 
 from controller import Index, Report, Admin, Graph, View, Salaris, Orderlist
+from auth.handlers import Login, Logout
 
 urls = (
     '/', 'Index',
@@ -81,8 +82,8 @@ urls = (
 
     '/graph/(.+)/(.+)/(.+).png', 'Graph', 
 
-    #'/login/(.+)', 'Login', #TODO rewrite using auth-mod
-    #'/logout/(.+)', 'Logout', #TODO rewrite using auth-mod
+    '/login', 'Login',  #uses auth.handlers.Login
+    '/logout', 'Logout', # auth.handlers.Logout
 )
 
 app = web.application(urls, globals())

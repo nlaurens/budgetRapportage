@@ -1,6 +1,7 @@
 import web
 import urllib
 from web import form
+from auth import auth
 
 from config import config
 
@@ -41,6 +42,7 @@ class Controller(object):
         self.callType = 'POST'
         return self.process_main(*arg[2:])
 
+    @auth.protected()
     def process_main(self, *arg): 
         self.check_IP_allowed()  # Will terminate all non-auth. connections
 
