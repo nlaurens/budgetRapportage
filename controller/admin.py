@@ -9,9 +9,10 @@ from web import form
 import model.regels
 import model.ksgroup
 import model.orders
+import model.users
 
 from config import config
-
+from model.functions import count_tables_other
 
 class Admin(Controller):
     def __init__(self):
@@ -74,11 +75,10 @@ class Admin(Controller):
         self.msg = ['Welcome to the Admin panel']
         self.msg.extend(self.run_tests())
 
-# TODO coppelen aan config.user
-        self.authList = ''  # model.db.get_users()
 
         rendered = {}
-        rendered['userAccess'] = self.webrender.user_access(self.authList)
+        users, permissions = self.user_status()
+        rendered['userAccess'] = self.webrender.user_access(users, permissions)
         status_regels, status_other_tables = self.db_status()
         rendered['dbStatus'] = self.webrender.db_status(status_regels, status_other_tables)
 
@@ -89,6 +89,22 @@ class Admin(Controller):
         rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
 
         self.body = self.webrender.admin(self.msg, rendered)
+
+
+    def user_status(self):
+        users = []
+        user_db = model.users.get_users()
+        for user in user_db:
+            perms = ', '.join(user.perms)
+            users.append({'id':user.user_id, 'name':user.user_login, 'status':user.user_status, 'last login':user.user_last_login, 'perms':perms })
+
+        permissions = []
+        permissions_db = model.users.get_permissions()
+        for permission in permissions_db:
+            permissions.append({'id':permission.permission_id, 'name':permission.permission_codename, 'descr':permission.permission_desc})
+
+        return users, permissions
+
 
     def db_status(self):
         # construct dict with total regels per table
@@ -121,13 +137,16 @@ class Admin(Controller):
             status_regels['totals'].append(total)
 
         status_other_tables = {}
-        status_other_tables['headers'] = ['table', '# entries']
+        status_other_tables['headers'] = ['table', 'status', '# entries']
         status_other_tables['body'] = []
-        #TODO replace dummy vars with real count/error messages on no table
+
         # Stick to all the tables from the config that are not regels
-        status_other_tables['body'].append(['dummy1' , '15'])
-        status_other_tables['body'].append(['dummy2' , '25'])
-        status_other_tables['body'].append(['dummy3' , '115'])
+        for table, count in count_tables_other().iteritems():
+            status = 'OK'
+            if count == -1:
+                status = 'ERROR'
+                count = ''
+            status_other_tables['body'].append([table, status, count])
 
         return status_regels, status_other_tables
 

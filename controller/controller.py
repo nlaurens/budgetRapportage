@@ -1,13 +1,13 @@
 import web
 import urllib
 from web import form
-from auth import auth
 
 from config import config
 
 import model.regels
 import model.ordergroup
 from model.functions import check_connection
+from model.users import protected
 
 class Controller(object):
     def __init__(self):
@@ -41,7 +41,7 @@ class Controller(object):
         self.callType = 'POST'
         return self.process_main(*arg[2:])
 
-    @auth.protected()
+    @protected()
     def process_main(self, *arg): 
         self.process_sub(*arg)  # arg = remaining params
         
@@ -110,7 +110,7 @@ class Controller(object):
         options['empty'] = [('', '')]
         options['all'] = [('*','! ALL !')]
         options['years'] = zip(jaren_db, jaren_db)
-        options['tables'] = self.config['mysql']['tables']['regels'].keys()
+        options['tables'] = self.config['mysql']['tables_regels'].keys()
         options['tables'].append('orderlijst') 
 
         options['months'] = [(1, 'Jan'), (2, 'Feb'), (3, 'March'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'), (9, 'Sep'), (10, 'Okt'), (11, 'Nov'), (12, 'Dec')]

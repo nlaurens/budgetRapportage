@@ -20,7 +20,7 @@ def activiteitencodes():
 # used by: years(), orders(), kostensoorten()
 def __select_distinct(regel_attribute):
     distinct = set()
-    table_name = config["mysql"]["tables"]["orderlijst"]
+    table_name = config["mysql"]["tables_other"]["orderlijst"]
 
     try:
         table = db.query("SELECT DISTINCT(`%s`) FROM `%s`" % (regel_attribute, table_name))
@@ -41,7 +41,7 @@ def __select_distinct(regel_attribute):
 """
 def load():
     try:
-        db_select = db.select(config["mysql"]["tables"]["orderlijst"])
+        db_select = db.select(config["mysql"]["tables_other"]["orderlijst"])
     except IndexError:
             return None
 
@@ -70,7 +70,7 @@ def __specific_rules(order):
     output: msg-queue as list of str
 """
 def add(fields, rows):
-    add_items_to_db(config["mysql"]["tables"]["orderlijst"], fields, rows)
+    add_items_to_db(config["mysql"]["tables_other"]["orderlijst"], fields, rows)
 
 
 """
@@ -81,7 +81,7 @@ def add(fields, rows):
 def clear():
     sql_where = '1'
     try:
-        deleted = db.delete(config["mysql"]["tables"]["orderlijst"], where=sql_where)
+        deleted = db.delete(config["mysql"]["tables_other"]["orderlijst"], where=sql_where)
     except Exception:
         deleted = 0
 
