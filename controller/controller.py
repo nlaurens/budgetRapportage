@@ -11,8 +11,7 @@ from model.functions import check_connection
 
 class Controller(object):
     def __init__(self):
-# TODO remove cache=False
-        self.mainRender = web.template.render('webpages/', cache=False) 
+        self.mainRender = web.template.render('webpages/') 
         self.config = config
         connected, error = check_connection()
         if not connected:
@@ -46,10 +45,6 @@ class Controller(object):
     def process_main(self, *arg): 
         self.check_IP_allowed()  # Will terminate all non-auth. connections
 
-# TODO re-implement this
-        # if not session.get('logged_in', False):
-            # TODO: determine the caller'
-            # raise web.seeother('/login/%s?caller=%s' %(userHash, caller))
         self.process_sub(*arg)  # arg = remaining params
         
         return self.render_page()
