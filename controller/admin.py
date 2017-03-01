@@ -123,11 +123,10 @@ class Admin(Controller):
         status_other_tables = {}
         status_other_tables['headers'] = ['table', '# entries']
         status_other_tables['body'] = []
-        #TODO replace dummy vars with real count/error messages on no table
+
         # Stick to all the tables from the config that are not regels
-        status_other_tables['body'].append(['dummy1' , '15'])
-        status_other_tables['body'].append(['dummy2' , '25'])
-        status_other_tables['body'].append(['dummy3' , '115'])
+        for table_name in config["mysql"]["tables_other"].values():
+            status_other_tables['body'].append([table_name , '15'])
 
         return status_regels, status_other_tables
 
