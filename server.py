@@ -8,6 +8,10 @@ TODO
 Remove hardcoded 'geboekt', 'obligo', etc. from all model/controller - grep
     - model.orders maken die dict retourned met order name from mysql and excel import
 
+Auth
+    - add settings for table names (user, permission, user_permission as standard)
+    - add simple create user, perm, update etc. pages
+
 Graph
     - graph groups should be named: <ordergroup_file_name><ordergroup_name>
 
