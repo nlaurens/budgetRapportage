@@ -9,6 +9,7 @@ from web import form
 import model.regels
 import model.ksgroup
 import model.orders
+import model.users
 
 from config import config
 from model.functions import count_tables_other
@@ -74,11 +75,9 @@ class Admin(Controller):
         self.msg = ['Welcome to the Admin panel']
         self.msg.extend(self.run_tests())
 
-# TODO coppelen aan config.user
-        self.authList = ''  # model.db.get_users()
 
         rendered = {}
-        rendered['userAccess'] = self.webrender.user_access(self.authList)
+        rendered['userAccess'] = self.webrender.user_access(model.users.get_users())
         status_regels, status_other_tables = self.db_status()
         rendered['dbStatus'] = self.webrender.db_status(status_regels, status_other_tables)
 
