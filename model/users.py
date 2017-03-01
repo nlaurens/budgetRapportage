@@ -24,3 +24,11 @@ def protected(**pars):
 """
 def get_users():
     return auth.get_all_users()
+
+
+"""
+.get_users()
+    Returns a list of all permissions and their description
+"""
+def get_permissions():
+    return auth.get_all_permissions()

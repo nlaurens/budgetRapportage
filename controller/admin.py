@@ -91,6 +91,7 @@ class Admin(Controller):
         self.body = self.webrender.admin(self.msg, rendered)
 
 
+    #TODO order output
     def user_status(self):
         users = []
         user_db = model.users.get_users()
@@ -99,9 +100,10 @@ class Admin(Controller):
             users.append({'id':user.user_id, 'name':user.user_login, 'status':user.user_status, 'last login':user.user_last_login, 'perms':perms })
 
         permissions = []
-        permissions.append({'item': 'admin', 'descr':'Has access to admin panel'})
-        permissions.append({'item': 'eld', 'descr':'Has access to eld orders'})
-        permissions.append({'item': 'fmd', 'descr':'Has access to fmd orders'})
+        permissions_db = model.users.get_permissions()
+        for permission in permissions_db:
+            permissions.append({'id':permission.permission_id, 'name':permission.permission_codename, 'descr':permission.permission_desc})
+
         return users, permissions
 
     def db_status(self):
