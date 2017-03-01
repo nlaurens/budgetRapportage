@@ -1,5 +1,5 @@
+from auth import auth
 from model.functions import db
-
 
 tables = [
     """
@@ -44,6 +44,6 @@ if __name__ == '__main__':
     for table in tables:
         db.query(table)
 
-    #TODO ADD PERMISSIONS to DB - no need to make a UI for that.
+    auth.create_permission('admin', 'Has access to admin panel')
 
-    #TODO ADD ROOT USER WITH ALL ACCESS
+    auth.create_user('admin', password=None, perms=['admin'])
