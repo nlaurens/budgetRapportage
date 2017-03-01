@@ -10,7 +10,6 @@ Remove hardcoded 'geboekt', 'obligo', etc. from all model/controller - grep
 
 Auth
     - add settings for table names (user, permission, user_permission as standard)
-    - add simple create user, perm, update etc. pages
 
 Graph
     - graph groups should be named: <ordergroup_file_name><ordergroup_name>
@@ -45,6 +44,7 @@ Controller & Webpages
         * create test that looks if there are orders in db not in any ordergroup
           (and perhaps also look at the GS)
         * add 'year' field in table for salaris geboekt based on the boekingsdate.
+        * add simple create/modify user pages
 
     - login
         * bij password verkeerd invullen post form leegmaken.
