@@ -1,13 +1,13 @@
 import web
 import urllib
 from web import form
-from auth import auth
 
 from config import config
 
 import model.regels
 import model.ordergroup
 from model.functions import check_connection
+from model.users import protected
 
 class Controller(object):
     def __init__(self):
@@ -41,7 +41,7 @@ class Controller(object):
         self.callType = 'POST'
         return self.process_main(*arg[2:])
 
-    @auth.protected()
+    @protected()
     def process_main(self, *arg): 
         self.process_sub(*arg)  # arg = remaining params
         
