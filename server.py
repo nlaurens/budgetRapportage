@@ -92,10 +92,18 @@ urls = (
 
 app = web.application(urls, globals())
 
+# with WSGI:
+app = web.application(urls, globals())
+if web.config.get('_session') is None:
+    session = web.session.Session(app, web.session.DiskStore('sessions'), {'count': 0})
+    web.config._session = session
+else:
+    session = web.config._session
+
 from auth import auth 
 from model.functions import db
 from config import config
-auth.init_app(app, db, **config["auth"]["settings"])
+auth.init_app(app, db, session, **config["auth"]["settings"])
 
 application = app.wsgifunc()
 
