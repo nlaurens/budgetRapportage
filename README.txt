@@ -8,37 +8,26 @@ Installation
 * Setup config
   Copy config.py.example to config.py and fill out required fields (mysql)
 
-* Setup sap date and load data
-  open: http://localhost:8081/admin/1
+* Initalize web.py-auth database:
+    $ python server.py --init
 
-Todo/Bugs
----------
-* update readme ;)
-* Maybe one day for wbs: http://jsfiddle.net/jhfrench/GpdgF/
-* Add config and orderlijst table to database status in admin panel
-* remove msg 'var' and replace with proper code for reporting to browser.
+Run
+---
+
+* Web.py has a stand alone webserver:
+    $ python server.py <port# optional>
+
+* Use WSGI mod from apache
+    see: http://webpy.org/cookbook/mod_wsgi-apache
 
 Usage
 -----
 
-* Start als server
-
-    Als losse service
-        -> $ python server.py 8081 
-
-    In TMUX
-    * Start/Enter tmux attach
-    * Stop the server (ctrl + c)
-    * Rotate log
-        -> copy server.log -> server.log.x
-        -> remove server.log
-    * Restart server:
-        -> $ python server.py 8081 > server.log
+* Edit config to match excel dumps of SAP (see example excels in /data/examples)
+* Load excel files using the admin panel
 
 
-* Webbrowser
-    http://localhost:8081/login/<USER HASH>
-    http://localhost:8081/salaris/<USER HASH>
-	    http://localhost:8081/view/<USER HASH>
-    http://localhost:8081/report/<USER HASH>
-    http://localhost:8081/admin
+Todo
+----
+
+add examples for ksgroup and ordergroups
