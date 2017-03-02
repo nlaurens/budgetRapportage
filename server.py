@@ -109,13 +109,10 @@ application = app.wsgifunc()
 
 if __name__ == "__main__":
     if sys.argv[-1] == '--init':
-        print 'creating tables'
-        for table in config['auth']['tables']:
-            db.query(table)
-        print 'creating permissions and users'
-        auth.create_permission('admin', 'Has access to admin panel')
-        auth.create_user('admin', password='123admin', perms=['admin'])
-        print 'done.'
+        from config import init_auth_db      
+        print 'Setting up auth db'
+        init_auth_db(db)
+        print 'You can now login with your admin user from the config.'
         exit()
     else:
         app.run()

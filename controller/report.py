@@ -54,6 +54,11 @@ class Report(Controller):
             form.Button('submit', value='report_settings')
         )
 
+
+    def authorized(self):
+        return model.users.check_permission(['view'])
+
+
     def process_sub(self):
         self.create_bread_crums()  # sets the breadcrumbs for the header
 

@@ -18,6 +18,11 @@ class Orderlist(Controller):
         self.module = 'Orderlist'
         self.webrender = web.template.render('webpages/orderlist/')
 
+
+    def authorized(self):
+        return model.users.check_permission(['orderlist'])
+
+
     def process_sub(self):
         orderlist = model.orders.load()
         #TODO add option to sort by budgethouder as well.

@@ -74,6 +74,10 @@ class View(Controller):
         self.color_map = color_map
         self.ks_map = ks_map
 
+    def authorized(self):
+        return model.users.check_permission(['view'])
+
+
     def process_sub(self):
         data, totals = self.construct_data()
         view = {}

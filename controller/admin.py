@@ -60,20 +60,23 @@ class Admin(Controller):
                 form.Button('submit', value='rebuildGraphs')
         )
 
+
+    def authorized(self):
+        return model.users.check_permission(['admin'])
+
+
     def process_sub(self):
         # Handle posted forms
         if self.callType == 'POST':
             (valid_form, msg) = self.parse_forms()
             if valid_form:
                 self.title = 'Admin Panel Results'
-                self.msg = msg
-                self.redirect = 'admin'
-                self.body = self.render_simple()
+                self.body = self.render_simple(msg, redirect='admin')
                 return  # prevent Get page from rendering
 
         # Display admin page on GET or invalid form post
-        self.msg = ['Welcome to the Admin panel']
-        self.msg.extend(self.run_tests())
+        msg = ['Welcome to the Admin panel']
+        msg.extend(self.run_tests())
 
 
         rendered = {}
@@ -88,7 +91,7 @@ class Admin(Controller):
         rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap))
         rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
 
-        self.body = self.webrender.admin(self.msg, rendered)
+        self.body = self.webrender.admin(msg, rendered)
 
 
     def user_status(self):
@@ -226,7 +229,7 @@ class Admin(Controller):
                 file_handle = None
             table = eval("self.form_upload['type%s'].value" % i)
 
-            if file_handle is not None and table in self.config['mysql']['tables']['regels'].keys():
+            if file_handle is not None and table in self.config['mysql']['tables_regels'].keys():
                 msg_read_xlsx, fields, rows = self.read_xlsx(file_handle, table)
                 msg.extend(msg_read_xlsx)
                 if fields is not None and rows is not None:

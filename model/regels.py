@@ -226,7 +226,7 @@ def __select_distinct(regel_attribute):
 """
 def delete(years_delete=None, table_names_delete=None):
     if not table_names_delete:
-        table_names_delete = config["mysql"]["tables_regels"].values()
+        table_names_delete = config["mysql"]["tables_regels"].keys()
     else:
         for name in table_names_delete:
             assert name in config["mysql"]["tables_regels"], "unknown table in model.get_reggellist_per_table: " + name
@@ -238,8 +238,9 @@ def delete(years_delete=None, table_names_delete=None):
 
     deleted_total = 0
     for table in table_names_delete:
+        
         try:
-            deleted = db.delete(table, where=sql_where)
+            deleted = db.delete(config["mysql"]["tables_regels"][table], where=sql_where)
         except Exception:
             deleted = 0
         deleted_total += deleted

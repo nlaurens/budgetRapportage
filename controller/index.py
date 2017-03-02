@@ -6,9 +6,12 @@ class Index(Controller):
         Controller.__init__(self)
         self.title = 'Welcome'
         self.module = 'index'
-        self.msg = ['Make a selection from the menu above.']
+
+    def authorized(self):
+        return True
 
     def process_sub(self):
-        self.body = self.render_simple()
+        msg = ['Make a selection from the menu above.']
+        self.body = self.render_simple(msg)
 
 

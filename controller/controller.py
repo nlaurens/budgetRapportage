@@ -19,6 +19,7 @@ class Controller(object):
         self.SAPupdate = model.regels.last_update()  # gives subclass__init__ access
 
         # should be set in the subclass
+        self.body = None
         self.title = None
         self.module = None
         self.webrender = None
@@ -36,20 +37,34 @@ class Controller(object):
         self.callType = 'GET'
         return self.process_main(*arg[2:])  # remaining params
 
+
     def POST(*arg):
         self = arg[0]
         self.callType = 'POST'
         return self.process_main(*arg[2:])
 
+
     @protected()
     def process_main(self, *arg): 
-        self.process_sub(*arg)  # arg = remaining params
+        if not self.authorized():
+            msg = ['Not authorized.']
+            redirect = 'index'
+            self.body = self.render_simple(msg, redirect=redirect)
+        else:
+            self.process_sub(*arg)  # arg = remaining params
         
         return self.render_page()
 
-    # Should be implemented by subclass and set self.body
+
+    # Should be implemented by subclass
+    def authorized(self):
+        raise NotImplementedError
+
+
+    # Should be implemented by subclass
     def process_sub(self):
         raise NotImplementedError
+
     
     def render_page(self):
 # TODO uit usergroup halen - daar zou de ordergroep al in geload moeten zijn!
@@ -61,6 +76,7 @@ class Controller(object):
         navbar = self.mainRender.navbar(self.breadCrum, navgroups)
 
         return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
+    
 
     def navbar_group(self, og):
         ordergroup = model.ordergroup.load(og)
@@ -130,16 +146,16 @@ class Controller(object):
 
         return options
 
-    # can be used in any class to display a msg or a form
-    def render_simple(self):
-        if hasattr(self, 'redirect'):
+    # display simple message and 'ok' button for redirecting after message
+    def render_simple(self, msg, redirect=None):
+        if redirect:
             form_redirect = self.form_redirect
-            redirect = '/%s' % (self.redirect)
+            redirect = '/%s' % (redirect)
         else:
             form_redirect = ''
             redirect = ''
 
-        return self.mainRender.simple(self.title, self.msg, form_redirect, redirect)
+        return self.mainRender.simple(self.title, msg, form_redirect, redirect)
 
     # Creates url to graph
     # graph_type: realisatie, bars, pie, etc.

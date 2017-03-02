@@ -1,8 +1,12 @@
 from auth import auth
+#Replace this file with auth mod...
 
 """
 .protected()
-Decorator to protect functions. We use the auth.protect method:
+Decorator to only allowed login users. We use the auth.protect method. Note 
+that this method can only be used on the 'top' level function (GET) as it re-
+directs directly and thus fails on nested functions.
+
     @protected([perm][, captcha_on][, test])
 
     Decorator for limiting the access to pages.
@@ -32,3 +36,14 @@ def get_users():
 """
 def get_permissions():
     return auth.get_all_permissions()
+
+
+"""
+.check_permissions(perm)
+    input: perm as string or list of strings
+    output: True/False
+    Checks if current user has (all) permissions: True, otherwise
+    returns False
+"""
+def check_permission(perm):
+    return auth.has_perm(perm)

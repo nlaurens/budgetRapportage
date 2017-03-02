@@ -33,6 +33,8 @@ class Salaris(Controller):
                 form.Button('submit', value='salaris_settings')
         )
 
+    def authorized(self):
+        return model.users.check_permission(['salaris'])
 
     def process_sub(self):
         regels = model.regels.load(table_names_load=['salaris_plan', 'salaris_geboekt', 'salaris_obligo'],orders_load=self.orders)
