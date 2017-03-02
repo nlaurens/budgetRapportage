@@ -55,7 +55,8 @@ def add_items_to_db(table, fields, rows):
         sql = "CREATE TABLE " + table + " (" + ', '.join(fields_and_type) + ");"
         results = db.query(sql)
 
-    row_chunks = __chunk_rows(rows, 5000)
+    MAX_CHUNKS = 5000  # ensures data for mysql < 1 mb
+    row_chunks = __chunk_rows(rows, MAX_CHUNKS)
     for rows in row_chunks:
         db.multiple_insert(table, values=rows)
 
