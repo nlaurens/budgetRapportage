@@ -1,66 +1,66 @@
 """"
-BUGS
+#BUGS
 
 
+#TODO
 
-TODO
+General
+  * Remove hardcoded 'geboekt', 'obligo', etc. from all model/controller - grep
+  * Alle templates doorlopen op $:xxx als dat niet nodig is.
+  * Navbar is build on 2 recursive functions. Replace by ordergroup.list_groups(Inverted=True)
+    That function should give you the exact list that you need.
 
-Remove hardcoded 'geboekt', 'obligo', etc. from all model/controller - grep
-    - model.orders maken die dict retourned met order name from mysql and excel import
+Auth-module
+  * add settings for table names (user, permission, user_permission as standard)
 
-Auth
-    - add settings for table names (user, permission, user_permission as standard)
+Graph-module
+  * graph groups should be named: <ordergroup_file_name><ordergroup_name>
 
-Graph
-    - graph groups should be named: <ordergroup_file_name><ordergroup_name>
+Model-modules
+  -.regels
+    * merge .last_update and .last_period to general mysql.config read/writer
+    * add reserve to db
 
-Model
-    - model.users
-        * ouser lijst gebruiken om menu te bouwen (ordergroepen voor report!)
+  -.budget.kostensoortgruop
+    * remove regels from class. Should all be done in the controller.
 
-    - regels
-        * write validator for input that can be re-used (tablename in config[''] etc.)
-        * add reserve to db
+Controller-modules
+  - Controller-superclass
+    * user lijst gebruiken om menu te bouwen (ordergroepen voor report!)
+    * build list of allowed orders/ordergroups based on models.user.permissions
 
-    - orderlist
-        * add (merge it with regels)
-        * make model.budget.orderlist class that behavious similar to other budget classes
-        * sort orderlist on act. code and show them in different collapsoable tables.
+  - view
+      * move periode check, All, Q, etc code from __init__ to controller master class 
+      * add config params/forms
+      * Address color_mapping in __init__ 
+        code copied from graph.py. Perhaps do the mapping in model.ksgroups, and load the color scheme from config?
+        It really feels like we made the model.budget.ksgroup object redundant with the regellist and ksgroup hashmap
+      * Set title of view
 
-Config
-    - config module maken waar ook alle data in zit en users
-    - alle config params naar db verplaatsen -> model
+  - admin
+      * create test that looks if there are orders in db not in any ordergroup
+        (and perhaps also look at the GS)
+      * add 'year' field in table for salaris geboekt based on the boekingsdate.
+      * add simple create/modify user tools. Now done from the config file.
+      * Update graphs:
+          . Re-enable building graphs from admin menu.
+          . replace order/group with dropdown box and force only inputs from that box
+          . Add polling option for status rebuilding graphs process.
 
-Controller & Webpages
-    - Alle templates doorlopen op $:xxx als dat niet nodig is.
-    - Navbar is build on 2 recursive functions. Replace by ordergroup.list_groups(Inverted=True)
-      That function should give you the exact list that you need.
+  - salaris
+      * Refactor the data-dict in create_data_structure. Currently it has a lot of double
+        code ('salarisplan:0, ..), could be replaced with a deepcopy of a empty 'total' dictionary
+      * settings maken
+      * Plaatjes maken/koppelen
+      * Add mouse-over information for payrollnummers that shows all personeelsnummers that are linked to payrollnummer
 
-    - view
-        * html_tree has double code, lot of it is done by budget.kostensoortgroup
+  - report
+      * Proper fig page instead of hiding the overview graph with a button
+      * aantal voorgaande jaren in settings
 
-    - admin
-        * forms layout doen (attributen van webpy forms setten)
-        * create test that looks if there are orders in db not in any ordergroup
-          (and perhaps also look at the GS)
-        * add 'year' field in table for salaris geboekt based on the boekingsdate.
-        * add simple create/modify user pages
-
-    - login
-        * bij password verkeerd invullen post form leegmaken.
-
-    - salaris
-        * settings maken
-        * Plaatjes maken/koppelen
-
-    - report
-        * aantal voorgaande jaren in settings
-
-    -graph
-
-# TIPS
-    - render.<template>(arg1, arg2, arg3, cache=False) will reload the template file everytime you refresh
-
+  - orderlist
+      * add option to sort by budgetholder
+      * add javascript for collapse +/- buttons in process_sub
 """
 import sys,os
 import web

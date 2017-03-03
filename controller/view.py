@@ -20,12 +20,10 @@ class View(Controller):
         self.webrender = web.template.render('webpages/view/')
 
         # View specific:
-#TODO to config params
         self.order = int(web.input(order=0)['order'])
         self.year = int(web.input(year=self.config["currentYear"])['year'])
         self.clean = web.input().has_key('clean')
         periode = (web.input(periode='ALL')['periode'])
-#TODO to controller masterclass as a parse function
         if periode.isdigit():
             if periode == 12:
                 self.periodes = [12,13,14,15,16]
@@ -43,18 +41,14 @@ class View(Controller):
             self.periodes = [10,11,12,13,14,15,16]
         
         # Forms
-# TODO dropdowns!
         dropdown_options = self.dropdown_options()
         self.form_settings_simple = form.Form(
-#TODO use config params and years form model
             form.Dropdown('year', dropdown_options['years'], value=self.year, class_="btn btn-default btn-sm"),
             form.Dropdown('periode', dropdown_options['periode_all'], value=periode, class_="btn btn-default btn-sm"),
             form.Button('Update', 'update', class_="btn btn-default btn-sm"),
         )
 
-#TODO this is copied from graph.py. Double code, refactor! Perhaps do the mapping in model.ksgroups?
-# and load the color scheme from config.
-# It really feels like we made the model.budget.ksgroup object redundant with the regellist and ksgroup hashmap
+        # Color mapping - copied from graph.py
         ksgroup_root = model.ksgroup.load(config['graphs']['ksgroup'])
         ks_map = {}
         color_map = {'baten': {}, 'lasten': {}}
@@ -81,7 +75,7 @@ class View(Controller):
     def process_sub(self):
         data, totals = self.construct_data()
         view = {}
-        view['title'] = 'TODO' #model.orders.get_name(self.order) + ' ' + str(self.order)
+        view['title'] = 'dummy title' #model.orders.get_name(self.order) + ' ' + str(self.order)
         view['summary'] = self.render_summary(totals)
         view['settings'] = self.render_settings()
         view['javaScripts'] = self.render_java_scripts(data)

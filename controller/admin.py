@@ -89,7 +89,7 @@ class Admin(Controller):
         rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
         rendered['forms'].append(self.webrender.form('Upload File', self.form_upload))
         rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap))
-        rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
+        rendered['orms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
 
         self.body = self.webrender.admin(msg, rendered)
 
@@ -208,14 +208,17 @@ class Admin(Controller):
         return msg
 
     def parse_rebuild_graphs(self):
-        msg = ['Parsing rebuild graph']
-# TODO security op deze input, jaar = int tussen x en y. target = string
         jaar = self.form_rebuild_graphs['year'].value
         target = self.form_rebuild_graphs['target'].value
 
-        msg.append("running: $python graph.py %s %s" % (target, jaar))
-# TODO SOMEDAY fire proccess in sep. thread, graph.py write a log (clean everytime it starts), and webadmin poll if there is such a log running (report using msg)
-        os.system("python graph.py %s %s" % (target, jaar))
+        msg = ['Parsing rebuild graph']
+        jaren_db = model.regels.years()
+        if jaar != '*':
+            assert int(jaar) in jaren_db
+        
+        msg.append("This module has been disabled due to security issues.")
+        #msg.append("running: $python graph.py %s %s" % (target, jaar))
+        #os.system("python graph.py %s %s" % (target, jaar))
         return msg
 
     def parse_upload_form(self):
@@ -239,8 +242,9 @@ class Admin(Controller):
                 msg_read_xlsx, fields, rows = self.read_xlsx(file_handle, table)
                 msg.extend(msg_read_xlsx)
                 if fields is not None and rows is not None:
-                    #TODO add 'clear/inserting in db' msg to msg quque
+                    msg.extend('Clearing previous orderlist from DB')
                     model.orders.clear()  # every upload should be the whole list
+                    msg.extend('Adding new orderlist to DB')
                     model.orders.add(fields, rows)
         return msg
 

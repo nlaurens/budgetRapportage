@@ -1,5 +1,3 @@
-#TODO remove regels from this class. Has no business here
-# should be done in the controller
 class KostensoortGroup:
     def __init__(self, name, descr, level, parent):
         self.name = name

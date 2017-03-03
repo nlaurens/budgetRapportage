@@ -2,7 +2,6 @@ import numpy as np
 
 def moneyfmt(value, places=0, curr='', sep='.', dp=',',
              pos='', neg='-', trailneg='', keur=False):
-#TODO fix import: import * niet toegestaan. moet dan in module.
     from decimal import *
     value = Decimal(value)
     """

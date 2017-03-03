@@ -8,7 +8,6 @@ from functions import moneyfmt
 import model.ordergroup
 import model.regels
 
-#TODO: fig page.. now what do we do with the years?
 
 class Report(Controller):
     def __init__(self):

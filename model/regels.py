@@ -108,8 +108,6 @@ def count():
 
     return count_regels
 
-#TODO merge .last_update and .last_periode to a general 
-# config param read/write model 
 
 """
 .last_update(newdate='')

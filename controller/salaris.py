@@ -89,7 +89,6 @@ class Salaris(Controller):
         last_periode = model.regels.last_periode()
         order_list = model.orders.load().split(['ordernummer'])
 
-        #TODO refactor initiate with deepcopy of an empty total dictionary etc.
         data = { 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}, 'orders':{}, 'payrollnrs':{}, 'match':{'payrollnrs':{}, 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}}, 'nomatch':{'payrollnrs':{}, 'totals':{'salaris_plan':0, 'salaris_obligo':0,
             'salaris_geboekt':0, 'resultaat':0}}, 'nokosten':{'payrollnrs':{}, 'totals':{'salaris_plan':0, 'salaris_obligo':0, 'salaris_geboekt':0, 'resultaat':0}} }  
         for order, regelList in regels_per_order.iteritems():
@@ -205,7 +204,7 @@ class Salaris(Controller):
 
             headers[tiepe] = {}
             headers[tiepe]['id'] = 'payrollnr_' + tiepe
-            headers[tiepe]['img'] = '../static/figs/TODO.png'
+            headers[tiepe]['img'] = '../static/figs/dummy.png'
             headers[tiepe]['name'] = headers['names'][tiepe]
             headers[tiepe]['ordernaam'] = headers['names'][tiepe]
             headers[tiepe]['begroot'] = table_string(data[tiepe]['totals']['salaris_plan'])
@@ -217,7 +216,7 @@ class Salaris(Controller):
                 item = data[tiepe]['payrollnrs'][payrollnr]
                 row = {}
                 row['naam'] = item['naam']
-                row['personeelsnummer'] = payrollnr  #TODO: on mouseover show all personeelsnummers that are linked to this number
+                row['personeelsnummer'] = payrollnr 
                 row['begroot'] = table_string(item['salaris_plan'])
                 row['geboekt'] = table_string(item['salaris_geboekt'])
                 row['obligo'] = table_string(item['salaris_obligo'])
@@ -246,7 +245,7 @@ class Salaris(Controller):
         for order in data['orders'].keys():
             header = {}
             header['id'] = order
-            header['img'] = '../static/figs/TODO.png'
+            header['img'] = '../static/figs/dummy.png'
             header['name'] = data['orders'][order]['naam'] + ' - ' + str(order)
             header['ordernaam'] = data['orders'][order]['naam']
             header['begroot'] = table_string(data['orders'][order]['totals']['salaris_plan'])
@@ -259,7 +258,7 @@ class Salaris(Controller):
                 item = data['orders'][order]['payrollnrs'][payrollnr]
                 row = {}
                 row['naam'] = item['naam']
-                row['personeelsnummer'] = payrollnr  #TODO: on mouseover show all personeelsnummers that are linked to this number
+                row['personeelsnummer'] = payrollnr  
                 row['begroot'] = table_string(item['salaris_plan'])
                 row['geboekt'] = table_string(item['salaris_geboekt'])
                 row['obligo'] = table_string(item['salaris_obligo'])

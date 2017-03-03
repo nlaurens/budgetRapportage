@@ -25,7 +25,6 @@ class Orderlist(Controller):
 
     def process_sub(self):
         orderlist = model.orders.load()
-        #TODO add option to sort by budgethouder as well.
         orderlist_per_actcode = orderlist.split(['activiteitencode'])
         tables = []
         for code, orderlist_per_code in orderlist_per_actcode.iteritems():
@@ -43,7 +42,6 @@ class Orderlist(Controller):
 
             tables.append(self.webrender.table(table_items, header))
 
-        #TODO javascripts for +/- collapse button
         javascripts = self.webrender.javascripts(orderlist_per_actcode.keys())
         self.body = self.webrender.orderlist(tables, javascripts)
         return
