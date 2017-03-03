@@ -84,7 +84,7 @@ def __chunk_rows(rows, chunk_size):
 
 def count_tables_other():
     count = {}
-    table_names = config["mysql"]["tables_other"].values()
+    table_names = sorted(config["mysql"]["tables_other"].values())
     for table in table_names:
         if not check_table_exists(table):
             count[table] = -1

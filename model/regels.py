@@ -93,7 +93,7 @@ def __specific_rules(regel):
 
 
 def count():
-    table_names = config["mysql"]["tables_regels"].values()
+    table_names = sorted(config["mysql"]["tables_regels"].values())
     years_in_db = years()
 
     count_regels = {}
