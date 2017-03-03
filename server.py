@@ -76,21 +76,19 @@ from controller import Index, Report, Admin, Graph, View, Salaris, Orderlist
 from auth.handlers import Login, Logout
 
 urls = (
-    '/', 'Index',
-    '/index', 'Index',
-    '/orderlist', 'Orderlist', 
-    '/salaris', 'Salaris', 
-    '/report(.*)', 'Report', 
-    '/view(.*)', 'View', 
-    '/admin', 'Admin', 
+    '/', Index,
+    '/index', Index,
+    '/orderlist', Orderlist, 
+    '/salaris', Salaris, 
+    '/report(.*)', Report, 
+    '/view(.*)', View, 
+    '/admin', Admin, 
 
-    '/graph/(.+)/(.+)/(.+).png', 'Graph', 
+    '/graph/(.+)/(.+)/(.+).png', Graph, 
 
-    '/login', 'Login',  #uses auth.handlers.Login
-    '/logout', 'Logout', # auth.handlers.Logout
+    '/login', Login,  #uses auth.handlers.Login
+    '/logout', Logout, # auth.handlers.Logout
 )
-
-app = web.application(urls, globals())
 
 # with WSGI:
 app = web.application(urls, globals())

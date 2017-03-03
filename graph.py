@@ -427,6 +427,7 @@ if __name__ == "__main__":
     #from controller import functions
     # Run it: $python server.py <year>/*
     valid_input = False
+    years = 0
     if len(sys.argv) == 2:
         years_available = model.regels.years()
         if str(sys.argv[1]) == '*':

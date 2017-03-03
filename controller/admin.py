@@ -89,7 +89,7 @@ class Admin(Controller):
         rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
         rendered['forms'].append(self.webrender.form('Upload File', self.form_upload))
         rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap))
-        rendered['orms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
+        rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
 
         self.body = self.webrender.admin(msg, rendered)
 
