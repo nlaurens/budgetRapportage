@@ -14,14 +14,12 @@ def last_item_in_list(lst):
     return len(lst), lst[-1]
 
 
-"""
-.check_connection():
-    input: none
-    output: True/False
-"""
-
-
 def check_connection():
+    """
+    .check_connection():
+        input: none
+        output: True/False
+    """
     try:
         results = db.query("SELECT 1")
     except Exception as e:
@@ -30,28 +28,24 @@ def check_connection():
     return True, ''
 
 
-"""
-.check_table_exists(table)
-    input: table as str
-    output: Boolean
-"""
-
-
 def check_table_exists(table):
+    """
+    .check_table_exists(table)
+        input: table as str
+        output: Boolean
+    """
     results = db.query("SHOW TABLES LIKE '" + table + "'")
     if len(results) == 0:
         return False
     return True
 
 
-"""
-.add(table, fields, rows)
-    input: table as str, fields as list of str, rows as list of str
-    output: msg-queue as list of str
-"""
-
-
 def add_items_to_db(table, fields, rows):
+    """
+    .add(table, fields, rows)
+        input: table as str, fields as list of str, rows as list of str
+        output: msg-queue as list of str
+    """
     if not check_table_exists(table):
         fields_and_type = []
         for field in fields:
@@ -67,22 +61,20 @@ def add_items_to_db(table, fields, rows):
         db.multiple_insert(table, values=rows)
 
 
-# Cuts op the row list in multiple rows
-# used by .add()
 def __chunk_rows(rows, chunk_size):
+    # Cuts op the row list in multiple rows
+    # used by .add()
     for i in xrange(0, len(rows), chunk_size):
         yield rows[i:i + chunk_size]
 
 
-"""
-.count_table_others()
-    input: None
-    output: dict.value: number of entries as int, | -1 if table does not exist
-            dict.key: tableName as str
-"""
-
-
 def count_tables_other():
+    """
+    .count_table_others()
+        input: None
+        output: dict.value: number of entries as int, | -1 if table does not exist
+                dict.key: tableName as str
+    """
     count = {}
     table_names = sorted(config["mysql"]["tables_other"].values())
     for table in table_names:

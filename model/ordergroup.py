@@ -6,17 +6,16 @@ from budget import OrderGroup
 from model.functions import first_item_in_list
 import model.orders
 
-"""
-.available()
-    input: actcode_groups as Bool (optional). Adds 'virtual' groups
-           based on the activiteitencode of all the orders
-    output: names of ordergroups as a list of str that are
-            in the 'data\ordergroups' dir AND
-            1 list per activiteitecode
-"""
-
 
 def available(actcode_groups=False):
+    """
+    .available()
+        input: actcode_groups as Bool (optional). Adds 'virtual' groups
+            based on the activiteitencode of all the orders
+        output: names of ordergroups as a list of str that are
+                in the 'data\ordergroups' dir AND
+                1 list per activiteitecode
+    """
     order_groups = []
     for path in glob.glob("%s\*" % config['orderGroupsPath']):
         order_groups.append(os.path.split(path)[1])
@@ -27,14 +26,12 @@ def available(actcode_groups=False):
     return order_groups
 
 
-"""
-.load( name )
-    input: name as str
-    returns: OrderGroup
-"""
-
-
 def load(order_group_name):
+    """
+    .load( name )
+        input: name as str
+        returns: OrderGroup
+    """
     path = '%s\%s' % (config['orderGroupsPath'], order_group_name)
     if os.path.isfile(path):
         order_group = load_from_file(path)
@@ -44,14 +41,12 @@ def load(order_group_name):
     return order_group
 
 
-"""
-.load_from_orderlist
-    input: activiteitencode as str
-    output: model.budget.OrderGroup as instance
-"""
-
-
 def load_from_orderlist(act_code_load):
+    """
+    .load_from_orderlist
+        input: activiteitencode as str
+        output: model.budget.OrderGroup as instance
+    """
     order_group = OrderGroup(act_code_load[-1], act_code_load, 0, '')
     orders_dict = model.orders.load().split(['activiteitencode'])
     print orders_dict
@@ -62,14 +57,12 @@ def load_from_orderlist(act_code_load):
     return order_group
 
 
-"""
-.load_from_file
-    input: path to file as str
-    output: model.budget.OrderGroup instance
-"""
-
-
 def load_from_file(path):
+    """
+    .load_from_file
+        input: path to file as str
+        output: model.budget.OrderGroup instance
+    """
     f = open(path, 'r')
 
     group = None
@@ -102,14 +95,12 @@ def load_from_file(path):
     return order_group
 
 
-"""
-.load_sap( file_path )
-    input: file_path as str
-    returns: OrderGroup
-"""
-
-
 def load_sap(file_path):
+    """
+    .load_sap( file_path )
+        input: file_path as str
+        returns: OrderGroup
+    """
     f = open(file_path, 'r')
     group = None
     ordergroup = None

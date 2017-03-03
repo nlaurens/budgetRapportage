@@ -6,19 +6,18 @@ from functions import check_table_exists, add_items_to_db
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"],
                   host=config["mysql"]["host"])
 
-"""
-.load(years=[], periodes=[], orders=[], tablesNames=[], kostensoorten=[])
-    input: tablesNames as list of str,
-    optional inputs:
-           years as list of int,
-           periodes as list of int,
-           orders as list of int,
-           kostensoorten as list of int
-    output: RegelList
-"""
-
 
 def load(table_names_load, years_load=None, periods_load=None, orders_load=None, kostensoorten_load=None):
+    """
+    .load(years=[], periodes=[], orders=[], tablesNames=[], kostensoorten=[])
+        input: tablesNames as list of str,
+        optional inputs:
+            years as list of int,
+            periodes as list of int,
+            orders as list of int,
+            kostensoorten as list of int
+        output: RegelList
+    """
     for name in table_names_load:
         assert name in config["mysql"]["tables_regels"], "unknown table in model.get_reggellist_per_table: " + name
 
@@ -48,10 +47,10 @@ def load(table_names_load, years_load=None, periods_load=None, orders_load=None,
     return RegelList(regels)
 
 
-# .__specific_rules(regel)
-#   modification of the regels in the db based on their content should be written
-#   here. Note this changes per setup.
 def __specific_rules(regel):
+    # .__specific_rules(regel)
+    #   modification of the regels in the db based on their content should be written
+    #   here. Note this changes per setup.
     modified_regels = [regel]  # one regel can be replaced by multiple hence the list.
 
     # Specific rules per tiepe
@@ -84,15 +83,13 @@ def __specific_rules(regel):
     return modified_regels
 
 
-"""
-.count()
-    input: None
-    output: dict.value: number of regels as int,
-            dict.key: tableName as str
-"""
-
-
 def count():
+    """
+    .count()
+        input: None
+        output: dict.value: number of regels as int,
+                dict.key: tableName as str
+    """
     table_names = sorted(config["mysql"]["tables_regels"].values())
     years_in_db = years()
 
@@ -113,14 +110,12 @@ def count():
     return count_regels
 
 
-"""
-.last_update(newdate='')
-    input: newdate to be written in the db as str
-    output: last sap update from db as a string
-"""
-
-
 def last_update(newdate=''):
+    """
+    .last_update(newdate='')
+        input: newdate to be written in the db as str
+        output: last sap update from db as a string
+    """
     if not check_table_exists('config'):
         sql = "CREATE TABLE `config` ( `key` varchar(255), `value` varchar(255) );"
         results = db.query(sql)
@@ -142,14 +137,12 @@ def last_update(newdate=''):
     return sapdate
 
 
-"""
-.last_periode(newperiode='')
-    input: newperiode to be written in the db as str
-    output: last periode salaris was booked from db as int
-"""
-
-
 def last_periode(newperiode=''):
+    """
+    .last_periode(newperiode='')
+        input: newperiode to be written in the db as str
+        output: last periode salaris was booked from db as int
+    """
     if not check_table_exists('config'):
         sql = "CREATE TABLE `config` ( `key` varchar(255), `value` varchar(255) );"
         results = db.query(sql)
@@ -175,46 +168,39 @@ def last_periode(newperiode=''):
     return lastperiode
 
 
-"""
-.years()
-    input: None
-    output: years in db available as list of int
-"""
-
-
 def years():
+    """
+    .years()
+        input: None
+        output: years in db available as list of int
+    """
     years_in_db = list(map(int, __select_distinct('jaar')))
     return sorted(years_in_db)
 
 
-"""
-
-.orders()
-    input: None
-    output: orders in db available as list of int
-"""
-
-
 def orders():
+    """
+    .orders()
+        input: None
+        output: orders in db available as list of int
+    """
     orders_in_db = list(map(int, __select_distinct('ordernummer')))
     return sorted(orders_in_db)
 
 
-"""
-.kostensoorten()
-    input: None
-    output: kostensoorten in db available as list of int
-"""
-
-
 def kostensoorten():
+    """
+    .kostensoorten()
+        input: None
+        output: kostensoorten in db available as list of int
+    """
     ks = list(map(int, __select_distinct('kostensoort')))
     return sorted(ks)
 
 
-# Returns a set of distinct values of the requested attribute
-# used by: years(), orders(), kostensoorten()
 def __select_distinct(regel_attribute):
+    # Returns a set of distinct values of the requested attribute
+    # used by: years(), orders(), kostensoorten()
     distinct = set()
     table_names = config["mysql"]["tables_regels"].values()
 
@@ -231,14 +217,12 @@ def __select_distinct(regel_attribute):
     return distinct
 
 
-"""
-.delete(years=[], tableNames=[])
-    input: years al list of int, tableNames as list of str
-    output: total amount of regels deleted as int
-"""
-
-
 def delete(years_delete=None, table_names_delete=None):
+    """
+    .delete(years=[], tableNames=[])
+        input: years al list of int, tableNames as list of str
+        output: total amount of regels deleted as int
+    """
     if not table_names_delete:
         table_names_delete = config["mysql"]["tables_regels"].keys()
     else:
@@ -262,12 +246,10 @@ def delete(years_delete=None, table_names_delete=None):
     return deleted_total
 
 
-"""
-.add(table, fields, rows)
-    input: table as str, fields as list of str, rows as list of str
-    output: msg-queue as list of str
-"""
-
-
 def add(table, fields, rows):
+    """
+    .add(table, fields, rows)
+        input: table as str, fields as list of str, rows as list of str
+        output: msg-queue as list of str
+    """
     add_items_to_db(config['mysql']['tables_regels'][table], fields, rows)

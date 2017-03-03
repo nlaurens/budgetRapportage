@@ -7,19 +7,19 @@ class OrderList:
         self.orders = orders
 
 
-    """
-    Returns a dictionary of OrderList sorted out by a specific
-    attributes in the order.
-    For example:
-        split(self, ['ordernummer', 'budgethouder'])
-    will return:
-        dict['order1']['budgethouder1'] = OrderList
-        dict['order1']['budgethouder..'] = OrderList
-        dict['order2']['budgethouder1'] = OrderList
-        dict['order2']['kostensoort..'] = OrderList
-        dict['order..']['kostensoort..'] = OrderList
-    """
     def split(self, attributes_to_group):
+        """
+        Returns a dictionary of OrderList sorted out by a specific
+        attributes in the order.
+        For example:
+            split(self, ['ordernummer', 'budgethouder'])
+        will return:
+            dict['order1']['budgethouder1'] = OrderList
+            dict['order1']['budgethouder..'] = OrderList
+            dict['order2']['budgethouder1'] = OrderList
+            dict['order2']['kostensoort..'] = OrderList
+            dict['order..']['kostensoort..'] = OrderList
+        """
         order_list_dict = self.__split(attributes_to_group.pop(0))
 
         if attributes_to_group:

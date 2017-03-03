@@ -239,9 +239,9 @@ class Admin(Controller):
                 msg_read_xlsx, fields, rows = self.read_xlsx(file_handle, table)
                 msg.extend(msg_read_xlsx)
                 if fields is not None and rows is not None:
-                    msg.extend('Clearing previous orderlist from DB')
+                    msg.extend(['Clearing previous orderlist from DB'])
                     model.orders.clear()  # every upload should be the whole list
-                    msg.extend('Adding new orderlist to DB')
+                    msg.extend(['Adding new orderlist to DB'])
                     model.orders.add(fields, rows)
         return msg
 

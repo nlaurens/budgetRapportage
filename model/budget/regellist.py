@@ -6,19 +6,19 @@ class RegelList:
             regels = []
         self.regels = regels
 
-    '''
-    Returns a dictionary of RegelList sorted out by a specific
-    attributes in the regel.
-    For example:
-        split(self, ['order', 'kostensoort'])
-    will return:
-        dict['order1']['kostensoort1'] = RegelList
-        dict['order1']['kostensoort..'] = RegelList
-        dict['order2']['kostensoort1'] = RegelList
-        dict['order2']['kostensoort..'] = RegelList
-        dict['order..']['kostensoort..'] = RegelList
-    '''
     def split(self, attributes_to_group):
+        '''
+        Returns a dictionary of RegelList sorted out by a specific
+        attributes in the regel.
+        For example:
+            split(self, ['order', 'kostensoort'])
+        will return:
+            dict['order1']['kostensoort1'] = RegelList
+            dict['order1']['kostensoort..'] = RegelList
+            dict['order2']['kostensoort1'] = RegelList
+            dict['order2']['kostensoort..'] = RegelList
+            dict['order..']['kostensoort..'] = RegelList
+        '''
         regel_list_dict = self.__split(attributes_to_group.pop(0))
 
         if attributes_to_group:

@@ -5,14 +5,13 @@ from config import config
 from budget import KostensoortGroup
 from model.functions import first_item_in_list as first_item_in_list
 
-"""
-.available()
-    input: None
-    output: names of kostensoortgroups as a list of str
-"""
-
 
 def available():
+    """
+    .available()
+        input: None
+        output: names of kostensoortgroups as a list of str
+    """
     ksgroups = []
     for path in glob.glob("%s\*" % config['ksGroupsPath']):
         ksgroups.append(os.path.split(path)[1])
@@ -20,14 +19,12 @@ def available():
     return ksgroups
 
 
-"""
-.load( name )
-    input: name as str
-    returns: KostenSoortGroup
-"""
-
-
 def load(ks_group_name):
+    """
+    .load( name )
+        input: name as str
+        returns: KostenSoortGroup
+    """
     path = '%s\%s' % (config['ksGroupsPath'], ks_group_name)
     f = open(path, 'r')
 
@@ -61,14 +58,12 @@ def load(ks_group_name):
     return ksgroup
 
 
-"""
-.load_sap( name )
-    input: name as str
-    returns: KostenSoortGroup
-"""
-
-
 def load_sap(ks_group_file):
+    """
+    .load_sap( name )
+        input: name as str
+        returns: KostenSoortGroup
+    """
     f = open(ks_group_file, 'r')
     group = None
     ksgroup = None

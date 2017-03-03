@@ -6,21 +6,19 @@ from functions import add_items_to_db
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"],
                   host=config["mysql"]["host"])
 
-"""
-    .activiteitencodes
-    input: None
-    output: List of unique activiteitencodes as str
-"""
-
-
 def activiteitencodes():
+    """
+        .activiteitencodes
+        input: None
+        output: List of unique activiteitencodes as str
+    """
     actcodes = list(map(str, __select_distinct('activiteitencode')))
     return sorted(actcodes)
 
 
-# Returns a set of distinct values of the requested attribute
-# used by: years(), orders(), kostensoorten()
 def __select_distinct(regel_attribute):
+    # Returns a set of distinct values of the requested attribute
+    # used by: years(), orders(), kostensoorten()
     distinct = set()
     table_name = config["mysql"]["tables_other"]["orderlijst"]
 
@@ -36,14 +34,12 @@ def __select_distinct(regel_attribute):
     return distinct
 
 
-"""
-    .Load
-    input: none
-    output: OrderList instance
-"""
-
-
 def load():
+    """
+        .Load
+        input: none
+        output: OrderList instance
+    """
     try:
         db_select = db.select(config["mysql"]["tables_other"]["orderlijst"])
     except IndexError:
@@ -60,34 +56,30 @@ def load():
     return OrderList(orders)
 
 
-#  .__specific_rules(order)
-#  modification of order can be done here
-#  note this changes per setup
 def __specific_rules(order):
+    #  .__specific_rules(order)
+    #  modification of order can be done here
+    #  note this changes per setup
     modified_orders = [order]
 
     return modified_orders
 
 
-"""
-.add(table, fields, rows)
-    input: table as str, fields as list of str, rows as list of str
-    output: msg-queue as list of str
-"""
-
-
 def add(fields, rows):
+    """
+    .add(table, fields, rows)
+        input: table as str, fields as list of str, rows as list of str
+        output: msg-queue as list of str
+    """
     add_items_to_db(config["mysql"]["tables_other"]["orderlijst"], fields, rows)
 
 
-"""
-.clear()
-    input: none
-    output: total amount of regels deleted as int
-"""
-
-
 def clear():
+    """
+    .clear()
+        input: none
+        output: total amount of regels deleted as int
+    """
     sql_where = '1'
     try:
         deleted = db.delete(config["mysql"]["tables_other"]["orderlijst"], where=sql_where)
