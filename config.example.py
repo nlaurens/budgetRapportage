@@ -1,9 +1,10 @@
 config = {
-    "auth":{
-        "settings":{
+    "auth": {
+        "settings": {
             'url_after_login': '/',
+            'auto_map': False,
         },
-        "tables":[ 
+        "tables": [
             """
             DROP TABLE IF EXISTS `user`;
             """,
@@ -44,32 +45,35 @@ config = {
     "currentYear": 2017,
     "ksGroupsPath": 'data/ksgroups/',
     "orderGroupsPath": 'data/ordergroups/',
-    "graphs":{
+    "graphs": {
         "path": 'graphs/',
-        "ksgroup": 'KSGROUP',
-        "baten": 'KSGROUP-B',
-        "lasten": 'KSGROUP-L',
+        "ksgroup": 'LION',
+        "baten": 'LION-B',
+        "lasten": 'LION-L',
     },
     "mysql": {
-        "user": "<USER>",
-        "pass": "<PASS>",
-        "db": "<DB>",
-        "host": "<HOST>",
-        "tables": {
+        "user": "root",
+        "pass": "root",
+        "db": "sap",
+        "host": "",
+        "tables_regels": {
+            "geboekt": "posten_geboekt",
+            "obligo": "posten_obligo",
+            "plan": "posten_plan",
+            "salaris_plan": "salaris_plan",
+            "salaris_geboekt": "salaris_geboekt",
+            "salaris_obligo": "salaris_obligo",
+        },
+        "tables_other": {
+            "user": "user",
+            "permission": "permission",
+            "user_permission": "user_permission",
             "config": "config",
             "orderlijst": "orderlijst",
-            "regels":{
-                "geboekt": "posten_geboekt",
-                "obligo": "posten_obligo",
-                "plan": "posten_plan",
-                "salaris_plan": "salaris_plan",
-                "salaris_geboekt": "salaris_geboekt",
-                "salaris_obligo": "salaris_obligo",
-            },
         },
     },
     "SAPkeys": {
-        "types":{
+        "types": {
             "ordernummer": "int",
             "kostensoort": "int",
             "kostensoortnaam": "varchar(255)",
@@ -86,13 +90,18 @@ config = {
             "trede": "int",
             "ordernaam": "varchar(255)",
             "budgethouder": "varchar(255)",
-            "budgethoudervervanger": "varchar(255)",
             "activiteitenhouder": "varchar(255)",
-            "activiteitenhoudervervanger": "varchar(255)",
             "activiteitencode": "varchar(255)",
             "subactiviteitencode": "varchar(255)",
+            "functie": "varchar(255)",
+            "geboortedatum": "varchar(255)",
+            "contracttiepe": "varchar(255)",
+            "contractstart": "varchar(255)",
+            "contractstop": "varchar(255)",
+            "fte": "decimal(19,2)",
+
         },
-        "geboekt":{
+        "geboekt": {
             "ordernummer": "Order",
             "kostensoort": "Kostensoort",
             "kostensoortnaam": "Naam v. kostensoort",
@@ -103,7 +112,7 @@ config = {
             "documentnummer": "Documentnummer",
             "invoerdatum": "Invoerdatum",
         },
-        "obligo":{
+        "obligo": {
             "ordernummer": "Order",
             "kostensoort": "Kostensoort",
             "kostensoortnaam": "Naam v. kostensoort",
@@ -113,7 +122,7 @@ config = {
             "omschrijving": "Omschrijving",
             "documentnummer": "Nr. referentiedoc.",
         },
-        "plan":{
+        "plan": {
             "ordernummer": "Order",
             "kostensoort": "Kostensoort",
             "kostensoortnaam": "Naam v. kostensoort",
@@ -121,7 +130,7 @@ config = {
             "documentnummer": "Documentnummer",
             "kosten": "Totaalwrd./vslg.val.",
         },
-        "salaris_geboekt":{
+        "salaris_geboekt": {
             "personeelsnummer": "PersNr",
             "personeelsnaam": "Naam",
             "schaal": "Schaal",
@@ -132,8 +141,9 @@ config = {
             "kostensoortnaam": "omschr.g.boekrek.",
             "kosten": "Bedrag",
             "invoerdatum": "Begda afr.",
+            "jaar": "Jaar",
         },
-        "salaris_plan":{
+        "salaris_plan": {
             "jaar": "Jaar",
             "ordernummer": "Order",
             "personeelsnummer": "Personeelsnummer",
@@ -142,26 +152,45 @@ config = {
             "trede": "Trede",
             "kosten": "Kosten",
         },
-        "salaris_obligo":{
+        "salaris_obligo": {
             "jaar": "Jaar",
             "periode": "Maand",
             "ordernummer": "Kpl",
             "personeelsnummer": "Pernr",
             "payrollnummer": "Payroll",
             "personeelsnaam": "Naam",
+            "functie": "Pers cat",
+            "contracttiepe": "V/T",
             "schaal": "Schaal",
             "trede": "Tr",
+            "geboortedatum": "Geb dat",
+            "contractstart": "Begin dvb",
+            "contractstop": "Eind dvb",
+            "fte": "Fte IT8",
             "kosten": "Tot TB+TSL",
         },
-        "orderlijst":{
+        "orderlijst": {
             "ordernummer": "Order",
             "ordernaam": "Korte tekst",
             "budgethouder": "Naam budgethouder",
             "activiteitenhouder": "Naam acth.",
-            "budgethoudervervanger": "Naam vervanger budgeth.",
-            "activiteitenhoudervervanger": "Naam vervanger acth.",
             "activiteitencode": "Code",
             "subactiviteitencode": "Sub activiteiten code",
         },
     }
 }
+
+
+def init_auth_db(db):
+    from auth import auth
+    for table in config['auth']['tables']:
+        db.query(table)
+
+    auth.create_permission('admin', 'Access to admin panel')
+    auth.create_permission('orderlist', 'Access to the orderlist')
+    auth.create_permission('salaris', 'Access to the salaris tools')
+    auth.create_permission('report', 'Access to the report tools')
+    auth.create_permission('view', 'Access to the view tools')
+
+    auth.create_user('admin', password='123admin',
+                     perms=['admin', 'orderlist', 'salaris', 'report', 'view', 'orders-all'])
