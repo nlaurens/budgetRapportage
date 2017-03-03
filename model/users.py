@@ -30,8 +30,6 @@ def get_users():
     return auth.get_all_users()
 
 
-
-
 def get_permissions():
     """
     .get_users()
@@ -49,3 +47,31 @@ def check_permission(perm):
         returns False
     """
     return auth.has_perm(perm)
+
+
+def orders_allowed():
+    """
+    .orders_allowed()
+        input: none
+        output: List of orders (int) that user has access too based
+        on the ordergroups he has permission for.
+    """
+    perimssions = ['ordergroup-LION-OL-FMD', 'ordergroup-LION-PL-TP']  #replace by auth.xxx
+    for permission in permissions:
+        ordergroup, group = __parse_ordergroup_permission(permission)
+
+    orders = [2008501040, 20081204110] #ordergroup.get_orders_recursive(groups) 
+
+    return orders
+
+def __parse_ordergroup_permission(permission):
+    """
+    .__parse_ordergroup_permission(permission)
+        input: permission as str
+        output: ordgergroup as str, group in ordergroup as str
+    """
+    permission_as_list = permission.split('-')
+    ordergroup = permission_as_list[1]
+    group = '-'.join(permission_as_list[1:])
+
+    return ordergroup, group
