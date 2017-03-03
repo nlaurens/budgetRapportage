@@ -14,6 +14,7 @@ import model.users
 from config import config
 from model.functions import count_tables_other
 
+
 class Admin(Controller):
     def __init__(self):
         Controller.__init__(self)
@@ -23,7 +24,7 @@ class Admin(Controller):
         self.module = 'admin'
         self.webrender = web.template.render('webpages/admin/')
         self.lastperiode = model.regels.last_periode()  # gives subclass__init__ access
-        
+
         # Forms
         drop_down_options = self.dropdown_options()
 
@@ -35,35 +36,33 @@ class Admin(Controller):
             form.Button('submit', value='removeRegels')
         )
         self.form_upload = form.Form(
-                form.File(name='upload1'),
-                form.Dropdown('type1', drop_down_options['empty_tables']),
-                form.File(name='upload2'),
-                form.Dropdown('type2', drop_down_options['empty_tables']),
-                form.File('upload3'),
-                form.Dropdown('type3', drop_down_options['empty_tables']),
-                form.File('upload4'),
-                form.Dropdown('type4', drop_down_options['empty_tables']),
-                form.File('upload5'),
-                form.Dropdown('type5', drop_down_options['empty_tables']),
-                form.Button('submit', value='uploadRegels')
+            form.File(name='upload1'),
+            form.Dropdown('type1', drop_down_options['empty_tables']),
+            form.File(name='upload2'),
+            form.Dropdown('type2', drop_down_options['empty_tables']),
+            form.File('upload3'),
+            form.Dropdown('type3', drop_down_options['empty_tables']),
+            form.File('upload4'),
+            form.Dropdown('type4', drop_down_options['empty_tables']),
+            form.File('upload5'),
+            form.Dropdown('type5', drop_down_options['empty_tables']),
+            form.Button('submit', value='uploadRegels')
         )
         self.form_update_sap = form.Form(
-                form.Textbox('sapdate', form.notnull, value=self.SAPupdate,
-                             description='Date last SAP regels are uploaded'),
-                form.Dropdown('sapperiode', drop_down_options['months'], value=self.lastperiode,
-                               description='Last periode obligo/salarissen updated'),
-                form.Button('submit', value='updateSapDates')
+            form.Textbox('sapdate', form.notnull, value=self.SAPupdate,
+                         description='Date last SAP regels are uploaded'),
+            form.Dropdown('sapperiode', drop_down_options['months'], value=self.lastperiode,
+                          description='Last periode obligo/salarissen updated'),
+            form.Button('submit', value='updateSapDates')
         )
         self.form_rebuild_graphs = form.Form(
-                form.Textbox('target', form.notnull, description='Order/groep/*'),
-                form.Dropdown('year', drop_down_options['empty_years_all'], form.notnull),
-                form.Button('submit', value='rebuildGraphs')
+            form.Textbox('target', form.notnull, description='Order/groep/*'),
+            form.Dropdown('year', drop_down_options['empty_years_all'], form.notnull),
+            form.Button('submit', value='rebuildGraphs')
         )
-
 
     def authorized(self):
         return model.users.check_permission(['admin'])
-
 
     def process_sub(self):
         # Handle posted forms
@@ -77,7 +76,6 @@ class Admin(Controller):
         # Display admin page on GET or invalid form post
         msg = ['Welcome to the Admin panel']
         msg.extend(self.run_tests())
-
 
         rendered = {}
         users, permissions = self.user_status()
@@ -93,21 +91,21 @@ class Admin(Controller):
 
         self.body = self.webrender.admin(msg, rendered)
 
-
     def user_status(self):
         users = []
         user_db = model.users.get_users()
         for user in user_db:
             perms = ', '.join(user.perms)
-            users.append({'id':user.user_id, 'name':user.user_login, 'status':user.user_status, 'last login':user.user_last_login, 'perms':perms })
+            users.append({'id': user.user_id, 'name': user.user_login, 'status': user.user_status,
+                          'last login': user.user_last_login, 'perms': perms})
 
         permissions = []
         permissions_db = model.users.get_permissions()
         for permission in permissions_db:
-            permissions.append({'id':permission.permission_id, 'name':permission.permission_codename, 'descr':permission.permission_desc})
+            permissions.append({'id': permission.permission_id, 'name': permission.permission_codename,
+                                'descr': permission.permission_desc})
 
         return users, permissions
-
 
     def db_status(self):
         # construct dict with total regels per table
@@ -215,16 +213,15 @@ class Admin(Controller):
         jaren_db = model.regels.years()
         if jaar != '*':
             assert int(jaar) in jaren_db
-        
+
         msg.append("This module has been disabled due to security issues.")
-        #msg.append("running: $python graph.py %s %s" % (target, jaar))
-        #os.system("python graph.py %s %s" % (target, jaar))
+        # msg.append("running: $python graph.py %s %s" % (target, jaar))
+        # os.system("python graph.py %s %s" % (target, jaar))
         return msg
 
     def parse_upload_form(self):
         msg = ['Start parsing of upload form']
         file_handles = web.input(upload1={}, upload2={}, upload3={}, upload4={}, upload5={})
-        uploads = []
         for i in range(1, 6):
             try:
                 file_handle = eval("file_handles.upload%s" % i)
@@ -232,7 +229,7 @@ class Admin(Controller):
                 file_handle = None
             table = eval("self.form_upload['type%s'].value" % i)
 
-            if file_handle is not None and table in self.config['mysql']['tables_regels'].keys():
+            if file_handle is not None and table in config['mysql']['tables_regels'].keys():
                 msg_read_xlsx, fields, rows = self.read_xlsx(file_handle, table)
                 msg.extend(msg_read_xlsx)
                 if fields is not None and rows is not None:
@@ -252,8 +249,8 @@ class Admin(Controller):
     # Returns fields and rows of the excel
     def read_xlsx(self, file_handle, table):
         msg = ['Starting uploading file']
-        fields = []
         rows = []
+        fields = []
 
         allowed = ['.xlsx']
         msg.append('Uploading file.')
@@ -281,9 +278,8 @@ class Admin(Controller):
                 f = open(tmpcsv.name, 'rb')
                 reader = csv.reader(f)
                 headers = reader.next()
-                header_map = {y: x for x ,y in self.config["SAPkeys"][table].iteritems()}
+                header_map = {y: x for x, y in config["SAPkeys"][table].iteritems()}
 
-                fields = []
                 for header in headers:
                     if header in header_map:
                         fields.append(header_map[header])
@@ -292,14 +288,13 @@ class Admin(Controller):
                         msg.append('Import stopped!')
                         return msg, None, None
 
-                for attribute, SAPkey in self.config["SAPkeys"][table].iteritems():
+                for attribute, SAPkey in config["SAPkeys"][table].iteritems():
                     if attribute not in fields:
                         msg.append('Required field not in excel: ' + attribute)
                         return msg, None, None
 
                 # Fill table from CSV
-                msg.append('Inserting data into table')
-                rows = []
+                msg.append('Parsing CSV')
                 rownumber = 1
                 for row in reader:
                     row_empty_replaced = [element or '0' for element in row]
@@ -315,11 +310,10 @@ class Admin(Controller):
 
         return msg, fields, rows
 
-
     def run_tests(self):
         success = False
         msg = ['', 'Running tests']
-        succes, msg_test = self.test_ks_missing_in_report()
+        success, msg_test = self.test_ks_missing_in_report()
         msg.extend(msg_test)
 
         return msg
@@ -336,7 +330,8 @@ class Admin(Controller):
             for ks in model.regels.kostensoorten():
                 if ks not in ks_all:
                     success = False
-                    msg.append('WARNING kostensoort %s appears in DB but is not included in report %s' % (ks, ksgroup_name))
+                    msg.append(
+                        'WARNING kostensoort %s appears in DB but is not included in report %s' % (ks, ksgroup_name))
 
         if success:
             msg.append('test PASS')
@@ -344,4 +339,3 @@ class Admin(Controller):
             msg.append('test FAILED')
 
         return success, msg
-

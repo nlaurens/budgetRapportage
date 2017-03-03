@@ -19,30 +19,30 @@ class RegelList:
         dict['order..']['kostensoort..'] = RegelList
     '''
     def split(self, attributes_to_group):
-        regelListDict = self.__split(attributes_to_group.pop(0))
+        regel_list_dict = self.__split(attributes_to_group.pop(0))
 
         if attributes_to_group:
-            for key, regelListDictChild in regelListDict.iteritems():
-                regelListDict[key] = regelListDictChild.split(
+            for key, regel_list_dict_child in regel_list_dict.iteritems():
+                regel_list_dict[key] = regel_list_dict_child.split(
                     list(attributes_to_group))  # list(..) creates a copy for recursion!
 
-        return regelListDict
+        return regel_list_dict
 
     def __split(self, attribute_to_group):
-        regelDict = {}
+        regel_dict = {}
         # Sort out regels for each attribute to group
         for regel in self.regels:
             regel_key = getattr(regel, attribute_to_group)
-            if regel_key not in regelDict:
-                regelDict[regel_key] = []
-            regelDict[regel_key].append(regel)
+            if regel_key not in regel_dict:
+                regel_dict[regel_key] = []
+            regel_dict[regel_key].append(regel)
 
         # Replace the regel list with a RegelList class
-        regelListDict = {}
-        for key, regels in regelDict.iteritems():
-            regelListDict[key] = RegelList(regels)
+        regel_list_dict = {}
+        for key, regels in regel_dict.iteritems():
+            regel_list_dict[key] = RegelList(regels)
 
-        return regelListDict
+        return regel_list_dict
 
     def total(self):
         total = 0
@@ -51,8 +51,8 @@ class RegelList:
 
         return total
 
-    def extend(self, regelListToAdd):
-        self.regels = self.regels + regelListToAdd.regels
+    def extend(self, regel_list_to_add):
+        self.regels = self.regels + regel_list_to_add.regels
 
     def sort(self, attribute):
         self.regels.sort(key=lambda x: getattr(x, attribute), reverse=True)

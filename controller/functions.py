@@ -1,8 +1,9 @@
 import numpy as np
+from decimal import *
+
 
 def moneyfmt(value, places=0, curr='', sep='.', dp=',',
              pos='', neg='-', trailneg='', keur=False):
-    from decimal import *
     value = Decimal(value)
     """
     Convert Decimal to a money formatted string.
@@ -34,7 +35,7 @@ def moneyfmt(value, places=0, curr='', sep='.', dp=',',
     if keur:
         value /= 1000
 
-    q = Decimal(10) ** -places      # 2 places --> '0.01'
+    q = Decimal(10) ** -places  # 2 places --> '0.01'
     sign, digits, exp = value.quantize(q).as_tuple()
     result = []
     digits = map(str, digits)
@@ -57,11 +58,10 @@ def moneyfmt(value, places=0, curr='', sep='.', dp=',',
     build(neg if sign else pos)
     return ''.join(reversed(result))
 
+
 def table_string(value):
     value /= 1000
     if value == 0 or np.abs(value) < 0.5:
         return '&nbsp;'
     else:
         return '%.f' % value
-
-

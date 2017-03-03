@@ -6,6 +6,8 @@ from config import config
 Graphs available:
     general URL: /graph/<year>/<type of graph>/<name of the graph>
 """
+
+
 class Graph:
     def __init__(self):
         self.order_allowed = True  # TODO security
@@ -23,7 +25,7 @@ class Graph:
 
     def serve_image(self):
         if os.path.isfile(self.path):
-            web.header("Content-Type", "images/png") 
+            web.header("Content-Type", "images/png")
             return open(self.path, "rb").read()
         else:
             return None

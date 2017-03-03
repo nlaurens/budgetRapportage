@@ -36,12 +36,12 @@ class Order:
     # Tries to load all available attributes from the db.select result
     # Delete all remaining 'None' attributes to make sure Python gives
     # an error when using an attribute that is not loaded/set.
-    def import_from_db_select(self, dbOrders):
+    def import_from_db_select(self, db_orders):
 
         for attribute in vars(self):
             try:
-                dbValue = dbOrders[attribute]
-                setattr(self, attribute, dbValue)
+                db_value = db_orders[attribute]
+                setattr(self, attribute, db_value)
             except Exception:
                 pass
 

@@ -6,7 +6,6 @@ from functions import check_table_exists, add_items_to_db
 db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["user"], pw=config["mysql"]["pass"],
                   host=config["mysql"]["host"])
 
-
 """
 .load(years=[], periodes=[], orders=[], tablesNames=[], kostensoorten=[])
     input: tablesNames as list of str,
@@ -17,6 +16,8 @@ db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["u
            kostensoorten as list of int
     output: RegelList
 """
+
+
 def load(table_names_load, years_load=None, periods_load=None, orders_load=None, kostensoorten_load=None):
     for name in table_names_load:
         assert name in config["mysql"]["tables_regels"], "unknown table in model.get_reggellist_per_table: " + name
@@ -63,9 +64,10 @@ def __specific_rules(regel):
         if regel.kostensoort == 432100 or regel.kostensoort == 411101:
             modified_regels = []  # Remove old regel from list, we will ad new ones
             digits = [int(s) for s in regel.omschrijving.split() if s.isdigit()]
-            if len(digits) == 2: 
+            assert 0 < len(digits) < 3
+            if len(digits) == 2:
                 periodeleft = range(digits[-2], digits[-1] + 1)
-            elif len(digits) == 1:  # omschrijving in dec is : 'periode 12' niet 'periode xx t/m yy'
+            else:  # omschrijving in dec is : 'periode 12' niet 'periode xx t/m yy'
                 periodeleft = [12]
             bedrag = regel.kosten / len(periodeleft)
             omschrijving = regel.omschrijving.decode('ascii', 'replace').encode('utf-8')
@@ -88,6 +90,8 @@ def __specific_rules(regel):
     output: dict.value: number of regels as int,
             dict.key: tableName as str
 """
+
+
 def count():
     table_names = config["mysql"]["tables_regels"].values()
     years_in_db = years()
@@ -114,6 +118,8 @@ def count():
     input: newdate to be written in the db as str
     output: last sap update from db as a string
 """
+
+
 def last_update(newdate=''):
     if not check_table_exists('config'):
         sql = "CREATE TABLE `config` ( `key` varchar(255), `value` varchar(255) );"
@@ -141,6 +147,8 @@ def last_update(newdate=''):
     input: newperiode to be written in the db as str
     output: last periode salaris was booked from db as int
 """
+
+
 def last_periode(newperiode=''):
     if not check_table_exists('config'):
         sql = "CREATE TABLE `config` ( `key` varchar(255), `value` varchar(255) );"
@@ -155,7 +163,7 @@ def last_periode(newperiode=''):
     if newperiode == '':
         sqlwhere = "`key` = 'lastperiode'"
         results = db.select('config', where=sqlwhere)
-        try: 
+        try:
             lastperiode = int(results[0]['value'])
         except:
             lastperiode = 0
@@ -172,6 +180,8 @@ def last_periode(newperiode=''):
     input: None
     output: years in db available as list of int
 """
+
+
 def years():
     years_in_db = list(map(int, __select_distinct('jaar')))
     return sorted(years_in_db)
@@ -183,6 +193,8 @@ def years():
     input: None
     output: orders in db available as list of int
 """
+
+
 def orders():
     orders_in_db = list(map(int, __select_distinct('ordernummer')))
     return sorted(orders_in_db)
@@ -193,6 +205,8 @@ def orders():
     input: None
     output: kostensoorten in db available as list of int
 """
+
+
 def kostensoorten():
     ks = list(map(int, __select_distinct('kostensoort')))
     return sorted(ks)
@@ -222,6 +236,8 @@ def __select_distinct(regel_attribute):
     input: years al list of int, tableNames as list of str
     output: total amount of regels deleted as int
 """
+
+
 def delete(years_delete=None, table_names_delete=None):
     if not table_names_delete:
         table_names_delete = config["mysql"]["tables_regels"].keys()
@@ -236,7 +252,7 @@ def delete(years_delete=None, table_names_delete=None):
 
     deleted_total = 0
     for table in table_names_delete:
-        
+
         try:
             deleted = db.delete(config["mysql"]["tables_regels"][table], where=sql_where)
         except Exception:
@@ -251,5 +267,7 @@ def delete(years_delete=None, table_names_delete=None):
     input: table as str, fields as list of str, rows as list of str
     output: msg-queue as list of str
 """
+
+
 def add(table, fields, rows):
     add_items_to_db(config['mysql']['tables_regels'][table], fields, rows)

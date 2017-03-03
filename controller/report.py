@@ -1,12 +1,10 @@
 import web
 from web import form
-import numpy as np
-
-from controller import Controller
-from functions import moneyfmt
 
 import model.ordergroup
 import model.regels
+from controller import Controller
+from functions import moneyfmt
 
 
 class Report(Controller):

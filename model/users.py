@@ -1,5 +1,6 @@
 from auth import auth
-#Replace this file with auth mod...
+
+# Replace this file with auth mod...
 
 """
 .protected()
@@ -19,13 +20,18 @@ directs directly and thus fails on nested functions.
     'test' must be a function that takes a user object and returns
     True or False.
 """
+
+
 def protected(**pars):
     return auth.protected(**pars)
+
 
 """
 .get_users()
     Returns a list of all users and their permissions/info
 """
+
+
 def get_users():
     return auth.get_all_users()
 
@@ -34,6 +40,8 @@ def get_users():
 .get_users()
     Returns a list of all permissions and their description
 """
+
+
 def get_permissions():
     return auth.get_all_permissions()
 
@@ -45,5 +53,7 @@ def get_permissions():
     Checks if current user has (all) permissions: True, otherwise
     returns False
 """
+
+
 def check_permission(perm):
     return auth.has_perm(perm)

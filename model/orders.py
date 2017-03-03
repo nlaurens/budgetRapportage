@@ -11,6 +11,8 @@ db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["u
     input: None
     output: List of unique activiteitencodes as str
 """
+
+
 def activiteitencodes():
     actcodes = list(map(str, __select_distinct('activiteitencode')))
     return sorted(actcodes)
@@ -39,11 +41,13 @@ def __select_distinct(regel_attribute):
     input: none
     output: OrderList instance
 """
+
+
 def load():
     try:
         db_select = db.select(config["mysql"]["tables_other"]["orderlijst"])
     except IndexError:
-            return None
+        return None
 
     orders = []
     for dbOrder in db_select:
@@ -55,20 +59,23 @@ def load():
 
     return OrderList(orders)
 
+
 #  .__specific_rules(order)
 #  modification of order can be done here
 #  note this changes per setup
 def __specific_rules(order):
     modified_orders = [order]
 
-
     return modified_orders
+
 
 """
 .add(table, fields, rows)
     input: table as str, fields as list of str, rows as list of str
     output: msg-queue as list of str
 """
+
+
 def add(fields, rows):
     add_items_to_db(config["mysql"]["tables_other"]["orderlijst"], fields, rows)
 
@@ -78,6 +85,8 @@ def add(fields, rows):
     input: none
     output: total amount of regels deleted as int
 """
+
+
 def clear():
     sql_where = '1'
     try:

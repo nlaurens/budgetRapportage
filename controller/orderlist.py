@@ -1,12 +1,7 @@
-from config import config
-from controller import Controller
 import web
-from web import form
 
-import numpy as np
 import model.orders
-from functions import moneyfmt
-from matplotlib import cm
+from controller import Controller
 
 
 class Orderlist(Controller):
@@ -18,17 +13,15 @@ class Orderlist(Controller):
         self.module = 'Orderlist'
         self.webrender = web.template.render('webpages/orderlist/')
 
-
     def authorized(self):
         return model.users.check_permission(['orderlist'])
-
 
     def process_sub(self):
         orderlist = model.orders.load()
         orderlist_per_actcode = orderlist.split(['activiteitencode'])
         tables = []
         for code, orderlist_per_code in orderlist_per_actcode.iteritems():
-            header = {'id':code, 'name':'Activiteiten code '+ str(code)}
+            header = {'id': code, 'name': 'Activiteiten code ' + str(code)}
             table_items = []
             for order in orderlist_per_code.orders:
                 item = {}
@@ -37,7 +30,7 @@ class Orderlist(Controller):
                 item['budgethouder'] = order.budgethouder
                 item['activiteitenhouder'] = order.activiteitenhouder
                 item['sub.act.code'] = order.subactiviteitencode
-                item['link'] = self.url(module='view', params={'order':order.ordernummer})
+                item['link'] = self.url(module='view', params={'order': order.ordernummer})
                 table_items.append(item)
 
             tables.append(self.webrender.table(table_items, header))
@@ -45,4 +38,3 @@ class Orderlist(Controller):
         javascripts = self.webrender.javascripts(orderlist_per_actcode.keys())
         self.body = self.webrender.orderlist(tables, javascripts)
         return
-

@@ -26,20 +26,20 @@ class View(Controller):
         periode = (web.input(periode='ALL')['periode'])
         if periode.isdigit():
             if periode == 12:
-                self.periodes = [12,13,14,15,16]
+                self.periodes = [12, 13, 14, 15, 16]
             else:
                 self.periodes = [int(periode)]
         elif periode == 'ALL':
-            self.periodes = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+            self.periodes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
         elif periode == 'Q1':
-            self.periodes = [0,1,2,3]
+            self.periodes = [0, 1, 2, 3]
         elif periode == 'Q2':
-            self.periodes = [4,5,6]
+            self.periodes = [4, 5, 6]
         elif periode == 'Q3':
-            self.periodes = [7,8,9]
+            self.periodes = [7, 8, 9]
         elif periode == 'Q4':
-            self.periodes = [10,11,12,13,14,15,16]
-        
+            self.periodes = [10, 11, 12, 13, 14, 15, 16]
+
         # Forms
         dropdown_options = self.dropdown_options()
         self.form_settings_simple = form.Form(
@@ -61,7 +61,7 @@ class View(Controller):
             colors_amount = max(len(color_map[tiepe]), 3)  # prevent white colors
             colors = {}
             colors['baten'] = cm.BuPu(np.linspace(0.75, 0.1, colors_amount))
-            colors['lasten'] =cm.BuGn(np.linspace(0.75, 0.1, colors_amount))
+            colors['lasten'] = cm.BuGn(np.linspace(0.75, 0.1, colors_amount))
             for i, key in enumerate(color_map[tiepe]):
                 color_map[tiepe][key] = colors[tiepe][i]
 
@@ -71,11 +71,10 @@ class View(Controller):
     def authorized(self):
         return model.users.check_permission(['view'])
 
-
     def process_sub(self):
         data, totals = self.construct_data()
         view = {}
-        view['title'] = 'dummy title' #model.orders.get_name(self.order) + ' ' + str(self.order)
+        view['title'] = 'dummy title'  # model.orders.get_name(self.order) + ' ' + str(self.order)
         view['summary'] = self.render_summary(totals)
         view['settings'] = self.render_settings()
         view['javaScripts'] = self.render_java_scripts(data)
@@ -170,7 +169,7 @@ class View(Controller):
         summary['lasten'] = totals['total']['geboekt'] + totals['total']['obligo'] - summary['baten']
         summary['ruimte'] = summary['begroting'] - summary['baten'] - summary['lasten']
         for key in summary.keys():
-            summary[key]  = moneyfmt(summary[key])
+            summary[key] = moneyfmt(summary[key])
 
         summary['graph_realisatie'] = self.url_graph(self.year, 'realisatie', self.order)
 

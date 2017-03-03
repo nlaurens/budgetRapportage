@@ -12,7 +12,8 @@ TODO
 
 """
 import web
-web.config.debug = False #must be done before the rest.
+
+web.config.debug = False  # must be done before the rest.
 
 import model.regels
 import model.ordergroup
@@ -25,16 +26,15 @@ import os
 from config import config
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import cm
-import pylab as pylab
 import sys
 from matplotlib.patches import Rectangle
+
 
 class Graph:
     def __init__(self, years, orders, ordergroups, regels):
         self.years = years  # [<year>,..]
         self.orders = orders  # [<order>,..]
-        self.ordergroups = ordergroups   # { <name>:<regellist>, ..}
+        self.ordergroups = ordergroups  # { <name>:<regellist>, ..}
         self.regels = regels  # {'plan':<regellist>, 'realisatie':<regellist>}
         self.last_update = model.regels.last_update()
         self.orderListDict = model.orders.load().split(['ordernummer'])
@@ -74,10 +74,10 @@ class Graph:
                     if name not in data['test'][year][key]:
                         data['test'][year][key][name] = np.zeros(12)
 
-                    for periode in range (1, 13):
+                    for periode in range(1, 13):
                         total = np.random.randint(1666)  # 12*<0-1666> = 100k
-                        data['test'][year][key][name][periode-1] += total
-                        data['test'][year]['resultaat'][periode-1] += total
+                        data['test'][year][key][name][periode - 1] += total
+                        data['test'][year]['resultaat'][periode - 1] += total
 
             data['test'][year]['resultaat'] = np.cumsum(data['test'][year]['resultaat'])
 
@@ -87,7 +87,7 @@ class Graph:
         for year in self.years:
             plt = self.graph_realisatie(data['test'][year])
             count += 1
-            print 'rendered %s year %s (%.2f%%)' % ('test', year, (count/total_graphs)*100.)
+            print 'rendered %s year %s (%.2f%%)' % ('test', year, (count / total_graphs) * 100.)
             self.save_fig(plt, year, 'realisatie', 'test')
             plt.close()
 
@@ -95,14 +95,14 @@ class Graph:
             self.save_fig(plt, year, 'overview', 'test')
             plt.close()
             count += 1
-            print 'rendered overview (%.2f%%)' % ((count/total_graphs)*100.)
+            print 'rendered overview (%.2f%%)' % ((count / total_graphs) * 100.)
 
     def render_graphs(self):
 
         # build graphs
-        total_graphs = float(len(self.years)*len(self.orders)) * 2  # overview/realisatie
+        total_graphs = float(len(self.years) * len(self.orders)) * 2  # overview/realisatie
         for name, ordergroup in self.ordergroups.iteritems():
-            total_graphs += float(len(self.years)*len(ordergroup.list_groups()))*2
+            total_graphs += float(len(self.years) * len(ordergroup.list_groups())) * 2
 
         count = 0
         print 'start rendering graphs - total: %s' % total_graphs
@@ -112,13 +112,13 @@ class Graph:
                 self.save_fig(plt, year, 'realisatie', order)
                 plt.close()
                 count += 1
-                print 'rendered %s realisatie - year %s (%.2f%%)' % (order, year, (count/total_graphs)*100.)
+                print 'rendered %s realisatie - year %s (%.2f%%)' % (order, year, (count / total_graphs) * 100.)
 
                 plt = self.graph_overview(year, self.data_orders[order])
                 self.save_fig(plt, year, 'overview', order)
                 plt.close()
                 count += 1
-                print 'rendered %s overview   - year %s (%.2f%%)' % (order, year, (count/total_graphs)*100.)
+                print 'rendered %s overview   - year %s (%.2f%%)' % (order, year, (count / total_graphs) * 100.)
 
         for name, ordergroup in self.ordergroups.iteritems():
             for group in ordergroup.list_groups():
@@ -127,13 +127,15 @@ class Graph:
                     self.save_fig(plt, year, 'realisatie', '%s-%s' % (name, group.name))
                     plt.close()
                     count += 1
-                    print 'rendered %s-%s realisatie - year %s (%.2f%%)' % (name, group.name, year, (count/total_graphs)*100.)
+                    print 'rendered %s-%s realisatie - year %s (%.2f%%)' % (
+                        name, group.name, year, (count / total_graphs) * 100.)
 
                     plt = self.graph_overview(year, self.data_groups[name][group.name])
                     self.save_fig(plt, year, 'overview', '%s-%s' % (name, group.name))
                     plt.close()
                     count += 1
-                    print 'rendered %s-%s overview   - year %s (%.2f%%)' % (name, group.name, year, (count/total_graphs)*100.)
+                    print 'rendered %s-%s overview   - year %s (%.2f%%)' % (
+                        name, group.name, year, (count / total_graphs) * 100.)
 
     def construct_data_orders(self):
         plan_dict = self.regels['plan'].split(['ordernummer', 'jaar'])
@@ -147,7 +149,8 @@ class Graph:
                 if order not in self.orderListDict:
                     data[order][year]['title'] = '%s-%s-%s' % (order, order, year)
                 else:
-                    data[order][year]['title'] = '%s-%s-%s' % (self.orderListDict[order].orders[0].ordernaam, order, year)
+                    data[order][year]['title'] = '%s-%s-%s' % (
+                        self.orderListDict[order].orders[0].ordernaam, order, year)
                 try:
                     data[order][year]['begroting'] = float(plan_dict[order][year].total())
                 except:
@@ -169,22 +172,22 @@ class Graph:
                                 if periode > 12:
                                     periode = 12
                                 total = float(regels.total())
-                                data[order][year][key][name][periode-1] += total
-                                data[order][year]['resultaat'][periode-1] += total
+                                data[order][year][key][name][periode - 1] += total
+                                data[order][year]['resultaat'][periode - 1] += total
 
                 data[order][year]['resultaat'] = np.cumsum(data[order][year]['resultaat'])
 
         self.data_orders = data
 
-    #overview: 1 kolom extra in elke tabel en daarin het grafiekje van de jaren zetten zodat het goed te zien is
+    # overview: 1 kolom extra in elke tabel en daarin het grafiekje van de jaren zetten zodat het goed te zien is
     # grafiek: x = jan/dec, y = 0 tot 100% realisatie t.o.v. begroting (dus 1 lijn begroting stippel de rest in kleurtjes
     # met in legenda eronder de absolute getallen in realisatie
     def graph_overview(self, render_year, data):
-        data_x = np.arange(1,13)
+        data_x = np.arange(1, 13)
         data_y = {}
         for year in self.years:
             if year <= render_year:
-                data_y[year] = data[year]['resultaat']/1000
+                data_y[year] = data[year]['resultaat'] / 1000
 
         # title graph
         title = data[render_year]['title']
@@ -212,7 +215,7 @@ class Graph:
         legend['data'] = []
         legend['keys'] = []
 
-        #Plot data and legend
+        # Plot data and legend
         table_data = []
         plot_resultaat = {}
         plot_begroting = {}
@@ -224,32 +227,31 @@ class Graph:
                     year,
                     moneyfmt(data[year]['begroting'], keur=True),
                     moneyfmt(data[year]['resultaat'][-1], keur=True),
-                    moneyfmt(data[year]['begroting']-data[year]['resultaat'][-1], keur=True),
-                    ])
-                begroting = np.array([data[year]['begroting']/1000,data[year]['begroting']/1000])
+                    moneyfmt(data[year]['begroting'] - data[year]['resultaat'][-1], keur=True),
+                ])
+                begroting = np.array([data[year]['begroting'] / 1000, data[year]['begroting'] / 1000])
 
                 color = colors[color_count]
                 color_count += 1
                 plot_resultaat[year] = plt.plot(data_x, data_y[year], 'o-', lw=2, color=color)
-                plot_begroting[year] = plt.plot(np.array([0,12]), np.array(begroting), '--', color=color)
+                plot_begroting[year] = plt.plot(np.array([0, 12]), np.array(begroting), '--', color=color)
                 legend['data'].append(plot_resultaat[year][0])
-                legend['keys'].append("%s" % (year))
-
+                legend['keys'].append("%s" % year)
 
         leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
         leg.get_frame().set_linewidth(0.0)
 
-        table_labels=("Year", "Budget", "Spent", "+/-")
-        the_table = plt.table(cellText=table_data,colLabels=table_labels,loc='bottom', rowLoc='right')
+        table_labels = ("Year", "Budget", "Spent", "+/-")
+        the_table = plt.table(cellText=table_data, colLabels=table_labels, loc='bottom', rowLoc='right')
         the_table.set_fontsize(14)
-        the_table.scale(1,2)
+        the_table.scale(1, 2)
         return plt
 
     def graph_realisatie(self, data):
-        data_x = np.arange(1,13)
+        data_x = np.arange(1, 13)
         data_x_begroting = np.array([0, 12])
-        data_y_begroting = np.array([0, data['begroting']/1000])
-        data_y_resultaat = data['resultaat']/1000
+        data_y_begroting = np.array([0, data['begroting'] / 1000])
+        data_y_resultaat = data['resultaat'] / 1000
 
         # Layout figure
         plt.figure(figsize=(12, 9))
@@ -274,7 +276,7 @@ class Graph:
         legend['data'] = []
         legend['keys'] = []
 
-        #Plot data
+        # Plot data
         plot_resultaat = plt.plot(data_x, data_y_resultaat, 'ro-', lw=2)
         plot_begroting = plt.plot(data_x_begroting, data_y_begroting, 'k--')
 
@@ -283,9 +285,9 @@ class Graph:
         legend['keys'].append("Realisatie (%s keur)" % moneyfmt(data_y_resultaat[-1]))
         legend['data'].append(plot_begroting[0])
         legend['keys'].append("Begroting (%s keur)" % moneyfmt(data['begroting'], keur=True))
-        legend['data'].append(Rectangle( (0,0),0,0, alpha=0.0))
-        overschot = data['begroting']/1000 - data_y_resultaat[-1]
-        if overschot>0:
+        legend['data'].append(Rectangle((0, 0), 0, 0, alpha=0.0))
+        overschot = data['begroting'] / 1000 - data_y_resultaat[-1]
+        if overschot > 0:
             legend['keys'].append("Te besteden (%s keur)" % moneyfmt(overschot))
         else:
             legend['keys'].append("Overbesteed: (%s keur)" % moneyfmt(overschot))
@@ -296,25 +298,28 @@ class Graph:
         leg.get_frame().set_linewidth(0.0)
 
         # Plot bars of baten/lasten!
-        totaalbars = len(data['baten'])+len(data['lasten'])
-        width= 1./(totaalbars+1)
-        offset = (1-totaalbars*width)/2
+        totaalbars = len(data['baten']) + len(data['lasten'])
+        width = 1. / (totaalbars + 1)
+        offset = (1 - totaalbars * width) / 2
         bar_nr = 0
         for name, data_y in data['baten'].iteritems():
-            plot_baten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y/1000,  width, color=self.color_map['baten'][name])
+            plot_baten_bars = plt.bar(data_x + width * bar_nr - 0.5 + offset, data_y / 1000, width,
+                                      color=self.color_map['baten'][name])
             bar_nr += 1
 
         for name, data_y in data['lasten'].iteritems():
-            plot_lasten_bars = plt.bar(data_x+width*bar_nr-0.5+offset, data_y/1000,  width, color=self.color_map['lasten'][name])
+            plot_lasten_bars = plt.bar(data_x + width * bar_nr - 0.5 + offset, data_y / 1000, width,
+                                       color=self.color_map['lasten'][name])
             bar_nr += 1
 
         # add table below the graph
         values = []
         values.append(self.format_table_row(data_y_resultaat))  # totaal
 
-        begroting_per_maand = data['begroting']/12000
-        residue_begroting_per_maand = data_y_resultaat - np.linspace(begroting_per_maand, 12*begroting_per_maand, num=12)
-        values.append(self.format_table_row(residue_begroting_per_maand)) 
+        begroting_per_maand = data['begroting'] / 12000
+        residue_begroting_per_maand = data_y_resultaat - np.linspace(begroting_per_maand, 12 * begroting_per_maand,
+                                                                     num=12)
+        values.append(self.format_table_row(residue_begroting_per_maand))
 
         for data_key in ['baten', 'lasten']:
             for key, row in data[data_key].iteritems():
@@ -340,21 +345,19 @@ class Graph:
             colors.extend([self.color_map['baten'][key]])
 
         if colors:
-            colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure color realisatie
-            colors = np.insert(colors, 0, [1,1,1,1], 0) #Hack for making sure color realisatie
+            colors = np.insert(colors, 0, [1, 1, 1, 1], 0)  # Hack for making sure color realisatie
+            colors = np.insert(colors, 0, [1, 1, 1, 1], 0)  # Hack for making sure color realisatie
         else:
-            colors = [[1,1,1,1], [1,1,1,1]]
-
+            colors = [[1, 1, 1, 1], [1, 1, 1, 1]]
 
         the_table = plt.table(cellText=values, rowLabels=label_rows, rowColours=colors,
-                            colLabels=label_columns, loc='bottom', rowLoc='right')
+                              colLabels=label_columns, loc='bottom', rowLoc='right')
         the_table.set_fontsize(14)
-        the_table.scale(1,2)
+        the_table.scale(1, 2)
 
-
-        #Add y-lines:
-        for i in range(0,15):
-            plt.axvline(i+0.5, color='grey', ls=':')
+        # Add y-lines:
+        for i in range(0, 15):
+            plt.axvline(i + 0.5, color='grey', ls=':')
 
         return plt
 
@@ -373,8 +376,6 @@ class Graph:
         if not os.path.isdir(path_graph):
             os.makedirs(path_graph)
         plt.savefig(path_graph + '%s.png' % str(name), bbox_inches='tight')
-
-
 
     def construct_data_groups(self):
         assert self.data_orders is not None, "graph.data_orders not set"
@@ -406,7 +407,6 @@ class Graph:
                                 else:
                                     data[name][group.name][year][key][ksgroup] += row
 
-
                     # add orders from this group
                     for order in group.orders:
                         if order in data_orders:
@@ -420,11 +420,12 @@ class Graph:
                                         data[name][group.name][year][key][ksgroup] += row
         self.data_groups = data
 
+
 if __name__ == "__main__":
     # used for testing graphs:
     test = False
 
-    #from controller import functions
+    # from controller import functions
     # Run it: $python server.py <year>/*
     valid_input = False
     years = 0
@@ -434,7 +435,7 @@ if __name__ == "__main__":
             years = years_available
             valid_input = True
         elif str(sys.argv[1]) == 'TEST':
-            years = ['2016'] 
+            years = ['2016']
             test = True
             valid_input = True
         else:
@@ -454,7 +455,6 @@ if __name__ == "__main__":
         regels = {}
         regels['plan'] = model.regels.load(['plan'], years_load=years, orders_load=orders)
         regels['resultaat'] = model.regels.load(['geboekt', 'obligo'], years_load=years, orders_load=orders)
-
 
         graph = Graph(years, orders, ordergroups, regels)
         # construct data dicts

@@ -45,13 +45,13 @@ class Regel:
     # Tries to load all available attributes from the db.select result
     # Delete all remaining 'None' attributes to make sure Python gives
     # an error when using an attribute that is not loaded/set.
-    def import_from_db_select(self, dbRegel, tiepe):
+    def import_from_db_select(self, db_regel, tiepe):
         self.tiepe = tiepe
 
         for attribute in vars(self):
             try:
-                dbValue = dbRegel[attribute]
-                setattr(self, attribute, dbValue)
+                db_value = db_regel[attribute]
+                setattr(self, attribute, db_value)
             except Exception:
                 pass
 

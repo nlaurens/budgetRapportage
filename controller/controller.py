@@ -9,9 +9,10 @@ import model.ordergroup
 from model.functions import check_connection
 from model.users import protected
 
+
 class Controller(object):
     def __init__(self):
-        self.mainRender = web.template.render('webpages/') 
+        self.mainRender = web.template.render('webpages/')
         self.config = config
         connected, error = check_connection()
         if not connected:
@@ -28,7 +29,7 @@ class Controller(object):
 
         # forms
         self.form_redirect = form.Form(
-                form.Button('ok', value='redirect')
+            form.Button('ok', value='redirect')
         )
 
     # arg: 0 superclass inst., 1 subclass inst. 2. vars from url_map in a tupple
@@ -37,46 +38,40 @@ class Controller(object):
         self.callType = 'GET'
         return self.process_main(*arg[2:])  # remaining params
 
-
     def POST(*arg):
         self = arg[0]
         self.callType = 'POST'
         return self.process_main(*arg[2:])
 
-
     @protected()
-    def process_main(self, *arg): 
+    def process_main(self, *arg):
         if not self.authorized():
             msg = ['Not authorized.']
             redirect = 'index'
             self.body = self.render_simple(msg, redirect=redirect)
         else:
             self.process_sub(*arg)  # arg = remaining params
-        
-        return self.render_page()
 
+        return self.render_page()
 
     # Should be implemented by subclass
     def authorized(self):
         raise NotImplementedError
 
-
     # Should be implemented by subclass
     def process_sub(self):
         raise NotImplementedError
 
-    
     def render_page(self):
-# TODO uit usergroup halen - daar zou de ordergroep al in geload moeten zijn!
+        # TODO uit usergroup halen - daar zou de ordergroep al in geload moeten zijn!
         navgroups = []
-        
+
         for ordergroup in model.ordergroup.available():
             navgroups.append(self.navbar_group(ordergroup))
 
         navbar = self.mainRender.navbar(self.breadCrum, navgroups)
 
         return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
-    
 
     def navbar_group(self, og):
         ordergroup = model.ordergroup.load(og)
@@ -99,11 +94,11 @@ class Controller(object):
         for child in root.children:
             i += 1
             label_child = '%s.%s' % (label, i)
-            groups.extend(self.list_nav_groups(og, child, label_child, depth+1))
+            groups.extend(self.list_nav_groups(og, child, label_child, depth + 1))
 
         name = '%s' % root.descr  # you can use: '%s. %s' % (label, root.descr) as numbered list
         link = '/report?ordergroep=%s&subgroep=%s' % (og, root.name)
-        padding = str(depth*15)
+        padding = str(depth * 15)
         groups.insert(0, {'link': link, 'name': name, 'padding': padding})
         return groups
 
@@ -115,8 +110,7 @@ class Controller(object):
             param_str = urllib.urlencode(params)
             return '/%s?%s' % (module, param_str)
         else:
-            return '/%s' % (module)
-
+            return '/%s' % module
 
     # Returns possible dropdown fills for web.py forms.
     def dropdown_options(self):
@@ -124,13 +118,14 @@ class Controller(object):
 
         options = {}
         options['empty'] = [('', '')]
-        options['all'] = [('*','! ALL !')]
+        options['all'] = [('*', '! ALL !')]
         options['years'] = zip(jaren_db, jaren_db)
         options['tables'] = self.config['mysql']['tables_regels'].keys()
-        options['tables'].append('orderlijst') 
+        options['tables'].append('orderlijst')
 
-        options['months'] = [(1, 'Jan'), (2, 'Feb'), (3, 'March'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'), (9, 'Sep'), (10, 'Okt'), (11, 'Nov'), (12, 'Dec')]
-        options['Qs'] = [('Q1','Q1'), ('Q2','Q2'),('Q3','Q3'),('Q4','Q4')]
+        options['months'] = [(1, 'Jan'), (2, 'Feb'), (3, 'March'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'),
+                             (8, 'Aug'), (9, 'Sep'), (10, 'Okt'), (11, 'Nov'), (12, 'Dec')]
+        options['Qs'] = [('Q1', 'Q1'), ('Q2', 'Q2'), ('Q3', 'Q3'), ('Q4', 'Q4')]
 
         options['periode_all'] = [('ALL', 'all')] + options['Qs'] + options['months']
 
@@ -150,7 +145,7 @@ class Controller(object):
     def render_simple(self, msg, redirect=None):
         if redirect:
             form_redirect = self.form_redirect
-            redirect = '/%s' % (redirect)
+            redirect = '/%s' % redirect
         else:
             form_redirect = ''
             redirect = ''
@@ -166,7 +161,6 @@ class Controller(object):
 
         if params:
             param_str = urllib.ulrencode(params)
-            return '/graph/%s/%s/%s.png?%s' % (year, graph_type, name, param_strs)
+            return '/graph/%s/%s/%s.png?%s' % (year, graph_type, name, param_str)
         else:
             return '/graph/%s/%s/%s.png' % (year, graph_type, name)
-

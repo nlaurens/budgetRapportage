@@ -14,13 +14,15 @@ import model.orders
             in the 'data\ordergroups' dir AND
             1 list per activiteitecode
 """
+
+
 def available(actcode_groups=False):
     order_groups = []
     for path in glob.glob("%s\*" % config['orderGroupsPath']):
         order_groups.append(os.path.split(path)[1])
 
     if actcode_groups:
-        order_groups.extend(['Act.Code-%s'%(s) for s in model.orders.activiteitencodes()])
+        order_groups.extend(['Act.Code-%s' % s for s in model.orders.activiteitencodes()])
 
     return order_groups
 
@@ -30,6 +32,8 @@ def available(actcode_groups=False):
     input: name as str
     returns: OrderGroup
 """
+
+
 def load(order_group_name):
     path = '%s\%s' % (config['orderGroupsPath'], order_group_name)
     if os.path.isfile(path):
@@ -45,8 +49,9 @@ def load(order_group_name):
     input: activiteitencode as str
     output: model.budget.OrderGroup as instance
 """
-def load_from_orderlist(act_code_load):
 
+
+def load_from_orderlist(act_code_load):
     order_group = OrderGroup(act_code_load[-1], act_code_load, 0, '')
     orders_dict = model.orders.load().split(['activiteitencode'])
     print orders_dict
@@ -56,11 +61,14 @@ def load_from_orderlist(act_code_load):
 
     return order_group
 
+
 """
 .load_from_file
     input: path to file as str
     output: model.budget.OrderGroup instance
 """
+
+
 def load_from_file(path):
     f = open(path, 'r')
 
@@ -99,6 +107,8 @@ def load_from_file(path):
     input: file_path as str
     returns: OrderGroup
 """
+
+
 def load_sap(file_path):
     f = open(file_path, 'r')
     group = None

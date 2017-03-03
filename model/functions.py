@@ -19,13 +19,15 @@ def last_item_in_list(lst):
     input: none
     output: True/False
 """
+
+
 def check_connection():
     try:
         results = db.query("SELECT 1")
     except Exception as e:
-        return (False, e)
+        return False, e
 
-    return (True, '')
+    return True, ''
 
 
 """
@@ -33,6 +35,8 @@ def check_connection():
     input: table as str
     output: Boolean
 """
+
+
 def check_table_exists(table):
     results = db.query("SHOW TABLES LIKE '" + table + "'")
     if len(results) == 0:
@@ -45,6 +49,8 @@ def check_table_exists(table):
     input: table as str, fields as list of str, rows as list of str
     output: msg-queue as list of str
 """
+
+
 def add_items_to_db(table, fields, rows):
     if not check_table_exists(table):
         fields_and_type = []
@@ -60,11 +66,13 @@ def add_items_to_db(table, fields, rows):
     for rows in row_chunks:
         db.multiple_insert(table, values=rows)
 
+
 # Cuts op the row list in multiple rows
 # used by .add()
 def __chunk_rows(rows, chunk_size):
     for i in xrange(0, len(rows), chunk_size):
         yield rows[i:i + chunk_size]
+
 
 """
 .count_table_others()
@@ -72,6 +80,8 @@ def __chunk_rows(rows, chunk_size):
     output: dict.value: number of entries as int, | -1 if table does not exist
             dict.key: tableName as str
 """
+
+
 def count_tables_other():
     count = {}
     table_names = config["mysql"]["tables_other"].values()
@@ -80,13 +90,13 @@ def count_tables_other():
             count[table] = -1
         else:
             try:
-                results = db.query("SELECT COUNT(*) AS total_regels FROM %s" % (table))
+                results = db.query("SELECT COUNT(*) AS total_regels FROM %s" % table)
             except Exception:
                 results = None
 
             if results:
-                count[table]= int(results[0].total_regels)
+                count[table] = int(results[0].total_regels)
             else:
-                count[table]= 0
+                count[table] = 0
 
     return count

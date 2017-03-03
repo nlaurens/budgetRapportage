@@ -1,7 +1,8 @@
-import sys
 import os
-import model.ordergroup
+import sys
+
 import model.ksgroup
+
 """
 Usage
     $ python convert_sap_export.py <directory with files to convert>
@@ -9,6 +10,7 @@ Usage
 """
 if __name__ == "__main__":
     valid_input = False
+    target_dir = ''
     if len(sys.argv) == 3:
         target_dir = str(sys.argv[1])
         target_type = str(sys.argv[2])
