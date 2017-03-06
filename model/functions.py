@@ -99,10 +99,16 @@ def remove_table(table_name):
         input: table_name as string
         output: True if table was succesfully removed, otherwise False
     """
-    if table_name in config["mysql"]["tables_other"] or table_name in config["mysql"]["tables_regels"]:
+    table = None
+    if table_name in config["mysql"]["tables_other"]:
+        table = config["mysql"]["tables_other"][table_name]
+    elif table_name in config["mysql"]["tables_regels"]:
+        table = config["mysql"]["tables_regels"][table_name]
+
+    if table:
         if check_table_exists(table):
             try:
-                results = db.query("DROP TABLE `%s`;" % table_name)
+                results = db.query("DROP TABLE `%s`;" % table)
             except Exception:
                 return False
             return True

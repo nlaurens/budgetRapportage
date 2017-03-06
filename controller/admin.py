@@ -12,7 +12,7 @@ import model.orders
 import model.users
 
 from config import config
-from model.functions import count_tables_other
+from model.functions import count_tables_other, remove_table
 
 
 class Admin(Controller):
@@ -34,6 +34,11 @@ class Admin(Controller):
             form.Dropdown('table', drop_down_options['empty_tables_all'],
                           form.notnull, description='Table to remove from: '),
             form.Button('submit', value='removeRegels')
+        )
+        self.form_drop_regels_table = form.Form(
+            form.Dropdown('table', drop_down_options['empty_tables'],
+                          form.notnull, description='Table to delete: '),
+            form.Button('submit', value='dropTable')
         )
         self.form_upload = form.Form(
             form.File(name='upload1'),
@@ -85,6 +90,7 @@ class Admin(Controller):
 
         rendered['forms'] = []
         rendered['forms'].append(self.webrender.form('Remove Regels From DB', self.form_remove_regels))
+        rendered['forms'].append(self.webrender.form('Delete Regels Table', self.form_drop_regels_table))
         rendered['forms'].append(self.webrender.form('Upload File', self.form_upload))
         rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap))
         rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
@@ -156,8 +162,19 @@ class Admin(Controller):
         msg = ['Parsing forms']
 
         form_used = web.input()['submit']
+
         if form_used == 'removeRegels' and self.form_remove_regels.validates():
             msg.extend(self.parse_remove_regels())
+            valid_form = True
+
+        if form_used == 'dropTable' and self.form_drop_regels_table.validates():
+            table = self.form_drop_regels_table['table'].value
+            msg.append('Removing table %s from DB' % table)
+            if remove_table(table):
+                msg.append('Succes')
+            else:
+                msg.append('Failed!')
+
             valid_form = True
 
         if form_used == 'uploadRegels' and self.form_upload.validates():
