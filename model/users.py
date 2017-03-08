@@ -56,7 +56,7 @@ def orders_allowed():
         output: List of orders (int) that user has access too based
         on the ordergroups he has permission for.
     """
-    perimssions = ['ordergroup-LION-OL-FMD', 'ordergroup-LION-PL-TP']  #replace by auth.xxx
+    permissions = ['ordergroup-LION-OL-FMD', 'ordergroup-LION-PL-TP']  #replace by auth.xxx
     for permission in permissions:
         ordergroup, group = __parse_ordergroup_permission(permission)
 
@@ -72,6 +72,6 @@ def __parse_ordergroup_permission(permission):
     """
     permission_as_list = permission.split('-')
     ordergroup = permission_as_list[1]
-    group = '-'.join(permission_as_list[1:])
+    group = '-'.join(permission_as_list[2:])
 
     return ordergroup, group
