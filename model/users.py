@@ -60,7 +60,7 @@ def orders_allowed():
     for permission in permissions:
         ordergroup, group = __parse_ordergroup_permission(permission)
 
-    orders = [2008501040, 20081204110] #ordergroup.get_orders_recursive(groups) 
+    orders = [2008502040, 2008401010] #ordergroup.get_orders_recursive(groups) 
 
     return orders
 
