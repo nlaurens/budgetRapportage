@@ -49,8 +49,6 @@ def load_from_orderlist(act_code_load):
     """
     order_group = OrderGroup(act_code_load[-1], act_code_load, 0, '')
     orders_dict = model.orders.load().split(['activiteitencode'])
-    print orders_dict
-    print orders_dict[act_code_load[-1]]
     for order in orders_dict[act_code_load[-1]].orders:
         order_group.add_order(int(order.ordernummer), order.ordernaam)
 

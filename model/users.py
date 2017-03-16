@@ -1,4 +1,5 @@
 from auth import auth
+import model.ordergroup
 
 def protected(**pars):
     """
@@ -57,10 +58,11 @@ def orders_allowed():
         on the ordergroups he has permission for.
     """
     permissions = ['ordergroup-LION-OL-FMD', 'ordergroup-LION-PL-TP']  #replace by auth.xxx
+    orders = []
     for permission in permissions:
         ordergroup, group = __parse_ordergroup_permission(permission)
-
-    orders = [2008502040, 2008401010] #ordergroup.get_orders_recursive(groups) 
+        ordergroup = model.ordergroup.load(ordergroup).find(group)
+        orders.extend(ordergroup.list_orders_recursive().keys())
 
     return orders
 
