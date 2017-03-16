@@ -28,7 +28,6 @@ class Orderlist(Controller):
                 item['order'] = order.ordernummer
                 item['omschrijving'] = order.ordernaam
                 item['budgethouder'] = order.budgethouder
-                item['activiteitenhouder'] = order.activiteitenhouder
                 item['sub.act.code'] = order.subactiviteitencode
                 item['link'] = self.url(module='view', params={'order': order.ordernummer})
                 table_items.append(item)
