@@ -33,10 +33,21 @@ def get_users():
 
 def get_permissions():
     """
-    .get_users()
+    .get_permissions()
         Returns a list of all permissions and their description
     """
     return auth.get_all_permissions()
+
+
+def get_permission():
+    """
+    .get_permission()
+        Returns a list of all permissions of the logged in user
+    """
+    permissions = auth.get_permissions()
+    if isinstance(permissions, str):
+        return [permissions]
+    return permissions
 
 
 def check_permission(perm):
@@ -57,12 +68,13 @@ def orders_allowed():
         output: List of orders (int) that user has access too based
         on the ordergroups he has permission for.
     """
-    permissions = ['ordergroup-LION-OL-FMD', 'ordergroup-LION-PL-TP']  #replace by auth.xxx
+    permissions = get_permission()
     orders = []
     for permission in permissions:
-        ordergroup, group = __parse_ordergroup_permission(permission)
-        ordergroup = model.ordergroup.load(ordergroup).find(group)
-        orders.extend(ordergroup.list_orders_recursive().keys())
+        if permission[:10] == 'ordergroup':
+            ordergroup, group = __parse_ordergroup_permission(permission)
+            ordergroup = model.ordergroup.load(ordergroup).find(group)
+            orders.extend(ordergroup.list_orders_recursive().keys())
 
     return orders
 

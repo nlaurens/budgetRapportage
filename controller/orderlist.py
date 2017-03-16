@@ -17,13 +17,10 @@ class Orderlist(Controller):
         return model.users.check_permission(['orderlist'])
 
     def process_sub(self):
-        orders_allowed = model.users.orders_allowed()
-        orderlist = model.orders.load().filter_orders_by_attribute('ordernummer', orders_allowed)
-
+        orderlist = model.orders.load()
 
         orderlist_per_actcode = orderlist.split(['activiteitencode'])
         tables = []
-
 
         for code, orderlist_per_code in orderlist_per_actcode.iteritems():
             header = {'id': code, 'name': 'Activiteiten code ' + str(code)}
