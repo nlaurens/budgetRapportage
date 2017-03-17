@@ -1,5 +1,6 @@
 from controller import Controller
 from model.users import orders_allowed
+from model.users import get_username
 
 
 class Index(Controller):
@@ -12,11 +13,5 @@ class Index(Controller):
         return True
 
     def process_sub(self):
-        msg = ['Make a selection from the menu above.']
+        msg = ['User %s please make a selection from the menu above.'% get_username()]
         self.body = self.render_simple(msg)
-        
-        print 'haaa'
-        orders = orders_allowed()
-        print orders
-
-

@@ -63,11 +63,12 @@ class Controller(object):
         raise NotImplementedError
 
     def render_page(self):
-        # TODO uit usergroup halen - daar zou de ordergroep al in geload moeten zijn!
         navgroups = []
-
-        for ordergroup in model.ordergroup.available():
-            navgroups.append(self.navbar_group(ordergroup))
+        if model.users.check_permission(['report']):
+            for ordergroup in model.ordergroup.available():
+                navitem = self.navbar_group(ordergroup)
+                if navitem:
+                    navgroups.append(self.navbar_group(ordergroup))
 
         show_links = {}
         for module in ['admin', 'orderlist', 'salaris']:
@@ -78,19 +79,24 @@ class Controller(object):
         return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
 
     def navbar_group(self, og):
-        ordergroup = model.ordergroup.load(og)
+        # create list of all subgroups that we have access too.
+        ordergroups_allowed = model.users.ordergroups_allowed()
+        subgroups_allowed = []
+        for ordergroup_file_allowed, ordergroup_allowed in ordergroups_allowed:
+            if ordergroup_file_allowed == og:
+                subgroups_allowed.append(ordergroup_allowed)
+        
         navgroups = []
         i = 0
-        for child in ordergroup.children:
+        for subgroup in subgroups_allowed:
             i += 1
+            child = model.ordergroup.load(og).find(subgroup)
             navgroups.extend(self.list_nav_groups(og, child, str(i), 1))
 
-        name = ordergroup.descr
-        link = '/report?ordergroep=%s&subgroep=%s' % (og, ordergroup.name)
-        padding = str(0)
-        navgroups.insert(0, {'link': link, 'name': name, 'padding': padding})
-
-        return {'title': og, 'items': navgroups}
+        if subgroups_allowed:
+            return {'title': og, 'items': navgroups}
+        else:
+            return {}
 
     def list_nav_groups(self, og, root, label, depth):
         groups = []

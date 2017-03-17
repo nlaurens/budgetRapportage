@@ -38,6 +38,13 @@ def get_permissions():
     """
     return auth.get_all_permissions()
 
+def get_username():
+    """
+    .get_username()
+        Returns a the name (str) of the logged in user
+    """
+    return auth.get_user().user_login
+
 
 def get_permission():
     """

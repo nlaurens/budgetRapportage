@@ -53,7 +53,7 @@ class Report(Controller):
 
 
     def authorized(self):
-        if model.users.check_permission(['view']):
+        if model.users.check_permission(['report']):
             ordergroups_allowed = model.users.ordergroups_allowed()
             for ordergroup_file_allowed, ordergroup_allowed in ordergroups_allowed:
                 ordergroup = model.ordergroup.load(ordergroup_file_allowed).find(ordergroup_allowed)
