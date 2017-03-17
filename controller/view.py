@@ -69,7 +69,11 @@ class View(Controller):
         self.ks_map = ks_map
 
     def authorized(self):
-        return model.users.check_permission(['view'])
+        if model.users.check_permission(['view']):
+            if self.order in model.users.orders_allowed():
+                return True
+        
+        return False
 
     def process_sub(self):
         data, totals = self.construct_data()

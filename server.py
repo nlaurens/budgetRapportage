@@ -38,6 +38,7 @@ Controller-modules
       * Set title of view
 
   - admin
+      * Option to delete SAP table
       * create test that looks if there are orders in db not in any ordergroup
         (and perhaps also look at the GS)
       * add 'year' field in table for salaris geboekt based on the boekingsdate.

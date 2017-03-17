@@ -53,7 +53,15 @@ class Report(Controller):
 
 
     def authorized(self):
-        return model.users.check_permission(['view'])
+        if model.users.check_permission(['view']):
+            ordergroups_allowed = model.users.ordergroups_allowed()
+            for ordergroup_file_allowed, ordergroup_allowed in ordergroups_allowed:
+                ordergroup = model.ordergroup.load(ordergroup_file_allowed).find(ordergroup_allowed)
+                for subordergroup in ordergroup.list_groups():
+                    if subordergroup.name == self.ordergroup.name and ordergroup_file_allowed == self.ordergroup_file:
+                        return True
+
+        return False
 
 
     def process_sub(self):

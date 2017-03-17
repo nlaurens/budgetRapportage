@@ -1,4 +1,5 @@
 from controller import Controller
+from model.users import orders_allowed
 
 
 class Index(Controller):
@@ -13,5 +14,9 @@ class Index(Controller):
     def process_sub(self):
         msg = ['Make a selection from the menu above.']
         self.body = self.render_simple(msg)
+        
+        print 'haaa'
+        orders = orders_allowed()
+        print orders
 
 

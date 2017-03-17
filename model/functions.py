@@ -92,3 +92,25 @@ def count_tables_other():
                 count[table] = 0
 
     return count
+
+def remove_table(table_name):
+    """
+    .remove_table
+        input: table_name as string
+        output: True if table was succesfully removed, otherwise False
+    """
+    table = None
+    if table_name in config["mysql"]["tables_other"]:
+        table = config["mysql"]["tables_other"][table_name]
+    elif table_name in config["mysql"]["tables_regels"]:
+        table = config["mysql"]["tables_regels"][table_name]
+
+    if table:
+        if check_table_exists(table):
+            try:
+                results = db.query("DROP TABLE `%s`;" % table)
+            except Exception:
+                return False
+            return True
+
+    return False

@@ -11,6 +11,8 @@ Installation
 * Initalize web.py-auth database:
     $ python server.py --init
 
+* create 'sessions' directory with write authorisation for webserver
+
 Run
 ---
 

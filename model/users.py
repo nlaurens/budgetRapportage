@@ -1,4 +1,5 @@
 from auth import auth
+import model.ordergroup
 
 def protected(**pars):
     """
@@ -30,14 +31,23 @@ def get_users():
     return auth.get_all_users()
 
 
-
-
 def get_permissions():
     """
-    .get_users()
+    .get_permissions()
         Returns a list of all permissions and their description
     """
     return auth.get_all_permissions()
+
+
+def get_permission():
+    """
+    .get_permission()
+        Returns a list of all permissions of the logged in user
+    """
+    permissions = auth.get_permissions()
+    if isinstance(permissions, str):
+        return [permissions]
+    return permissions
 
 
 def check_permission(perm):
@@ -49,3 +59,47 @@ def check_permission(perm):
         returns False
     """
     return auth.has_perm(perm)
+
+
+def ordergroups_allowed():
+    """
+    .orders_allowed()
+        input: none
+        output: List of ordersgroups and the file that user has permission for:
+                [ (ordergroup-file, ordergroup), (.. , ..)]
+    """
+    ordergroups_allowed = []
+    permissions = get_permission()
+    for permission in permissions:
+        if permission[:10] == 'ordergroup':
+            ordergroup, group = __parse_ordergroup_permission(permission)
+            ordergroups_allowed.append((ordergroup, group))
+
+    return ordergroups_allowed
+
+
+def orders_allowed():
+    """
+    .orders_allowed()
+        input: none
+        output: List of orders (int) that user has access too based
+        on the ordergroups he has permission for.
+    """
+    orders = []
+    for ordergroup, group in ordergroups_allowed():
+        ordergroup = model.ordergroup.load(ordergroup).find(group)
+        orders.extend(ordergroup.list_orders_recursive().keys())
+
+    return orders
+
+def __parse_ordergroup_permission(permission):
+    """
+    .__parse_ordergroup_permission(permission)
+        input: permission as str
+        output: ordgergroup as str, group in ordergroup as str
+    """
+    permission_as_list = permission.split('-')
+    ordergroup = permission_as_list[1]
+    group = '-'.join(permission_as_list[2:])
+
+    return ordergroup, group

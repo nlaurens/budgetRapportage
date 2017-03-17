@@ -18,8 +18,10 @@ class Orderlist(Controller):
 
     def process_sub(self):
         orderlist = model.orders.load()
+
         orderlist_per_actcode = orderlist.split(['activiteitencode'])
         tables = []
+
         for code, orderlist_per_code in orderlist_per_actcode.iteritems():
             header = {'id': code, 'name': 'Activiteiten code ' + str(code)}
             table_items = []
@@ -28,7 +30,6 @@ class Orderlist(Controller):
                 item['order'] = order.ordernummer
                 item['omschrijving'] = order.ordernaam
                 item['budgethouder'] = order.budgethouder
-                item['activiteitenhouder'] = order.activiteitenhouder
                 item['sub.act.code'] = order.subactiviteitencode
                 item['link'] = self.url(module='view', params={'order': order.ordernummer})
                 table_items.append(item)
