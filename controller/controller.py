@@ -69,7 +69,11 @@ class Controller(object):
         for ordergroup in model.ordergroup.available():
             navgroups.append(self.navbar_group(ordergroup))
 
-        navbar = self.mainRender.navbar(self.breadCrum, navgroups)
+        show_links = {}
+        for module in ['admin', 'orderlist', 'salaris']:
+            show_links[module] = model.users.check_permission([module])
+
+        navbar = self.mainRender.navbar(self.breadCrum, navgroups, show_links)
 
         return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
 
