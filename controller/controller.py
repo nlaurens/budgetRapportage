@@ -67,7 +67,9 @@ class Controller(object):
         navgroups = []
 
         for ordergroup in model.ordergroup.available():
-            navgroups.append(self.navbar_group(ordergroup))
+            navitem = self.navbar_group(ordergroup)
+            if navitem:
+                navgroups.append(self.navbar_group(ordergroup))
 
         show_links = {}
         for module in ['admin', 'orderlist', 'salaris']:
@@ -90,7 +92,10 @@ class Controller(object):
         padding = str(0)
         navgroups.insert(0, {'link': link, 'name': name, 'padding': padding})
 
-        return {'title': og, 'items': navgroups}
+        if False:
+            return {'title': og, 'items': navgroups}
+        else:
+            return {}
 
     def list_nav_groups(self, og, root, label, depth):
         groups = []
