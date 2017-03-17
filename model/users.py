@@ -61,6 +61,23 @@ def check_permission(perm):
     return auth.has_perm(perm)
 
 
+def ordergroups_allowed():
+    """
+    .orders_allowed()
+        input: none
+        output: List of ordersgroups and the file that user has permission for:
+                [ (ordergroup-file, ordergroup), (.. , ..)]
+    """
+    ordergroups_allowed = []
+    permissions = get_permission()
+    for permission in permissions:
+        if permission[:10] == 'ordergroup':
+            ordergroup, group = __parse_ordergroup_permission(permission)
+            ordergroups_allowed.append((ordergroup, group))
+
+    return ordergroups_allowed
+
+
 def orders_allowed():
     """
     .orders_allowed()
@@ -68,13 +85,10 @@ def orders_allowed():
         output: List of orders (int) that user has access too based
         on the ordergroups he has permission for.
     """
-    permissions = get_permission()
     orders = []
-    for permission in permissions:
-        if permission[:10] == 'ordergroup':
-            ordergroup, group = __parse_ordergroup_permission(permission)
-            ordergroup = model.ordergroup.load(ordergroup).find(group)
-            orders.extend(ordergroup.list_orders_recursive().keys())
+    for ordergroup, group in ordergroups_allowed():
+        ordergroup = model.ordergroup.load(ordergroup).find(group)
+        orders.extend(ordergroup.list_orders_recursive().keys())
 
     return orders
 
