@@ -17,7 +17,8 @@ def available(actcode_groups=False):
                 1 list per activiteitecode
     """
     order_groups = []
-    for path in glob.glob("%s\*" % config['orderGroupsPath']):
+    search_path = os.path.join(config['orderGroupsPath'], '*')
+    for path in glob.glob(search_path):
         order_groups.append(os.path.split(path)[1])
 
     if actcode_groups:
@@ -32,7 +33,7 @@ def load(order_group_name):
         input: name as str
         returns: OrderGroup
     """
-    path = '%s\%s' % (config['orderGroupsPath'], order_group_name)
+    path = os.path.join(config['orderGroupsPath'], order_group_name)
     if os.path.isfile(path):
         order_group = load_from_file(path)
     else:

@@ -13,7 +13,8 @@ def available():
         output: names of kostensoortgroups as a list of str
     """
     ksgroups = []
-    for path in glob.glob("%s\*" % config['ksGroupsPath']):
+    search_path = os.path.join(config['ksGroupsPath'], '*')
+    for path in glob.glob(search_path):
         ksgroups.append(os.path.split(path)[1])
 
     return ksgroups
@@ -25,7 +26,7 @@ def load(ks_group_name):
         input: name as str
         returns: KostenSoortGroup
     """
-    path = '%s\%s' % (config['ksGroupsPath'], ks_group_name)
+    path = os.path.join(config['ksGroupsPath'], ks_group_name)
     f = open(path, 'r')
 
     group = None

@@ -15,7 +15,7 @@ class Graph:
 
     def GET(self, year, graph_type, name):
         if graph_type == 'realisatie' or graph_type == 'overview':
-            self.path = config['graphs']['path'] + '%s/%s/%s.png' % (year, graph_type, name)
+            self.path = os.path.join(config['graphs']['path'], year, graph_type, name+'.png')
 
         graph = self.serve_image()
         if graph:

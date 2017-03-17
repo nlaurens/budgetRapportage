@@ -372,10 +372,11 @@ class Graph:
         return str_row
 
     def save_fig(self, plt, year, tiepe, name):
-        path_graph = config['graphs']['path'] + '%s/%s/' % (year, tiepe)
+        path_graph = os.path.join(config['graphs']['path'], year, tiepe)
         if not os.path.isdir(path_graph):
             os.makedirs(path_graph)
-        plt.savefig(path_graph + '%s.png' % str(name), bbox_inches='tight')
+        path_fig = os.path.join(path_graph, '%s.png'% str(name))
+        plt.savefig(path_fig, bbox_inches='tight')
 
     def construct_data_groups(self):
         assert self.data_orders is not None, "graph.data_orders not set"
