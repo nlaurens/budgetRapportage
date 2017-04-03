@@ -372,7 +372,7 @@ class Graph:
         return str_row
 
     def save_fig(self, plt, year, tiepe, name):
-        path_graph = os.path.join(config['graphs']['path'], year, tiepe)
+        path_graph = os.path.join(config['graphs']['path'], str(year), tiepe)
         if not os.path.isdir(path_graph):
             os.makedirs(path_graph)
         path_fig = os.path.join(path_graph, '%s.png'% str(name))
