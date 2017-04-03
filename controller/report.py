@@ -5,6 +5,7 @@ import model.ordergroup
 import model.regels
 from controller import Controller
 from functions import moneyfmt
+from config import config
 
 
 class Report(Controller):
@@ -18,15 +19,14 @@ class Report(Controller):
 
         # Report specific:
         years = model.regels.years()
-        if len(years) == 1:
+        if config['currentYear'] in years:
+            index = years.index(config['currentYear'])
+            year_stop_def = years[index]
+            year_start_def = years[index-1]
+        else:
             year_start_def = years[0]
             year_stop_def = years[0]
-        elif len(years) == 2:
-            year_start_def = years[-1]
-            year_stop_def = years[0]
-        else:
-            year_start_def = years[-1]
-            year_stop_def = years[-3]
+
         year_start = int(web.input(year_start=year_start_def)['year_start'])
         year_stop = int(web.input(year_stop=year_stop_def)['year_stop'])
         self.years = range(min(year_start, year_stop), max(year_start, year_stop)+1)
