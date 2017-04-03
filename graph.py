@@ -433,10 +433,13 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         years_available = model.regels.years()
         if str(sys.argv[1]) == '*':
-            years = years_available
+            years = []
+            for year in years_available:
+                if year <= config['currentYear'] and year > config['currentYear'] - 5:
+                    years.append(year)
             valid_input = True
         elif str(sys.argv[1]) == 'TEST':
-            years = ['2016']
+            years = ['2017']
             test = True
             valid_input = True
         else:
