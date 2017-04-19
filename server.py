@@ -56,8 +56,10 @@ Controller-modules
       * Add mouse-over information for payrollnummers that shows all personeelsnummers that are linked to payrollnummer
 
   - report
-      * Add two tabs: Details (as it is now) and summary 1 div with all groups on 1 line and a fig page :)
-      * Proper fig page instead of hiding the overview graph with a button
+      * Split into 4 tabs:
+        * move fold/unfold buttons from settings to details page
+        * Extend summary table with 1 line per group (like a collapsed detail page)
+        * Add divs to the graph page
 
   - orderlist
       * add option to sort by budgetholder

@@ -1,33 +1,41 @@
 $def with (report)
-    <div class="container">
-      <div class="row">
-        <div class="col-xs-6">
-          <h1>
-          </h1>
-        </div>
-        <div class="col-xs-6 text-right">
-          <h1></h1>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-xs-5">
-          $:report['summary']
-        </div>
-        <div class="col-xs-5 col-xs-offset-2 text-right">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h4>Settings</h4>
-            </div>
-            <div class="panel-body">
-                $:report['settings']
-            </div>
-          </div>
-        </div>
-      </div>
-            $for table in report['tables']:
-                $:table
-        <p style="page-break-after:always;"></p>
-            $:report['figpage']
 
-        $:report['javaScripts']
-    </div>
+<div id="exTab2" class="container">	
+        <ul class="nav nav-tabs">
+			<li class="active"><a  href="#1" data-toggle="tab">Overview</a>
+			</li>
+			<li><a href="#2" data-toggle="tab">Details</a>
+			</li>
+			<li><a href="#3" data-toggle="tab">Graphs</a>
+			</li>
+			<li><a href="#4" data-toggle="tab">Settings</a>
+			</li>
+		</ul>
+
+			<div class="tab-content ">
+			  <div class="tab-pane active" id="1">
+                <div class="panel panel-default">
+                    $:report['summary']
+                </div>
+              </div>
+			  <div class="tab-pane" id="2">
+                <div class="panel panel-default">
+                    $for table in report['tables']:
+                        $:table
+                </div>
+			  </div>
+              <div class="tab-pane" id="3">
+                <div class="panel panel-default">
+                    $:report['figpage']
+                </div>
+			  </div>
+              <div class="tab-pane" id="4">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        $:report['settings']
+                    </div>
+                </div>
+			  </div>
+			</div>
+</div>
+$:report['javaScripts']
