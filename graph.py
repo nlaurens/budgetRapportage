@@ -11,6 +11,8 @@ TODO
 
 
 """
+import matplotlib
+matplotlib.use('Agg')  # Forces matplotlib not to use any xwindows calls
 import web
 
 web.config.debug = False  # must be done before the rest.
