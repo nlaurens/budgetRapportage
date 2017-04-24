@@ -76,20 +76,34 @@ class Report(Controller):
         report['figpage'] = self.render_fig()
         report['settings'] = self.render_settings()
         report['javaScripts'] = self.render_java_scripts()
-        report['summary'] = self.render_summary(data[self.ordergroup.name])
+        report['summary'] = self.render_summary(data)
         self.body = self.webrender.report(report)
 
-    def render_summary(self, totals):
+    def render_summary(self, data):
+        summary = 'tmp'
+        ordergroups = self.ordergroup.list_groups()
+        for group in ordergroups:
+            summary += group.name
+
+        header = {}
+        header['name'] = self.ordergroup.descr
+        header['link'] = self.url(params={'ordergroep': self.ordergroup_file, 'subgroep': self.ordergroup.name})
+        header['id'] = self.ordergroup.name
+        graph_name = '%s-%s' % (self.ordergroup_file, self.ordergroup.name)
+        header['graph_overview'] = self.url_graph(self.years[-1], 'overview', graph_name)
+
+        rows = []
+        rows = self.group_to_rows(self.ordergroup, data)
+        rows.extend(self.orders_to_rows(self.ordergroup, data))
+
+        totals = data[self.ordergroup.name]
         for year in self.years:
             totals[year]['id'] = '%s-%s' % (year, self.ordergroup.name)
             graph_name = '%s-%s' % (self.ordergroup_file, self.ordergroup.name)
             totals[year]['graph'] = self.url_graph(year, 'realisatie', graph_name)
 
-        totals['name'] = self.ordergroup.descr
-        totals['id'] = self.ordergroup.name
-        graph_name = '%s-%s' % (self.ordergroup_file, self.ordergroup.name)
-        totals['graph_overview'] = self.url_graph(self.years[-1], 'overview', graph_name)
-        summary = self.webrender.summary(totals, self.years)
+        summary = self.webrender.table(self.years, rows, totals, header)
+
         return summary
 
     def create_bread_crums(self):
