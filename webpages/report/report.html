@@ -1,6 +1,6 @@
 $def with (report)
 
-<div id="exTab2" class="container">	
+<div class="container">	
         <ul class="nav nav-tabs">
 			<li class="active"><a  href="#1" data-toggle="tab">Overview</a>
 			</li>
@@ -12,30 +12,41 @@ $def with (report)
 			</li>
 		</ul>
 
-			<div class="tab-content ">
+			<div class="tab-content">
+
 			  <div class="tab-pane active" id="1">
-                <div class="panel panel-default">
+                <h4></h4>
+                <div class="">
                     $:report['summary']
                 </div>
               </div>
+
 			  <div class="tab-pane" id="2">
-                <div class="panel panel-default">
+                <h4>Details of each group</h4>
+                <a href="#" class="btn btn-default openall">open all</a> <a href="#" class="btn btn-default closeall">close all</a>
+                <h4></h4>
+                <div class="">
                     $for table in report['tables']:
                         $:table
                 </div>
 			  </div>
+              
               <div class="tab-pane" id="3">
-                <div class="panel panel-default">
+                <h4></h4>
+                <div class="">
                     $:report['figpage']
                 </div>
 			  </div>
+
               <div class="tab-pane" id="4">
+                <h4></h4>
                 <div class="panel panel-default">
                     <div class="panel-body">
                         $:report['settings']
                     </div>
                 </div>
 			  </div>
+
 			</div>
 </div>
 $:report['javaScripts']
