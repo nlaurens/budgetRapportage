@@ -57,8 +57,7 @@ Controller-modules
 
   - report
       * Split into 4 tabs:
-        * move fold/unfold buttons from settings to details page
-        * Extend summary table with 1 line per group (like a collapsed detail page)
+        * Remove details if there are no subgroups
         * Add divs to the graph page
 
   - orderlist

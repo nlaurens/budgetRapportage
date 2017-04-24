@@ -222,9 +222,6 @@ class Report(Controller):
                     ordergroep = ordergroep.flat_copy()
                 top_table = self.render_top_table(ordergroep, data)
                 tables.append(top_table)
-        else:
-            top_table = self.render_top_table(self.ordergroup, data)
-            tables.append(top_table)
 
         return tables
 
