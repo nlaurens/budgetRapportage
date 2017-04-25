@@ -163,21 +163,26 @@ class Report(Controller):
                         data[order][year][tiepe] = moneyfmt(value, keur=True)
 
     def render_fig(self):
-        figs = ''
-        if not self.ordergroup.children:
-            graphs = []
-            i = 0
+        graphs = {}
+        for year in reversed(self.years):
+            graphs[year] = []
+            # graphs of groups:
+            for group in self.ordergroup.children:
+                graph = {}
+                graph['name'] = '%s-%s' % (self.ordergroup_file, group.name)
+                graph['link'] = self.url(module='report', params={'ordergroup':(self.ordergroup_file), 'subgroup':group.name})
+                graph['png'] = self.url_graph(year, 'realisatie', graph['name'])
+                graphs[year].append(graph)
+
+            # Graphs of orders
             for order, descr in self.ordergroup.orders.iteritems():
                 graph = {}
                 graph['link'] = self.url(module='view', params={'order':str(order)})
-                graph['png'] = self.url_graph(self.years[0], 'realisatie', order)
-                graphs.append(graph)
-                i += 1
+                graph['png'] = self.url_graph(year, 'realisatie', order)
+                graphs[year].append(graph)
 
-            figs = self.webrender.figpage(graphs)
-            return figs
-        else:
-            return None
+        figs = self.webrender.figpage(graphs, reversed(self.years))
+        return figs
 
     def render_settings(self):
         form_settings = self.form_settings_simple
@@ -187,6 +192,9 @@ class Report(Controller):
         expand_items = []
         for child in self.ordergroup.children:
             expand_items.append(child.name)
+
+        for year in self.years:
+            expand_items.append(str(year))
 
         return self.webrender.javascripts(expand_items)
 
