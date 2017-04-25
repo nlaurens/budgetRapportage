@@ -80,31 +80,7 @@ class Report(Controller):
         self.body = self.webrender.report(report)
 
     def render_summary(self, data):
-        summary = 'tmp'
-        ordergroups = self.ordergroup.list_groups()
-        for group in ordergroups:
-            summary += group.name
-
-        header = {}
-        header['name'] = self.ordergroup.descr
-        header['link'] = self.url(params={'ordergroep': self.ordergroup_file, 'subgroep': self.ordergroup.name})
-        header['id'] = self.ordergroup.name
-        graph_name = '%s-%s' % (self.ordergroup_file, self.ordergroup.name)
-        header['graph_overview'] = self.url_graph(self.years[-1], 'overview', graph_name)
-
-        rows = []
-        rows = self.group_to_rows(self.ordergroup, data)
-        rows.extend(self.orders_to_rows(self.ordergroup, data))
-
-        totals = data[self.ordergroup.name]
-        for year in self.years:
-            totals[year]['id'] = '%s-%s' % (year, self.ordergroup.name)
-            graph_name = '%s-%s' % (self.ordergroup_file, self.ordergroup.name)
-            totals[year]['graph'] = self.url_graph(year, 'realisatie', graph_name)
-
-        summary = self.webrender.table(self.years, rows, totals, header)
-
-        return summary
+        return self.render_top_table(self.ordergroup, data)
 
     def create_bread_crums(self):
         groep = self.ordergroup
@@ -275,9 +251,7 @@ class Report(Controller):
             row = {}
             row['link'] = self.url(module='view', params={'order':order})
             row['name'] = descr
-            row['order'] = None
-            if self.flat:
-                row['order'] = order
+            row['order'] = order
             row['graph_overview'] = self.url_graph(self.years[-1], 'overview', order)
             row['id'] = order
 
