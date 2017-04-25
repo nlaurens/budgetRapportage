@@ -79,7 +79,7 @@ if app_path:
 urls = (
     '/', 'controller.index.Index',
     '/index', 'controller.index.Index',
-    '/orderlist', 'controller.orderlist,Orderlist',
+    '/orderlist', 'controller.orderlist.Orderlist',
     '/salaris', 'controller.salaris.Salaris', 
     '/report(.*)', 'controller.report.Report', 
     '/view(.*)', 'controller.view.View', 
