@@ -56,9 +56,7 @@ Controller-modules
       * Add mouse-over information for payrollnummers that shows all personeelsnummers that are linked to payrollnummer
 
   - report
-      * Split into 4 tabs:
-        * Remove details if there are no subgroups
-        * Add divs to the graph page
+      * Remove details if there are no subgroups
 
   - orderlist
       * add option to sort by budgetholder
