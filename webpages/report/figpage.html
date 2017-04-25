@@ -1,10 +1,19 @@
-$def with(graphs)
-<div class="container">
-    <div class="panel panel-default">
-        <div class="panel-body">
-                $for graph in graphs:
-                    <a href="$:graph['link']"><img src="$:graph['png']" class="img-responsive"></a>
-                    <hr>
+$def with(graphs, years)
+$for year in years:
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <button data-toggle="collapse" data-target="#collapse$year" class="accordion-toggle btn btn-default btn-xs">
+                    <span id="plusminus$year" class="glyphicon glyphicon-plus"></span>
+                </button>
+                $year
+            </div>
+            <div id="collapse$year" class="panel-collapse collapse">
+                <div class="panel-body">
+                    $for graph in graphs[year]:
+                        <a href="$:graph['link']"><img src="$:graph['png']" class="img-responsive"></a>
+                        <hr>
+                </div>
+            </div>
         </div>
     </div>
-</div>

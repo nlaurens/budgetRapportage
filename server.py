@@ -56,8 +56,7 @@ Controller-modules
       * Add mouse-over information for payrollnummers that shows all personeelsnummers that are linked to payrollnummer
 
   - report
-      * Add two tabs: Details (as it is now) and summary 1 div with all groups on 1 line and a fig page :)
-      * Proper fig page instead of hiding the overview graph with a button
+      * Remove details if there are no subgroups
 
   - orderlist
       * add option to sort by budgetholder
@@ -73,22 +72,21 @@ sys.path.append(app_path)
 if app_path:
     os.chdir(app_path)
 
-from controller import Index, Report, Admin, Graph, View, Salaris, Orderlist
-from auth.handlers import Login, Logout
-
+# By using strings for the controller classes insteaf of from controller import 
+# X,Y,Z the modules are reloaded when running the web.py built in server
 urls = (
-    '/', Index,
-    '/index', Index,
-    '/orderlist', Orderlist, 
-    '/salaris', Salaris, 
-    '/report(.*)', Report, 
-    '/view(.*)', View, 
-    '/admin', Admin, 
+    '/', 'controller.index.Index',
+    '/index', 'controller.index.Index',
+    '/orderlist', 'controller.orderlist.Orderlist',
+    '/salaris', 'controller.salaris.Salaris', 
+    '/report(.*)', 'controller.report.Report', 
+    '/view(.*)', 'controller.view.View', 
+    '/admin', 'controller.admin.Admin', 
 
-    '/graph/(.+)/(.+)/(.+).png', Graph, 
+    '/graph/(.+)/(.+)/(.+).png', 'controller.graph.Graph', 
 
-    '/login', Login,  #uses auth.handlers.Login
-    '/logout', Logout, # auth.handlers.Logout
+    '/login', 'auth.handlers.Login',  
+    '/logout', 'auth.handlers.Logout', 
 )
 
 # with WSGI:

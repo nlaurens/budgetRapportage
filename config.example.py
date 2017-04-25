@@ -15,7 +15,7 @@ config = {
                 user_password       varchar(255) NOT NULL,
                 user_email          varchar(64),  # Optional, see settings
                 user_status         varchar(16) NOT NULL DEFAULT 'active',
-                user_last_login     datetime NOT NULL DEFAULT '000-00-00'
+                user_last_login     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP 
             )
             """,
 
