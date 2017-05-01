@@ -431,24 +431,23 @@ if __name__ == "__main__":
     # from controller import functions
     # Run it: $python server.py <year>/*
     valid_input = False
-    years = 0
-    if len(sys.argv) == 2:
-        years_available = model.regels.years()
-        if str(sys.argv[1]) == '*':
-            years = []
-            for year in years_available:
-                if year <= config['currentYear'] and year > config['currentYear'] - 5:
-                    years.append(year)
-            valid_input = True
-        elif str(sys.argv[1]) == 'TEST':
-            years = ['2017']
-            test = True
-            valid_input = True
-        else:
-            year = int(sys.argv[1])
-            if year in years_available:
-                years = [year]
-                valid_input = True
+    years_available = model.regels.years()
+    years = []
+    for year in years_available:
+        if year <= config['currentYear'] and year > config['currentYear'] - 5:
+            years.append(year)
+    valid_input = True
+
+    # test graph:
+    #years = ['2017']
+    #test = True
+    #valid_input = True
+
+    #specific year:
+    #year = int(sys.argv[1])
+    #if year in years_available:
+        #years = [year]
+        #valid_input = True
 
     if valid_input:
         print 'start loading regels'

@@ -48,6 +48,8 @@ class View(Controller):
             form.Button('Update', 'update', class_="btn btn-default btn-sm"),
         )
 
+        # TODO remove the color part, not used.
+        # TODO add loading from settings menu
         # Color mapping - copied from graph.py
         ksgroup_root = model.ksgroup.load(config['graphs']['ksgroup'])
         ks_map = {}
@@ -107,10 +109,7 @@ class View(Controller):
 
         data = {}
         for ks, regels_tiepe in regels_dict.iteritems():
-            print ks
-            print regels_tiepe
             ks_group = self.ks_map[ks][1]
-            print ks_group
 
             if ks_group not in totals:
                 totals[ks_group] = {}
