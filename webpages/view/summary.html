@@ -1,24 +1,4 @@
 $def with (summary)
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h4>Summary
-                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#graph_realisatie">
-                    <span class="glyphicon glyphicon-stats"></span>
-                </button>
-                <div id="graph_realisatie" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-body">
-                                <img src="$:summary['graph_realisatie']" class="img-responsive">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-              </h4>
-
-            </div>
-            <div class="panel-body">
-              <p>
                   Begroting: &euro;$summary['begroting']<br>
                   Totale baten: &euro;$summary['baten']<br>
                   Totale Lasten: &euro;$summary['lasten']<br>
@@ -26,6 +6,5 @@ $def with (summary)
                     Nog te besteden: &euro;$summary['ruimte']<br>
                   $else:
                     Tekort: &euro;$summary['ruimte']<br>
-              </p>
-            </div>
-          </div>
+                  <hr>
+                  <img src="$:summary['graph_realisatie']" class="img-responsive">

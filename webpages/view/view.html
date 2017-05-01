@@ -1,28 +1,45 @@
 $def with (view)
 
     <div class="container">
-      <div class="row">
-        <div class="col-xs-6">
-          <h1>
-            Budget Details
-          </h1>
-        </div>
-        <div class="col-xs-6 text-right">
-          <h1>$view['title']
-          </h1>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-xs-5">
-            $:view['summary']
-        </div>
-        <div class="col-xs-5 col-xs-offset-2 text-right">
-            $:view['settings']
-        </div>
-      </div>
+          <h1>$view['title']</h1>
+        <ul class="nav nav-tabs">
+			<li class="active"><a  href="#1" data-toggle="tab">Summary</a>
+			</li>
+			<li><a href="#2" data-toggle="tab">Details</a>
+			</li>
+			<li><a href="#3" data-toggle="tab">Settings</a>
+			</li>
+		</ul>
 
-      $for table in view['tables']:
-        $:table
+			<div class="tab-content">
 
-      $:view['javaScripts']:
-    </div>
+			  <div class="tab-pane active" id="1">
+                <h4></h4>
+                <div>
+                    $:view['summary']
+                </div>
+              </div>
+
+			  <div class="tab-pane" id="2">
+                <h4></h4>
+                <div>
+                    <a href="#" class="btn btn-default openall">open all</a> <a href="#" class="btn btn-default closeall">close all</a>
+                    $for table in view['tables']:
+                        $:table
+                </div>
+			  </div>
+
+              <div class="tab-pane" id="3">
+                <h4></h4>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        $:view['settings']
+                    </div>
+                </div>
+			  </div>
+
+			</div>
+</div>
+
+$:view['javaScripts']
+
