@@ -9,17 +9,33 @@ db = web.database(dbn='mysql', db=config["mysql"]["db"], user=config["mysql"]["u
 
 def load(table_names_load, years_load=None, periods_load=None, orders_load=None, kostensoorten_load=None):
     """
-    .load(years=[], periodes=[], orders=[], tablesNames=[], kostensoorten=[])
+    .load(years=[], periods=[], orders=[], tablesNames=[], kostensoorten=[])
         input: tablesNames as list of str,
         optional inputs:
             years as list of int,
-            periodes as list of int,
+            periods_load as list of int or as string ('ALL', 'Q1', 'Q2', 'Q3', 'Q4')
             orders as list of int,
             kostensoorten as list of int
         output: RegelList
     """
     for name in table_names_load:
         assert name in config["mysql"]["tables_regels"], "unknown table in model.get_reggellist_per_table: " + name
+
+
+    periods = None
+    if periods_load == [12]:
+        periods = [12, 13, 14, 15, 16]
+    elif periods_load == 'ALL':
+        periods = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    elif periods_load == 'Q1':
+        periods = [0, 1, 2, 3]
+    elif periods_load == 'Q2':
+        periods = [4, 5, 6]
+    elif periods_load == 'Q3':
+        periods = [7, 8, 9]
+    elif periods_load == 'Q4':
+        periods = [10, 11, 12, 13, 14, 15, 16]
+
 
     regels = []
     for table_name in table_names_load:
@@ -30,8 +46,8 @@ def load(table_names_load, years_load=None, periods_load=None, orders_load=None,
             query += ' AND `kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten_load) + ')'
         if years_load:
             query += ' AND `jaar` IN (' + ','.join(str(jr) for jr in years_load) + ')'
-        if periods_load:
-            query += ' AND `periode` IN (' + ','.join(str(periode) for periode in periods_load) + ')'
+        if periods:
+            query += ' AND `periode` IN (' + ','.join(str(period) for period in periods) + ')'
         try:
             db_select = db.select(config["mysql"]["tables_regels"][table_name], where=query, vars=locals())
         except IndexError:

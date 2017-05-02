@@ -19,6 +19,7 @@ class KostensoortGroup:
         else:
             return self.parent.lower_level_parent(level)
 
+
     # Finds a child and returns that child
     def find(self, name):
         if self.name == name:
@@ -114,4 +115,15 @@ class KostensoortGroup:
 
         for child in self.children:
             child.save_as_txt(filehandle)
+
+
+    # Returns a list of all nodes that have no children (i.e. final nodes)
+    def get_end_children(self, children):
+        if self.children:
+            for child in self.children:
+                children.extend(child.get_end_children([]))
+        else:
+            return [self]
+
+        return children
 
