@@ -22,8 +22,10 @@ class View(Controller):
         # View specific:
         self.order = int(web.input(order=0)['order'])
         self.year = int(web.input(year=self.config["currentYear"])['year'])
-        self.clean = web.input().has_key('clean')
         periode = (web.input(periode='ALL')['periode'])
+        ksgroup = web.input(ksgroup=config['graphs']['ksgroup'])['ksgroup']
+
+        #TODO to model!
         if periode.isdigit():
             if periode == 12:
                 self.periodes = [12, 13, 14, 15, 16]
@@ -45,17 +47,20 @@ class View(Controller):
         self.form_settings_simple = form.Form(
             form.Dropdown('year', dropdown_options['years'], value=self.year, class_="btn btn-default btn-sm"),
             form.Dropdown('periode', dropdown_options['periode_all'], value=periode, class_="btn btn-default btn-sm"),
+            form.Dropdown('ksgroup', model.ksgroup.available(), value=ksgroup, class_="btn btn-default btn-sm"),
             form.Button('Update', 'update', class_="btn btn-default btn-sm"),
         )
 
         # TODO remove the color part, not used.
         # TODO add loading from settings menu
         # Color mapping - copied from graph.py
-        ksgroup_root = model.ksgroup.load(config['graphs']['ksgroup'])
+        ksgroup_root = model.ksgroup.load(ksgroup)
         ks_map = {}
         color_map = {'baten': {}, 'lasten': {}}
         for tiepe in ['baten', 'lasten']:
-            for child in ksgroup_root.find(config['graphs'][tiepe]).children:
+            subgroup_name = list(config['ksgroup']['ksgroups'][ksgroup][tiepe])[0]
+            subgroup = ksgroup_root.find(subgroup_name)
+            for child in subgroup.children:
                 color_map[tiepe][child.descr] = {}
                 for ks in child.get_ks_recursive():
                     ks_map[ks] = (tiepe, child.descr)

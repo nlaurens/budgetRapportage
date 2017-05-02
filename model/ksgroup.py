@@ -12,12 +12,7 @@ def available():
         input: None
         output: names of kostensoortgroups as a list of str
     """
-    ksgroups = []
-    search_path = os.path.join(config['ksGroupsPath'], '*')
-    for path in glob.glob(search_path):
-        ksgroups.append(os.path.split(path)[1])
-
-    return ksgroups
+    return config['ksgroup']['ksgroups'].keys()
 
 
 def load(ks_group_name):
@@ -26,7 +21,7 @@ def load(ks_group_name):
         input: name as str
         returns: KostenSoortGroup
     """
-    path = os.path.join(config['ksGroupsPath'], ks_group_name)
+    path = os.path.join(config['ksgroup']['path'], ks_group_name)
     f = open(path, 'r')
 
     group = None
@@ -57,6 +52,14 @@ def load(ks_group_name):
                 group.add_kostensoort(int(name), descr)
 
     return ksgroup
+
+
+def get_ks_map(ksgroup):
+    """
+    .get_ks_map( ksgroup )
+        input: ksgroup as KostenSoortGroup
+        returns: dictionary         
+    """
 
 
 def load_sap(ks_group_file):
