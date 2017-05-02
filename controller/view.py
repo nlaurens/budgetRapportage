@@ -1,3 +1,8 @@
+#TODO
+# Rewrite construct data so that it doesnt need a ks hash_map
+# We can simply get all ks that belong to the ks_group with the recusrsive member function of the ks_group object
+# Then add all items that match.
+
 from config import config
 from controller import Controller
 import web
@@ -23,7 +28,7 @@ class View(Controller):
         self.order = int(web.input(order=0)['order'])
         self.year = int(web.input(year=self.config["currentYear"])['year'])
         periode = (web.input(periode='ALL')['periode'])
-        ksgroup = web.input(ksgroup=config['graphs']['ksgroup'])['ksgroup']
+        ksgroup_name = web.input(ksgroup_name=config['graphs']['ksgroup'])['ksgroup']
 
         #TODO to model!
         if periode.isdigit():
@@ -47,33 +52,10 @@ class View(Controller):
         self.form_settings_simple = form.Form(
             form.Dropdown('year', dropdown_options['years'], value=self.year, class_="btn btn-default btn-sm"),
             form.Dropdown('periode', dropdown_options['periode_all'], value=periode, class_="btn btn-default btn-sm"),
-            form.Dropdown('ksgroup', model.ksgroup.available(), value=ksgroup, class_="btn btn-default btn-sm"),
+            form.Dropdown('ksgroup', model.ksgroup.available(), value=ksgroup_name, class_="btn btn-default btn-sm"),
             form.Button('Update', 'update', class_="btn btn-default btn-sm"),
         )
 
-        # TODO remove the color part, not used.
-        # TODO add loading from settings menu
-        # Color mapping - copied from graph.py
-        ksgroup_root = model.ksgroup.load(ksgroup)
-        ks_map = {}
-        color_map = {'baten': {}, 'lasten': {}}
-        for tiepe in ['baten', 'lasten']:
-            subgroup_name = list(config['ksgroup']['ksgroups'][ksgroup][tiepe])[0]
-            subgroup = ksgroup_root.find(subgroup_name)
-            for child in subgroup.children:
-                color_map[tiepe][child.descr] = {}
-                for ks in child.get_ks_recursive():
-                    ks_map[ks] = (tiepe, child.descr)
-
-            colors_amount = max(len(color_map[tiepe]), 3)  # prevent white colors
-            colors = {}
-            colors['baten'] = cm.BuPu(np.linspace(0.75, 0.1, colors_amount))
-            colors['lasten'] = cm.BuGn(np.linspace(0.75, 0.1, colors_amount))
-            for i, key in enumerate(color_map[tiepe]):
-                color_map[tiepe][key] = colors[tiepe][i]
-
-        self.color_map = color_map
-        self.ks_map = ks_map
 
     def authorized(self):
         if model.users.check_permission(['view']):
@@ -83,6 +65,7 @@ class View(Controller):
         return False
 
     def process_sub(self):
+
         data, totals = self.construct_data()
         view = {}
         view['title'] = self.order  # model.orders.get_name(self.order) + ' ' + str(self.order)
@@ -95,9 +78,75 @@ class View(Controller):
         self.body = self.webrender.view(view)
         return
 
+    def construct_data_old(self):
+        # data = { <name of ks_group>: { 'kosten/begroot': regellist}
+        # totals {'geboekt/obligo/totals':<total>}
+
+        # Load the ksgroup
+        self.ksgroup = model.ksgroup.load(ksgroup_name)
+
+        regels = {}
+        tables = ['geboekt', 'obligo', 'plan']
+        regels = model.regels.load(tables, years_load=[self.year], orders_load=[self.order])
+
+        regels.filter_regels_by_attribute('periode', self.periodes)
+
+        regels_dict = regels.split(['kostensoort', 'tiepe'])
+
+        totals = {}
+        totals['total'] = {}
+        totals['total']['geboekt'] = 0
+        totals['total']['obligo'] = 0
+        totals['total']['plan'] = 0
+
+        data = {}
+        for ks, regels_tiepe in regels_dict.iteritems():
+            ks_group = self.ks_map[ks][1]
+
+            if ks_group not in totals:
+                totals[ks_group] = {}
+                totals[ks_group]['geboekt'] = 0
+                totals[ks_group]['obligo'] = 0
+                totals[ks_group]['plan'] = 0
+
+                data[ks_group] = {}
+                data[ks_group]['kosten'] = None
+                data[ks_group]['begroot'] = None
+
+            for tiepe in ['geboekt', 'obligo']:
+                if tiepe in regels_tiepe:
+                    if data[ks_group]['kosten'] is None:
+                        data[ks_group]['kosten'] = regels_tiepe[tiepe]
+                    else:
+                        data[ks_group]['kosten'].extend(regels_tiepe[tiepe])
+
+                    totals[ks_group][tiepe] += regels_tiepe[tiepe].total()
+                    totals['total'][tiepe] += regels_tiepe[tiepe].total()
+
+            if 'plan' in regels_tiepe:
+                if data[ks_group]['begroot'] is None:
+                    data[ks_group]['begroot'] = regels_tiepe['plan']
+                else:
+                    data[ks_group]['begroot'].extend(regels_tiepe['plan'])
+
+                totals[ks_group]['plan'] += regels_tiepe['plan'].total()
+                totals['total']['plan'] += regels_tiepe['plan'].total()
+
+        # sort regels in regellist by 'periode' for view:
+        for ks_group in data.keys():
+            for key in data[ks_group]:
+                if data[ks_group][key] is not None:
+                    data[ks_group][key].sort('periode')
+
+        return data, totals
+
     def construct_data(self):
         # data = { <name of ks_group>: { 'kosten/begroot': regellist}
         # totals {'geboekt/obligo/totals':<total>}
+
+        # Load the ksgroup
+        self.ksgroup = model.ksgroup.load(ksgroup_name)
+
         regels = {}
         tables = ['geboekt', 'obligo', 'plan']
         regels = model.regels.load(tables, years_load=[self.year], orders_load=[self.order])

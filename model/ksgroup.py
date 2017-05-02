@@ -57,9 +57,19 @@ def load(ks_group_name):
 def get_ks_map(ksgroup):
     """
     .get_ks_map( ksgroup )
-        input: ksgroup as KostenSoortGroup
+        input: name as str
+        returns: dictionary with ks as key 
+    """
+    raise NotImplemented
+
+
+def get_color_map(ksgroup):
+    """
+    .get_ks_map( ksgroup )
+        input: name as str
         returns: dictionary         
     """
+    raise NotImplemented
 
 
 def load_sap(ks_group_file):
