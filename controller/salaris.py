@@ -17,18 +17,16 @@ class Salaris(Controller):
         self.webrender = web.template.render('webpages/salaris/')
 
         # Salaris specific:
-        self.ordergroup_file = str(web.input(ordergroup='LION')['ordergroup'])
-        self.ordergroup = model.ordergroup.load(self.ordergroup_file)
-        self.orders = self.ordergroup.list_orders_recursive().keys()
-        if str(web.input(subgroup='')['subgroup']) != '':
-            self.subordergroup = self.ordergroup.find(str(web.input(subgroup='')['subgroup']))
-            self.orders = self.subordergroup.list_orders_recursive().keys()
+        ordergroup_file = str(web.input(ordergroup='LION.1GS')['ordergroup'])
+        self.year = int(web.input(year=2017)['year'])
+        self.orders = model.ordergroup.load(ordergroup_file).list_orders_recursive().keys()
 
         # Forms
         dropdown_options = self.dropdown_options()
         self.form_settings_simple = form.Form(
             form.Dropdown('ordergroup', dropdown_options['ordergroups_all'],
-                          description='Order Group', value=self.ordergroup_file),
+                          description='Order Group', value=ordergroup_file),
+            form.Dropdown('year', dropdown_options['years'], value=self.year, class_="btn btn-default btn-sm"),
             form.Button('submit', value='salaris_settings')
         )
 
@@ -37,7 +35,7 @@ class Salaris(Controller):
 
     def process_sub(self):
         regels = model.regels.load(table_names_load=['salaris_plan', 'salaris_geboekt', 'salaris_obligo'],
-                                   orders_load=self.orders)
+                                   orders_load=self.orders,years_load=[self.year])
         data = self.create_data_structure(regels)
 
         report = {}
