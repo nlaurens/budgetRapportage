@@ -39,12 +39,152 @@ def process_data(threadID, q):
    while not exitFlag:
       queueLock.acquire()
       if not workQueue.empty():
-          data = q.get()
+          item = q.get()
           queueLock.release()
-          #print "%s processing %s" % (threadID, data['type'])
+
+          if item['type'] == 'realisatie':
+            graph_realisatie(item)
+          elif item['type'] == 'overview':
+            graph_overview(item)
+
+          print "thread %s finished %s" % (threadID, item['type'])
       else:
           queueLock.release()
-      time.sleep(0.05)
+
+def format_table_row(self, row):
+    str_row = []
+    for value in row:
+        if value == 0 or np.abs(value) < 0.5:
+            str_row.append('')
+        else:
+            str_row.append(moneyfmt(value))
+
+    return str_row
+
+def graph_realisatie(item):
+    print 'graph realisatie done'
+    global color_map
+    print color_map
+    data = item['data']
+
+    data_x = np.arange(1, 13)
+    data_x_begroting = np.array([0, 12])
+    data_y_begroting = np.array([0, data['begroting'] / 1000])
+    data_y_resultaat = data['resultaat'] / 1000
+
+    # Layout figure
+    plt.figure(figsize=(12, 9))
+    plt.title(data['title'], loc='right', fontsize=12)
+
+    ax = plt.subplot(111)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    ax.get_xaxis().tick_bottom()
+    plt.xticks(np.arange(0, 13, 1.0), fontsize=16)
+    plt.xlim(0.5, 12.51)
+    plt.xticks([])
+    plt.xlabel("")
+    plt.axhline(0, color='black')
+
+    ax.get_yaxis().tick_left()
+    plt.yticks(fontsize=14)
+    plt.ylabel("Spent (keur)", fontsize=18)
+
+    legend = {}
+    legend['data'] = []
+    legend['keys'] = []
+
+    # Plot data
+    plot_resultaat = plt.plot(data_x, data_y_resultaat, 'ro-', lw=2)
+    plot_begroting = plt.plot(data_x_begroting, data_y_begroting, 'k--')
+
+    # setup legend
+    legend['data'].append(plot_resultaat[0])
+    legend['keys'].append("Realisatie (%s keur)" % moneyfmt(data_y_resultaat[-1]))
+    legend['data'].append(plot_begroting[0])
+    legend['keys'].append("Begroting (%s keur)" % moneyfmt(data['begroting'], keur=True))
+    legend['data'].append(Rectangle((0, 0), 0, 0, alpha=0.0))
+    overschot = data['begroting'] / 1000 - data_y_resultaat[-1]
+    if overschot > 0:
+        legend['keys'].append("Te besteden (%s keur)" % moneyfmt(overschot))
+    else:
+        legend['keys'].append("Overbesteed: (%s keur)" % moneyfmt(overschot))
+
+    leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
+    if data_y_resultaat[-1] < 0:
+        leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=3)
+    leg.get_frame().set_linewidth(0.0)
+
+    # Plot bars of baten/lasten!
+    totaalbars = len(data['baten']) + len(data['lasten'])
+    width = 1. / (totaalbars + 1)
+    offset = (1 - totaalbars * width) / 2
+    bar_nr = 0
+    for name, data_y in data['baten'].iteritems():
+        plot_baten_bars = plt.bar(data_x + width * bar_nr - 0.5 + offset, data_y / 1000, width,
+                                    color=color_map['baten'][name])
+        bar_nr += 1
+
+    for name, data_y in data['lasten'].iteritems():
+        plot_lasten_bars = plt.bar(data_x + width * bar_nr - 0.5 + offset, data_y / 1000, width,
+                                    color=color_map['lasten'][name])
+        bar_nr += 1
+
+    # add table below the graph
+    values = []
+    values.append(format_table_row(data_y_resultaat))  # totaal
+
+    begroting_per_maand = data['begroting'] / 12000
+    residue_begroting_per_maand = data_y_resultaat - np.linspace(begroting_per_maand, 12 * begroting_per_maand,
+                                                                    num=12)
+    values.append(format_table_row(residue_begroting_per_maand))
+
+    for data_key in ['baten', 'lasten']:
+        for key, row in data[data_key].iteritems():
+            data[data_key][key] = row / 1000
+            values.append(format_table_row(data[data_key][key]))
+
+    label_columns = (["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
+
+    label_rows = []
+    label_rows.extend(["Totaal"])
+    label_rows.extend(["+/- Begroting"])
+    label_rows.extend(data['baten'].keys())
+    label_rows.extend(data['lasten'].keys())
+
+    colors = []
+    for key in data['baten'].keys():
+        colors.extend([color_map['baten'][key]])
+
+    for key in data['lasten'].keys():
+        colors.extend([color_map['lasten'][key]])
+
+    for key in data['baten'].keys():
+        colors.extend([color_map['baten'][key]])
+
+    if colors:
+        colors = np.insert(colors, 0, [1, 1, 1, 1], 0)  # Hack for making sure color realisatie
+        colors = np.insert(colors, 0, [1, 1, 1, 1], 0)  # Hack for making sure color realisatie
+    else:
+        colors = [[1, 1, 1, 1], [1, 1, 1, 1]]
+
+    the_table = plt.table(cellText=values, rowLabels=label_rows, rowColours=colors,
+                            colLabels=label_columns, loc='bottom', rowLoc='right')
+    the_table.set_fontsize(14)
+    the_table.scale(1, 2)
+
+    # Add y-lines:
+    for i in range(0, 15):
+        plt.axvline(i + 0.5, color='grey', ls=':')
+
+    return plt
+    
+    time.sleep(0.01)
+
+def graph_overview(item):
+
+    time.sleep(0.01)
 
 def load_data(workQueue):
     print 'loading years'
@@ -63,6 +203,8 @@ def load_data(workQueue):
     graph_ks_group = config['graphs']['ksgroup']
     ksgroup_root = model.ksgroup.load(graph_ks_group)
     ks_map = {}
+
+    global color_map
     color_map = {'baten': {}, 'lasten': {}}
 
     for tiepe in ['baten', 'lasten']:
@@ -79,8 +221,6 @@ def load_data(workQueue):
             for i, key in enumerate(color_map[tiepe]):
                 color_map[tiepe][key] = colors[tiepe][i]
 
-    color_map = color_map
-    ks_map = ks_map
 
     print 'start loading regels'
     orders = model.regels.orders()
@@ -131,7 +271,7 @@ def load_data(workQueue):
 
     data_orders = data
 
-    print 'start building data structures orders'
+    print 'start building data structures groups'
     data_orders = data_orders
     data = {}
 
@@ -200,16 +340,16 @@ if __name__ == "__main__":
     # Fill the queue
     queueLock.acquire()
     load_data(workQueue)
+    totalQueue = workQueue.qsize()
     print 'releasing queu and starting to work'
-    #for word in nameList:
-    #    item = {'type':'test', 'data':word, 'year':2017}
-    #    workQueue.put(item)
     queueLock.release()
 
     #TODO UNCOMMENT
     # Wait for queue to empty
     while not workQueue.empty():
-       pass
+        print 'Processing (%s/%s) - ' % (totalQueue - workQueue.qsize(), totalQueue)
+        time.sleep(.1)
+        pass
     
     # Notify threads it's time to exit
     exitFlag = 1
