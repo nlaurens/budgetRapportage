@@ -41,21 +41,24 @@ class Graph:
         self.last_update = model.regels.last_update()
         self.orderListDict = model.orders.load().split(['ordernummer'])
 
-        ksgroup_root = model.ksgroup.load(config['graphs']['ksgroup'])
+        graph_ks_group = config['graphs']['ksgroup']
+        ksgroup_root = model.ksgroup.load(graph_ks_group)
         ks_map = {}
         color_map = {'baten': {}, 'lasten': {}}
-        for tiepe in ['baten', 'lasten']:
-            for child in ksgroup_root.find(config['graphs'][tiepe]).children:
-                color_map[tiepe][child.descr] = {}
-                for ks in child.get_ks_recursive():
-                    ks_map[ks] = (tiepe, child.descr)
 
-            colors_amount = max(len(color_map[tiepe]), 3)  # prevent white colors
-            colors = {}
-            colors['baten'] = plt.cm.BuPu(np.linspace(0.75, 0.1, colors_amount))
-            colors['lasten'] = plt.cm.BuGn(np.linspace(0.75, 0.1, colors_amount))
-            for i, key in enumerate(color_map[tiepe]):
-                color_map[tiepe][key] = colors[tiepe][i]
+        for tiepe in ['baten', 'lasten']:
+            for ks_groups in config['ksgroup']['ksgroups'][graph_ks_group][tiepe]:
+                for child in ksgroup_root.find(ks_groups).children:
+                    color_map[tiepe][child.descr] = {}
+                    for ks in child.get_ks_recursive():
+                        ks_map[ks] = (tiepe, child.descr)
+
+                colors_amount = max(len(color_map[tiepe]), 3)  # prevent white colors
+                colors = {}
+                colors['baten'] = plt.cm.BuPu(np.linspace(0.75, 0.1, colors_amount))
+                colors['lasten'] = plt.cm.BuGn(np.linspace(0.75, 0.1, colors_amount))
+                for i, key in enumerate(color_map[tiepe]):
+                    color_map[tiepe][key] = colors[tiepe][i]
 
         self.color_map = color_map
         self.ks_map = ks_map
