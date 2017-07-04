@@ -43,15 +43,28 @@ def process_data(threadID, q):
           queueLock.release()
 
           if item['type'] == 'realisatie':
-            graph_realisatie(item)
+            plt = graph_realisatie(item)
           elif item['type'] == 'overview':
-            graph_overview(item)
+            plt = graph_overview(item)
+
+          save_fig(plt, item)
 
           print "thread %s finished %s" % (threadID, item['type'])
       else:
           queueLock.release()
 
-def format_table_row(self, row):
+def save_fig(plt, item):
+    year = item['year']
+    tiepe = item['type']
+    name = item['name']
+    path_graph = os.path.join(config['graphs']['path'], str(year), tiepe)
+    if not os.path.isdir(path_graph):
+        os.makedirs(path_graph)
+    path_fig = os.path.join(path_graph, '%s.png'% str(name))
+    print 'saved to %s' % path_fig
+    plt.savefig(path_fig, bbox_inches='tight')
+
+def format_table_row(row):
     str_row = []
     for value in row:
         if value == 0 or np.abs(value) < 0.5:
@@ -62,9 +75,7 @@ def format_table_row(self, row):
     return str_row
 
 def graph_realisatie(item):
-    print 'graph realisatie done'
     global color_map
-    print color_map
     data = item['data']
 
     data_x = np.arange(1, 13)
@@ -179,8 +190,6 @@ def graph_realisatie(item):
         plt.axvline(i + 0.5, color='grey', ls=':')
 
     return plt
-    
-    time.sleep(0.01)
 
 def graph_overview(item):
 
@@ -315,15 +324,16 @@ def load_data(workQueue):
     print 'building queu orders'
     for order in orders:
         for year in years:
-            realisatie = {'type':'realisatie', 'data':data_orders[order][year], 'year':year}
+            realisatie = {'type':'realisatie', 'data':data_orders[order][year], 'year':year, 'name':str(order)}
             workQueue.put(realisatie)
 
-            overview = {'type':'overview', 'data':data_orders[order], 'year':year}
+            overview = {'type':'overview', 'data':data_orders[order], 'year':year, 'name':str(order)}
             workQueue.put(overview)
 
 
 
 if __name__ == "__main__":
+    totalThreads = 1
     queueLock = threading.Lock()
     workQueue = Queue.Queue()
     threads = []
@@ -331,7 +341,7 @@ if __name__ == "__main__":
 
     #TODO UNCOMMENT
     # Create new threads
-    for tName in range(0,5):
+    for tName in range(0, totalThreads):
        thread = myThread(threadID, workQueue)
        thread.start()
        threads.append(thread)
@@ -346,7 +356,12 @@ if __name__ == "__main__":
 
     #TODO UNCOMMENT
     # Wait for queue to empty
-    while not workQueue.empty():
+    threadCrash = True
+    while not workQueue.empty() and not threadCrash:
+        for thread in threads:
+            if not thread.isAlive():
+                threadCrash = True
+
         print 'Processing (%s/%s) - ' % (totalQueue - workQueue.qsize(), totalQueue)
         time.sleep(.1)
         pass
