@@ -31,7 +31,6 @@ class myThread (threading.Thread):
       self.threadID = threadID
       self.q = q
    def run(self):
-      print "Starting %s" % self.threadID
       process_data(self.threadID, self.q)
       print "Exiting %s" % self.threadID
 
@@ -44,12 +43,10 @@ def process_data(threadID, q):
 
           if item['type'] == 'realisatie':
             plt = graph_realisatie(item)
+            save_fig(plt, item)
           elif item['type'] == 'overview':
             plt = graph_overview(item)
 
-          save_fig(plt, item)
-
-          print "thread %s finished %s" % (threadID, item['type'])
       else:
           queueLock.release()
 
@@ -61,8 +58,8 @@ def save_fig(plt, item):
     if not os.path.isdir(path_graph):
         os.makedirs(path_graph)
     path_fig = os.path.join(path_graph, '%s.png'% str(name))
-    print 'saved to %s' % path_fig
     plt.savefig(path_fig, bbox_inches='tight')
+    print 'saved to %s' % path_fig
 
 def format_table_row(row):
     str_row = []
@@ -87,7 +84,10 @@ def graph_realisatie(item):
     plt.figure(figsize=(12, 9))
     plt.title(data['title'], loc='right', fontsize=12)
 
-    ax = plt.subplot(111)
+    #TODO crashes when using multiple plots
+    # look at fix: - using OO of matplotlib 
+    # https://stackoverflow.com/questions/31719138/matplotlib-cant-render-multiple-contour-plots-on-django 
+    ax = plt.subplot(111) 
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
@@ -192,7 +192,6 @@ def graph_realisatie(item):
     return plt
 
 def graph_overview(item):
-
     time.sleep(0.01)
 
 def load_data(workQueue):
@@ -333,7 +332,7 @@ def load_data(workQueue):
 
 
 if __name__ == "__main__":
-    totalThreads = 1
+    totalThreads = 2
     queueLock = threading.Lock()
     workQueue = Queue.Queue()
     threads = []
@@ -356,14 +355,14 @@ if __name__ == "__main__":
 
     #TODO UNCOMMENT
     # Wait for queue to empty
-    threadCrash = True
+    threadCrash = False
     while not workQueue.empty() and not threadCrash:
         for thread in threads:
             if not thread.isAlive():
                 threadCrash = True
 
         print 'Processing (%s/%s) - ' % (totalQueue - workQueue.qsize(), totalQueue)
-        time.sleep(.1)
+        time.sleep(2)
         pass
     
     # Notify threads it's time to exit
