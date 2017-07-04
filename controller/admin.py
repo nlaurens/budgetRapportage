@@ -51,6 +51,16 @@ class Admin(Controller):
             form.Dropdown('type4', drop_down_options['empty_tables']),
             form.File('upload5'),
             form.Dropdown('type5', drop_down_options['empty_tables']),
+            form.File('upload6'),
+            form.Dropdown('type6', drop_down_options['empty_tables']),
+            form.File('upload7'),
+            form.Dropdown('type7', drop_down_options['empty_tables']),
+            form.File('upload8'),
+            form.Dropdown('type8', drop_down_options['empty_tables']),
+            form.File('upload9'),
+            form.Dropdown('type9', drop_down_options['empty_tables']),
+            form.File('upload10'),
+            form.Dropdown('type10', drop_down_options['empty_tables']),
             form.Button('submit', value='uploadRegels')
         )
         self.form_update_sap = form.Form(
@@ -238,8 +248,8 @@ class Admin(Controller):
 
     def parse_upload_form(self):
         msg = ['Start parsing of upload form']
-        file_handles = web.input(upload1={}, upload2={}, upload3={}, upload4={}, upload5={})
-        for i in range(1, 6):
+        file_handles = web.input(upload1={}, upload2={}, upload3={}, upload4={}, upload5={}, upload6={}, upload7={}, upload8={}, upload9={}, upload10={})
+        for i in range(1, 11):
             try:
                 file_handle = eval("file_handles.upload%s" % i)
             except Exception:

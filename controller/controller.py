@@ -75,8 +75,9 @@ class Controller(object):
             show_links[module] = model.users.check_permission([module])
 
         navbar = self.mainRender.navbar(self.breadCrum, navgroups, show_links)
+        version = self.config['version']
 
-        return self.mainRender.page(self.title, self.body, self.SAPupdate, navbar)
+        return self.mainRender.page(self.title, self.body, self.SAPupdate, version, navbar)
 
     def navbar_group(self, og):
         # create list of all subgroups that we have access too.
