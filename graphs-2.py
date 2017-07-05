@@ -42,15 +42,17 @@ def process_data(threadID, q):
           queueLock.release()
 
           if item['type'] == 'realisatie':
-            plt = graph_realisatie(item)
-            save_fig(plt, item)
-          elif item['type'] == 'overview':
-            plt = graph_overview(item)
+            fig = test(item)
+            save_fig(fig, item)
+            plt.close(fig)
+            #plt = graph_realisatie(item)
+          #elif item['type'] == 'overview':
+            #plt = graph_overview(item)
 
       else:
           queueLock.release()
 
-def save_fig(plt, item):
+def save_fig(fig, item):
     year = item['year']
     tiepe = item['type']
     name = item['name']
@@ -58,8 +60,7 @@ def save_fig(plt, item):
     if not os.path.isdir(path_graph):
         os.makedirs(path_graph)
     path_fig = os.path.join(path_graph, '%s.png'% str(name))
-    plt.savefig(path_fig, bbox_inches='tight')
-    print 'saved to %s' % path_fig
+    fig.savefig(path_fig, bbox_inches='tight')
 
 def format_table_row(row):
     str_row = []
@@ -70,6 +71,36 @@ def format_table_row(row):
             str_row.append(moneyfmt(value))
 
     return str_row
+
+def test(item):
+    import matplotlib
+    matplotlib.use('agg')
+    from matplotlib.mlab import bivariate_normal
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from numpy.core.multiarray import arange
+
+    delta = 0.5
+
+    x = arange(-3.0, 4.001, delta)
+    y = arange(-4.0, 3.001, delta)
+    X, Y = np.meshgrid(x, y)
+    Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+    Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z = (Z1 - Z2) * 10
+
+    fig = plt.figure(figsize=(10, 5))
+
+    ax1 = fig.add_subplot(111)
+    extents = [x.min(), x.max(), y.min(), y.max()]
+    im = ax1.imshow(Z,
+                    interpolation='spline36',
+                    extent=extents,
+                    origin='lower',
+                    aspect='auto')
+    ax1.contour(X, Y, Z, 10, colors='k')
+
+    return fig
 
 def graph_realisatie(item):
     global color_map
@@ -332,7 +363,7 @@ def load_data(workQueue):
 
 
 if __name__ == "__main__":
-    totalThreads = 2
+    totalThreads = 1
     queueLock = threading.Lock()
     workQueue = Queue.Queue()
     threads = []
