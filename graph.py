@@ -96,11 +96,16 @@ class Graph:
             self.save_fig(plt, year, 'realisatie', 'test')
             plt.close()
 
-            plt = self.graph_overview(year, data['test'])
-            self.save_fig(plt, year, 'overview', 'test')
-            plt.close()
-            count += 1
-            print 'rendered overview (%.2f%%)' % ((count / total_graphs) * 100.)
+            if year == config['currentYear']:
+                plt = self.graph_overview(year, data['test'])
+                self.save_fig(plt, year, 'overview', 'test')
+                plt.close()
+                count += 1
+                print 'rendered overview (%.2f%%)' % ((count / total_graphs) * 100.)
+            else:
+                count += 1
+                print 'skipped overview (%.2f%%)' % ((count / total_graphs) * 100.)
+
 
     def render_graphs(self):
 
@@ -119,11 +124,15 @@ class Graph:
                 count += 1
                 print 'rendered %s realisatie - year %s (%.2f%%)' % (order, year, (count / total_graphs) * 100.)
 
-                plt = self.graph_overview(year, self.data_orders[order])
-                self.save_fig(plt, year, 'overview', order)
-                plt.close()
-                count += 1
-                print 'rendered %s overview   - year %s (%.2f%%)' % (order, year, (count / total_graphs) * 100.)
+                if year == config['currentYear']:
+                    plt = self.graph_overview(year, self.data_orders[order])
+                    self.save_fig(plt, year, 'overview', order)
+                    plt.close()
+                    count += 1
+                    print 'rendered %s overview   - year %s (%.2f%%)' % (order, year, (count / total_graphs) * 100.)
+                else:
+                    count += 1
+                    print 'skipped overview (%.2f%%)' % ((count / total_graphs) * 100.)
 
         for name, ordergroup in self.ordergroups.iteritems():
             for group in ordergroup.list_groups():
@@ -135,12 +144,16 @@ class Graph:
                     print 'rendered %s-%s realisatie - year %s (%.2f%%)' % (
                         name, group.name, year, (count / total_graphs) * 100.)
 
-                    plt = self.graph_overview(year, self.data_groups[name][group.name])
-                    self.save_fig(plt, year, 'overview', '%s-%s' % (name, group.name))
-                    plt.close()
-                    count += 1
-                    print 'rendered %s-%s overview   - year %s (%.2f%%)' % (
-                        name, group.name, year, (count / total_graphs) * 100.)
+                    if year == config['currentYear']:
+                        plt = self.graph_overview(year, self.data_groups[name][group.name])
+                        self.save_fig(plt, year, 'overview', '%s-%s' % (name, group.name))
+                        plt.close()
+                        count += 1
+                        print 'rendered %s-%s overview   - year %s (%.2f%%)' % (
+                            name, group.name, year, (count / total_graphs) * 100.)
+                    else:
+                        count += 1
+                        print 'skipped overview (%.2f%%)' % ((count / total_graphs) * 100.)
 
     def construct_data_orders(self):
         plan_dict = self.regels['plan'].split(['ordernummer', 'jaar'])
