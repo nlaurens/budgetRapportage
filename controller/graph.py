@@ -122,48 +122,33 @@ class Graph:
 
         return fig
 
+
     def load_data(self):
-        if self.orderOrGroup == 'order': # TODO now working for orders only, make sure you can also do groups
-            order = self.name
-            print 'start loading regels'
-            regels = {}
-            regels['plan'] = model.regels.load(['plan'], years_load=[self.year], orders_load=[self.name])
-            regels['resultaat'] = model.regels.load(['geboekt', 'obligo'], years_load=[self.year], orders_load=[self.name])
+        if self.orderOrGroup == 'order': 
+            orders = [ self.name ]
+        else:
+            orders = [ 2008000000 ] # TODO load all orders in ordergroup here
 
-            # construct data dicts
-            print 'start building data structures orders'
-            plan_dict = regels['plan'].split(['ordernummer', 'jaar'])  # TODO seems unneccary to split it as we get regels we want anyway
-            regels_dict = regels['resultaat'].split(['ordernummer', 'jaar', 'kostensoort', 'periode'])  # TODO seems uneccacry to split it as we get only regels we want anyway
+        print 'start loading regels'
+        regels = {}
+        regels['plan'] = model.regels.load(['plan'], years_load=[self.year], orders_load=orders)
+        regels['resultaat'] = model.regels.load(['geboekt', 'obligo'], years_load=[self.year], orders_load=orders)
 
-            data = {}
+        data = {}
+        data['title'] = '%s-%s-%s' % (self.name, self.name, self.year)  #TODO replace self.name with order descr if it is a single ordr
 
-            data['title'] = '%s-%s-%s' % (order, order, self.year) #TODO replace first order with name from model
+        try:
+            data['begroting'] = float(regels['plan'].total())
+        except:
+            data['begroting'] = 0
 
-            try:
-                data['begroting'] = float(plan_dict[order][self.year].total())  # TODO no need for a plan_dict or to split it as we get all the regels we want anyway. 
-            except:
-                data['begroting'] = 0
-            data['baten'] = {}
-            data['lasten'] = {}
-            data['resultaat'] = np.zeros(12)
+        data['baten'] = {}
+        data['lasten'] = {}
+        data['resultaat'] = np.zeros(12)
 
-            for ks, regels_periode in regels_dict[order][year].iteritems():
-                key = self.ksmap[ks][0]
-                name = self.ksmap[ks][1]
-
-                if name not in data[key]:
-                    data[key][name] = np.zeros(12)
-
-                for periode, regels in regels_periode.iteritems():
-                    if periode > 12:
-                        periode = 12
-                    total = float(regels.total())
-                    data[key][name][periode - 1] += total
-                    data['resultaat'][periode - 1] += total
-
-            data['resultaat'] = np.cumsum(data['resultaat'])
-
+        print data
         self.data = data
+
 
     def graph_realisatie(self):
         data_x = np.arange(1, 13)
