@@ -22,8 +22,12 @@ class Graph:
         self.year = None
         self.graph_type = None
         self.name = None
+        self.orderOrGroup = None
+
         self.plt = None
+
         self.colormap = None
+        self.ksmap = None
 
 
     def GET(self, year, graph_type, name):
@@ -33,7 +37,9 @@ class Graph:
 
         types_allowed = ['realisatie', 'overview']
         years_allowed = [2017]  # TODO add security by only adding years in db
-        names_allowed = [ 'xx', 'yy']  #TODO add security by adding all groups/orders to this list
+        orders_allowed = [ 'xx', 'yy']  #TODO add security by adding all groups/orders to this list
+        groups_allowed = [ 'xx', 'yy']  #TODO add security by adding all groups/orders to this list
+        self.orderOrGroup = 'order' #TODO detect this based on if it is in the orders or groups_allowed
 
         if self.graph_type in types_allowed:
             self.path = os.path.join(config['graphs']['path'], year, graph_type, name+'.png')
@@ -53,17 +59,18 @@ class Graph:
 
 
     def create_graph(self):
-        self.create_colormap()
+        self.load_maps()
+        self.load_data()
         self.plt = self.graph_test()
-        self.save_fig(plt)
+        #self.save_fig(plt) # DEBUG so we dont ahve to remove the graph all the time
 
         return True
 
 
-    def create_colormap(self):
+    def load_maps(self):
         graph_ks_group = config['graphs']['ksgroup']
         ksgroup_root = model.ksgroup.load(graph_ks_group)
-        ks_map = {}
+        self.ksmap = {}
         self.colormap = {'baten': {}, 'lasten': {}}
 
         for tiepe in ['baten', 'lasten']:
@@ -71,7 +78,7 @@ class Graph:
                 for child in ksgroup_root.find(ks_groups).children:
                     self.colormap[tiepe][child.descr] = {}
                     for ks in child.get_ks_recursive():
-                        ks_map[ks] = (tiepe, child.descr)
+                        self.ksmap[ks] = (tiepe, child.descr)
 
                 colors_amount = max(len(self.colormap[tiepe]), 3)  # prevent white colors
                 colors = {}
@@ -115,22 +122,59 @@ class Graph:
 
         return fig
 
+    def load_data(self):
+        if self.orderOrGroup == 'order': # TODO now working for orders only, make sure you can also do groups
+            order = self.name
+            print 'start loading regels'
+            regels = {}
+            regels['plan'] = model.regels.load(['plan'], years_load=[self.year], orders_load=[self.name])
+            regels['resultaat'] = model.regels.load(['geboekt', 'obligo'], years_load=[self.year], orders_load=[self.name])
 
-    def graph_realisatie(item):
-        data = item['data']
+            # construct data dicts
+            print 'start building data structures orders'
+            plan_dict = regels['plan'].split(['ordernummer', 'jaar'])  # TODO seems unneccary to split it as we get regels we want anyway
+            regels_dict = regels['resultaat'].split(['ordernummer', 'jaar', 'kostensoort', 'periode'])  # TODO seems uneccacry to split it as we get only regels we want anyway
 
+            data = {}
+
+            data['title'] = '%s-%s-%s' % (order, order, self.year) #TODO replace first order with name from model
+
+            try:
+                data['begroting'] = float(plan_dict[order][self.year].total())  # TODO no need for a plan_dict or to split it as we get all the regels we want anyway. 
+            except:
+                data['begroting'] = 0
+            data['baten'] = {}
+            data['lasten'] = {}
+            data['resultaat'] = np.zeros(12)
+
+            for ks, regels_periode in regels_dict[order][year].iteritems():
+                key = self.ksmap[ks][0]
+                name = self.ksmap[ks][1]
+
+                if name not in data[key]:
+                    data[key][name] = np.zeros(12)
+
+                for periode, regels in regels_periode.iteritems():
+                    if periode > 12:
+                        periode = 12
+                    total = float(regels.total())
+                    data[key][name][periode - 1] += total
+                    data['resultaat'][periode - 1] += total
+
+            data['resultaat'] = np.cumsum(data['resultaat'])
+
+        self.data = data
+
+    def graph_realisatie(self):
         data_x = np.arange(1, 13)
         data_x_begroting = np.array([0, 12])
-        data_y_begroting = np.array([0, data['begroting'] / 1000])
-        data_y_resultaat = data['resultaat'] / 1000
+        data_y_begroting = np.array([0, self.data['begroting'] / 1000])
+        data_y_resultaat = self.data['resultaat'] / 1000
 
         # Layout figure
         plt.figure(figsize=(12, 9))
-        plt.title(data['title'], loc='right', fontsize=12)
+        plt.title(self.data['title'], loc='right', fontsize=12)
 
-        #TODO crashes when using multiple plots
-        # look at fix: - using OO of matplotlib 
-        # https://stackoverflow.com/questions/31719138/matplotlib-cant-render-multiple-contour-plots-on-django 
         ax = plt.subplot(111) 
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
@@ -158,9 +202,9 @@ class Graph:
         legend['data'].append(plot_resultaat[0])
         legend['keys'].append("Realisatie (%s keur)" % moneyfmt(data_y_resultaat[-1]))
         legend['data'].append(plot_begroting[0])
-        legend['keys'].append("Begroting (%s keur)" % moneyfmt(data['begroting'], keur=True))
+        legend['keys'].append("Begroting (%s keur)" % moneyfmt(self.data['begroting'], keur=True))
         legend['data'].append(Rectangle((0, 0), 0, 0, alpha=0.0))
-        overschot = data['begroting'] / 1000 - data_y_resultaat[-1]
+        overschot = self.data['begroting'] / 1000 - data_y_resultaat[-1]
         if overschot > 0:
             legend['keys'].append("Te besteden (%s keur)" % moneyfmt(overschot))
         else:
@@ -172,16 +216,16 @@ class Graph:
         leg.get_frame().set_linewidth(0.0)
 
         # Plot bars of baten/lasten!
-        totaalbars = len(data['baten']) + len(data['lasten'])
+        totaalbars = len(self.data['baten']) + len(self.data['lasten'])
         width = 1. / (totaalbars + 1)
         offset = (1 - totaalbars * width) / 2
         bar_nr = 0
-        for name, data_y in data['baten'].iteritems():
+        for name, data_y in self.data['baten'].iteritems():
             plot_baten_bars = plt.bar(data_x + width * bar_nr - 0.5 + offset, data_y / 1000, width,
                                         color=self.colormap['baten'][name])
             bar_nr += 1
 
-        for name, data_y in data['lasten'].iteritems():
+        for name, data_y in self.data['lasten'].iteritems():
             plot_lasten_bars = plt.bar(data_x + width * bar_nr - 0.5 + offset, data_y / 1000, width,
                                         color=self.colormap['lasten'][name])
             bar_nr += 1
@@ -190,32 +234,32 @@ class Graph:
         values = []
         values.append(format_table_row(data_y_resultaat))  # totaal
 
-        begroting_per_maand = data['begroting'] / 12000
+        begroting_per_maand = self.data['begroting'] / 12000
         residue_begroting_per_maand = data_y_resultaat - np.linspace(begroting_per_maand, 12 * begroting_per_maand,
                                                                         num=12)
         values.append(format_table_row(residue_begroting_per_maand))
 
         for data_key in ['baten', 'lasten']:
-            for key, row in data[data_key].iteritems():
-                data[data_key][key] = row / 1000
-                values.append(format_table_row(data[data_key][key]))
+            for key, row in self.data[data_key].iteritems():
+                self.data[data_key][key] = row / 1000
+                values.append(format_table_row(self.data[data_key][key]))
 
         label_columns = (["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
 
         label_rows = []
         label_rows.extend(["Totaal"])
         label_rows.extend(["+/- Begroting"])
-        label_rows.extend(data['baten'].keys())
-        label_rows.extend(data['lasten'].keys())
+        label_rows.extend(self.data['baten'].keys())
+        label_rows.extend(self.data['lasten'].keys())
 
         colors = []
-        for key in data['baten'].keys():
+        for key in self.data['baten'].keys():
             colors.extend([self.colormap['baten'][key]])
 
-        for key in data['lasten'].keys():
+        for key in self.data['lasten'].keys():
             colors.extend([self.colormap['lasten'][key]])
 
-        for key in data['baten'].keys():
+        for key in self.data['baten'].keys():
             colors.extend([self.colormap['baten'][key]])
 
         if colors:
