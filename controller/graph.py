@@ -17,15 +17,16 @@ class Graph:
         if graph_type == 'realisatie' or graph_type == 'overview':
             self.path = os.path.join(config['graphs']['path'], year, graph_type, name+'.png')
 
-        graph = self.serve_image()
-        if graph:
-            return graph
+        if os.path.isfile(self.path):
+            return self.serve_image()
         else:
-            raise web.notfound()
+            generated = True
+            # Try to generate the image
+            if generated:
+                return self.serve_image()
+
+        raise web.notfound()
 
     def serve_image(self):
-        if os.path.isfile(self.path):
-            web.header("Content-Type", "images/png")
-            return open(self.path, "rb").read()
-        else:
-            return None
+        web.header("Content-Type", "images/png")
+        return open(self.path, "rb").read()
