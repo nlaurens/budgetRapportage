@@ -4,6 +4,8 @@ matplotlib.use('Agg')  # Forces matplotlib not to use any xwindows calls
 import matplotlib.pyplot as plt
 import numpy as np
 import model.ksgroup
+from functions import moneyfmt
+from matplotlib.patches import Rectangle
 
 import web
 import os
@@ -50,19 +52,24 @@ class Graph:
                 if self.create_graph():
                     return self.serve_graph()
 
+
         raise web.notfound()
 
 
     def serve_graph(self):
         web.header("Content-Type", "images/png")
-        return open(self.path, "rb").read()
+        graph = open(self.path, "rb").read()
+        # Debug: remove graph after serving so it gets rebuild every time
+        os.remove(self.path)
+
+        return graph
 
 
     def create_graph(self):
         self.load_maps()
         self.load_data()
-        self.plt = self.graph_test()
-        #self.save_fig(plt) # DEBUG so we dont ahve to remove the graph all the time
+        self.plt = self.graph_realisatie()
+        self.save_fig(plt) 
 
         return True
 
@@ -123,16 +130,28 @@ class Graph:
         return fig
 
 
+    def format_table_row(self, row):
+        str_row = []
+        for value in row:
+            if value == 0 or np.abs(value) < 0.5:
+                str_row.append('')
+            else:
+                str_row.append(moneyfmt(value))
+
+        return str_row
+
+
     def load_data(self):
         if self.orderOrGroup == 'order': 
             orders = [ self.name ]
         else:
             orders = [ 2008000000 ] # TODO load all orders in ordergroup here
 
-        print 'start loading regels'
         regels = {}
         regels['plan'] = model.regels.load(['plan'], years_load=[self.year], orders_load=orders)
         regels['resultaat'] = model.regels.load(['geboekt', 'obligo'], years_load=[self.year], orders_load=orders)
+
+        resultaat_ks_periode = regels['resultaat'].split(['kostensoort', 'periode'])
 
         data = {}
         data['title'] = '%s-%s-%s' % (self.name, self.name, self.year)  #TODO replace self.name with order descr if it is a single ordr
@@ -146,7 +165,22 @@ class Graph:
         data['lasten'] = {}
         data['resultaat'] = np.zeros(12)
 
-        print data
+        for ks, resultaat_periode in resultaat_ks_periode.iteritems():
+            key = self.ksmap[ks][0]
+            name = self.ksmap[ks][1]
+
+            if name not in data[key]:
+                data[key][name] = np.zeros(12)
+
+            for periode, regels in resultaat_periode.iteritems():
+                if periode > 12:
+                    periode = 12
+                total = float(regels.total())
+                data[key][name][periode - 1] += total
+                data['resultaat'][periode - 1] += total
+
+        data['resultaat'] = np.cumsum(data['resultaat'])
+
         self.data = data
 
 
@@ -217,17 +251,17 @@ class Graph:
 
         # add table below the graph
         values = []
-        values.append(format_table_row(data_y_resultaat))  # totaal
+        values.append(self.format_table_row(data_y_resultaat))  # totaal
 
         begroting_per_maand = self.data['begroting'] / 12000
         residue_begroting_per_maand = data_y_resultaat - np.linspace(begroting_per_maand, 12 * begroting_per_maand,
                                                                         num=12)
-        values.append(format_table_row(residue_begroting_per_maand))
+        values.append(self.format_table_row(residue_begroting_per_maand))
 
         for data_key in ['baten', 'lasten']:
             for key, row in self.data[data_key].iteritems():
                 self.data[data_key][key] = row / 1000
-                values.append(format_table_row(self.data[data_key][key]))
+                values.append(self.format_table_row(self.data[data_key][key]))
 
         label_columns = (["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
 
