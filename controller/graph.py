@@ -7,6 +7,8 @@ import model.ksgroup
 from functions import moneyfmt
 from matplotlib.patches import Rectangle
 
+from model.users import protected
+
 import web
 import os
 from config import config
@@ -14,6 +16,9 @@ from config import config
 """
 Graphs available:
     general URL: /graph/<year>/<type of graph>/<name of the graph>
+
+    Note: Graph() is not a child of Controller-superclass as it doesn't render
+          a page but returns directly an image to the browser.
 """
 
 
@@ -32,6 +37,7 @@ class Graph:
         self.ksmap = None
 
 
+    @protected()
     def GET(self, year, graph_type, name):
         self.year = year
         self.graph_type = graph_type
@@ -41,9 +47,12 @@ class Graph:
         years_allowed = [2017]  # TODO add security by only adding years in db
         orders_allowed = [ 'xx', 'yy']  #TODO add security by adding all groups/orders to this list
         groups_allowed = [ 'xx', 'yy']  #TODO add security by adding all groups/orders to this list
-        self.orderOrGroup = 'order' #TODO detect this based on if it is in the orders or groups_allowed
+
+        if not self.authorized():
+            raise web.notfound()
 
         if self.graph_type in types_allowed:
+            self.orderOrGroup = 'order' #TODO detect this based on if it is in the orders or groups_allowed
             self.path = os.path.join(config['graphs']['path'], year, graph_type, name+'.png')
 
             if os.path.isfile(self.path):
@@ -52,8 +61,17 @@ class Graph:
                 if self.create_graph():
                     return self.serve_graph()
 
-
         raise web.notfound()
+
+    def authorized(self):
+        # If user has no view or report perm. he has no business viewing graphs
+        if not model.users.check_permission(['view']) and not model.users.check_permission(['report']):  
+            return False
+
+        #if self.order in model.users.orders_allowed():
+        #    return False
+
+        return True
 
 
     def serve_graph(self):
