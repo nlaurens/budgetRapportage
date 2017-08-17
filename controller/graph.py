@@ -9,6 +9,8 @@ from matplotlib.patches import Rectangle
 
 from model.users import protected
 
+import model.users
+
 import web
 import os
 from config import config
@@ -42,36 +44,48 @@ class Graph:
         self.year = year
         self.graph_type = graph_type
         self.name = name
-
-        types_allowed = ['realisatie', 'overview']
-        years_allowed = [2017]  # TODO add security by only adding years in db
-        orders_allowed = [ 'xx', 'yy']  #TODO add security by adding all groups/orders to this list
-        groups_allowed = [ 'xx', 'yy']  #TODO add security by adding all groups/orders to this list
+        self.path = os.path.join(config['graphs']['path'], year, graph_type, name+'.png')
 
         if not self.authorized():
             raise web.notfound()
 
-        if self.graph_type in types_allowed:
-            self.orderOrGroup = 'order' #TODO detect this based on if it is in the orders or groups_allowed
-            self.path = os.path.join(config['graphs']['path'], year, graph_type, name+'.png')
-
-            if os.path.isfile(self.path):
+        if os.path.isfile(self.path):
+            return self.serve_graph()
+        else:
+            if self.create_graph():
                 return self.serve_graph()
-            else:
-                if self.create_graph():
-                    return self.serve_graph()
 
         raise web.notfound()
 
+
     def authorized(self):
+        types_allowed = ['realisatie', 'overview']
+        if not self.graph_type in types_allowed:
+            return False
+
         # If user has no view or report perm. he has no business viewing graphs
         if not model.users.check_permission(['view']) and not model.users.check_permission(['report']):  
             return False
 
-        #if not self.name in model.users.orders_allowed():
-        #    return False
+        try:
+            order_allowed = int(self.name) in model.users.orders_allowed()
+        except:
+            order_allowed = False
+        if not order_allowed: # Could still be an ordergroup instead of order...
+            try:
+                og_allowed = model.users.check_ordergroup(*model.ordergroup.decode(self.name))
+            except:
+                og_allowed = False
 
-        print self.name
+            if not og_allowed:
+                return False
+
+        try:
+            year_allowed = int(self.year) in model.regels.years()
+        except:
+            year_allowed = False
+        if not year_allowed:
+            return False
 
         return True
 
