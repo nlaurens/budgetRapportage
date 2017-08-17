@@ -68,8 +68,10 @@ class Graph:
         if not model.users.check_permission(['view']) and not model.users.check_permission(['report']):  
             return False
 
-        #if self.order in model.users.orders_allowed():
+        #if not self.name in model.users.orders_allowed():
         #    return False
+
+        print self.name
 
         return True
 

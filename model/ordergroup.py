@@ -6,6 +6,26 @@ from budget import OrderGroup
 from model.functions import first_item_in_list
 import model.orders
 
+def encode(og_file, og_group):
+    """
+    .encode(og_file, og_group)
+        input: og_file as string, og_group as string
+        output: '<og_file>.<og_group>' as string
+        Encodes ordergroupfile name and ordergroup-name to a string for usage in 
+                the browser.
+    """
+    return ('%s-%s') % (og_file, og_group)
+
+
+def decode(og_string):
+    """
+    .decode(og_string)
+        input: '<og_file>.<og_group>' as string
+        output: og_file as string, og_group as string
+        Decodes ordergroupfile name and ordergroup-name from a single string
+    """
+    return tuple(og_string.split('-', 1))
+
 
 def available(actcode_groups=False):
     """

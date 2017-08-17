@@ -53,13 +53,8 @@ class Report(Controller):
 
 
     def authorized(self):
-        if model.users.check_permission(['report']):
-            ordergroups_allowed = model.users.ordergroups_allowed()
-            for ordergroup_file_allowed, ordergroup_allowed in ordergroups_allowed:
-                ordergroup = model.ordergroup.load(ordergroup_file_allowed).find(ordergroup_allowed)
-                for subordergroup in ordergroup.list_groups():
-                    if subordergroup.name == self.ordergroup.name and ordergroup_file_allowed == self.ordergroup_file:
-                        return True
+        if model.users.check_permission(['report']) and model.users.check_ordergroup(self.ordergroup_file, self.ordergroup.name):
+            return True
 
         return False
 
@@ -79,8 +74,10 @@ class Report(Controller):
         report['summary'] = self.render_summary(data)
         self.body = self.webrender.report(report)
 
+
     def render_summary(self, data):
         return self.render_top_table(self.ordergroup, data)
+
 
     def create_bread_crums(self):
         groep = self.ordergroup
@@ -169,7 +166,7 @@ class Report(Controller):
             # graphs of groups:
             for group in self.ordergroup.children:
                 graph = {}
-                graph['name'] = '%s-%s' % (self.ordergroup_file, group.name)
+                graph['name'] = model.ordergroup.encode(self.ordergroup_file, group.name)
                 graph['link'] = self.url(module='report', params={'ordergroup':(self.ordergroup_file), 'subgroup':group.name})
                 graph['png'] = self.url_graph(year, 'realisatie', graph['name'])
                 graphs[year].append(graph)
@@ -214,7 +211,7 @@ class Report(Controller):
         header['name'] = ordergroup.descr
         header['link'] = self.url(params={'ordergroep': self.ordergroup_file, 'subgroep': ordergroup.name})
         header['id'] = ordergroup.name
-        graph_name = '%s-%s' % (self.ordergroup_file, ordergroup.name)
+        graph_name = model.ordergroup.encode(self.ordergroup_file, ordergroup.name)
         header['graph_overview'] = self.url_graph(self.years[-1], 'overview', graph_name)
 
         rows = []
@@ -224,7 +221,7 @@ class Report(Controller):
         totals = data[ordergroup.name]
         for year in self.years:
             totals[year]['id'] = '%s-%s' % (year, ordergroup.name)
-            graph_name = '%s-%s' % (self.ordergroup_file, ordergroup.name)
+            graph_name = model.ordergroup.encode(self.ordergroup_file, ordergroup.name)
             totals[year]['graph'] = self.url_graph(year, 'realisatie', graph_name)
 
         top_table = self.webrender.table(self.years, rows, totals, header)
@@ -237,7 +234,7 @@ class Report(Controller):
             row['link'] = self.url(params={'ordergroep': self.ordergroup_file, 'subgroep': subgroup.name})
             row['name'] = subgroup.descr
             row['order'] = None
-            graph_name = '%s-%s' % (self.ordergroup_file, subgroup.name)
+            graph_name = model.ordegroup.encode(self.ordergroup_file, subgroup.name)
             row['graph_overview'] = self.url_graph(self.years[-1], 'overview', graph_name)
             row['id'] = subgroup.name
 

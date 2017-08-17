@@ -68,6 +68,24 @@ def check_permission(perm):
     return auth.has_perm(perm)
 
 
+def check_ordergroup(og_file, og_name):
+    """
+    .check_ordegroup(og_file, og_name)
+        input: og_file as string, og_name as string
+        output: True/False
+        Checks if user has access to ordegroup 'og_name' in ordegroupfile 'og_file'
+        returns True if both match, otherwise False
+    """
+    ordergroups_allowed = model.users.ordergroups_allowed()
+    for ordergroup_file_allowed, ordergroup_allowed in ordergroups_allowed:
+        ordergroup = model.ordergroup.load(ordergroup_file_allowed).find(ordergroup_allowed)
+        for subordergroup in ordergroup.list_groups():
+            if subordergroup.name == og_name and ordergroup_file_allowed == og_file:
+                return True
+
+    return False
+
+
 def ordergroups_allowed():
     """
     .orders_allowed()
