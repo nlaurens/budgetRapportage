@@ -344,3 +344,72 @@ class Graph:
             plt.axvline(i + 0.5, color='grey', ls=':')
 
         return plt
+
+    # overview: 1 kolom extra in elke tabel en daarin het grafiekje van de jaren zetten zodat het goed te zien is
+    # grafiek: x = jan/dec, y = 0 tot 100% realisatie t.o.v. begroting (dus 1 lijn begroting stippel de rest in kleurtjes
+    # met in legenda eronder de absolute getallen in realisatie
+    def graph_overview(self, render_year, data):
+        data_x = np.arange(1, 13)
+        data_y = {}
+        for year in self.years:
+            if year <= render_year:
+                data_y[year] = data[year]['resultaat'] / 1000
+
+        # title graph
+        title = data[render_year]['title']
+
+        # Layout figure
+        plt.figure(figsize=(12, 9))
+        plt.title(title, loc='right', fontsize=12)
+
+        ax = plt.subplot(111)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+        ax.get_xaxis().tick_bottom()
+        plt.xticks(np.arange(0, 13, 1.0), fontsize=16)
+        plt.xlim(0.5, 12.51)
+        plt.xticks([])
+        plt.xlabel("")
+        plt.axhline(0, color='black')
+
+        ax.get_yaxis().tick_left()
+        plt.yticks(fontsize=14)
+        plt.ylabel("Spent (keur)", fontsize=18)
+
+        legend = {}
+        legend['data'] = []
+        legend['keys'] = []
+
+        # Plot data and legend
+        table_data = []
+        plot_resultaat = {}
+        plot_begroting = {}
+        color_count = 0
+        colors = ['b', 'g', 'r', 'c', 'm', 'y']
+        for year in self.years:
+            if year <= render_year:
+                table_data.append([
+                    year,
+                    moneyfmt(data[year]['begroting'], keur=True),
+                    moneyfmt(data[year]['resultaat'][-1], keur=True),
+                    moneyfmt(data[year]['begroting'] - data[year]['resultaat'][-1], keur=True),
+                ])
+                begroting = np.array([data[year]['begroting'] / 1000, data[year]['begroting'] / 1000])
+
+                color = colors[color_count]
+                color_count += 1
+                plot_resultaat[year] = plt.plot(data_x, data_y[year], 'o-', lw=2, color=color)
+                plot_begroting[year] = plt.plot(np.array([0, 12]), np.array(begroting), '--', color=color)
+                legend['data'].append(plot_resultaat[year][0])
+                legend['keys'].append("%s" % year)
+
+        leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
+        leg.get_frame().set_linewidth(0.0)
+
+        table_labels = ("Year", "Budget", "Spent", "+/-")
+        the_table = plt.table(cellText=table_data, colLabels=table_labels, loc='bottom', rowLoc='right')
+        the_table.set_fontsize(14)
+        the_table.scale(1, 2)
+        return plt
+
