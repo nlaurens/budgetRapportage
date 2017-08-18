@@ -49,19 +49,42 @@ def queue_all(years):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('target', help='all, or a single ordernummer')
+    parser.add_argument('-a','--all', action='store_true', help='builds all ordergroups and orders in the groups')
+    parser.add_argument('-o','--order', help='builds specific ordernummer')
+    parser.add_argument('-og','--ordergroup', help='builds the specific ordergroup graph')
+    parser.add_argument('-t','--test', action='store_true', help='forces graph to be build to test.png, can be used with -o or -og')
+    parser.add_argument('-y','--year', default=2017, help='specifices year to build, can be used with -o or -og')
+
     args = parser.parse_args()
 
-    if args.target == 'all':
-        print 'Building queue...'
+    queue = []
+    if args.all:
+        print 'Preparing all ordergroups and orders...'
         years = [2016, 2017]
         queue = queue_all(years)
-    else:
-        print 'Building queue...'
+    elif args.order:
+        order = args.order
+        print 'Preparing single order ' + order
+        year = args.year
         graph_empty = controller.graph.Graph()
         graph_empty.load_maps()
-        queue = [{'output':'graphs/test.png', 'target':args.target, 'year':2017, 'ksmap':graph_empty.ksmap, 'colormap':graph_empty.colormap}]
-
+        if args.test:
+            output = 'graphs/test.png'
+        else:
+            output =  'graphs/%s/realisatie/%s.png' % (year, order)
+        queue = [{'output':output, 'target':order, 'year':year, 'ksmap':graph_empty.ksmap, 'colormap':graph_empty.colormap}]
+    elif args.ordergroup:
+        ordergroup = args.ordergroup
+        print 'Preparing single ordergroup ' + ordergroup
+        year = args.year
+        graph_empty = controller.graph.Graph()
+        graph_empty.load_maps()
+        if args.test:
+            output = 'graphs/test.png'
+        else:
+            output =  'graphs/%s/realisatie/%s.png' % (year, ordergroup)
+        queue = [{'output':output, 'target':ordergroup, 'year':year, 'ksmap':graph_empty.ksmap, 'colormap':graph_empty.colormap}]
+        
     print 'building graphs...'
     total = len(queue)
     processed = 0
