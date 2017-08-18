@@ -222,24 +222,20 @@ class Graph:
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
-        ax.get_xaxis().tick_bottom()
-        plt.xticks(np.arange(0, 13, 1.0), fontsize=16)
-        plt.xlim(0.5, 12.51)
-        plt.xticks([])
-        plt.xlabel("")
-        plt.axhline(0, color='black')
+        ax.set_xlim(0.5, 12.51)
+        ax.set_xticks([])
+        ax.hlines(0, 0, 13, color='black')
 
-        ax.get_yaxis().tick_left()
-        plt.yticks(fontsize=14)
-        plt.ylabel("Spent (keur)", fontsize=18)
+        ax.tick_params(axis='y', labelsize='14', left=True)
+        ax.yaxis.set_label_text('Spent (keur)', size=18)
 
         legend = {}
         legend['data'] = []
         legend['keys'] = []
 
         # Plot data
-        plot_resultaat = plt.plot(data_x, data_y_resultaat, 'ro-', lw=2)
-        plot_begroting = plt.plot(data_x_begroting, data_y_begroting, 'k--')
+        plot_resultaat = ax.plot(data_x, data_y_resultaat, 'ro-', lw=2)
+        plot_begroting = ax.plot(data_x_begroting, data_y_begroting, 'k--')
 
         # setup legend
         legend['data'].append(plot_resultaat[0])
@@ -253,9 +249,9 @@ class Graph:
         else:
             legend['keys'].append("Overbesteed: (%s keur)" % moneyfmt(overschot))
 
-        leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
+        leg = ax.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=2)
         if data_y_resultaat[-1] < 0:
-            leg = plt.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=3)
+            leg = ax.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=3)
         leg.get_frame().set_linewidth(0.0)
 
         # Plot bars of baten/lasten!
@@ -264,12 +260,12 @@ class Graph:
         offset = (1 - totaalbars * width) / 2
         bar_nr = 0
         for name, data_y in self.data['baten'].iteritems():
-            plot_baten_bars = plt.bar(data_x + width * bar_nr - 0.5 + offset, data_y / 1000, width,
+            plot_baten_bars = ax.bar(data_x + width * bar_nr - 0.5 + offset, data_y / 1000, width,
                                         color=self.colormap['baten'][name])
             bar_nr += 1
 
         for name, data_y in self.data['lasten'].iteritems():
-            plot_lasten_bars = plt.bar(data_x + width * bar_nr - 0.5 + offset, data_y / 1000, width,
+            plot_lasten_bars = ax.bar(data_x + width * bar_nr - 0.5 + offset, data_y / 1000, width,
                                         color=self.colormap['lasten'][name])
             bar_nr += 1
 
@@ -311,13 +307,13 @@ class Graph:
         else:
             colors = [[1, 1, 1, 1], [1, 1, 1, 1]]
 
-        the_table = plt.table(cellText=values, rowLabels=label_rows, rowColours=colors,
+        the_table = ax.table(cellText=values, rowLabels=label_rows, rowColours=colors,
                                 colLabels=label_columns, loc='bottom', rowLoc='right')
         the_table.set_fontsize(14)
         the_table.scale(1, 2)
 
         # Add y-lines:
         for i in range(0, 15):
-            plt.axvline(i + 0.5, color='grey', ls=':')
+            ax.axvline(i + 0.5, color='grey', ls=':')
 
         return plt
