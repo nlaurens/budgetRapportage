@@ -94,7 +94,7 @@ class Graph:
         web.header("Content-Type", "images/png")
         graph = open(self.path, "rb").read()
         # Debug: remove graph after serving so it gets rebuild every time
-        os.remove(self.path)
+        # os.remove(self.path)
 
         return graph
 
@@ -102,7 +102,12 @@ class Graph:
     def create_graph(self):
         self.load_maps()
         self.load_data()
-        self.plt = self.graph_realisatie()
+
+        if self.graph_type == 'realisatie':
+            self.plt = self.graph_realisatie()
+        elif self.graph_type == 'overview':
+            self.plt = self.graph_test()
+
         self.save_fig(plt) 
 
         return True
@@ -130,6 +135,9 @@ class Graph:
 
 
     def save_fig(self, fig):
+        print 'saving fig'
+        print self.path
+
         dir_graph = os.path.split(self.path)[0]
         if not os.path.isdir(dir_graph):
             os.makedirs(dir_graph)
@@ -176,10 +184,15 @@ class Graph:
 
 
     def load_data(self):
-        if self.orderOrGroup == 'order': 
-            orders = [ self.name ]
-        else:
-            orders = [ 2008000000 ] # TODO load all orders in ordergroup here
+        try:
+            orders = [ int(self.name) ]
+        except:
+            og_file, og_group = model.ordergroup.decode(self.name)
+            print og_file
+            print og_group
+            ordergroup = model.ordergroup.load(og_file)
+            self.ordergroup = ordergroup.find(og_group)
+            orders = self.ordergroup.list_orders_recursive().keys()
 
         regels = {}
         regels['plan'] = model.regels.load(['plan'], years_load=[self.year], orders_load=orders)
