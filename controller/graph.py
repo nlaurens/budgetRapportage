@@ -23,12 +23,8 @@ Graphs available:
     Note: Graph() is not a child of Controller-superclass as it doesn't render
           a page but returns directly an image to the browser.
 
-    Note2: matplotlib is not 'thread' save. Stuff stays global, mixes two graphs
-           and you get an error. Solution: use OO interface Matplotlib. Also 
-           tried forcing the building of each graph in own process using Pool, but 
-           that doesn't seem to work for instance methods
-           See for more details.
-           https://stackoverflow.com/questions/31719138/matplotlib-cant-render-multiple-contour-plots-on-django
+    Note2: matplotlib is not 'thread' save - stuff stays global, mixes graphs
+           and you get an error. Solution: use OO interface Matplotlib
 """
 
 
@@ -309,3 +305,4 @@ class Graph:
             os.makedirs(dir_graph)
 
         fig.savefig(self.path, bbox_inches='tight')
+        plt.close(fig)

@@ -233,7 +233,7 @@ class Report(Controller):
             row['link'] = self.url(params={'ordergroep': self.ordergroup_file, 'subgroep': subgroup.name})
             row['name'] = subgroup.descr
             row['order'] = None
-            graph_name = model.ordegroup.encode(self.ordergroup_file, subgroup.name)
+            graph_name = model.ordergroup.encode(self.ordergroup_file, subgroup.name)
             row['id'] = subgroup.name
 
             for year in self.years:
