@@ -1,6 +1,7 @@
 import matplotlib
 matplotlib.use('Agg')  # Forces matplotlib not to use any xwindows calls
 
+from multiprocessing import Pool
 import matplotlib.pyplot as plt
 import numpy as np
 import model.ksgroup
@@ -21,6 +22,13 @@ Graphs available:
 
     Note: Graph() is not a child of Controller-superclass as it doesn't render
           a page but returns directly an image to the browser.
+
+    Note2: matplotlib is not 'thread' save. Stuff stays global, mixes two graphs
+           and you get an error. Solution: use OO interface Matplotlib. Also 
+           tried forcing the building of each graph in own process using Pool, but 
+           that doesn't seem to work for instance methods
+           See for more details.
+           https://stackoverflow.com/questions/31719138/matplotlib-cant-render-multiple-contour-plots-on-django
 """
 
 
@@ -52,7 +60,8 @@ class Graph:
         if os.path.isfile(self.path):
             return self.serve_graph()
         else:
-            if self.create_graph():
+            created = self.create_graph()
+            if created:
                 return self.serve_graph()
 
         raise web.notfound()
@@ -106,7 +115,8 @@ class Graph:
         if self.graph_type == 'realisatie':
             self.plt = self.graph_realisatie()
 
-        self.save_fig(plt) 
+        self.save_fig() 
+        plt.close()
 
         return True
 
@@ -132,39 +142,12 @@ class Graph:
                     self.colormap[tiepe][key] = colors[tiepe][i]
 
 
-    def save_fig(self, fig):
+    def save_fig(self):
         dir_graph = os.path.split(self.path)[0]
         if not os.path.isdir(dir_graph):
             os.makedirs(dir_graph)
 
         self.plt.savefig(self.path, bbox_inches='tight')
-
-
-    def graph_test(self):
-        from matplotlib.mlab import bivariate_normal
-        from numpy.core.multiarray import arange
-
-        delta = 0.5
-
-        x = arange(-3.0, 4.001, delta)
-        y = arange(-4.0, 3.001, delta)
-        X, Y = np.meshgrid(x, y)
-        Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-        Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
-        Z = (Z1 - Z2) * 10
-
-        fig = plt.figure(figsize=(10, 5))
-
-        ax1 = fig.add_subplot(111)
-        extents = [x.min(), x.max(), y.min(), y.max()]
-        im = ax1.imshow(Z,
-                        interpolation='spline36',
-                        extent=extents,
-                        origin='lower',
-                        aspect='auto')
-        ax1.contour(X, Y, Z, 10, colors='k')
-
-        return fig
 
 
     def format_table_row(self, row):
