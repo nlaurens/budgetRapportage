@@ -215,9 +215,10 @@ class Graph:
 
         # Layout figure
         plt.figure(figsize=(12, 9))
-        plt.title(self.data['title'], loc='right', fontsize=12)
 
         ax = plt.subplot(111) 
+        ax.set_title(self.data['title'], loc='right', fontsize=12) 
+
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
