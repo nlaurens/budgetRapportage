@@ -60,9 +60,10 @@ class Graph:
         if os.path.isfile(self.path):
             return self.serve_graph()
         else:
-            created = self.create_graph()
-            if created:
-                return self.serve_graph()
+            self.create_graph()
+
+        if os.path.isfile(self.path):
+            return self.serve_graph()
 
         raise web.notfound()
 
@@ -113,13 +114,7 @@ class Graph:
         self.load_data()
 
         if self.graph_type == 'realisatie':
-            self.plt = self.graph_realisatie()
-
-        self.save_fig() 
-        plt.close()
-
-        return True
-
+            self.graph_realisatie()
 
     def load_maps(self):
         graph_ks_group = config['graphs']['ksgroup']
@@ -140,14 +135,6 @@ class Graph:
                 colors['lasten'] = plt.cm.BuGn(np.linspace(0.75, 0.1, colors_amount))
                 for i, key in enumerate(self.colormap[tiepe]):
                     self.colormap[tiepe][key] = colors[tiepe][i]
-
-
-    def save_fig(self):
-        dir_graph = os.path.split(self.path)[0]
-        if not os.path.isdir(dir_graph):
-            os.makedirs(dir_graph)
-
-        self.plt.savefig(self.path, bbox_inches='tight')
 
 
     def format_table_row(self, row):
@@ -213,12 +200,10 @@ class Graph:
         data_y_begroting = np.array([0, self.data['begroting'] / 1000])
         data_y_resultaat = self.data['resultaat'] / 1000
 
-        # Layout figure
-        plt.figure(figsize=(12, 9))
+        fig, ax = plt.subplots(figsize=(12,9))
 
-        ax = plt.subplot(111) 
+        # Set layout
         ax.set_title(self.data['title'], loc='right', fontsize=12) 
-
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
@@ -237,6 +222,7 @@ class Graph:
         plot_resultaat = ax.plot(data_x, data_y_resultaat, 'ro-', lw=2)
         plot_begroting = ax.plot(data_x_begroting, data_y_begroting, 'k--')
 
+
         # setup legend
         legend['data'].append(plot_resultaat[0])
         legend['keys'].append("Realisatie (%s keur)" % moneyfmt(data_y_resultaat[-1]))
@@ -253,6 +239,7 @@ class Graph:
         if data_y_resultaat[-1] < 0:
             leg = ax.legend(tuple(legend['data']), tuple(legend['keys']), fontsize=16, loc=3)
         leg.get_frame().set_linewidth(0.0)
+
 
         # Plot bars of baten/lasten!
         totaalbars = len(self.data['baten']) + len(self.data['lasten'])
@@ -316,4 +303,9 @@ class Graph:
         for i in range(0, 15):
             ax.axvline(i + 0.5, color='grey', ls=':')
 
-        return plt
+        # Save the graph
+        dir_graph = os.path.split(self.path)[0]
+        if not os.path.isdir(dir_graph):
+            os.makedirs(dir_graph)
+
+        fig.savefig(self.path, bbox_inches='tight')
