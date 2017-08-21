@@ -171,12 +171,15 @@ class Graph:
         data['lasten'] = {}
         data['resultaat'] = np.zeros(12)
 
+        #prebuild ksgroup data structure to force fixed order (baten/lasten..)
+        keys = ['baten', 'lasten']
+        for key in keys:
+            for ksgroup in self.colormap[key].keys():
+                data[key][ksgroup] = np.zeros(12)
+
         for ks, resultaat_periode in resultaat_ks_periode.iteritems():
             key = self.ksmap[ks][0]
             name = self.ksmap[ks][1]
-
-            if name not in data[key]:
-                data[key][name] = np.zeros(12)
 
             for periode, regels in resultaat_periode.iteritems():
                 if periode > 12:
@@ -186,6 +189,18 @@ class Graph:
                 data['resultaat'][periode - 1] += total
 
         data['resultaat'] = np.cumsum(data['resultaat'])
+
+        # remove empty ksgroups
+        keys = ['baten', 'lasten']
+        empty_ksgroups = []
+        for key in keys:
+            for ksgroup, values in data[key].iteritems():
+                if not np.any(values):
+                    empty_ksgroups.append((key, ksgroup))
+
+        for key, ksgroup in empty_ksgroups:
+            del data[key][ksgroup]
+
 
         self.data = data
 

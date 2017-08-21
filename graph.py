@@ -52,7 +52,7 @@ if __name__ == "__main__":
     parser.add_argument('-a','--all', action='store_true', help='builds all ordergroups and orders in the groups')
     parser.add_argument('-o','--order', help='builds specific ordernummer')
     parser.add_argument('-og','--ordergroup', help='builds the specific ordergroup graph')
-    parser.add_argument('-t','--test', action='store_true', help='forces graph to be build to test.png, can be used with -o or -og')
+    parser.add_argument('-n','--name', help='forces graph to be build to <name>.png, can be used with -o or -og')
     parser.add_argument('-y','--year', default=2017, help='specifices year to build, can be used with -o or -og')
 
     args = parser.parse_args()
@@ -68,8 +68,8 @@ if __name__ == "__main__":
         year = args.year
         graph_empty = controller.graph.Graph()
         graph_empty.load_maps()
-        if args.test:
-            output = 'graphs/test.png'
+        if args.name:
+            output = 'graphs/%s.png' % args.name
         else:
             output =  'graphs/%s/realisatie/%s.png' % (year, order)
         queue = [{'output':output, 'target':order, 'year':year, 'ksmap':graph_empty.ksmap, 'colormap':graph_empty.colormap}]
@@ -79,8 +79,8 @@ if __name__ == "__main__":
         year = args.year
         graph_empty = controller.graph.Graph()
         graph_empty.load_maps()
-        if args.test:
-            output = 'graphs/test.png'
+        if args.name:
+            output = 'graphs/%s.png' % args.name
         else:
             output =  'graphs/%s/realisatie/%s.png' % (year, ordergroup)
         queue = [{'output':output, 'target':ordergroup, 'year':year, 'ksmap':graph_empty.ksmap, 'colormap':graph_empty.colormap}]
@@ -94,5 +94,3 @@ if __name__ == "__main__":
         print 'processed %s %s (%s - %s)' % (item['year'], item['target'], processed, total)
 
     print 'done.'
-
-
