@@ -2,6 +2,7 @@ from xlsx2csv import Xlsx2csv
 import csv
 import os
 import tempfile
+import shutil
 
 from controller import Controller
 import web
@@ -70,10 +71,9 @@ class Admin(Controller):
                           description='Last periode obligo/salarissen updated'),
             form.Button('submit', value='updateSapDates')
         )
-        self.form_rebuild_graphs = form.Form(
-            form.Textbox('target', form.notnull, description='Order/groep/*'),
+        self.form_remove_graphs = form.Form(
             form.Dropdown('year', drop_down_options['empty_years_all'], form.notnull),
-            form.Button('submit', value='rebuildGraphs')
+            form.Button('submit', value='removeGraphs')
         )
 
     def authorized(self):
@@ -103,7 +103,7 @@ class Admin(Controller):
         rendered['forms'].append(self.webrender.form('Delete Regels Table', self.form_drop_regels_table))
         rendered['forms'].append(self.webrender.form('Upload File', self.form_upload))
         rendered['forms'].append(self.webrender.form('Update last SAP-update-date', self.form_update_sap))
-        rendered['forms'].append(self.webrender.form('Update Graphs', self.form_rebuild_graphs))
+        rendered['forms'].append(self.webrender.form('Remove graphs', self.form_remove_graphs))
 
         self.body = self.webrender.admin(msg, rendered)
 
@@ -197,8 +197,8 @@ class Admin(Controller):
             model.regels.last_periode(self.form_update_sap['sapperiode'].value)
             valid_form = True
 
-        if form_used == 'rebuildGraphs' and self.form_rebuild_graphs.validates():
-            msg.extend(self.parse_rebuild_graphs())
+        if form_used == 'removeGraphs' and self.form_remove_graphs.validates():
+            msg.extend(self.parse_remove_graphs())
             valid_form = True
 
         return valid_form, msg
@@ -232,18 +232,21 @@ class Admin(Controller):
 
         return msg
 
-    def parse_rebuild_graphs(self):
-        jaar = self.form_rebuild_graphs['year'].value
-        target = self.form_rebuild_graphs['target'].value
+    def parse_remove_graphs(self):
+        jaar = self.form_remove_graphs['year'].value
 
-        msg = ['Parsing rebuild graph']
-        jaren_db = model.regels.years()
-        if jaar != '*':
-            assert int(jaar) in jaren_db
+        msg = ['Removing all graphs of year']
 
-        msg.append("This module has been disabled due to security issues.")
-        # msg.append("running: $python graph.py %s %s" % (target, jaar))
-        # os.system("python graph.py %s %s" % (target, jaar))
+        if jaar == '*':
+            msg.append("removing all")
+            for year in model.regels.years():
+                msg.append("removing graphs/%s/" % year)
+                shutil.rmtree('graphs/%s/' % year, ignore_errors=True)
+        else:
+            msg.append("removing graphs/%s/" % jaar)
+            shutil.rmtree('graphs/%s/' % jaar, ignore_errors=True)
+
+        msg.append("Done!")
         return msg
 
     def parse_upload_form(self):

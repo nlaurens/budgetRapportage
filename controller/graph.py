@@ -314,10 +314,13 @@ class Graph:
         for i in range(0, 15):
             ax.axvline(i + 0.5, color='grey', ls=':')
 
-        # Save the graph
+        # Save the graph in dir with proper perm.
         dir_graph = os.path.split(self.path)[0]
         if not os.path.isdir(dir_graph):
             os.makedirs(dir_graph)
+            for path in os.walk(config['graphs']['path']):
+                os.chmod(path[0], 0777)
 
         fig.savefig(self.path, bbox_inches='tight')
+        os.chmod(self.path, 0666)
         plt.close(fig)
