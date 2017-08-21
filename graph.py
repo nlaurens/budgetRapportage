@@ -10,6 +10,7 @@ web.config.debug = False  # Set to False for no ouput! Must be done before the r
 import controller.graph
 import model
 import argparse
+import sys
 
 # Taget = ordernummer/ksgroup
 def graph(target, year, ksmap, colormap, output):
@@ -56,6 +57,10 @@ if __name__ == "__main__":
     parser.add_argument('-y','--year', default=2017, help='specifices year to build, can be used with -o or -og')
 
     args = parser.parse_args()
+
+    if len(sys.argv)==1:
+        parser.print_help()
+        sys.exit(1)
 
     queue = []
     if args.all:

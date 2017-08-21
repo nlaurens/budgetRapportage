@@ -14,7 +14,7 @@ Auth-module
   * add settings for table names (user, permission, user_permission as standard)
 
 Graph-module
-  * graph groups should be named: <ordergroup_file_name><ordergroup_name>
+  * option for graphs per ksgroup: graphs/LION/.., graphs/LEIPROJECT/..
 
 Model-modules
   -.regels
