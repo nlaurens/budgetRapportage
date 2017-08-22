@@ -17,7 +17,12 @@ $def with (report)
 			  <div class="tab-pane active" id="1">
                 <h4></h4>
                 <div>
-                    $:report['summary']
+                    $:report['top_table']
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <img src="$:report['top_graph']" class="img-responsive">
+                        </div>
+                    </div>
                 </div>
               </div>
 

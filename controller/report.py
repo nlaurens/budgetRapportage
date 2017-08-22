@@ -71,12 +71,10 @@ class Report(Controller):
         report['figpage'] = self.render_fig()
         report['settings'] = self.render_settings()
         report['javaScripts'] = self.render_java_scripts()
-        report['summary'] = self.render_summary(data)
+        report['top_table'] = self.render_top_table(self.ordergroup, data)
+        report['top_graph'] = self.url_graph(config['currentYear'], 'realisatie', model.ordergroup.encode(self.ordergroup_file, self.ordergroup.name))
+
         self.body = self.webrender.report(report)
-
-
-    def render_summary(self, data):
-        return self.render_top_table(self.ordergroup, data)
 
 
     def create_bread_crums(self):
