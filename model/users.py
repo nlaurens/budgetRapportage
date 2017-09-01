@@ -111,9 +111,24 @@ def orders_allowed():
         on the ordergroups he has permission for.
     """
     orders = []
+    
     for ordergroup, group in ordergroups_allowed():
         ordergroup = model.ordergroup.load(ordergroup).find(group)
         orders.extend(ordergroup.list_orders_recursive().keys())
+
+    #TODO DEBUG BUILDING NEW FEATURE TO ADD PI BASED ACCESS
+    permissions = get_permission()
+    for permission in permissions:
+        if permission[:3] == 'BH-':
+            budgetHolder = permission[3:]
+            print 'you are authorzed to view'
+            print budgetHolder
+            #orders.extend(model.orders.load('BH'=budgetHolder))
+            orders.extend([9999999999])
+
+    print orders
+    orders = []
+
 
     return orders
 
