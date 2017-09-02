@@ -118,14 +118,17 @@ def orders_allowed():
         orders.extend(ordergroup.list_orders_recursive().keys())
 
     # Based on BudgetHolder 
+    budgetHolders = []
     permissions = get_permission()
     for permission in permissions:
         if permission[:3] == 'BH-':
-            budgetHolder = permission[3:]
-            test = model.orders.load(BH=budgetHolder)
-            for order in test.orders:
-                if order.ordernummer not in orders:
-                    orders.append(int(order.ordernummer))
+            budgetHolders.append(permission[3:])
+
+    if budgetHolders:
+        orderlist = model.orders.load(BH_load=budgetHolders)
+        for order in orderlist.orders:
+            if order.ordernummer not in orders:
+                orders.append(int(order.ordernummer))
 
     return orders
 

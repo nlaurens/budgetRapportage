@@ -34,22 +34,17 @@ def __select_distinct(regel_attribute):
     return distinct
 
 
-def load(BH=None):
+def load(BH_load=None):
     """
-        .Load
-        input: none
+        .load(BH=[])
+        input: None
+        optional inputs:
+            BH_load as list of string
         output: OrderList instance
     """
-    #TODO
-    #query = '1'
-    #if orders_load:
-    #    query += ' AND  `ordernummer` IN (' + ','.join(str(order) for order in orders_load) + ')'
-    #if kostensoorten_load:
-    #    query += ' AND `kostensoort` IN (' + ','.join(str(ks) for ks in kostensoorten_load) + ')'
-    #if years_load:
-    #    query += ' AND `jaar` IN (' + ','.join(str(jr) for jr in years_load) + ')'
-    #if periods:
-    #    query += ' AND `periode` IN (' + ','.join(str(period) for period in periods) + ')'
+    query = '1'
+    if BH_load:
+        query += ' AND  `budgethouder` IN (' + ','.join('\'' + str(BH) + '\'' for BH in BH_load) + ')'
 
     try:
         db_select = db.select(config["mysql"]["tables_other"]["orderlijst"], where=query, vars=locals())
