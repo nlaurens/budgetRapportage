@@ -34,17 +34,20 @@ def __select_distinct(regel_attribute):
     return distinct
 
 
-def load(BH_load=None):
+def load(orders_load=None, BH_load=None):
     """
         .load(BH=[])
         input: None
         optional inputs:
+            orders_load as list of ints
             BH_load as list of string
         output: OrderList instance
     """
     query = '1'
     if BH_load:
         query += ' AND  `budgethouder` IN (' + ','.join('\'' + str(BH) + '\'' for BH in BH_load) + ')'
+    if orders_load:
+        query += ' AND  `ordernummer` IN (' + ','.join('\'' + str(order) + '\'' for order in orders_load) + ')'
 
     try:
         db_select = db.select(config["mysql"]["tables_other"]["orderlijst"], where=query, vars=locals())

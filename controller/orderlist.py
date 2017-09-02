@@ -17,7 +17,8 @@ class Orderlist(Controller):
         return model.users.check_permission(['orderlist'])
 
     def process_sub(self):
-        orderlist = model.orders.load()
+        orders_allowed = model.users.orders_allowed()
+        orderlist = model.orders.load(orders_load=orders_allowed)
 
         orderlist_per_actcode = orderlist.split(['activiteitencode'])
         tables = []
