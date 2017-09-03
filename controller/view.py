@@ -20,7 +20,8 @@ class View(Controller):
         self.webrender = web.template.render('webpages/view/')
 
         # View specific:
-        self.order = int(web.input(order=0)['order'])
+        order = int(web.input(order=0)['order'])
+        self.order = model.orders.load(orders_load=[order]).orders[0]
         self.year = int(web.input(year=self.config["currentYear"])['year'])
         self.ksgroup_name = web.input(ksgroup_name=config['ksgroup']['default'])['ksgroup_name']
         self.periode = (web.input(periode='ALL')['periode'])
@@ -57,7 +58,7 @@ class View(Controller):
 
     def authorized(self):
         if model.users.check_permission(['view']):
-            if self.order in model.users.orders_allowed():
+            if self.order.ordernummer in model.users.orders_allowed():
                 return True
         
         return False
@@ -65,7 +66,7 @@ class View(Controller):
     def process_sub(self):
         data, totals = self.construct_data()
         view = {}
-        view['title'] = self.order  # model.orders.get_name(self.order) + ' ' + str(self.order)
+        view['title'] = '%s - %s' % (self.order.ordernummer,self.order.ordernaam)
         view['summary'] = self.render_summary(totals)
         view['settings'] = self.render_settings()
         view['javaScripts'] = self.render_java_scripts(data)
@@ -80,8 +81,8 @@ class View(Controller):
         # totals {'geboekt/obligo/totals':<total>}
 
         regels = {}
-        regels = model.regels.load(['geboekt', 'obligo'], years_load=[self.year], orders_load=[self.order], periods_load=self.periode)
-        regels.extend(model.regels.load(['plan'], years_load=[self.year], orders_load=[self.order]))
+        regels = model.regels.load(['geboekt', 'obligo'], years_load=[self.year], orders_load=[self.order.ordernummer], periods_load=self.periode)
+        regels.extend(model.regels.load(['plan'], years_load=[self.year], orders_load=[self.order.ordernummer]))
         regels_dict = regels.split(['tiepe', 'kostensoort'])
 
         data = {}
@@ -158,6 +159,7 @@ class View(Controller):
 
     def render_summary(self, totals):
         summary = {}
+
         summary['begroting'] = totals['total']['plan']
 
         summary['baten'] = 0
@@ -171,7 +173,11 @@ class View(Controller):
         for key in summary.keys():
             summary[key] = moneyfmt(summary[key])
 
-        summary['graph_realisatie'] = self.url_graph(self.year, 'realisatie', self.order)
+
+        summary['bh'] = self.order.budgethouder
+        summary['subact'] = self.order.subactiviteitencode
+
+        summary['graph_realisatie'] = self.url_graph(self.year, 'realisatie', self.order.ordernummer)
 
         return self.webrender.summary(summary)
 
