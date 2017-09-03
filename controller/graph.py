@@ -145,13 +145,19 @@ class Graph:
 
 
     def load_data(self):
+        ordergroup = None
         try:
             orders = [ int(self.name) ]
         except:
             og_file, og_group = model.ordergroup.decode(self.name)
-            ordergroup = model.ordergroup.load(og_file)
-            self.ordergroup = ordergroup.find(og_group)
-            orders = self.ordergroup.list_orders_recursive().keys()
+            ordergroup_top = model.ordergroup.load(og_file)
+            ordergroup = ordergroup_top.find(og_group)
+            orders = ordergroup.list_orders_recursive().keys()
+
+        if ordergroup:
+            descr = ordergroup.descr
+        else:
+            descr = model.orders.load(orders_load=[orders[0]]).orders[0].ordernaam
 
         regels = {}
         regels['plan'] = model.regels.load(['plan'], years_load=[self.year], orders_load=orders)
@@ -160,7 +166,7 @@ class Graph:
         resultaat_ks_periode = regels['resultaat'].split(['kostensoort', 'periode'])
 
         data = {}
-        data['title'] = '%s-%s-%s' % (self.name, self.name, self.year)  #TODO replace self.name with order descr if it is a single ordr
+        data['title'] = '%s-%s-%s' % (self.name, descr, self.year)  #TODO replace self.name with order descr if it is a single ordr
 
         try:
             data['begroting'] = float(regels['plan'].total())
