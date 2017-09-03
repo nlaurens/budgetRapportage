@@ -94,8 +94,9 @@ if __name__ == "__main__":
     total = len(queue)
     processed = 0
     for item in queue:
+        print 'processing %s %s' % (item['year'], item['target'])
         graph(**item)
         processed +=1
-        print 'processed %s %s (%s - %s)' % (item['year'], item['target'], processed, total)
+        print '  processed: %s - %s' % (processed, total)
 
     print 'done.'
