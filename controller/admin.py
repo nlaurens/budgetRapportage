@@ -345,6 +345,8 @@ class Admin(Controller):
         msg = ['', 'Running tests']
         success, msg_test = self.test_ks_missing_in_report()
         msg.extend(msg_test)
+        success, msg_test = self.test_old_orders()
+        msg.extend(msg_test)
 
         return msg
 
@@ -362,6 +364,30 @@ class Admin(Controller):
                     success = False
                     msg.append(
                         'WARNING kostensoort %s appears in DB but is not included in report %s' % (ks, ksgroup_name))
+
+        if success:
+            msg.append('test PASS')
+        else:
+            msg.append('test FAILED')
+
+        return success, msg
+
+    # Test to see if there are ordernummers in the ordergroups/regels
+    # that are no longer in the orderlist.
+    def test_old_orders(self):
+        msg = ['Testing for orders not in orderlist anymore']
+        success = True
+
+        if True:
+            orders_active = model.orders.load().ordernummers()
+            for og_file in model.ordergroup.available():
+                ordergroup = model.ordergroup.load(og_file)
+                orders_og_file = ordergroup.list_orders_recursive().keys()
+                missing = list(set(orders_og_file)- set(orders_active))
+                for order_missing in missing:
+                    success = False
+                    msg.append(
+                        'WARNING order %s appears in %s but not in active orders' % (order_missing, og_file))
 
         if success:
             msg.append('test PASS')

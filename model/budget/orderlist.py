@@ -76,3 +76,15 @@ class OrderList:
     # Returns a copy of the OrderList for recursion.
     def copy(self):
         return OrderList(self.orders)
+
+
+    """
+        Input: None
+        Output: ordernummers as a list of ints
+    """
+    def ordernummers(self):
+        ordernummers = []
+        for order in self.orders:
+            ordernummers.append(int(order.ordernummer))
+        return ordernummers
+
