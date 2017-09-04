@@ -387,7 +387,7 @@ class Admin(Controller):
                 for order_missing in missing:
                     success = False
                     msg.append(
-                        'WARNING order %s appears in %s but not in active orders' % (order_missing, og_file))
+                        'WARNING order <a href="view?order=%s">%s</a> appears in %s but not in active orders' % (order_missing, order_missing, og_file))
 
         if success:
             msg.append('test PASS')

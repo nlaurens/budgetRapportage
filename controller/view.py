@@ -21,7 +21,15 @@ class View(Controller):
 
         # View specific:
         order = int(web.input(order=0)['order'])
-        self.order = model.orders.load(orders_load=[order]).orders[0]
+        order_inst = model.orders.load(orders_load=[order]).orders
+        if order_inst:
+            self.order = order_inst[0]
+        else:
+            #TODO load empty order here!
+            self.order = {}
+            self.order.ordernummer = order
+            self.order.ordernaam = 'inactive order'
+
         self.year = int(web.input(year=self.config["currentYear"])['year'])
         self.ksgroup_name = web.input(ksgroup_name=config['ksgroup']['default'])['ksgroup_name']
         self.periode = (web.input(periode='ALL')['periode'])
@@ -58,6 +66,7 @@ class View(Controller):
 
     def authorized(self):
         if model.users.check_permission(['view']):
+            ordernummer = self.order.ordernummer
             if self.order.ordernummer in model.users.orders_allowed():
                 return True
         
