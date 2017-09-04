@@ -25,10 +25,8 @@ class View(Controller):
         if order_inst:
             self.order = order_inst[0]
         else:
-            #TODO load empty order here!
-            self.order = {}
-            self.order.ordernummer = order
-            self.order.ordernaam = 'inactive order'
+            self.order = model.budget.order.Order()
+            self.order.load_unknown(order)
 
         self.year = int(web.input(year=self.config["currentYear"])['year'])
         self.ksgroup_name = web.input(ksgroup_name=config['ksgroup']['default'])['ksgroup_name']

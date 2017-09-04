@@ -14,6 +14,23 @@ class Order:
         self.activiteitencode = None
         self.subactiviteitencode = None
 
+    """
+     .load_unkown
+     loads an empty unkown order and make sure all attributes are set
+    """
+    def load_unknown(self, ordernummer):
+        self.ordernummer = ordernummer
+        self.ordernaam = 'unknown'
+
+        self.budgethouder = 'unknown'
+        self.budgethoudervervanger = 'unknown'
+        self.activiteitenhouder = 'unknown'
+        self.activiteitenhoudervervanger = 'unknown'
+
+        self.activiteitencode = 'unknown'
+        self.subactiviteitencode = 'unknown'
+
+
     def druk_af(self):
         print '* order'
         for attribute, value in vars(self).iteritems():
