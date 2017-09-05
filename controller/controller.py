@@ -167,11 +167,11 @@ class Controller(object):
     # graph_type: realisatie, bars, pie, etc.
     # graph_name: anything from group orders to order numbers.
     # params_list:   {param: value, ..} 
-    # returns: /graph/<user_hash>/<graph_type>/<graph_name>.png?[params]
-    def url_graph(self, year, graph_type, name, params=None):
+    # returns: /graph/<graph_type>/<ksgroup>/<graph_name>.png?[params]
+    def url_graph(self, year, ksgroup, graph_type, name, params=None):
 
         if params:
             param_str = urllib.ulrencode(params)
-            return '/graph/%s/%s/%s.png?%s' % (year, graph_type, name, param_str)
+            return '/graph/%s/%s/%s/%s.png?%s' % (year, ksgroup, graph_type, name, param_str)
         else:
-            return '/graph/%s/%s/%s.png' % (year, graph_type, name)
+            return '/graph/%s/%s/%s/%s.png' % (year, ksgroup, graph_type, name)

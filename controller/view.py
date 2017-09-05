@@ -184,7 +184,7 @@ class View(Controller):
         summary['bh'] = self.order.budgethouder
         summary['subact'] = self.order.subactiviteitencode
 
-        summary['graph_realisatie'] = self.url_graph(self.year, 'realisatie', self.order.ordernummer)
+        summary['graph_realisatie'] = self.url_graph(self.year, self.ksgroup_name, 'realisatie', self.order.ordernummer)
 
         return self.webrender.summary(summary)
 

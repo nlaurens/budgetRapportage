@@ -18,6 +18,9 @@ class Report(Controller):
         self.webrender = web.template.render('webpages/report/', cache=False)
 
         # Report specific:
+        #TODO add settings
+        self.ksgroup = config['graphs']['default_ksgroup']
+
         years = model.regels.years()
         if config['currentYear'] in years:
             index = years.index(config['currentYear'])
@@ -72,7 +75,7 @@ class Report(Controller):
         report['settings'] = self.render_settings()
         report['javaScripts'] = self.render_java_scripts()
         report['top_table'] = self.render_top_table(self.ordergroup, data)
-        report['top_graph'] = self.url_graph(config['currentYear'], 'realisatie', model.ordergroup.encode(self.ordergroup_file, self.ordergroup.name))
+        report['top_graph'] = self.url_graph(config['currentYear'], self.ksgroup, 'realisatie', model.ordergroup.encode(self.ordergroup_file, self.ordergroup.name))
 
         self.body = self.webrender.report(report)
 
@@ -166,14 +169,14 @@ class Report(Controller):
                 graph = {}
                 graph['name'] = model.ordergroup.encode(self.ordergroup_file, group.name)
                 graph['link'] = self.url(module='report', params={'ordergroup':(self.ordergroup_file), 'subgroup':group.name})
-                graph['png'] = self.url_graph(year, 'realisatie', graph['name'])
+                graph['png'] = self.url_graph(year, self.ksgroup, 'realisatie', graph['name'])
                 graphs[year].append(graph)
 
             # Graphs of orders
             for order, descr in self.ordergroup.orders.iteritems():
                 graph = {}
                 graph['link'] = self.url(module='view', params={'order':str(order)})
-                graph['png'] = self.url_graph(year, 'realisatie', order)
+                graph['png'] = self.url_graph(year, self.ksgroup, 'realisatie', order)
                 graphs[year].append(graph)
 
         figs = self.webrender.figpage(graphs, reversed(self.years))
@@ -219,7 +222,7 @@ class Report(Controller):
         for year in self.years:
             totals[year]['id'] = '%s-%s' % (year, ordergroup.name)
             graph_name = model.ordergroup.encode(self.ordergroup_file, ordergroup.name)
-            totals[year]['graph'] = self.url_graph(year, 'realisatie', graph_name)
+            totals[year]['graph'] = self.url_graph(year, self.ksgroup, 'realisatie', graph_name)
 
         top_table = self.webrender.table(self.years, rows, totals, header)
         return top_table
@@ -237,7 +240,7 @@ class Report(Controller):
             for year in self.years:
                 row[year] = {}
                 row[year]['id'] = '%s-%s' % (year, subgroup.name)
-                row[year]['graph'] = self.url_graph(year, 'realisatie', graph_name)
+                row[year]['graph'] = self.url_graph(year, self.ksgroup, 'realisatie', graph_name)
                 row[year]['plan'] = data[subgroup.name][year]['plan']
                 row[year]['realisatie'] = data[subgroup.name][year]['realisatie']
                 row[year]['realisatie_perc'] = data[subgroup.name][year]['realisatie_perc']
@@ -258,7 +261,7 @@ class Report(Controller):
             for year in self.years:
                 row[year] = {}
                 row[year]['id'] = '%s-%s' % (year, order)
-                row[year]['graph'] = self.url_graph(year, 'realisatie', order)
+                row[year]['graph'] = self.url_graph(year, self.ksgroup, 'realisatie', order)
                 row[year]['plan'] = data[order][year]['plan']
                 row[year]['realisatie'] = data[order][year]['realisatie']
                 row[year]['realisatie_perc'] = data[order][year]['realisatie_perc']
