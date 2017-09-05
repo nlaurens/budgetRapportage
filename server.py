@@ -83,7 +83,7 @@ urls = (
     '/view(.*)', 'controller.view.View', 
     '/admin', 'controller.admin.Admin', 
 
-    '/graph/(.+)/(.+)/(.+).png', 'controller.graph.Graph', 
+    '/graph/(.+)/(.+)/(.+)/(.+).png', 'controller.graph.Graph', 
 
     '/login', 'auth.handlers.Login',  
     '/logout', 'auth.handlers.Logout', 

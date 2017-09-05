@@ -36,6 +36,7 @@ class Graph:
         self.graph_type = None
         self.name = None
         self.orderOrGroup = None
+        self.ksGroup = None
 
         self.plt = None
 
@@ -44,11 +45,12 @@ class Graph:
 
 
     @protected()
-    def GET(self, year, graph_type, name):
+    def GET(self, year, ksGroup, graph_type, name):
         self.year = year
         self.graph_type = graph_type
         self.name = name
-        self.path = os.path.join(config['graphs']['path'], year, graph_type, name+'.png')
+        self.ksGroup = ksGroup
+        self.path = os.path.join(config['graphs']['path'], year, ksGroup, graph_type, name+'.png')
 
         if not self.authorized():
             raise web.notfound()
@@ -93,6 +95,13 @@ class Graph:
         if not year_allowed:
             return False
 
+        try:
+            ksgroup_allowed = self.ksGroup in model.ksgroup.available()
+        except:
+            ksgroup_allowed = False
+        if not ksgroup_allowed:
+            return False
+
         return True
 
 
@@ -113,7 +122,7 @@ class Graph:
             self.graph_realisatie()
 
     def load_maps(self):
-        graph_ks_group = config['graphs']['ksgroup']
+        graph_ks_group = self.ksGroup 
         ksgroup_root = model.ksgroup.load(graph_ks_group)
         self.ksmap = {}
         self.colormap = {'baten': {}, 'lasten': {}}
@@ -203,10 +212,8 @@ class Graph:
             for ksgroup, values in data[key].iteritems():
                 if not np.any(values):
                     empty_ksgroups.append((key, ksgroup))
-
         for key, ksgroup in empty_ksgroups:
             del data[key][ksgroup]
-
 
         self.data = data
 
