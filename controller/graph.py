@@ -18,7 +18,7 @@ from config import config
 
 """
 Graphs available:
-    general URL: /graph/<year>/<type of graph>/<name of the graph>
+    general URL: /graph/<year>/<ksgroup>/<type of graph>/<name of the graph>
 
     Note: Graph() is not a child of Controller-superclass as it doesn't render
           a page but returns directly an image to the browser.

@@ -32,6 +32,73 @@ class KostensoortGroup:
         else:
             return None
 
+
+    """
+    .save_as_csv
+    """
+    def save_as_csv(self, filename):
+        import csv
+        totalDepth= max(self.list_levels([]))
+        kslist = self.flat_list([], totalDepth)
+
+        with open(filename, "wb") as csv_file:
+            writer = csv.writer(csv_file, delimiter=',')
+            # write header
+            header = []
+            for row in range(1, (len(kslist[0])-2)/2+1):
+                header.extend(['group'+str(row), 'descr-group'+str(row)])
+
+            header.extend(['ks', 'descr-ks'])
+            writer.writerow(header)
+            for line in kslist:
+                writer.writerow(line)
+
+
+    """
+    input: 
+        kslist - can be empty for top level
+        totalDepth as int - specifies the maximum level in this kostensoortgroup
+    output: list of strings: [ksgroup1, ksgroup2, .., ks, descr]
+    Example on how to use this function to export ksgroups to csv:
+        from model import ksgroup
+        ksgroups = ksgroup.available()
+        for str_group in ksgroups:
+            group = ksgroup.load(str_group)
+            filename = group.name + '.csv'
+            group.save_as_csv(filename)
+    """
+    def flat_list(self, kslist, totalDepth):
+        if self.children:
+            for child in self.children:
+                child.flat_list(kslist, totalDepth)
+
+        if self.kostenSoorten:
+            ksgroup = self
+            grouplist = []
+            while ksgroup.parent:
+                grouplist.insert(0,ksgroup.parent.name)
+                grouplist.insert(1,ksgroup.parent.descr)
+                ksgroup = ksgroup.parent
+
+            grouplist.append(self.name)
+            grouplist.append(self.descr)
+
+            for ks, descr in self.kostenSoorten.iteritems():
+                kslist_row = grouplist[:]
+                # add blanks to the list before the ks/descr to make sure all
+                # ks end up in the last column:
+                # group1, group2, group3, ks, descr <- has 3 subgroups
+                # group1, blank,  blank,  ks, descr <- has only 1 subgroup
+                blanks = ['', '']*(totalDepth - self.level)
+                kslist_row.extend(blanks)
+
+                kslist_row.append(ks)
+                kslist_row.append(descr)
+                kslist.append( kslist_row )
+
+        return kslist
+
+
     def walk_tree(self, maxdepth):
         "helper debug function"
         if self.level <= maxdepth:
